@@ -18,10 +18,11 @@ namespace SeedPlan
             var supabaseUrl = builder.Configuration["SUPABASE_URL"];
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"];
 
+            // HÄR LIGGER FIXEN SOM STOPPAR KRASCHEN
             builder.Services.AddScoped(provider =>
                 new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
                 {
-                    AutoRefreshToken = true,
+                    AutoRefreshToken = false, // VIKTIGT: Måste vara false på servern
                     AutoConnectRealtime = false, // VIKTIGT: Måste vara false på servern
                     SessionHandler = new ServerSessionHandler()
                 }));
@@ -77,7 +78,6 @@ namespace SeedPlan
         }
     }
 
-    // --- Hjälparklass för servern ---
     public class ServerSessionHandler : IGotrueSessionPersistence<Session>
     {
         private Session? _session;

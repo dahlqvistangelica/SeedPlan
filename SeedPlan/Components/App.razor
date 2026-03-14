@@ -7,30 +7,25 @@
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets["app.css"]" />
     <link rel="stylesheet" href="@Assets["SeedPlan.styles.css"]" />
+    
+    @* Laddar Lucide-ikonerna *@
     <script src="https://unpkg.com/lucide@latest"></script>
     <ImportMap />
     
-    @* VIKTIGT: Prerender är false *@
     <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 <body>
-    @* VIKTIGT: Prerender är false *@
     <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 
-    <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 
+    @* BARA en säker funktion som vi kallar på manuellt, INGEN Observer som kraschar appen *@
     <script>
         window.initializeLucide = () => {
         if (window.lucide) {
         window.lucide.createIcons();
         }
         };
-
-        const observer = new MutationObserver(() => {
-        if (window.lucide) window.lucide.createIcons();
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
     </script>
 </body>
 </html>
