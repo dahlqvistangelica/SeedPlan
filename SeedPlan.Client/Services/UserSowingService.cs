@@ -16,17 +16,17 @@ namespace SeedPlan.Client.Services
         public async Task<List<Sowing>> GetMySowings()
         {
             var user = _supabase.Auth.CurrentUser;
-            if (user == null)
-            { return new List<Sowing>(); }
+            if (user == null) return new List<Sowing>();
+
+            // Vi tar bort "*" och skriver ut fälten explicit för att undvika dubbletter
             var response = await _supabase
                 .From<Sowing>()
-                .Select("*, seeds(*, plants(*))")
+                .Select("id, seed_id, sown_date, status, notes, user_id, Seed:seed_id(*, Plant:plant_id(*))")
                 .Where(x => x.UserId == user.Id)
                 .Order(x => x.SownDate, Supabase.Postgrest.Constants.Ordering.Descending)
                 .Get();
 
             return response.Models;
-
         }
         //Skapa och lägg till ny sådd.
         public async Task AddSowing(Sowing newSowing)

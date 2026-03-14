@@ -41,13 +41,11 @@
             var session = await Supabase.Auth.SignIn(email, password);
             if (session != null)
             {
-                // Meddela appen att vi är inloggade
                 if (AuthProvider is SupabaseAuthStateProvider provider)
                 {
                     provider.NotifyAuthStateChanged();
                 }
                 
-                // Mjuk förflyttning UTAN forceLoad (inget blinkande)
                 Nav.NavigateTo("/");
             }
         }

@@ -18,7 +18,6 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // DETTA MÅSTE VARA MED FÖR ATT LÄSA IN MINNET FRÅN WEBBLÄSAREN
                 if (!_isInitialized)
                 {
                     await _supabase.InitializeAsync();

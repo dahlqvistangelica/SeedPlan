@@ -25,8 +25,8 @@ namespace SeedPlan.Client
                 return new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
                 {
                     AutoRefreshToken = true,
-                    AutoConnectRealtime = true,
-                    SessionHandler = new WasmSessionHandler(js) // Förhindrar FileNotFound-krasch
+                    AutoConnectRealtime = false, // ÄNDRA TILL FALSE - Detta stoppar kraschen!
+                    SessionHandler = new WasmSessionHandler(js)
                 });
             });
 

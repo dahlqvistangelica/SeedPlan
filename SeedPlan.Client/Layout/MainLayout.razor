@@ -1,45 +1,23 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JS
-
 @inject NavigationManager Nav
 @implements IDisposable
 
 <div class="app-shell">
+    @* Topp-header för logotyp *@
     <header class="main-header">
         <div class="header-content">
-            <div class="brand" @onclick='() => Nav.NavigateTo("/")' style="cursor: pointer;">
+            <div class="brand" @onclick='() => Nav.NavigateTo("/")'>
                 <div class="logo-circle">
                     <i data-lucide="leaf"></i>
                 </div>
-                <h1 class="app-title">SeedPlan</h1>
+                <h1 class="app-title">FröKoll</h1>
             </div>
-
-            <AuthorizeView>
-                <Authorized>
-                    <nav class="top-nav">
-                        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                            <i data-lucide="layout-dashboard"></i>
-                            <span>Dashboard</span>
-                        </NavLink>
-                        <NavLink class="nav-link" href="seeds">
-                            <i data-lucide="package"></i>
-                            <span>Fröbibliotek</span>
-                        </NavLink>
-                        <NavLink class="nav-link" href="sowings">
-                            <i data-lucide="sprout"></i>
-                            <span>Mina Sådder</span>
-                        </NavLink>
-                        <NavLink class="nav-link" href="profile">
-                            <i data-lucide="settings"></i>
-                            <span>Inställningar</span>
-                        </NavLink>
-                    </nav>
-                </Authorized>
-            </AuthorizeView>
-
             <div class="header-actions">
-                <LoginDisplay />
+                <div class="theme-toggle">
+                    <i data-lucide="sun"></i>
+                </div>
             </div>
         </div>
     </header>
@@ -47,18 +25,42 @@
     <main class="main-container">
         <AuthorizeView>
             <Authorized>
-                <div class="main-content">
+                <div class="page-body">
                     @Body
                 </div>
+                
+                @* DEN NYA BOTTENMENYN *@
+                <nav class="bottom-nav">
+                    <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
+                        <i data-lucide="sun"></i>
+                        <span>ÖVERSIKT</span>
+                    </NavLink>
+                    <NavLink class="nav-item" href="seeds">
+                        <i data-lucide="package"></i>
+                        <span>FRÖER</span>
+                    </NavLink>
+                    <NavLink class="nav-item" href="sowings">
+                        <i data-lucide="leaf"></i>
+                        <span>SÅDDER</span>
+                    </NavLink>
+                    <NavLink class="nav-item" href="guide">
+                        <i data-lucide="info"></i>
+                        <span>GUIDE</span>
+                    </NavLink>
+                    <NavLink class="nav-item" href="profile">
+                        <i data-lucide="settings"></i>
+                        <span>INSTÄLLN.</span>
+                    </NavLink>
+                </nav>
             </Authorized>
             <NotAuthorized>
                 <div class="login-screen">
                     <div class="login-card">
                         <div class="login-icon">
-                            <i data-lucide="lock" style="width: 40px; height: 40px; color: #4caf50;"></i>
+                            <i data-lucide="lock"></i>
                         </div>
                         <h2>Välkommen tillbaka</h2>
-                        <p>Logga in för att hantera dina fröer och planera din odlingssäsong.</p>
+                        <p>Logga in för att hantera din trädgård.</p>
                         <LoginDisplay />
                     </div>
                 </div>
@@ -68,30 +70,25 @@
 </div>
 
 @code {
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Varje gång sidan renderas om, kör vi Lucide för att rita ikonerna
         await JS.InvokeVoidAsync("initializeLucide");
     }
 
     protected override void OnInitialized()
     {
-        // Prenumerera på sidbyten för att rita om ikonerna
         Nav.LocationChanged += HandleLocationChanged;
     }
 
     private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
-        // Vänta lite så att DOM:en hinner uppdateras med den nya sidans innehåll
-        await Task.Delay(100);
+        await Task.Delay(50);
         await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
     }
 
     public void Dispose()
     {
-        // Städa upp prenumerationen
         Nav.LocationChanged -= HandleLocationChanged;
     }
 }

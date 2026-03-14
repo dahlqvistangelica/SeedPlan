@@ -1,26 +1,23 @@
+/* --- 1. ÖVERGRIPANDE STRUKTUR --- */
 .app-shell {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background-color: #f8fafc;
+    background-color: #fdfcf9; /* Krämvit bakgrund */
 }
 
 .main-header {
     background: white;
-    height: 72px;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
 .header-content {
-    max-width: 1200px;
-    width: 100%;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -29,104 +26,102 @@
 .brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
 }
 
 .logo-circle {
-    background: #f0fdf4;
-    color: #4caf50;
-    padding: 10px;
-    border-radius: 12px;
+    background: #10b981; /* Grön accentfärg */
+    color: white;
+    padding: 8px;
+    border-radius: 8px;
     display: flex;
 }
 
 .app-title {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
     font-weight: 700;
     margin: 0;
     color: #1e293b;
 }
 
-.top-nav {
-    display: flex;
-    gap: 8px;
-    margin: 0 2rem;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    color: var(--text-muted);
-    text-decoration: none;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-    .nav-link:hover {
-        background: #f1f5f9;
-        color: var(--text-dark);
-    }
-
-    .nav-link.active {
-        background: #f0fdf4;
-        color: var(--primary);
-    }
-
-    .nav-link i {
-        width: 18px;
-        height: 18px;
-    }
-
-/* Styling för login-kortets ikon */
-.login-icon {
+.theme-toggle {
+    color: #10b981;
     background: #f0fdf4;
-    width: 80px;
-    height: 80px;
+    padding: 8px;
     border-radius: 50%;
+    cursor: pointer;
     display: flex;
+}
+
+.page-body {
+    flex: 1;
+    padding: 1rem;
+    padding-bottom: 100px; /* Plats för bottenmenyn */
+}
+
+/* --- 2. MODERN BOTTENMENY --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 85px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-around;
     align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
+    border-top: 1px solid #eeeeee;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Mobil-anpassning för nav */
-@media (max-width: 768px) {
-    .top-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        border-top: 1px solid #e2e8f0;
-        padding: 8px;
-        justify-content: space-around;
-        margin: 0;
-    }
-
-    .nav-link {
-        flex-direction: column;
-        font-size: 0.75rem;
-        gap: 4px;
-        padding: 4px;
-    }
-
-    .page-body {
-        padding: 1rem;
-        padding-bottom: 80px; /* Plats för mobilnav */
-    }
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    color: #888888;
+    position: relative;
+    padding: 10px 0;
+    flex: 1;
+    transition: color 0.2s;
 }
-/* Login Screen */
+
+    .nav-item i {
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-item span {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+    }
+
+    .nav-item.active {
+        color: #10b981;
+    }
+
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            width: 5px;
+            height: 5px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+
+/* --- 3. INLOGGNINGSSKÄRM --- */
 .login-screen {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 2rem;
+    min-height: 70vh;
 }
 
 .login-card {
@@ -137,6 +132,7 @@
     text-align: center;
     max-width: 440px;
     width: 100%;
+    border: 1px solid #f1f5f9;
 }
 
 .login-icon {
@@ -151,54 +147,65 @@
     margin: 0 auto 1.5rem;
 }
 
-.login-button-container {
-    margin-top: 2rem;
+.login-card h2 {
+    margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
+.login-card p {
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
 
-.login-form {
+/* --- 4. FORMULÄR-ELEMENT (Används av LoginDisplay) --- */
+::deep .login-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     text-align: left;
 }
 
-.input-group {
+::deep .input-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-    .input-group label {
+    ::deep .input-group label {
         font-size: 0.875rem;
         font-weight: 600;
         color: #475569;
     }
 
-    .input-group input {
+    ::deep .input-group input {
         padding: 0.75rem;
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         outline: none;
+        transition: border-color 0.2s;
     }
 
-.button-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+        ::deep .input-group input:focus {
+            border-color: #10b981;
+        }
 
-.btn-primary {
-    background: #4caf50;
+::deep .btn-primary {
+    background: #10b981;
     color: white;
     padding: 0.75rem;
     border: none;
     border-radius: 12px;
     font-weight: 600;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.btn-secondary {
+    ::deep .btn-primary:hover {
+        background: #059669;
+    }
+
+::deep .btn-secondary {
     background: white;
     color: #64748b;
     border: 1px solid #e2e8f0;
@@ -207,8 +214,96 @@
     cursor: pointer;
 }
 
-.error-text {
-    color: #ef4444;
-    font-size: 0.875rem;
-    margin: 0;
+/* --- 5. RESPONSIVITET --- */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 0 1rem;
+    }
+
+    .login-card {
+        padding: 2rem;
+    }
+}
+
+/* Sektionen för aktiva sådder */
+.sowing-stats-section {
+    margin-bottom: 2.5rem;
+}
+
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Två kolumner som i bilden */
+    gap: 1rem;
+}
+
+.mini-stat-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    border: 1px solid #f0f0f0;
+}
+
+.mini-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .mini-icon i {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Färger för ikonerna från bilden */
+    .mini-icon.blue {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .mini-icon.green {
+        background: #f0fdf4;
+        color: #22c55e;
+    }
+
+    .mini-icon.yellow {
+        background: #fffbeb;
+        color: #f59e0b;
+    }
+
+    .mini-icon.purple {
+        background: #faf5ff;
+        color: #a855f7;
+    }
+
+.mini-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+}
+
+.mini-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1;
+}
+
+/* Responsivitet: En kolumn på små skärmar */
+@media (max-width: 600px) {
+    .stats-mini-grid {
+        grid-template-columns: 1fr;
+    }
 }

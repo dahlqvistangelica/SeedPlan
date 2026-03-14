@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-
+@using SeedPlan.Shared.Models
 @inject IPlantLibraryService PlantService
+@inject IUserSowingService SowingService
+@inject IUserProfileService ProfileService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
 
@@ -10,189 +12,127 @@
 
 <div class="dashboard-container">
     <header class="dashboard-header">
-        <h1>Min Trädgård 🌱</h1>
-        <p>Här är en överblick av dina fröer och sådder.</p>
+        <div class="header-top">
+            <h1>Välkommen tillbaka</h1>
+            <div class="date-badge">
+                <i data-lucide="calendar"></i>
+                <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+            </div>
+        </div>
     </header>
 
     @if (isLoading)
     {
-        <div class="loading-state">
-            <p>Hämtar trädgårdsdata...</p>
-        </div>
+        <div class="loading-spinner">Laddar din trädgård...</div>
     }
     else
     {
-        <div class="stats-grid">
-            @* Kort 1: Totalt antal fröer *@
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i data-lucide="package"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="label">Totala fröer</span>
-                    <span class="value">@totalSeeds</span>
+        @* VISAS BARA OM DET FINNS AKTIVA SÅDDER *@
+        @if (activeSowings.Any())
+        {
+            <div class="sowing-stats-section">
+                <h2 class="section-title">AKTIVA SÅDDER</h2>
+                <div class="stats-mini-grid">
+                    <div class="mini-stat-card">
+                        <div class="mini-icon blue"><i data-lucide="sprout"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">SÅTIDER</span>
+                            <span class="mini-value">@countSown</span>
+                        </div>
+                    </div>
+                    <div class="mini-stat-card">
+                        <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">GRODDA</span>
+                            <span class="mini-value">@countGerminated</span>
+                        </div>
+                    </div>
+                    <div class="mini-stat-card">
+                        <div class="mini-icon yellow"><i data-lucide="leaf"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">OMSKOLADE</span>
+                            <span class="mini-value">@countRepotted</span>
+                        </div>
+                    </div>
+                    <div class="mini-stat-card">
+                        <div class="mini-icon purple"><i data-lucide="sun"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">UTPLANTERADE</span>
+                            <span class="mini-value">@countPlantedOut</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+        }
 
-            @* Kort 2: Dags att så (Hårdkodat för nu, kan kopplas till UserSowingService sen) *@
-            <div class="stat-card">
-                <div class="stat-icon green">
-                    <i data-lucide="sprout"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="label">Dags att så</span>
-                    <span class="value">@seedsToSow</span>
-                </div>
+        <h2 class="section-title">BÖR SÅS NU</h2>
+        @if (!sowingSuggestions.Any())
+        {
+            <div class="empty-state">
+                <p>Inga växter rekommenderas för sådd just nu. 🌱</p>
             </div>
-
-            @* Kort 3: Varningar/Saknade (Hårdkodat) *@
-            <div class="stat-card">
-                <div class="stat-icon orange">
-                    <i data-lucide="alert-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="label">Varningar</span>
-                    <span class="value">@alerts</span>
-                </div>
+        }
+        else
+        {
+            <div class="plant-grid">
+                @foreach (var plant in sowingSuggestions)
+                {
+                    <div class="plant-card">
+                        <div class="plant-main">
+                            <div class="plant-icon-circle"><i data-lucide="sprout"></i></div>
+                            <div class="plant-core-info">
+                                <span class="plant-name">@plant.PlantName</span>
+                                <span class="frost-info">@plant.WeeksBeforeFrost v. före frost</span>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-        </div>
-
-        <div class="dashboard-actions">
-            <button class="action-card" @onclick='() => Console.WriteLine("Navigera till biblo...")'>
-                <i data-lucide="plus-circle"></i>
-                <span>Lägg till nya fröer</span>
-            </button>
-        </div>
+        }
     }
 </div>
 
 @code {
     private bool isLoading = true;
-    private int totalSeeds = 0;
-    private int seedsToSow = 12; // Exempelvärde
-    private int alerts = 3;      // Exempelvärde
+    private List<Plant> sowingSuggestions = new();
+    private List<Sowing> activeSowings = new();
+    private int countSown, countGerminated, countRepotted, countPlantedOut;
 
-   protected override async Task OnInitializedAsync()
-{
-    try
+    protected override async Task OnInitializedAsync()
     {
-        isLoading = true;
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
+        try
         {
-            // Hämtar alla växter från biblioteket
-            var plants = await PlantService.GetAllPlantsAsync(); 
-            totalSeeds = plants?.Count ?? 0;
+            isLoading = true;
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            
+            if (authState.User.Identity?.IsAuthenticated == true)
+            {
+                // Hämta och räkna sådder
+                var allSowings = await SowingService.GetMySowings();
+                activeSowings = allSowings.Where(s => s.Status < 7).ToList();
+
+                countSown = activeSowings.Count(s => s.Status == 0);
+                countGerminated = activeSowings.Count(s => s.Status >= 1 && s.Status <= 2);
+                countRepotted = activeSowings.Count(s => s.Status >= 3 && s.Status <= 4);
+                countPlantedOut = activeSowings.Count(s => s.Status >= 5 && s.Status <= 6);
+
+                // Hämta förslag
+                var lastFrost = await ProfileService.GetUserLastFrostDate() ?? new DateTime(DateTime.Now.Year, 5, 15);
+                sowingSuggestions = await PlantService.GetGeneralSowingSuggestionsAsync(lastFrost);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
-    finally
-    {
-        isLoading = false;
-    }
-}
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Ser till att Lucide-ikonerna ritas ut på dashboarden
-        await JS.InvokeVoidAsync("lucide.createIcons");
+        await JS.InvokeVoidAsync("initializeLucide");
     }
 }
-
-<style>
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 1rem;
-    }
-
-    .dashboard-header {
-        margin-bottom: 2.5rem;
-    }
-
-    .dashboard-header h1 {
-        font-size: 2.25rem;
-        font-weight: 800;
-        color: #1e293b;
-        letter-spacing: -0.025em;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 24px;
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
-        border: 1px solid #f1f5f9;
-    }
-
-    .stat-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .stat-icon i { width: 32px; height: 32px; }
-
-    .purple { background: #f5f3ff; color: #7c3aed; }
-    .green { background: #f0fdf4; color: #16a34a; }
-    .orange { background: #fff7ed; color: #ea580c; }
-
-    .label {
-        display: block;
-        font-size: 0.95rem;
-        color: #64748b;
-        font-weight: 500;
-    }
-
-    .value {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #0f172a;
-    }
-
-    .dashboard-actions {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .action-card {
-        background: #f8fafc;
-        border: 2px dashed #e2e8f0;
-        padding: 1.5rem;
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        color: #64748b;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .action-card:hover {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
-        color: #1e293b;
-    }
-
-    .loading-state {
-        padding: 4rem;
-        text-align: center;
-        color: #94a3b8;
-    }
-</style>

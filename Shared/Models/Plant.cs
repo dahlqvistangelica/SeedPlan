@@ -26,23 +26,25 @@ namespace SeedPlan.Shared.Models
 
         [Column("hardiness_level")]
         public int HardinessLevel { get; set; }
+
         [Column("requires_topping")]
         public bool RequiresTopping { get; set; } = false;
 
         [Column("direct_sowing")]
         public bool DirectSowing { get; set; } = false;
 
-        //Extras
+        // --- FIXARNA HÄR: Vi lägger till ? för att tillåta tomma värden från databasen ---
+
         [Column("sowing_depth_mm")]
-        public float SowingDepth { get; set; }
+        public float? SowingDepth { get; set; } // float? istället för float
+
         [Column("plant_spacing_cm")]
-        public int PlantSpacing { get; set; }
+        public int? PlantSpacing { get; set; } // int? istället för int
+
         [Column("dev_time_min")]
-        public int DevelopDaysMin { get; set; }
+        public int? DevelopDaysMin { get; set; } // int? istället för int
+
         [Column("dev_time_max")]
-        public int DevelopDaysMax { get; set; }
-
+        public int? DevelopDaysMax { get; set; } // int? istället för int
     }
-
-
-    }
+}
