@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SeedPlan.Client/SeedPlan.Client.csproj" />
+  <Project Path="SeedPlan/SeedPlan.csproj" />
+  <Project Path="Shared/Shared.csproj" Id="2222a5a3-cefa-4aeb-817a-1c97a64a8387" />
+</Solution>

@@ -1,0 +1,97 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@inject IJSRuntime JS
+
+@inject NavigationManager Nav
+@implements IDisposable
+
+<div class="app-shell">
+    <header class="main-header">
+        <div class="header-content">
+            <div class="brand" @onclick='() => Nav.NavigateTo("/")' style="cursor: pointer;">
+                <div class="logo-circle">
+                    <i data-lucide="leaf"></i>
+                </div>
+                <h1 class="app-title">SeedPlan</h1>
+            </div>
+
+            <AuthorizeView>
+                <Authorized>
+                    <nav class="top-nav">
+                        <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="seeds">
+                            <i data-lucide="package"></i>
+                            <span>Fröbibliotek</span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="sowings">
+                            <i data-lucide="sprout"></i>
+                            <span>Mina Sådder</span>
+                        </NavLink>
+                        <NavLink class="nav-link" href="profile">
+                            <i data-lucide="settings"></i>
+                            <span>Inställningar</span>
+                        </NavLink>
+                    </nav>
+                </Authorized>
+            </AuthorizeView>
+
+            <div class="header-actions">
+                <LoginDisplay />
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <AuthorizeView>
+            <Authorized>
+                <div class="main-content">
+                    @Body
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="login-screen">
+                    <div class="login-card">
+                        <div class="login-icon">
+                            <i data-lucide="lock" style="width: 40px; height: 40px; color: #4caf50;"></i>
+                        </div>
+                        <h2>Välkommen tillbaka</h2>
+                        <p>Logga in för att hantera dina fröer och planera din odlingssäsong.</p>
+                        <LoginDisplay />
+                    </div>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </main>
+</div>
+
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Varje gång sidan renderas om, kör vi Lucide för att rita ikonerna
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+
+    protected override void OnInitialized()
+    {
+        // Prenumerera på sidbyten för att rita om ikonerna
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        // Vänta lite så att DOM:en hinner uppdateras med den nya sidans innehåll
+        await Task.Delay(100);
+        await JS.InvokeVoidAsync("initializeLucide");
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        // Städa upp prenumerationen
+        Nav.LocationChanged -= HandleLocationChanged;
+    }
+}

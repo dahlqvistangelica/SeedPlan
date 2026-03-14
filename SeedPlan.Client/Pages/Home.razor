@@ -1,0 +1,204 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject IPlantLibraryService PlantService
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+
+<PageTitle>Dashboard - SeedPlan</PageTitle>
+
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        <h1>Min Trädgård 🌱</h1>
+        <p>Här är en överblick av dina fröer och sådder.</p>
+    </header>
+
+    @if (isLoading)
+    {
+        <div class="loading-state">
+            <p>Hämtar trädgårdsdata...</p>
+        </div>
+    }
+    else
+    {
+        <div class="stats-grid">
+            @* Kort 1: Totalt antal fröer *@
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i data-lucide="package"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="label">Totala fröer</span>
+                    <span class="value">@totalSeeds</span>
+                </div>
+            </div>
+
+            @* Kort 2: Dags att så (Hårdkodat för nu, kan kopplas till UserSowingService sen) *@
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i data-lucide="sprout"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="label">Dags att så</span>
+                    <span class="value">@seedsToSow</span>
+                </div>
+            </div>
+
+            @* Kort 3: Varningar/Saknade (Hårdkodat) *@
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i data-lucide="alert-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="label">Varningar</span>
+                    <span class="value">@alerts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-actions">
+            <button class="action-card" @onclick='() => Console.WriteLine("Navigera till biblo...")'>
+                <i data-lucide="plus-circle"></i>
+                <span>Lägg till nya fröer</span>
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private int totalSeeds = 0;
+    private int seedsToSow = 12; // Exempelvärde
+    private int alerts = 3;      // Exempelvärde
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isLoading = true;
+
+            // Kontrollera om användaren är inloggad
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                // Hämta faktiska data från din PlantService
+                var plants = await PlantService.GetAllPlantsAsync();
+                totalSeeds = plants?.Count() ?? 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fel vid laddning av dashboard: {ex.Message}");
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Ser till att Lucide-ikonerna ritas ut på dashboarden
+        await JS.InvokeVoidAsync("lucide.createIcons");
+    }
+}
+
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        letter-spacing: -0.025em;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+        border: 1px solid #f1f5f9;
+    }
+
+    .stat-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon i { width: 32px; height: 32px; }
+
+    .purple { background: #f5f3ff; color: #7c3aed; }
+    .green { background: #f0fdf4; color: #16a34a; }
+    .orange { background: #fff7ed; color: #ea580c; }
+
+    .label {
+        display: block;
+        font-size: 0.95rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .dashboard-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-card {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        padding: 1.5rem;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .action-card:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #1e293b;
+    }
+
+    .loading-state {
+        padding: 4rem;
+        text-align: center;
+        color: #94a3b8;
+    }
+</style>

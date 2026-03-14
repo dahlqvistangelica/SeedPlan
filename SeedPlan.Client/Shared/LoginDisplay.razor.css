@@ -1,0 +1,74 @@
+﻿/* Container för inloggad användare i sidomenyn */
+.user-profile-small {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2d3436;
+}
+
+.btn-logout {
+    background: none;
+    border: none;
+    color: #d63031;
+    font-size: 0.75rem;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+/* Den stora Google-knappen för inloggningssidan */
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+    .google-btn:hover {
+        background: #f8fafc;
+    }
+
+.user-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-pill {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}

@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets["app.css"]" />
+    <link rel="stylesheet" href="@Assets["SeedPlan.styles.css"]" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <ImportMap />
+    <HeadOutlet @rendermode="InteractiveAuto" />
+</head>
+<body>
+    <Routes @rendermode="InteractiveAuto" />
+    
+    <ReconnectModal />
+    @* Vi behåller bara den version som använder Assets-hjälparen *@
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+
+    <script>
+        window.initializeLucide = () => {
+        if (window.lucide) {
+        window.lucide.createIcons();
+        }
+        };
+
+        // MutationObserver är säkrast för att ikoner inte ska försvinna vid sidbyten
+        const observer = new MutationObserver(() => {
+        if (window.lucide) window.lucide.createIcons();
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+</body>
+</html>

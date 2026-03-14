@@ -1,0 +1,66 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveAuto
+@inject Supabase.Client Supabase
+@inject NavigationManager Nav
+
+<AuthorizeView>
+    <NotAuthorized>
+        <div class="login-form">
+            <div class="input-group">
+                <label>E-post</label>
+                <input type="email" @bind="email" placeholder="din@epost.se" />
+            </div>
+            <div class="input-group">
+                <label>Lösenord</label>
+                <input type="password" @bind="password" placeholder="******" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="error-text">@errorMessage</p>
+            }
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" @onclick="HandleLogin">Logga in</button>
+                <button type="button" class="btn-secondary" @onclick="HandleSignUp">Skapa konto</button>
+            </div>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string errorMessage = "";
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var session = await Supabase.Auth.SignIn(email, password);
+            if (session != null)
+            {
+                // 'true' tvingar en omladdning av sidan vilket gör att
+                // hela App-skalet fattar att du nu är Authorized.
+                Nav.NavigateTo("/", forceLoad: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Fel vid inloggning. Kolla uppgifterna.";
+        }
+    }
+
+    private async Task HandleSignUp()
+    {
+        try
+        {
+            await Supabase.Auth.SignUp(email, password);
+            errorMessage = "Konto skapat! Testa att logga in.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Kunde inte skapa konto.";
+        }
+    }
+}
