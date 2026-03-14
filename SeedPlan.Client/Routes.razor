@@ -2,9 +2,16 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
             <NotAuthorized>
-                @* Här lämnar vi tomt. MainLayout kommer visa LoginDisplay *@
+                @* Här tvingar vi Blazor att ladda MainLayout även om du är utloggad *@
+                <LayoutView Layout="typeof(MainLayout)">
+                </LayoutView>
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(MainLayout)">
+            <p>Sidan hittades inte.</p>
+        </LayoutView>
+    </NotFound>
 </Router>

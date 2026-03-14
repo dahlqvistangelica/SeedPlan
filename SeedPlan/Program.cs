@@ -18,12 +18,13 @@ namespace SeedPlan
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"];
 
             // 2. Registrera Supabase
-            builder.Services.AddSingleton(provider =>
-                new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
-                {
-                    AutoRefreshToken = true,
-                    AutoConnectRealtime = true
-                }));
+            builder.Services.AddScoped(provider =>
+    new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
+    {
+        AutoRefreshToken = true,
+        AutoConnectRealtime = false,
+        SessionHandler = new SeedPlan.Client.Services.InMemorySessionHandler()
+    }));
 
             // 3. Registrera egna tjänster
             builder.Services.AddScoped<IPlantLibraryService, PlantLibraryService>();

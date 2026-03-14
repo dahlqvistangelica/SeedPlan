@@ -19,11 +19,17 @@ namespace SeedPlan.Client
             var supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5bWF4eGVpb3NpaHZxa2x2enB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjY3OTMsImV4cCI6MjA4ODkwMjc5M30.sGoh1LHXBn_3AUwEyUzXGmokh2PZbGoVL3fttTJcfb0";
 
             builder.Services.AddScoped(provider =>
-                new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
+            {
+                // Hämta JSRuntime så vi kan prata med LocalStorage
+                var js = provider.GetRequiredService<Microsoft.JSInterop.IJSRuntime>() as Microsoft.JSInterop.IJSInProcessRuntime;
+
+                return new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
                 {
                     AutoRefreshToken = true,
-                    AutoConnectRealtime = true
-                }));
+                    AutoConnectRealtime = true,
+                    SessionHandler = new LocalStorageSessionHandler(js!)
+                });
+            });
 
             // 2. Registrera tjänsterna
             // 2. Registrera tjänsterna

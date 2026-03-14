@@ -9,10 +9,10 @@
     <link rel="stylesheet" href="@Assets["SeedPlan.styles.css"]" />
     <script src="https://unpkg.com/lucide@latest"></script>
     <ImportMap />
-    <HeadOutlet @rendermode="new InteractiveAutoRenderMode(prerender: false)" />
+    <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 <body>
-    <Routes @rendermode="new InteractiveAutoRenderMode(prerender: false)" />
+    <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
     
     <ReconnectModal />
     @* Vi behåller bara den version som använder Assets-hjälparen *@
