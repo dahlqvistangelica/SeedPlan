@@ -72,32 +72,26 @@
     private int seedsToSow = 12; // Exempelvärde
     private int alerts = 3;      // Exempelvärde
 
-    protected override async Task OnInitializedAsync()
+   protected override async Task OnInitializedAsync()
+{
+    try
     {
-        try
-        {
-            isLoading = true;
+        isLoading = true;
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-            // Kontrollera om användaren är inloggad
-            var authState = await AuthProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                // Hämta faktiska data från din PlantService
-                var plants = await PlantService.GetAllPlantsAsync();
-                totalSeeds = plants?.Count() ?? 0;
-            }
-        }
-        catch (Exception ex)
+        if (user.Identity?.IsAuthenticated == true)
         {
-            Console.WriteLine($"Fel vid laddning av dashboard: {ex.Message}");
-        }
-        finally
-        {
-            isLoading = false;
+            // Hämtar alla växter från biblioteket
+            var plants = await PlantService.GetAllPlantsAsync(); 
+            totalSeeds = plants?.Count ?? 0;
         }
     }
+    finally
+    {
+        isLoading = false;
+    }
+}
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

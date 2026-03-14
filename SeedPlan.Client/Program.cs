@@ -26,10 +26,16 @@ namespace SeedPlan.Client
                 }));
 
             // 2. Registrera tjänsterna
+            // 2. Registrera tjänsterna
             builder.Services.AddAuthorizationCore();
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<AuthenticationStateProvider, SupabaseAuthStateProvider>();
             builder.Services.AddScoped<IPlantLibraryService, PlantLibraryService>();
+
+            // LÄGG TILL DESSA TRE RADER:
+            builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+            builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
+            builder.Services.AddScoped<IUserSowingService, UserSowingService>();
 
             await builder.Build().RunAsync();
         }

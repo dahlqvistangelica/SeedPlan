@@ -32,17 +32,16 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
 
             // 4. Konfigurera Autentisering
-            builder.Services.AddAuthentication("SupabaseAuth")
-    .AddCookie("SupabaseAuth", options =>
-    {
-        options.Cookie.Name = "SeedPlanAuth";
-        // Vi tar bort LoginPath helt för att stoppa loopen
-        options.Events.OnRedirectToLogin = context =>
-        {
-            context.Response.StatusCode = 401; // Svara bara att det är obehörigt
-            return Task.CompletedTask;
-        };
-    });
+                    builder.Services.AddAuthentication("SupabaseAuth")
+            .AddCookie("SupabaseAuth", options =>
+            {
+                options.Cookie.Name = "SeedPlanAuth";
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    return Task.CompletedTask;
+                };
+            });
             // 4. Lägg till ASP.NET Core-autentisering (SAKNANADES TIDIGARE)
 
             builder.Services.AddAuthorization();
