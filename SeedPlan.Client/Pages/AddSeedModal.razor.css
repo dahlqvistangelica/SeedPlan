@@ -1,0 +1,62 @@
+﻿/* Själva rutan */
+.sp-modal-card {
+    background: white;
+    width: 90%;
+    max-width: 550px;
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Förhindrar att innehåll spiller ut */
+}
+
+/* Behållare för formulärfälten */
+.sp-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+}
+
+/* Gruppering av etikett och inmatning */
+.sp-input-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+    .sp-input-block label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+/* Raden för Antal och Datum */
+.sp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Två lika stora kolumner */
+    gap: 1rem;
+    width: 100%;
+}
+
+/* Inmatningsfälten */
+.sp-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    font-size: 1rem;
+    color: #334155;
+    transition: border-color 0.2s;
+}
+
+    .sp-input:focus {
+        border-color: #10b981;
+        background: white;
+        outline: none;
+    }

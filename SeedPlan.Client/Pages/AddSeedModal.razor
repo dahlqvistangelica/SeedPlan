@@ -5,141 +5,41 @@
 
 @if (IsVisible)
 {
-    <div class="sp-modal-overlay">
-        <div class="sp-modal-card fade-in">
-            
-            @* HEADER *@
-            <div class="sp-modal-header">
-                <h2>Lägg till frö <span>🌱</span></h2>
-                <button type="button" class="sp-close-x" @onclick="Close">×</button>
+    <div class="sp-modal-body">
+        <div class="sp-form-content">
+        
+            <div class="sp-input-block">
+                <label>VÄXTNAMN</label>
+                <div class="sp-readonly-box">
+                    @selectedPlant?.PlantName
+                    <span class="sp-change-link" @onclick="ChangePlant">Byt</span>
+                </div>
             </div>
 
-            <div class="sp-modal-body">
-                @* 1. SÖKSEKTION (Hela tiden synlig tills vald) *@
-                @if (selectedPlant == null)
-                {
-                    <div class="sp-input-block">
-                        <label>VÄXTNAMN</label>
-                        <input type="text" @bind="searchText" @bind:event="oninput" 
-                               placeholder="T.ex. Basilika" class="sp-input" />
-                        
-                        @if (!string.IsNullOrEmpty(searchText))
-                        {
-                            <div class="sp-dropdown">
-                                @foreach (var result in GetSearchResults())
-                                {
-                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(result)">
-                                        <i data-lucide="@(result.Variety != null ? "tag" : "leaf")"></i>
-                                        <span>@result.DisplayName</span>
-                                    </div>
-                                }
-                            </div>
-                        }
-                    </div>
-                }
-                else
-                {
-                    @* 2. FORMULÄRET (När växt är vald) *@
-                    <div class="sp-form-content">
-                        
-                        <div class="sp-input-block">
-                            <label>VÄXTNAMN</label>
-                            <div class="sp-readonly-box" @onclick="() => selectedPlant = null">
-                                @selectedPlant.PlantName
-                                <span class="sp-change-text">Byt</span>
-                            </div>
-                        </div>
-
-                        <div class="sp-input-block">
-                            <label>SORT / NAMN</label>
-                            <input type="text" @bind="newSeed.Name" placeholder="T.ex. Genovese" class="sp-input" />
-                        </div>
-
-                        <div class="sp-grid-2">
-                            <div class="sp-input-block">
-                                <label>ANTAL PÅSAR</label>
-                                <input type="text" @bind="newSeed.Quantity" placeholder="1" class="sp-input" />
-                            </div>
-                            <div class="sp-input-block">
-                                <label>UTGÅNGSDATUM</label>
-                                <input type="date" @bind="newSeed.ExpiryDate" class="sp-input" />
-                            </div>
-                        </div>
-
-                        <div class="sp-input-block">
-                            <label>ANTECKNINGAR</label>
-                            <textarea @bind="newSeed.Notes" placeholder="Färg, smak, etc." class="sp-textarea"></textarea>
-                        </div>
-
-                        <button type="button" class="sp-save-btn" @onclick="Save">Spara frö</button>
-                        <button type="button" class="sp-cancel-btn" @onclick="Close">Avbryt</button>
-                    </div>
-                }
+            <div class="sp-input-block">
+                <label>SORT / NAMN</label>
+                <input type="text" @bind="newSeed.Name" class="sp-input" placeholder="T.ex. katz purple" />
             </div>
+
+            <div class="sp-grid-2">
+                <div class="sp-input-block">
+                    <label>ANTAL FRÖER</label> @* ÄNDRAT FRÅN PÅSAR TILL FRÖER *@
+                    <div class="qty-wrapper">
+                        <input type="text" @bind="newSeed.Quantity" class="sp-input" />
+                        <span class="unit-tag">st</span>
+                    </div>
+                </div>
+                <div class="sp-input-block">
+                    <label>UTGÅNGSDATUM</label>
+                    <input type="date" @bind="newSeed.ExpiryDate" class="sp-input" />
+                </div>
+            </div>
+
+            <button class="sp-save-btn" @onclick="Save">Spara frö</button>
+            <button class="sp-cancel-btn" @onclick="Close">Avbryt</button>
         </div>
     </div>
 }
-
-<style>
-    .sp-modal-overlay {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;
-    }
-
-    .sp-modal-card {
-        background: white; width: 90%; max-width: 600px; border-radius: 24px; padding: 40px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1); color: #475569;
-    }
-
-    .sp-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-    .sp-modal-header h2 { margin: 0; font-size: 1.6rem; font-weight: 800; color: #1e293b; }
-    
-    .sp-close-x { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; color: #64748b; font-weight: bold; }
-
-    .sp-input-block { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
-    
-    .sp-input-block label { 
-        font-size: 0.75rem; font-weight: 700; color: #94a3b8; letter-spacing: 0.05em;
-    }
-
-    .sp-input, .sp-textarea, .sp-readonly-box {
-        width: 100%; padding: 14px 20px; border-radius: 14px;
-        border: 1px solid #f1f5f9; background: #f8fafc;
-        font-size: 1rem; color: #334155; outline: none; transition: all 0.2s;
-    }
-
-    .sp-readonly-box { display: flex; justify-content: space-between; cursor: pointer; font-weight: 600; }
-    .sp-change-text { color: #10b981; font-size: 0.8rem; }
-
-    .sp-textarea { min-height: 100px; resize: none; }
-
-    .sp-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-    .sp-save-btn {
-        width: 100%; background: #059669; color: white; border: none;
-        padding: 18px; border-radius: 14px; font-weight: 700; font-size: 1.1rem;
-        cursor: pointer; margin-top: 10px; transition: background 0.2s;
-    }
-    .sp-save-btn:hover { background: #047857; }
-
-    .sp-cancel-btn {
-        width: 100%; background: none; border: none; color: #94a3b8;
-        padding: 15px; cursor: pointer; font-weight: 600;
-    }
-
-    .sp-dropdown {
-        background: white; border: 1px solid #f1f5f9; border-radius: 14px;
-        margin-top: 5px; box-shadow: 0 10px 15px rgba(0,0,0,0.05); overflow: hidden;
-    }
-    .sp-dropdown-item { padding: 12px 20px; cursor: pointer; display: flex; gap: 10px; align-items: center; }
-    .sp-dropdown-item:hover { background: #f0fdf4; color: #10b981; }
-
-    .fade-in { animation: modalEnter 0.3s ease-out forwards; }
-    @@keyframes modalEnter {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-</style>
 
 @code {
     [Parameter] public bool IsVisible { get; set; }
@@ -198,5 +98,12 @@
         public Plant? Plant { get; set; }
         public Variety? Variety { get; set; }
         public string DisplayName { get; set; } = "";
+    }
+    private void ChangePlant()
+    {
+        selectedPlant = null;
+        newSeed.PlantId = 0;
+        newSeed.Name = "";
+        searchText = "";
     }
 }

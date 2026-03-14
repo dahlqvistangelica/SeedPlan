@@ -1,11 +1,36 @@
-﻿/* Container för inloggad användare i sidomenyn */
-.user-profile-small {
+﻿/* ----------------------------------------------------
+   Inloggad profil & Användarkontroller
+---------------------------------------------------- */
+.user-profile-small,
+.user-control,
+.user-header-widget {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+.user-profile-small {
     padding: 10px;
     background: #f8f9fa;
     border-radius: 12px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name,
+.user-display-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #2d3436;
+    white-space: nowrap;
+}
+
+.user-display-name {
+    font-size: 0.9rem;
+    color: #475569;
 }
 
 .avatar {
@@ -15,17 +40,9 @@
     object-fit: cover;
 }
 
-.user-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.user-name {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #2d3436;
-}
-
+/* ----------------------------------------------------
+   Utloggningsknappar
+---------------------------------------------------- */
 .btn-logout {
     background: none;
     border: none;
@@ -37,7 +54,40 @@
     text-decoration: underline;
 }
 
-/* Den stora Google-knappen för inloggningssidan */
+.logout-pill {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.logout-icon-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;    
+}
+
+/* ----------------------------------------------------
+   Icke inloggad & Form
+---------------------------------------------------- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
 .google-btn {
     display: flex;
     align-items: center;
@@ -57,18 +107,16 @@
         background: #f8fafc;
     }
 
-.user-control {
+/* ----------------------------------------------------
+   Övrig styling
+---------------------------------------------------- */
+.theme-toggle-header {
+    background: #f0fdf4;
+    color: #10b981;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.logout-pill {
-    background: #fee2e2;
-    color: #ef4444;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    cursor: pointer;
+    justify-content: center;
 }
