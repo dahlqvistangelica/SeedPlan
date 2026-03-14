@@ -1,0 +1,33 @@
+﻿/* Den stora gröna knappen */
+.sp-save-btn {
+    width: 100%;
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: transform 0.1s, background 0.2s;
+}
+
+    .sp-save-btn:active {
+        transform: scale(0.98);
+    }
+
+    .sp-save-btn:hover {
+        background: #059669;
+    }
+
+/* Avbryt-länken */
+.sp-cancel-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-weight: 600;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+}

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <ResourcePreloader />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["SeedPlan.styles.css"]" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="css/components.css" /> @* Din nya fil för gemensamma element *@
+    <link rel="stylesheet" href="SeedPlan.styles.css" /> @* Denna behövs för isolerad CSS (t.ex. .razor.css) *@
     
     @* Laddar Lucide-ikonerna *@
     <script src="https://unpkg.com/lucide@latest"></script>
