@@ -191,3 +191,132 @@ h1:focus {
         grid-template-columns: 1fr;
     }
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 5px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: white;
+}
+
+    .suggestion-list li {
+        padding: 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f9f9f9;
+    }
+
+        .suggestion-list li:hover {
+            background: #f0fdf4;
+            color: #10b981;
+        }
+
+.selected-badge {
+    background: #f0fdf4;
+    color: #16a34a;
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.clear-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+.modal-card {
+    background: #f8fafc; /* Ljusgrå bakgrund som på din bild */
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.custom-input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+    .custom-input:focus {
+        border-color: #10b981;
+    }
+
+.suggestion-item {
+    background: white;
+    margin: 8px 0;
+    padding: 12px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    border: 1px solid transparent;
+}
+
+    .suggestion-item:hover {
+        border-color: #10b981;
+        background: #f0fdf4;
+    }
+
+.icon-circle {
+    width: 36px;
+    height: 36px;
+    background: #f0fdf4;
+    color: #10b981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 12px;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 14px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 20px;
+}

@@ -38,8 +38,6 @@ namespace SeedPlan.Client.Services
             }).ToList();
         }
 
-
-
         // Hämta alla fröer för den inloggade användaren
         public async Task<List<Seed>> GetMySeeds()
         {
@@ -48,7 +46,7 @@ namespace SeedPlan.Client.Services
 
             var response = await _supabase
                 .From<Seed>()
-                .Select("*, plants(*), varieties(*)")
+                .Select("*, Plant:plant_id(*)")
                 .Where(x => x.UserId == user.Id)
                 .Get();
 

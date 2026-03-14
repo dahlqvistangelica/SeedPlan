@@ -1,0 +1,50 @@
+﻿@using SeedPlan.Client.Services
+@inject Supabase.Client Supabase
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider AuthProvider
+
+<div class="login-form">
+    <div class="input-group">
+        <label for="email">E-post</label>
+        <input id="email" type="email" @bind="email" placeholder="din@epost.se" />
+    </div>
+    <div class="input-group">
+        <label for="password">Lösenord</label>
+        <input id="password" type="password" @bind="password" placeholder="******" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error-text">@errorMessage</p>
+    }
+
+    <div class="button-group">
+        <button type="button" class="btn-primary" @onclick="HandleLogin">Logga in</button>
+        <button type="button" class="btn-secondary" @onclick="HandleSignUp">Skapa konto</button>
+    </div>
+</div>
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string errorMessage = "";
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var session = await Supabase.Auth.SignIn(email, password);
+            if (session != null)
+            {
+                if (AuthProvider is SupabaseAuthStateProvider provider)
+                {
+                    provider.NotifyAuthStateChanged();
+                }
+                Nav.NavigateTo("/");
+            }
+        }
+        catch { errorMessage = "Fel vid inloggning."; }
+    }
+
+    private async Task HandleSignUp() => await Supabase.Auth.SignUp(email, password);
+}

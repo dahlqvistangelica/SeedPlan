@@ -39,6 +39,14 @@ namespace SeedPlan.Client.Services
             return response.Models;
         }
 
+        public async Task<List<Variety>> GetAllVarietiesAsync()
+        {
+            var response = await _supabase
+                .From<Variety>()
+                .Get();
+            return response.Models;
+        }
+
         //Hämta alla växter i biblioteket
         public async Task<List<Plant>> GetAllPlantsAsync()
         {

@@ -6,7 +6,7 @@ namespace SeedPlan.Shared.Models
     public class UserProfile: BaseModel
     {
         [PrimaryKey("id", false)]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         [Column("full_name")]
         public string? FullName { get; set; }
         [Column("last_frost_date")]

@@ -1,0 +1,112 @@
+﻿@page "/profile"
+@using Microsoft.AspNetCore.Authorization
+@using SeedPlan.Shared.Models
+@attribute [Authorize]
+@inject IUserProfileService ProfileService
+@inject IJSRuntime JS
+
+<PageTitle>Inställningar - SeedPlan</PageTitle>
+
+<div class="profile-container">
+    <header class="profile-header">
+        <h1>Inställningar 🌱</h1>
+        <p>Anpassa appen efter din trädgårds förutsättningar.</p>
+    </header>
+
+    <div class="settings-card">
+        <div class="input-group">
+            <label>Namn</label>
+            <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
+        </div>
+
+        <div class="input-group">
+            <label>Odlingszon (1-8)</label>
+            <input type="number" min="1" max="8" @bind="userProfile.GrowingZone" />
+        </div>
+
+        <div class="input-group">
+            <label>Beräknat datum för sista frost</label>
+            <input type="date" @bind="userProfile.LastFrostDate" />
+            <small>Detta datum används för att räkna ut när du ska börja så dina fröer.</small>
+        </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="status-alert">@statusMessage</div>
+        }
+
+        <button class="btn-save" @onclick="SaveProfile">
+            <i data-lucide="save"></i> Spara inställningar
+        </button>
+    </div>
+</div>
+
+<style>
+    .profile-container { max-width: 600px; margin: 0 auto; padding: 2rem 1rem; }
+    .profile-header { margin-bottom: 2rem; }
+    .settings-card { 
+        background: white; 
+        padding: 2rem; 
+        border-radius: 24px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .btn-save {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+    .status-alert {
+        background: #f0fdf4;
+        color: #16a34a;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+    small { color: #94a3b8; display: block; margin-top: 0.25rem; }
+</style>
+
+@code {
+    private UserProfile userProfile = new();
+    private string statusMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await ProfileService.GetUserProfile();
+        if (profile != null)
+        {
+            userProfile = profile;
+        }
+        else
+        {
+            // Standardvärden om profil saknas
+            userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
+            userProfile.GrowingZone = 1;
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        await ProfileService.UpdateUserProfile(userProfile);
+        statusMessage = "Dina inställningar har sparats! ✨";
+        await Task.Delay(3000);
+        statusMessage = "";
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+}

@@ -8,5 +8,7 @@ namespace SeedPlan.Shared.Interfaces
         Task<List<Plant>> SearchPlantsAsync(string searchTerm);
         Task<List<Variety>> GetVarietiesForPlantAsync(int plantId);
         Task<List<Plant>> GetGeneralSowingSuggestionsAsync(DateTime lastFrostDate);
+
+        Task<List<Variety>> GetAllVarietiesAsync();
     }
 }

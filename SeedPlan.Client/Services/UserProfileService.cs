@@ -28,11 +28,22 @@ namespace SeedPlan.Client.Services
         }
         public async Task UpdateUserProfile(UserProfile userProfile)
         {
+            var user = _supabase.Auth.CurrentUser;
+            if(user == null)
+            {
+                return;
+            }
+
+            userProfile.Id = user.Id;
+            userProfile.UpdatedLast = DateTime.UtcNow;
+
+            await _supabase.From<UserProfile>().Upsert(userProfile);
 
         }
         public async Task<DateTime?> GetUserLastFrostDate()
         {
-            return null;
+            var profile = await GetUserProfile();
+            return profile?.LastFrostDate;
         }
     }
 }

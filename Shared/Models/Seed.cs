@@ -19,13 +19,13 @@ namespace SeedPlan.Shared.Models
         public int Quantity { get; set; }
 
         [Column("expiry_date")] // Supabase använder ofta snake_case
-        public string? ExpiryDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
 
         [Column("notes")]
         public string? Notes { get; set; }
 
         [Column("user_id")] // För att koppla fröet till en specifik användare
-        public string? UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         [Reference(typeof(Plant))]
         public Plant? Plant { get; set; }
         [Reference(typeof(Variety))]

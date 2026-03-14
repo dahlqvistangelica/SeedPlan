@@ -1,0 +1,125 @@
+﻿@page "/seeds"
+@using Microsoft.AspNetCore.Authorization
+@using SeedPlan.Shared.Models
+@attribute [Authorize]
+@inject IUserInventoryService SeedService
+@inject IJSRuntime JS
+
+<PageTitle>Mina Fröer - SeedPlan</PageTitle>
+
+<div class="seeds-container">
+    <header class="seeds-header">
+        <h1>Mina Fröer 🌱</h1>
+        <button class="btn-add-circle" @onclick="OpenAddSeed">
+            <i data-lucide="plus"></i>
+        </button>
+    </header>
+
+    @if (isLoading)
+    {
+        <div class="loading">Hämtar din frösamling...</div>
+    }
+    else if (!mySeeds.Any())
+    {
+        <div class="empty-state">
+            <p>Ditt fröbibliotek är tomt. Dags att fylla på! 📦</p>
+            <button class="btn-primary" @onclick="OpenAddSeed">Lägg till ditt första frö</button>
+        </div>
+    }
+    else
+    {
+        <div class="seed-list">
+            @foreach (var seed in mySeeds)
+            {
+                <div class="seed-card">
+                    <div class="seed-info">
+                        <h3>@seed.Name</h3>
+                        <p class="plant-type">@(seed.Plant?.PlantName ?? "Okänd växt")</p>
+                        @if (seed.ExpiryDate.HasValue)
+                        {
+                            <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
+                                Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
+                            </span>
+                        }
+                    </div>
+                    <div class="seed-actions">
+                        <span class="qty">@seed.Quantity st kvar</span>
+                        <i data-lucide="chevron-right"></i>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+<AddSeedModal IsVisible="showAddModal" 
+              OnClose="() => showAddModal = false" 
+              OnSaved="RefreshSeeds" />
+
+<style>
+    .seeds-container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+    .seeds-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    
+    .seed-list { display: flex; flex-direction: column; gap: 1rem; }
+    
+    .seed-card {
+        background: white;
+        padding: 1.2rem;
+        border-radius: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        border: 1px solid #f0f0f0;
+    }
+
+    .seed-info h3 { margin: 0; font-size: 1.1rem; }
+    .plant-type { color: #10b981; font-weight: 600; font-size: 0.85rem; margin: 2px 0; }
+    
+    .expiry-tag { font-size: 0.75rem; color: #94a3b8; }
+    .expiry-tag.expired { color: #ef4444; font-weight: 700; }
+
+    .seed-actions { display: flex; align-items: center; gap: 15px; color: #cbd5e1; }
+    .qty { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+
+    .btn-add-circle {
+        background: #10b981;
+        color: white;
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    }
+</style>
+
+@code {
+    private List<Seed> mySeeds = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            mySeeds = await SeedService.GetMySeeds();
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+
+    private bool showAddModal = false;
+private void OpenAddSeed() => showAddModal = true;
+
+private async Task RefreshSeeds()
+{
+    mySeeds = await SeedService.GetMySeeds();
+    StateHasChanged();
+}
+}

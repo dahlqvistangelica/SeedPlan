@@ -1,4 +1,4 @@
-/* --- 1. ÖVERGRIPANDE STRUKTUR --- */
+/* --- 1. GRUNDSTRUKTUR & BAKGRUND --- */
 .app-shell {
     display: flex;
     flex-direction: column;
@@ -8,7 +8,7 @@
 
 .main-header {
     background: white;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     border-bottom: 1px solid #f0f0f0;
     position: sticky;
     top: 0;
@@ -23,6 +23,7 @@
     align-items: center;
 }
 
+/* --- 2. LOGOTYP & BRANDING --- */
 .brand {
     display: flex;
     align-items: center;
@@ -31,7 +32,7 @@
 }
 
 .logo-circle {
-    background: #10b981; /* Grön accentfärg */
+    background: #10b981;
     color: white;
     padding: 8px;
     border-radius: 8px;
@@ -39,34 +40,77 @@
 }
 
 .app-title {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
     color: #1e293b;
 }
 
-.theme-toggle {
+/* --- 3. LOGGED IN WIDGET (SOL + NAMN + LOGOUT) --- */
+.header-actions {
+    display: flex;
+    align-items: center;
+}
+
+/* Denna klass ligger inuti LoginDisplay.razor */
+/* Tvinga allt i headern att ligga på en horisontell rad */
+/* Container i headern */
+::deep .user-header-widget {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    visibility: visible !important;
+}
+
+/* Namnet bredvid solen */
+::deep .user-display-name {
+    display: inline-block !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569 !important; /* Mörkgrå text */
+    white-space: nowrap;
+}
+
+/* Sol-ikonen */
+::deep .theme-toggle-header {
     color: #10b981;
     background: #f0fdf4;
-    padding: 8px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    cursor: pointer;
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.page-body {
-    flex: 1;
-    padding: 1rem;
-    padding-bottom: 100px; /* Plats för bottenmenyn */
+/* Utloggnings-knappen */
+::deep .logout-icon-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
 }
 
-/* --- 2. MODERN BOTTENMENY --- */
+/* SÄKERHETSÅTGÄRD: Ta bort gamla regler som kan störa */
+::deep .user-control,
+::deep .user-email {
+    display: none !important;
+}
+
+/* --- 4. MODERN BOTTENMENY --- */
 .bottom-nav {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 85px;
+    height: 75px;
     background: #f8f9fa;
     display: flex;
     justify-content: space-around;
@@ -80,24 +124,20 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     text-decoration: none;
     color: #888888;
-    position: relative;
-    padding: 10px 0;
     flex: 1;
-    transition: color 0.2s;
 }
 
     .nav-item i {
-        width: 24px;
-        height: 24px;
+        width: 22px;
+        height: 22px;
     }
 
     .nav-item span {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 700;
-        letter-spacing: 0.05em;
     }
 
     .nav-item.active {
@@ -106,64 +146,53 @@
 
         .nav-item.active::after {
             content: '';
-            position: absolute;
-            bottom: 2px;
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
             background: #10b981;
             border-radius: 50%;
+            margin-top: 2px;
         }
 
-/* --- 3. INLOGGNINGSSKÄRM --- */
+/* --- 5. DASHBOARD & STATS (De små rutorna) --- */
+.page-body {
+    flex: 1;
+    padding: 1.5rem;
+    padding-bottom: 90px;
+}
+
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* --- 6. INLOGGNINGSSKÄRM (CARD) --- */
 .login-screen {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    min-height: 70vh;
 }
 
 .login-card {
     background: white;
-    padding: 3rem;
+    padding: 2.5rem;
     border-radius: 24px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     text-align: center;
-    max-width: 440px;
+    max-width: 400px;
     width: 100%;
-    border: 1px solid #f1f5f9;
 }
 
-.login-icon {
-    width: 64px;
-    height: 64px;
-    background: #f0fdf4;
-    color: #4caf50;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-}
-
-.login-card h2 {
-    margin-bottom: 0.5rem;
-    font-weight: 700;
-}
-
-.login-card p {
-    color: #64748b;
-    margin-bottom: 2rem;
-    font-size: 0.95rem;
-}
-
-/* --- 4. FORMULÄR-ELEMENT (Används av LoginDisplay) --- */
+/* --- 7. FORMULÄRSTYLING (För LoginForm.razor) --- */
 ::deep .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
     text-align: left;
+    margin-top: 1.5rem;
 }
 
 ::deep .input-group {
@@ -173,137 +202,23 @@
 }
 
     ::deep .input-group label {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         font-weight: 600;
-        color: #475569;
+        color: #64748b;
     }
 
     ::deep .input-group input {
         padding: 0.75rem;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        outline: none;
-        transition: border-color 0.2s;
+        border-radius: 10px;
     }
-
-        ::deep .input-group input:focus {
-            border-color: #10b981;
-        }
 
 ::deep .btn-primary {
     background: #10b981;
     color: white;
-    padding: 0.75rem;
     border: none;
-    border-radius: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-    ::deep .btn-primary:hover {
-        background: #059669;
-    }
-
-::deep .btn-secondary {
-    background: white;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
     padding: 0.75rem;
-    border-radius: 12px;
-    cursor: pointer;
-}
-
-/* --- 5. RESPONSIVITET --- */
-@media (max-width: 768px) {
-    .header-content {
-        padding: 0 1rem;
-    }
-
-    .login-card {
-        padding: 2rem;
-    }
-}
-
-/* Sektionen för aktiva sådder */
-.sowing-stats-section {
-    margin-bottom: 2.5rem;
-}
-
-.stats-mini-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Två kolumner som i bilden */
-    gap: 1rem;
-}
-
-.mini-stat-card {
-    background: white;
-    border-radius: 20px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-    border: 1px solid #f0f0f0;
-}
-
-.mini-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-    .mini-icon i {
-        width: 20px;
-        height: 20px;
-    }
-
-    /* Färger för ikonerna från bilden */
-    .mini-icon.blue {
-        background: #eff6ff;
-        color: #3b82f6;
-    }
-
-    .mini-icon.green {
-        background: #f0fdf4;
-        color: #22c55e;
-    }
-
-    .mini-icon.yellow {
-        background: #fffbeb;
-        color: #f59e0b;
-    }
-
-    .mini-icon.purple {
-        background: #faf5ff;
-        color: #a855f7;
-    }
-
-.mini-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.mini-label {
-    font-size: 0.65rem;
+    border-radius: 10px;
     font-weight: 700;
-    color: #94a3b8;
-    letter-spacing: 0.05em;
-}
-
-.mini-value {
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: #1e293b;
-    line-height: 1;
-}
-
-/* Responsivitet: En kolumn på små skärmar */
-@media (max-width: 600px) {
-    .stats-mini-grid {
-        grid-template-columns: 1fr;
-    }
+    cursor: pointer;
 }
