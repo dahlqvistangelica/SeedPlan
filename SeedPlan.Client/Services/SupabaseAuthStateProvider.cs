@@ -7,7 +7,7 @@ namespace SeedPlan.Client.Services
     public class SupabaseAuthStateProvider : AuthenticationStateProvider
     {
         private readonly Supabase.Client _supabase;
-        private bool _isInitialized = false; // Lägg till detta för att inte läsa in filen i onödan
+        private bool _isInitialized = false;
 
         public SupabaseAuthStateProvider(Supabase.Client supabaseClient)
         {
@@ -18,7 +18,7 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // HÄR ÄR FIXEN: Läs in sessionen från webbläsaren om det är första gången
+                // DETTA MÅSTE VARA MED FÖR ATT LÄSA IN MINNET FRÅN WEBBLÄSAREN
                 if (!_isInitialized)
                 {
                     await _supabase.InitializeAsync();
@@ -26,7 +26,6 @@ namespace SeedPlan.Client.Services
                 }
 
                 var session = _supabase.Auth.CurrentSession;
-
                 if (session?.User == null)
                 {
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));

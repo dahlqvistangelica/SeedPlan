@@ -1,7 +1,15 @@
 ﻿<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(SeedPlan.Client._Imports).Assembly }">
     <Found Context="routeData">
-        @* Använd RouteView istället för AuthorizeRouteView *@
-        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
+            <NotAuthorized>
+                <LayoutView Layout="typeof(MainLayout)">
+                    <SeedPlan.Client.Shared.LoginDisplay />
+                </LayoutView>
+            </NotAuthorized>
+            <Authorizing>
+                <p style="padding: 2rem;">Laddar...</p>
+            </Authorizing>
+        </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>

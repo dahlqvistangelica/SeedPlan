@@ -8,12 +8,12 @@
     <NotAuthorized>
         <div class="login-form">
             <div class="input-group">
-                <label>E-post</label>
-                <input type="email" @bind="email" placeholder="din@epost.se" />
+                <label for="email">E-post</label>
+                <input id="email" name="email" type="email" autocomplete="email" @bind="email" placeholder="din@epost.se" />
             </div>
             <div class="input-group">
-                <label>Lösenord</label>
-                <input type="password" @bind="password" placeholder="******" />
+                <label for="password">Lösenord</label>
+                <input id="password" name="password" type="password" autocomplete="current-password" @bind="password" placeholder="******" />
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))
@@ -41,17 +41,17 @@
             var session = await Supabase.Auth.SignIn(email, password);
             if (session != null)
             {
-                // Vi säger åt Blazor: "Tjena, nu har vi loggat in, rita om skärmen!"
+                // Meddela appen att vi är inloggade
                 if (AuthProvider is SupabaseAuthStateProvider provider)
                 {
                     provider.NotifyAuthStateChanged();
                 }
                 
-                // Vi byter url smidigt UTAN forceLoad!
+                // Mjuk förflyttning UTAN forceLoad (inget blinkande)
                 Nav.NavigateTo("/");
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             errorMessage = "Fel vid inloggning. Kolla uppgifterna.";
         }
@@ -64,7 +64,7 @@
             await Supabase.Auth.SignUp(email, password);
             errorMessage = "Konto skapat! Testa att logga in.";
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             errorMessage = "Kunde inte skapa konto.";
         }
