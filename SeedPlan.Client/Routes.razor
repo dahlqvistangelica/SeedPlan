@@ -2,7 +2,7 @@
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)">
             <NotAuthorized>
-                @* Här tvingar vi Blazor att ladda MainLayout även om du är utloggad *@
+                @* Tvingar Blazor att ladda MainLayout som i sin tur visar inloggningen *@
                 <LayoutView Layout="typeof(MainLayout)">
                 </LayoutView>
             </NotAuthorized>
