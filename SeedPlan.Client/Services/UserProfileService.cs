@@ -43,6 +43,17 @@ namespace SeedPlan.Client.Services
                 .Update(userProfile);
 
         }
+
+        public async Task UpsertUserProfile(UserProfile userProfile)
+        {
+            // Vi behöver inte filtrera med .Where() vid en Upsert om Id är PrimaryKey, 
+            // Supabase sköter det automatiskt baserat på modellen.
+            userProfile.UpdatedLast = DateTime.UtcNow;
+
+            await _supabase
+                .From<UserProfile>()
+                .Upsert(userProfile);
+        }
         public async Task<DateTime?> GetUserLastFrostDate()
         {
             var profile = await GetUserProfile();

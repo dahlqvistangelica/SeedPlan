@@ -50,21 +50,42 @@
                 </nav>
             </Authorized>
             <NotAuthorized>
-                <div class="login-screen">
-                    <div class="login-card">
-                        <div class="login-icon"><i data-lucide="lock"></i></div>
-                        <h2>Välkommen tillbaka</h2>
-                        <p>Logga in för att hantera din trädgård.</p>
-                        @* HÄR visas formuläret nu, istället för i headern *@
-                        <LoginForm />
+                @if (IsRegisterPage)
+                {
+                    <div class="page-body">
+                        @Body
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="login-screen">
+                        <div class="login-card">
+                            <div class="login-icon"><i data-lucide="lock"></i></div>
+                            <h2>Välkommen tillbaka</h2>
+                            <p>Logga in för att hantera din trädgård.</p>
+                            <LoginForm />
+                        </div>
+                    </div>
+                }
             </NotAuthorized>
         </AuthorizeView>
     </main>
 </div>
 
 @code {
+    private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnInitialized()
+    {
+
+        Nav.LocationChanged += HandleLocationChanged;
+    }
+
+    private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeVoidAsync("initializeLucide");
@@ -72,6 +93,6 @@
 
     public void Dispose()
     {
-       
+        Nav.LocationChanged -= HandleLocationChanged;
     }
 }

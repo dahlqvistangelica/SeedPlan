@@ -7,5 +7,7 @@ namespace SeedPlan.Shared.Interfaces
         Task<UserProfile?> GetUserProfile();
         Task UpdateUserProfile(UserProfile profile);
         Task<DateTime?> GetUserLastFrostDate();
+
+        Task UpsertUserProfile(UserProfile profile);
     }
 }
