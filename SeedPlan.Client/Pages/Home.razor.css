@@ -358,3 +358,10 @@
     border-radius: 6px;
     font-weight: 600;
 }
+
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 1rem 0.6rem; /* Ännu mindre padding på sidorna på små mobiler */
+        padding-bottom: 100px;
+    }
+}
