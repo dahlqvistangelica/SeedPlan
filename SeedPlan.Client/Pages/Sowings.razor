@@ -45,7 +45,9 @@
                                     <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
                                 </h3>
                                 <p class="sown-date">
-                                    <i data-lucide="calendar"></i> Sådd den @sowing.SownDate
+                                    <i data-lucide="calendar"></i>
+                                    Sådd den @(sowing.SownDate?.ToString("yyyy-MM-dd"))
+                                    <span class="sown-quantity">(@sowing.Quantity st)</span>
                                 </p>
                             </div>
                         </div>

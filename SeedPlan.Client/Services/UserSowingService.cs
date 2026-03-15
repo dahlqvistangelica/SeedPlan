@@ -41,6 +41,10 @@ namespace SeedPlan.Client.Services
             {
                 throw new ArgumentException("Ett giltigt sådatum måste anges.");
             }
+            if(newSowing.Quantity == null || newSowing.Quantity <= 0)
+            {
+                throw new ArgumentException("Du måste ange antal fröer du sått");
+            }
                
             await _supabase.From<Sowing>().Insert(newSowing);
             

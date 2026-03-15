@@ -30,6 +30,12 @@
                         }
                     </select>
                 </div>
+                @* 2. ANTAL FRÖER SÅDDA *@
+                <div class="input-block">
+                    <label>ANTAL SÅDDA FRÖER</label>
+                    <input type="number" @bind="newSowing.Quantity" class="sp-input" />
+                </div>
+
 
                 @* 2. SÅDATUM *@
                 <div class="input-block">
@@ -103,18 +109,23 @@
 
         try
         {
-            var selectedSeed = availableSeeds.FirstOrDefault(s => s.Id == newSowing.Id);
-            if(selectedSeed != null)
+            // FIX 1: Använd rätt ID för att hitta fröet
+            var selectedSeed = availableSeeds.FirstOrDefault(s => s.Id == newSowing.SeedId);
+        
+            if (selectedSeed != null)
             {
-                if(selectedSeed.Quantity > 0)
+                // FIX 2: Kontrollera att lagret räcker
+                if (selectedSeed.Quantity < newSowing.Quantity)
                 {
-                    selectedSeed.Quantity--;
-                    await SeedService.UpdateSeed(selectedSeed);
+                    errorMessage = $"Du har bara {selectedSeed.Quantity} fröer kvar.";
+                    return;
                 }
+
+                selectedSeed.Quantity -= newSowing.Quantity;
+                await SeedService.UpdateSeed(selectedSeed);
             }
 
             await SowingService.AddSowing(newSowing); // Sparar sådden
-            newSowing = new() { SownDate = DateTime.Now };
             await OnSaved.InvokeAsync();
             await Close();
         }

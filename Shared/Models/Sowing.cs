@@ -21,6 +21,9 @@ namespace SeedPlan.Shared.Models
         [Column("notes")]
         public string? Notes { get; set; }
 
+        [Column("quantity")]
+        public int Quantity { get; set; }
+
         [Column("user_id")]
         public string? UserId { get; set; }
 
@@ -29,10 +32,11 @@ namespace SeedPlan.Shared.Models
         public Seed? Seed { get; set; }
 
         public Sowing() { }
-        public Sowing(int sId)
+        public Sowing(int sId, int quantity)
         {
             SeedId = sId;
             Status = 0;
+            Quantity = quantity;
         }
     }
 }
