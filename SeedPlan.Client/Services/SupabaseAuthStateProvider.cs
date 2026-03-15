@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 using Supabase;
+using Supabase.Gotrue;
 
 namespace SeedPlan.Client.Services
 {
@@ -12,6 +13,16 @@ namespace SeedPlan.Client.Services
         public SupabaseAuthStateProvider(Supabase.Client supabaseClient)
         {
             _supabase = supabaseClient;
+
+            _supabase.Auth.AddStateChangedListener((sender, state) =>
+            {
+                if (state == Constants.AuthState.SignedIn ||
+                    state == Constants.AuthState.SignedOut ||
+                    state == Constants.AuthState.TokenRefreshed)
+                {
+                    NotifyAuthStateChanged();
+                }
+            });
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -25,21 +36,33 @@ namespace SeedPlan.Client.Services
                 }
 
                 var session = _supabase.Auth.CurrentSession;
-                if (session?.User == null)
+
+                // FÖRBÄTTRING 2: Om sessionen är null, gör ett extra försök att hämta den
+                if (session == null)
+                {
+                    session = await _supabase.Auth.RetrieveSessionAsync();
+                }
+
+                // Kontrollera att vi har både en användare och en giltig token
+                if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
                 {
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
                 }
 
                 var claims = new List<Claim> {
                     new Claim(ClaimTypes.Name, session.User.Email ?? ""),
+                    new Claim(ClaimTypes.Email, session.User.Email ?? ""),
                     new Claim("sub", session.User.Id ?? "")
                 };
 
+                // Ange "SupabaseAuth" som autentiseringstyp för att IsAuthenticated ska bli true
                 var identity = new ClaimsIdentity(claims, "SupabaseAuth");
                 return new AuthenticationState(new ClaimsPrincipal(identity));
             }
-            catch
+            catch (Exception ex)
             {
+                // Logga gärna felet här om du har en logger
+                Console.WriteLine($"Auth Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
