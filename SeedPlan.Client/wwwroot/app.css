@@ -247,3 +247,18 @@ h1:focus {
         font-size: 1.8rem;
     }
 }
+
+/* --- Längst ner i din fil --- */
+
+@media (max-width: 768px) {
+    /* Här lägger vi ALL mobil-logik. 
+       Ingen kod härifrån påverkar din dator-version. */
+
+    .serif-title {
+        font-size: 1.8rem; /* Gör titeln mindre bara på mobilen */
+    }
+
+    .page-body {
+        padding-bottom: 100px; /* Ger plats för bottenmenyn */
+    }
+}
