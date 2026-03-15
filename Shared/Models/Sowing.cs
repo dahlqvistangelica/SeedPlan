@@ -13,7 +13,7 @@ namespace SeedPlan.Shared.Models
         public int SeedId { get; set; }
 
         [Column("sown_date")]
-        public string SownDate { get; set; } = string.Empty;
+        public DateTime? SownDate { get; set; }
 
         [Column("status")]
         public int Status { get; set; } = 0;
@@ -27,5 +27,12 @@ namespace SeedPlan.Shared.Models
         // Denna används för att visa namnet på fröet i gränssnittet
         [Reference(typeof(Seed))]
         public Seed? Seed { get; set; }
+
+        public Sowing() { }
+        public Sowing(int sId)
+        {
+            SeedId = sId;
+            Status = 0;
+        }
     }
 }

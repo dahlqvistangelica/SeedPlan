@@ -1,0 +1,141 @@
+﻿/* Overlay för att mörka ner bakgrunden */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* Själva kortet */
+.modal-card {
+    background: white;
+    width: 95%;
+    max-width: 500px;
+    border-radius: 28px;
+    padding: 35px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* Rubrik och Stäng-kryss */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.serif-title {
+    font-family: serif;
+    font-style: italic;
+    font-size: 1.8rem;
+    margin: 0;
+    color: #1e293b;
+}
+
+.close-x {
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Inmatningsblock och Etiketter */
+.input-block {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .input-block label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+/* Rad med två fält */
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Inputs och Textarea */
+.sp-input, .sp-textarea {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    font-size: 1rem;
+    color: #334155;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+    .sp-input:focus, .sp-textarea:focus {
+        border-color: #10b981;
+    }
+
+.sp-textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+/* Den mörkgröna knappen */
+.sp-save-btn {
+    width: 100%;
+    background: #059669; /* Samma gröna som "Starta sådd" */
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+    .sp-save-btn:hover {
+        background: #047857;
+    }
+
+    .sp-save-btn:active {
+        transform: scale(0.98);
+    }
+
+/* Animation för att rutan ska poppa fram mjukt */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

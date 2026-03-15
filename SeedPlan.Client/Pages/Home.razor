@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SeedPlan.Shared.Models
+@using global::Shared.Models
 @inject IPlantLibraryService PlantService
 @inject IUserSowingService SowingService
 @inject IUserProfileService ProfileService
@@ -27,6 +28,7 @@
     }
     else
     {
+        
         @* VISAS BARA OM DET FINNS AKTIVA SÅDDER *@
         @if (activeSowings.Any())
         {
@@ -36,14 +38,14 @@
                     <div class="mini-stat-card">
                         <div class="mini-icon blue"><i data-lucide="sprout"></i></div>
                         <div class="mini-info">
-                            <span class="mini-label">SÅTIDER</span>
+                            <span class="mini-label">Nysått</span>
                             <span class="mini-value">@countSown</span>
                         </div>
                     </div>
                     <div class="mini-stat-card">
                         <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
                         <div class="mini-info">
-                            <span class="mini-label">GRODDA</span>
+                            <span class="mini-label">GRODDAT</span>
                             <span class="mini-value">@countGerminated</span>
                         </div>
                     </div>
@@ -64,9 +66,28 @@
                 </div>
             </div>
         }
+        @* REDAN PASSERAT (Accodion) *@
+        @if (overview.Past.Any())
+    {
+        <details class="past-section">
+            <summary>Redan passerat (@overview.Past.Count)</summary>
+            <div class="plant-grid mini">
+                @foreach (var plant in overview.Past)
+                {
+                        <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
+                            <div class="mini-card-content">
+                                <i data-lucide="calendar-x" class="mini-icon"></i>
+                                <span>@plant.PlantName</span>
+                            </div>
+                            <span class="mini-badge">Passerat</span>
+                        </div>
+                }
+            </div>
+        </details>
+    }
 
         <h2 class="section-title">BÖR SÅS NU</h2>
-        @if (!sowingSuggestions.Any())
+        @if (!overview.Current.Any())
         {
             <div class="empty-state">
                 <p>Inga växter rekommenderas för sådd just nu. 🌱</p>
@@ -75,15 +96,44 @@
         else
         {
             <div class="plant-grid">
-                @foreach (var plant in sowingSuggestions)
+                @foreach (var plant in overview.Current)
                 {
-                    <div class="plant-card">
+                    <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
                         <div class="plant-main">
-                            <div class="plant-icon-circle"><i data-lucide="sprout"></i></div>
-                            <div class="plant-core-info">
-                                <span class="plant-name">@plant.PlantName</span>
-                                <span class="frost-info">@plant.WeeksBeforeFrost v. före frost</span>
+                            <div class="plant-icon-circle">
+                                <i data-lucide="sprout"></i>
                             </div>
+                            <div class="plant-core-info">
+                                <div class="plant-title-row">
+                                    <span class="plant-name">@plant.PlantName</span>
+                                    @* Om du använder PlantSowingView kan du visa 'Saknar frö' här *@
+                                    <span class="seed-status-tag">Saknar frö</span>
+                                </div>
+                                <span class="frost-info">@GetFrostText(plant.WeeksBeforeFrost)</span>
+                            </div>
+                
+                            @* Härdighetsbadge *@
+                            <div class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
+                                @GetHardinessText(plant.HardinessLevel)
+                            </div>
+                        </div>
+
+                        <div class="plant-footer">
+                            <div class="footer-icons">
+                                @if (plant.IsLightGerminating)
+                                {
+                                    <div class="feature-icon light" title="Ljusgroende">
+                                        <i data-lucide="sparkles"></i>
+                                    </div>
+                                }
+                                @if (plant.RequiresTopping)
+                                {
+                                    <div class="feature-icon topping" title="Ska toppas">
+                                        <i data-lucide="scissors"></i>
+                                    </div>
+                                }
+                            </div>
+                            <i data-lucide="chevron-right" class="arrow"></i>
                         </div>
                     </div>
                 }
@@ -91,20 +141,46 @@
         }
     }
 </div>
+<PlantDetailModal IsVisible="showDetailModal"
+                  Plant="selectedPlant"
+                  OnClose="() => showDetailModal = false"
+                  OnSaved="HandleRefresh" />
 
 @code {
     private bool isLoading = true;
-    private List<Plant> sowingSuggestions = new();
+    private SowingOverview overview = new();
     private List<Sowing> activeSowings = new();
     private int countSown, countGerminated, countRepotted, countPlantedOut;
 
+    private string GetFrostText(int weeks)
+    {
+        if(weeks <= 0)
+        {
+            return "planteras ut efter sista frost";
+        }
+        return $"planteras ut {weeks}. v före sista frost";
+    }
+    private string GetHardinessText(int level) => level switch
+    {
+        0 => "Känslig",
+        1 => "Halvhärdig",
+        2 => "Härdig",
+        _ => ""
+    };
+    private string GetHardinessClass(int level) => level switch
+    {
+        0 => "sensitive",
+        1 => "half-hardy",
+        2 => "hardy",
+        _ => ""
+    };
     protected override async Task OnInitializedAsync()
     {
         try
         {
             isLoading = true;
             var authState = await AuthProvider.GetAuthenticationStateAsync();
-            
+
             if (authState.User.Identity?.IsAuthenticated == true)
             {
                 // Hämta och räkna sådder
@@ -118,7 +194,9 @@
 
                 // Hämta förslag
                 var lastFrost = await ProfileService.GetUserLastFrostDate() ?? new DateTime(DateTime.Now.Year, 5, 15);
-                sowingSuggestions = await PlantService.GetGeneralSowingSuggestionsAsync(lastFrost);
+                var today = DateTime.Today;
+
+                overview = await PlantService.GetSowingOverviewAsync(lastFrost);
             }
         }
         catch (Exception ex)
@@ -134,5 +212,20 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeVoidAsync("initializeLucide");
+    }
+    //PLANT DETAIL MODAL CODE
+
+    private bool showDetailModal = false;
+    private Plant? selectedPlant;
+
+    //Öppnar fönstret med plantdetails
+    private void OpenPlantDetail(Plant plant)
+    {
+        selectedPlant = plant;
+        showDetailModal = true;
+    }
+    private async Task HandleRefresh()
+    {//Uppdaterar listan om man sparat ett nytt frö
+        await OnInitializedAsync();
     }
 }

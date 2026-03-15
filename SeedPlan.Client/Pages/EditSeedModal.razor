@@ -1,0 +1,57 @@
+﻿@using SeedPlan.Shared.Models
+@inject IUserInventoryService SeedService
+@inject IUserSowingService SowingService
+@inject IJSRuntime JS
+
+@if (IsVisible && Seed != null)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <header class="modal-header">
+                <h2 class="serif-title">Redigera frö</h2>
+                <button class="close-x" @onclick="Close">×</button>
+            </header>
+
+            <div class="modal-body">
+                <div class="input-block">
+                    <label>Sortnamn</label>
+                    <input type="text" @bind="Seed.Name" class="sp-input" />
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Antal fröer</label>
+                        <input type="number" @bind="Seed.Quantity" class="sp-input" />
+                    </div>
+                    <div class="input-block">
+                        <label>Utgångsdatum</label>
+                        <input type="date" @bind="Seed.ExpiryDate" class="sp-input" />
+                    </div>
+                </div>
+
+                <div class="input-block">
+                    <label>Anteckningar</label>
+                    <textarea @bind="Seed.Notes" class="sp-textarea" placeholder="Plats, jord, etc."></textarea>
+                </div>
+
+                <button class="sp-save-btn" @onclick="HandleSave">Spara ändringar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Seed? Seed { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private async Task HandleSave()
+    {
+        await SeedService.UpdateSeed(Seed);
+        await OnSaved.InvokeAsync();
+        await Close();
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+}

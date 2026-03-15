@@ -1,0 +1,89 @@
+﻿@using SeedPlan.Shared.Models
+@inject IUserInventoryService SeedService
+@inject IUserSowingService SowingService
+@inject IJSRuntime JS
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <div class="modal-body">
+                
+                @* 1. VÄLJ FRÖ *@
+                <div class="input-block">
+                    <label>VÄLJ FRÖ</label>
+                    <select @bind="newSowing.SeedId" class="sp-input">
+                        <option value="0">Välj ett frö från lagret...</option>
+                        @foreach (var seed in availableSeeds)
+                        {
+                            <option value="@seed.Id">@seed.Name (@(seed.Plant?.PlantName ?? "Okänd"))</option>
+                        }
+                    </select>
+                </div>
+
+                @* 2. SÅDATUM *@
+                <div class="input-block">
+                    <label>SÅDATUM</label>
+                    <input type="date" @bind="newSowing.SownDate" class="sp-input" />
+                </div>
+
+                @* 3. ANTECKNINGAR *@
+                <div class="input-block">
+                    <label>ANTECKNINGAR</label>
+                    <textarea @bind="newSowing.Notes" class="sp-textarea" placeholder="Plats, jord, etc."></textarea>
+                </div>
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="error-msg">@errorMessage</p>
+                }
+
+                @* 4. STARTA SÅDD-KNAPP *@
+                <button type="button" class="sp-submit-btn" @onclick="HandleSave">Starta sådd</button>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private List<Seed> availableSeeds = new();
+    private Sowing newSowing = new() { SownDate = DateTime.Now }; // Använder DateTime som du ändrat till
+    private string errorMessage = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible)
+        {
+            availableSeeds = await SeedService.GetMySeeds(); // Hämtar dina fröer
+            errorMessage = "";
+        }
+    }
+
+    private async Task HandleSave()
+    {
+        if (newSowing.SeedId == 0)
+        {
+            errorMessage = "Du måste välja ett frö från lagret.";
+            return;
+        }
+
+        try
+        {
+            await SowingService.AddSowing(newSowing); // Sparar sådden
+            newSowing = new() { SownDate = DateTime.Now };
+            await OnSaved.InvokeAsync();
+            await Close();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+}

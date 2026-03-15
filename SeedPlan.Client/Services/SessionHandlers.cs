@@ -22,16 +22,16 @@ namespace SeedPlan.Client.Services
             public LocalStorageSessionHandler(IJSInProcessRuntime js) { _js = js; }
 
             public void SaveSession(Session session) =>
-                _js.InvokeVoid("localStorage.setItem", "supabase_auth", JsonSerializer.Serialize(session));
+                _js.InvokeVoid("localStorage.setItem", "sb_session", JsonSerializer.Serialize(session));
 
             public void DestroySession() =>
-                _js.InvokeVoid("localStorage.removeItem", "supabase_auth");
+                _js.InvokeVoid("localStorage.removeItem", "sb_session");
 
             public Session? LoadSession()
             {
                 try
                 {
-                    var json = _js.Invoke<string>("localStorage.getItem", "supabase_auth");
+                    var json = _js.Invoke<string>("localStorage.getItem", "sb_session");
                     return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
                 }
                 catch

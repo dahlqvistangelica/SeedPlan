@@ -29,76 +29,50 @@
     else
     {
         <div class="seed-list">
-            @foreach (var seed in mySeeds)
-            {
-                <div class="seed-card">
-                    <div class="seed-info">
-                        <h3>@seed.Name</h3>
-                        <p class="plant-type">@(seed.Plant?.PlantName ?? "Okänd växt")</p>
-                        @if (seed.ExpiryDate.HasValue)
-                        {
-                            <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
-                                Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
-                            </span>
-                        }
-                    </div>
-                    <div class="seed-actions">
-                        <span class="qty">@seed.Quantity st kvar</span>
-                        <i data-lucide="chevron-right"></i>
-                    </div>
+    @foreach (var seed in mySeeds)
+    {
+        @* Hela kortet är nu klickbart för att redigera *@
+        <div class="seed-card" @onclick="() => OpenEditSeed(seed)">
+            <div class="seed-info">
+                <h3>@seed.Name</h3>
+                <p class="plant-type">@(seed.Plant?.PlantName ?? "Okänd växt")</p>
+                @if (seed.ExpiryDate.HasValue)
+                {
+                    <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
+                        Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
+                    </span>
+                }
+            </div>
+            <div class="seed-actions">
+                <div class="qty-badge">
+                    @* Din nya ikon för att "stoppa ner frö i jorden" *@
+                    <i data-lucide="sprout" class="sow-icon"></i>
+                    <span class="qty">@seed.Quantity st kvar</span>
                 </div>
-            }
+                <i data-lucide="chevron-right" class="arrow-icon"></i>
+                        @* NY RADERINGSKNAPP *@
+                        <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+            </div>
         </div>
+    }
+</div>
     }
 </div>
 <AddSeedModal IsVisible="showAddModal" 
               OnClose="() => showAddModal = false" 
               OnSaved="RefreshSeeds" />
-
-<style>
-    .seeds-container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-    .seeds-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    
-    .seed-list { display: flex; flex-direction: column; gap: 1rem; }
-    
-    .seed-card {
-        background: white;
-        padding: 1.2rem;
-        border-radius: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        border: 1px solid #f0f0f0;
-    }
-
-    .seed-info h3 { margin: 0; font-size: 1.1rem; }
-    .plant-type { color: #10b981; font-weight: 600; font-size: 0.85rem; margin: 2px 0; }
-    
-    .expiry-tag { font-size: 0.75rem; color: #94a3b8; }
-    .expiry-tag.expired { color: #ef4444; font-weight: 700; }
-
-    .seed-actions { display: flex; align-items: center; gap: 15px; color: #cbd5e1; }
-    .qty { font-size: 0.85rem; color: #64748b; font-weight: 600; }
-
-    .btn-add-circle {
-        background: #10b981;
-        color: white;
-        border: none;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
-    }
-</style>
+<EditSeedModal IsVisible="showEditModal"
+               Seed="selectedSeed"
+               OnClose="() => showEditModal = false"
+               OnSaved="RefreshSeeds"/>
 
 @code {
     private List<Seed> mySeeds = new();
     private bool isLoading = true;
+    private bool showEditModal = false;
+    private Seed? selectedSeed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,11 +89,35 @@
     }
 
     private bool showAddModal = false;
-private void OpenAddSeed() => showAddModal = true;
+    private void OpenAddSeed() => showAddModal = true;
 
-private async Task RefreshSeeds()
-{
-    mySeeds = await SeedService.GetMySeeds();
-    StateHasChanged();
-}
+    private async Task RefreshSeeds()
+    {
+        mySeeds = await SeedService.GetMySeeds();
+        StateHasChanged();
+    }
+
+    private void OpenEditSeed(Seed seed)
+    {
+        selectedSeed = new Seed(seed);
+        showEditModal = true;
+    }
+    private async Task SaveQuantity()
+    {
+        if(selectedSeed != null)
+        {
+            await SeedService.UpdateSeed(selectedSeed);
+            await RefreshSeeds();
+            showEditModal = false;
+        }
+    }
+    private async Task HandleDelete(Seed seed)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.Name}?");
+        if(confirmed)
+        {
+            await SeedService.DeleteSeed(seed.Id);
+            await RefreshSeeds();
+        }
+    }
 }

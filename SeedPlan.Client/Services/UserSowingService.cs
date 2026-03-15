@@ -37,9 +37,9 @@ namespace SeedPlan.Client.Services
                 throw new UnauthorizedAccessException("Du måste vara inloggad för att kunna lägga till sådd");
             }
                 newSowing.UserId = user.Id;
-            if(string.IsNullOrEmpty(newSowing.SownDate))
+            if(newSowing.SownDate == null || newSowing.SownDate == default(DateTime))
             {
-                newSowing.SownDate = DateTime.Now.ToString("yyyy-MM-dd");
+                throw new ArgumentException("Ett giltigt sådatum måste anges.");
             }
                
             await _supabase.From<Sowing>().Insert(newSowing);

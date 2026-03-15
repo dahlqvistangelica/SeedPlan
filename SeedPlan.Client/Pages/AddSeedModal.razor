@@ -5,38 +5,93 @@
 
 @if (IsVisible)
 {
-    <div class="sp-modal-body">
-        <div class="sp-form-content">
-        
-            <div class="sp-input-block">
-                <label>VÄXTNAMN</label>
-                <div class="sp-readonly-box">
-                    @selectedPlant?.PlantName
-                    <span class="sp-change-link" @onclick="ChangePlant">Byt</span>
-                </div>
-            </div>
+    <div class="sp-modal-overlay">
+        <div class="sp-modal-card fade-in">
+            <header class="sp-modal-header">
+                <h2>Lägg till frö <span>🌱</span></h2>
+            </header>
 
-            <div class="sp-input-block">
-                <label>SORT / NAMN</label>
-                <input type="text" @bind="newSeed.Name" class="sp-input" placeholder="T.ex. katz purple" />
-            </div>
-
-            <div class="sp-grid-2">
-                <div class="sp-input-block">
-                    <label>ANTAL FRÖER</label> @* ÄNDRAT FRÅN PÅSAR TILL FRÖER *@
-                    <div class="qty-wrapper">
-                        <input type="text" @bind="newSeed.Quantity" class="sp-input" />
-                        <span class="unit-tag">st</span>
+            <div class="sp-modal-body">
+                <div class="sp-form-content">
+                    @* 1. VÄXTNAMN *@
+                    <div class="sp-input-block">
+                        <label>VÄXTNAMN</label>
+                        @if (selectedPlant == null)
+                        {
+                            <input type="text" @bind="searchText" @bind:event="oninput"
+                                   placeholder="T.ex. Lejongap" class="sp-input" />
+                            @if (!string.IsNullOrEmpty(searchText))
+                            {
+                                <div class="sp-dropdown">
+                                    @foreach (var result in GetSearchResults())
+                                    {
+                                        <div class="sp-dropdown-item" @onclick="() => SelectResult(result)">
+                                            <span>@result.DisplayName</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="sp-readonly-box">
+                                <span>@selectedPlant.PlantName</span>
+                                <span class="sp-change-link" @onclick="ChangePlant">Byt</span>
+                            </div>
+                        }
                     </div>
-                </div>
-                <div class="sp-input-block">
-                    <label>UTGÅNGSDATUM</label>
-                    <input type="date" @bind="newSeed.ExpiryDate" class="sp-input" />
+
+                    @* 2. SORT / NAMN (Nu med sökfunktion för varianter) *@
+                    <div class="sp-input-block">
+                        <label>SORT / NAMN</label>
+                        <input type="text" @bind="newSeed.Name" @bind:event="oninput"
+                               placeholder="T.ex. Katz Purple" class="sp-input" />
+                        
+                        @if (selectedPlant != null && !string.IsNullOrEmpty(newSeed.Name) && !isVarietySelected)
+                        {
+                            var varietySuggestions = allVarieties
+                                .Where(v => v.PlantId == selectedPlant.Id &&
+                                           v.VarietyName.Contains(newSeed.Name, StringComparison.OrdinalIgnoreCase))
+                                .Take(5);
+
+                            @if (varietySuggestions.Any())
+                            {
+                                <div class="sp-dropdown">
+                                    @foreach (var v in varietySuggestions)
+                                    {
+                                        <div class="sp-dropdown-item" @onclick="() => SelectVariety(v)">
+                                            <span>@v.VarietyName</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    @* Resten av formuläret *@
+                    <div class="sp-grid-2">
+                        <div class="sp-input-block">
+                            <label>ANTAL FRÖER</label>
+                            <div class="qty-wrapper">
+                                <input type="number" @bind="newSeed.Quantity" class="sp-input" />
+                                <span class="unit-tag">st</span>
+                            </div>
+                        </div>
+                        <div class="sp-input-block">
+                            <label>UTGÅNGSDATUM</label>
+                            <input type="date" @bind="newSeed.ExpiryDate" class="sp-input" />
+                        </div>
+                    </div>
+
+                    <div class="sp-input-block">
+                        <label>ANTECKNINGAR</label>
+                        <textarea @bind="newSeed.Notes" class="sp-textarea" placeholder="Färg, smak, etc."></textarea>
+                    </div>
+
+                    <button type="button" class="sp-save-btn" @onclick="Save">Spara frö</button>
+                    <button type="button" class="sp-cancel-btn" @onclick="Close">Avbryt</button>
                 </div>
             </div>
-
-            <button class="sp-save-btn" @onclick="Save">Spara frö</button>
-            <button class="sp-cancel-btn" @onclick="Close">Avbryt</button>
         </div>
     </div>
 }
@@ -47,6 +102,7 @@
     [Parameter] public EventCallback OnSaved { get; set; }
 
     private string searchText = "";
+    private bool isVarietySelected = false;
     private List<Plant> allPlants = new();
     private List<Variety> allVarieties = new();
     private Plant? selectedPlant;
@@ -62,48 +118,81 @@
     {
         if (string.IsNullOrWhiteSpace(searchText)) return Enumerable.Empty<SearchResult>();
         var term = searchText.ToLower();
-
-        var plantMatches = allPlants.Where(p => p.PlantName.ToLower().Contains(term))
-            .Select(p => new SearchResult { Plant = p, DisplayName = p.PlantName });
-
-        var varietyMatches = allVarieties.Where(v => v.VarietyName.ToLower().Contains(term))
-            .Select(v => {
-                var p = allPlants.FirstOrDefault(x => x.Id == v.PlantId);
-                return new SearchResult { Plant = p, Variety = v, DisplayName = $"{v.VarietyName} ({p?.PlantName})" };
-            });
-
-        return plantMatches.Concat(varietyMatches).Take(5);
+        return allPlants.Where(p => p.PlantName.ToLower().Contains(term))
+            .Select(p => new SearchResult { Plant = p, DisplayName = p.PlantName }).Take(5);
     }
 
     private void SelectResult(SearchResult res)
     {
         selectedPlant = res.Plant;
         newSeed.PlantId = res.Plant?.Id ?? 0;
-        newSeed.Name = res.Variety?.VarietyName ?? "";
         searchText = "";
+        isVarietySelected = false;
     }
 
-    private async Task Save()
+    private void SelectVariety(Variety v)
     {
-        await SeedService.AddSeed(newSeed);
-        newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2) };
-        selectedPlant = null;
-        await OnSaved.InvokeAsync();
-        Close();
+        newSeed.Name = v.VarietyName;
+        newSeed.VarietyId = v.Id;
+        isVarietySelected = true;
     }
 
-    private void Close() => OnClose.InvokeAsync();
-
-    public class SearchResult {
-        public Plant? Plant { get; set; }
-        public Variety? Variety { get; set; }
-        public string DisplayName { get; set; } = "";
-    }
     private void ChangePlant()
     {
         selectedPlant = null;
         newSeed.PlantId = 0;
         newSeed.Name = "";
-        searchText = "";
+        isVarietySelected = false;
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            if (selectedPlant != null && !isVarietySelected && !string.IsNullOrWhiteSpace(newSeed.Name))
+            {
+                var existingVariety = allVarieties.FirstOrDefault(v => v.PlantId == selectedPlant.Id && v.VarietyName.Equals(newSeed.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (existingVariety == null)
+                {
+                    var newVarietyObj = new Variety
+                        {
+                            PlantId = selectedPlant.Id,
+                            VarietyName = newSeed.Name
+                        };
+
+                    var savedVariety = await PlantService.AddVarietyAsync(newVarietyObj);
+                    newSeed.VarietyId = savedVariety.Id;
+
+                    allVarieties.Add(savedVariety);
+                }
+                else
+                {
+                    newSeed.VarietyId = existingVariety.Id;
+                }
+            }
+
+            await SeedService.AddSeed(newSeed);
+            newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2) };
+            selectedPlant = null;
+            searchText = "";
+            isVarietySelected = false;
+
+            await OnSaved.InvokeAsync();
+            Close();
+        }
+        catch(Exception ex)
+        {
+            await JS.InvokeVoidAsync("console.error", "Kunde inte spara:", ex.Message);
+        }
+    }
+
+    private void Close() => OnClose.InvokeAsync();
+
+    public class SearchResult
+    {
+        public Plant? Plant { get; set; }
+        public Variety? Variety { get; set; }
+        public string DisplayName { get; set; } = "";
     }
 }

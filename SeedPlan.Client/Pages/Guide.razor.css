@@ -1,0 +1,226 @@
+﻿.guide-container {
+    padding: 2rem 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.filter-toggle {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    color: #64748b;
+    cursor: pointer;
+}
+
+    .filter-toggle.active {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+/* SÖKRUTA */
+.search-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #cbd5e1;
+    width: 18px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border-radius: 15px;
+    border: 1px solid #f1f5f9;
+    background: white;
+    font-size: 1rem;
+    outline: none;
+}
+
+/* FILTERPANEL (BILD 3) */
+.filter-panel {
+    background: white;
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.filter-group label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+}
+
+.chip-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.chip {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+}
+
+    .chip.active {
+        background: #10b981;
+        color: white;
+        border-color: #10b981;
+    }
+
+.property-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8fafc;
+    cursor: pointer;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.status-text {
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.reset-btn {
+    border: none;
+    background: none;
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 0.7rem;
+    cursor: pointer;
+    float: right;
+    margin-top: 10px;
+}
+
+/* VÄXTKORT MED HOVER (BILD 2) */
+.plant-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+/* HOVER EFFEKT */
+.plant-card:hover {
+    border-color: #10b981;
+}
+
+    .plant-card:hover .plant-icon-circle {
+        background: #10b981;
+        color: white;
+    }
+
+.plant-icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: #f0fdf4;
+    color: #10b981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.plant-name {
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+}
+
+.sowing-info {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f8fafc;
+}
+
+.feature-icons {
+    display: flex;
+    gap: 8px;
+}
+
+    .feature-icons i {
+        font-size: 14px;
+    }
+
+.icon-light {
+    color: #3b82f6;
+}
+
+.icon-topping {
+    color: #a855f7;
+}
+
+.arrow {
+    color: #f1f5f9;
+    width: 16px;
+}
+
+/* HÄRDIGHET BADGES */
+.hardiness-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+.sensitive {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.half-hardy {
+    background: #fff7ed;
+    color: #f97316;
+}
+
+.hardy {
+    background: #f0fdf4;
+    color: #22c55e;
+}

@@ -1,0 +1,304 @@
+﻿/* Container för dashboarden */
+.dashboard-container {
+    padding: 2rem 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+
+/* --- SEKTION FÖR STATISTIK --- */
+.sowing-stats-section {
+    margin-bottom: 2.5rem;
+}
+
+/* Behållaren som lägger korten på rad */
+.stats-mini-grid {
+    display: flex;
+    flex-wrap: wrap; /* Gör att korten hoppar ner på nästa rad på mobilen */
+    gap: 12px;
+    margin-top: 10px;
+}
+
+/* Det lilla stat-kortet */
+.mini-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 10px 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    border: 1px solid #f1f5f9;
+    flex: 1; /* Gör att korten försöker ta lika mycket plats */
+    min-width: 140px; /* Förhindrar att de blir för smala */
+}
+
+/* Ikon-boxen */
+.mini-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .mini-icon i {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Färgteman för dina ikoner */
+    .mini-icon.blue {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .mini-icon.green {
+        background: #f0fdf4;
+        color: #10b981;
+    }
+
+    .mini-icon.yellow {
+        background: #fefce8;
+        color: #ca8a04;
+    }
+
+    .mini-icon.purple {
+        background: #faf5ff;
+        color: #a855f7;
+    }
+
+/* Text-info i kortet */
+.mini-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    line-height: 1;
+}
+
+.mini-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+/* Responsivitet för mindre skärmar */
+@media (max-width: 480px) {
+    .stats-mini-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Två i bredd på mobilen */
+    }
+}
+/* Gridden för korten */
+.plant-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Själva växtkortet */
+.plant-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid #f0f0f0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+    .plant-card:hover {
+        transform: translateY(-2px);
+    }
+
+.plant-main {
+    display: flex;
+    gap: 1rem;
+    position: relative;
+}
+
+/* Element inuti kortet */
+.plant-icon-circle {
+    width: 48px;
+    height: 48px;
+    background: #f8f8f8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+}
+
+.plant-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.seed-status-tag {
+    font-size: 0.7rem;
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: #64748b;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+.plant-core-info {
+    flex: 1;
+}
+
+.plant-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 2px;
+}
+
+/* Härdighetsbadges */
+.hardiness-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+
+/* Footer och ikoner */
+.plant-footer {
+    border-top: 1px solid #f8fafc;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-icons {
+    display: flex;
+    gap: 8px;
+}
+
+.feature-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+    .feature-icon i {
+        width: 16px;
+        height: 16px;
+    }
+
+    .feature-icon.light {
+        background: #eff6ff;
+        color: #3b82f6;
+    }
+
+    .feature-icon.topping {
+        background: #faf5ff;
+        color: #a855f7;
+    }
+
+.arrow {
+    color: #e2e8f0;
+    width: 20px;
+}
+
+/* Responsivitet för dashboarden */
+@media (max-width: 768px) {
+    .plant-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* --- REDAN PASSERAT (ACCORDION) --- */
+.past-section {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+    .past-section summary {
+        list-style: none; /* Tar bort standard-pilen */
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+
+        /* Skapar en egen liten pil som roterar */
+        .past-section summary::before {
+            content: '›';
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.4rem;
+            transition: transform 0.2s;
+        }
+
+    .past-section[open] summary::before {
+        transform: rotate(90deg);
+    }
+
+    .past-section summary:hover {
+        color: #64748b;
+    }
+
+/* Grid för de små korten inuti */
+.plant-grid.mini {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 15px 0;
+}
+
+.mini-card {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.mini-card-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mini-card span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.mini-icon {
+    width: 14px;
+    color: #94a3b8;
+}
+
+.mini-badge {
+    font-size: 0.6rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-weight: 800;
+}

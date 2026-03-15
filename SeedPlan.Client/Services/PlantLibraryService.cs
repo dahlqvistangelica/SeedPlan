@@ -1,5 +1,6 @@
 ﻿using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
+using Shared.Models;
 
 namespace SeedPlan.Client.Services
 {
@@ -72,6 +73,45 @@ namespace SeedPlan.Client.Services
                 .OrderBy(x => x.SowDate) // Sortera så de mest aktuella kommer först
                 .Select(x => x.Plant)
                 .ToList();
+        }
+
+        public async Task<Variety> AddVarietyAsync(Variety variety)
+        {
+            var response = await _supabase
+                .From<Variety>()
+                .Insert(variety);
+            return response.Model;
+        }
+
+        public async Task<SowingOverview> GetSowingOverviewAsync(DateTime lastFrost)
+        {
+            var allPlants = await GetAllPlantsAsync();
+            var today = DateTime.Today;
+            var overview = new SowingOverview();
+
+            foreach(var plant in allPlants)
+            {
+                var start = lastFrost.AddDays(-(plant.SowingLeadTime * 7));
+
+                var end = start.AddDays(28);
+                if(today > end)
+                {
+                    overview.Past.Add(plant);
+                }
+                else if(today >= start && today <= end)
+                {
+                    overview.Current.Add(plant);
+                }
+                else
+                {
+                    overview.Upcoming.Add(plant);
+                }
+
+
+            }
+            overview.Current = overview.Current.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
+
+            return overview;
         }
     }
 }

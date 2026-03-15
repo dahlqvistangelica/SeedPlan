@@ -1,0 +1,159 @@
+﻿@page "/sowings"
+@using Microsoft.AspNetCore.Authorization
+@using SeedPlan.Shared.Models
+@attribute [Authorize]
+@inject IUserSowingService SowingService
+@inject IJSRuntime JS
+
+<PageTitle>Mina Sådder - SeedPlan</PageTitle>
+
+<div class="sowings-container">
+    <header class="sowings-header">
+        <h1 class="serif-title">Mina Sådder</h1>
+        <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
+            <i data-lucide="plus"></i>
+        </button>
+    </header>
+    <AddSowingModal IsVisible="showAddModal"
+                    OnClose="() => showAddModal = false"
+                    OnSaved="LoadSowings" />
+
+    @if (isLoading)
+    {
+        <div class="loading">Hämtar dina sådder...</div>
+    }
+    else if (!mySowings.Any())
+    {
+        <div class="empty-state">
+            <p>Du har inga aktiva sådder just nu. 🌱</p>
+        </div>
+    }
+    else
+    {
+        <div class="sowing-list">
+            @foreach (var sowing in mySowings)
+            {
+                <div class="sowing-card fade-in">
+                    <div class="card-header">
+                        <div class="header-main">
+                            <div class="icon-box">
+                                <i data-lucide="@GetStatusIcon(sowing.Status)"></i>
+                            </div>
+                            <div class="title-area">
+                                <h3>
+                                    @sowing.Seed?.Plant?.PlantName
+                                    <span class="variety-name">(@(sowing.Seed?.Name ?? "Okänd sort"))</span>
+                                </h3>
+                                <p class="sown-date">
+                                    <i data-lucide="calendar"></i> Sådd den @sowing.SownDate
+                                </p>
+                            </div>
+                        </div>
+                        <div class="header-actions">
+                            <span class="status-badge">@GetStatusText(sowing.Status)</span>
+                            <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    @* DEN INTERAKTIVA STATUSLINJEN *@
+                    <div class="progress-container">
+                        <div class="progress-line"></div>
+                        <div class="progress-steps">
+                            <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)">
+                                <i data-lucide="sprout"></i>
+                            </div>
+                            <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)">
+                                <i data-lucide="check-circle"></i>
+                            </div>
+                            <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)">
+                                <i data-lucide="leaf"></i>
+                            </div>
+                            <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)">
+                                <i data-lucide="wind"></i>
+                            </div>
+                            <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)">
+                                <i data-lucide="sun"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* INFOBON (BILD image_c250bf.png) *@
+                    @if(sowing.Status == 0)
+                    {
+                    <div class="info-box">
+                        <i data-lucide="info"></i>
+                        <span>
+                            Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
+                            @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
+                        </span>
+                    </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Sowing> mySowings = new();
+    private bool isLoading = true;
+    private bool showAddModal = false;
+
+    private void OpenAddSowing()
+    {
+        showAddModal = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSowings();
+    }
+
+    private async Task LoadSowings()
+    {
+        isLoading = true;
+        mySowings = await SowingService.GetMySowings();
+        isLoading = false;
+        
+        await JS.InvokeVoidAsync("initializeLucide");
+        StateHasChanged();
+    }
+
+    private string GetStatusText(int status) => status switch
+    {
+        0 => "SÅDD",
+        1 => "GRODD",
+        2 => "KARAKTÄRSBLAD",
+        3 or 4 => "OMSKOLAD",
+        5 => "AVHÄRDNING",
+        6 => "UTPLANTERAD",
+        _ => "AKTIV"
+    };
+
+    private string GetStatusIcon(int status) => status switch
+    {
+        0 => "sprout",
+        1 => "check-circle",
+        2 => "leaf",
+        5 => "wind",
+        6 => "sun",
+        _ => "sprout"
+    };
+
+    private async Task UpdateStatus(Sowing sowing, int newStatus)
+    {
+        sowing.Status = newStatus;
+        await SowingService.UpdateSowingStatus(sowing.Id, newStatus);
+        
+        await JS.InvokeVoidAsync("initializeLucide");
+        StateHasChanged();
+    }
+
+    private async Task HandleDelete(int id)
+    {
+        await SowingService.DeleteSowing(id);
+        await LoadSowings();
+    }
+}

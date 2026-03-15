@@ -1,0 +1,194 @@
+﻿@using SeedPlan.Shared.Models
+@inject IUserInventoryService SeedService
+@inject IUserSowingService SowingService
+@inject IJSRuntime JS
+
+@if (Plant != null && IsVisible)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="detail-card fade-in" @onclick:stopPropagation>
+            @* 1. STÄNG-KNAPP I HÖRNET *@
+            <button class="close-x" @onclick="Close">×</button>
+            <header class="detail-header">
+                @* 2. NAMN OCH PLUS PÅ SAMMA RAD *@
+                <div class="title-with-plus">
+                    <h2 class="serif-title">@Plant.PlantName</h2>
+                    <button class="expand-btn" @onclick="ToggleAddForm" title="Lägg till frö">
+                        <i data-lucide="plus"></i>
+                    </button>
+                </div>
+            </header>
+
+            <p class="sowing-guide-text">Sås @Plant.SowingLeadTime veckor före sista frost</p>
+
+            @* FRÖER I LAGER *@
+            @if(ownedSeeds.Any())
+            {
+                <div class="inventory-section">
+                    <div class="inventory-header">
+                        <label>Fröer i lager</label>
+                        <button class="sow-now-pill-small">
+                            <i data-lucide="zap"></i> SÅ NU
+                        </button>
+                    </div>
+                    
+                    <div class="seed-variety-list">
+                        @foreach(var seed in ownedSeeds)
+                        {
+                            <div class="variety-card">
+                                <div class="variety-info">
+                                    <span class="variety-name">@(string.IsNullOrEmpty(seed.Name) ? "Okänd sort" : seed.Name)</span>
+                                    <span class="variety-meta">@seed.Quantity påsar </span>
+                                </div>
+                                <button class="sow-now-action" @onclick="() => HandleQuickSow(seed)">
+                                    <i data-lucide="plus"></i> Så nu
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* EXPANDERBART FORMULÄR *@
+            @if (showAddForm)
+            {
+                <div class="add-seed-container slide-down">
+                    <div class="form-header">
+                        <h3>LÄGG TILL FRÖ</h3>
+                        <button class="text-link" @onclick="ToggleAddForm">Avbryt</button>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="input-block full">
+                            <label>Sortnamn</label>
+                            <input type="text" @bind="newSeed.Name" placeholder="T.ex. Genovese" class="form-input" />
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-block">
+                                <label>Antal</label>
+                                <input type="number" @bind="newSeed.Quantity" class="form-input" />
+                            </div>
+                            <div class="input-block">
+                                <label>Utgångsdatum</label>
+                                <input type="date" @bind="newSeed.ExpiryDate" class="form-input" />
+                            </div>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-block">
+                                <label>Inköpsdatum</label>
+                                <input type="date" @bind="purchaseDate" class="form-input" />
+                            </div>
+                            <div class="input-block">
+                                <label>Inköpsställe</label>
+                                <input type="text" placeholder="T.ex. Impecta" class="form-input" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="save-btn-large" @onclick="HandleSave">Spara i lager</button>
+                </div>
+            }
+
+            @* INFO-GRID *@
+            <div class="info-grid">
+                <div class="info-box">
+                    <label>VETENSKAPLIGT NAMN</label>
+                    <span>@(Plant.ScientificName ?? "Ej angivet")</span>
+                </div>
+                <div class="info-box">
+                    <label>FÖRODLING</label>
+                    <span>@Plant.SowingLeadTime veckor</span>
+                </div>
+                <div class="info-box">
+                    <label>UTPLANTERING</label>
+                    <span>@GetPlantingText(Plant.WeeksBeforeFrost)</span>
+                </div>
+                <div class="info-box">
+                    <label>PLANTAVSTÅND</label>
+                    <span>@(Plant.PlantSpacing?.ToString() ?? "20") cm</span>
+                </div>
+            </div>
+
+            <div class="growing-advice">
+                <label>ODLINGSRÅD</label>
+                <div class="growing-advice-text"><p>Här kan du lägga till specifika odlingsråd från databasen framöver.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Plant? Plant { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private bool showAddForm = false;
+    private Seed newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2) };
+    private DateTime purchaseDate = DateTime.Now;
+    private List<Seed> ownedSeeds = new();
+    private string errorMessage = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(IsVisible && Plant != null)
+        {
+            var allSeeds = await SeedService.GetMySeeds();
+            ownedSeeds = allSeeds.Where(s => s.PlantId == Plant.Id).ToList();
+        }
+    }
+
+    private void ToggleAddForm() => showAddForm = !showAddForm;
+
+    private string GetPlantingText(int weeks) => weeks <= 0
+        ? $"{Math.Abs(weeks)} v. efter sista frost"
+        : $"{weeks} v. före sista frost";
+
+    private async Task HandleSave()
+    {
+        newSeed.PlantId = Plant?.Id;
+        await SeedService.AddSeed(newSeed);
+        showAddForm = false;
+        await OnSaved.InvokeAsync();
+        await Close();
+    }
+
+    private async Task Close()
+    {
+        showAddForm = false;
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task HandleQuickSow(Seed seed)
+    {
+        try
+        {
+            errorMessage = "";
+            var newSowing = new Sowing(seed.Id)
+                {
+                    SownDate = DateTime.Now
+                };
+
+            await SowingService.AddSowing(newSowing);
+
+            if (seed.Quantity > 0)
+            {
+                seed.Quantity--;
+                await SeedService.UpdateSeed(seed);
+            }
+            await JS.InvokeVoidAsync("alert", $"Sådd registrerad för {seed.Name}.");
+        }
+        catch(ArgumentException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        catch(Exception)
+        {
+            errorMessage = "Ett oväntat fel inträffade.";
+        }
+    }
+
+}

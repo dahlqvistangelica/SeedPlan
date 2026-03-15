@@ -1,0 +1,208 @@
+﻿@page "/guide"
+@implements IDisposable
+@using SeedPlan.Shared.Models
+@inject IPlantLibraryService PlantService
+@inject IJSRuntime JS
+@using System.Text.Json
+
+<div class="guide-container">
+    <header class="guide-header">
+        <h1 class="serif-title">Växtguide</h1>
+        <button class="filter-toggle @(showFilters ? "active" : "")" @onclick="ToggleFilters">
+            <i data-lucide="filter"></i>
+        </button>
+    </header>
+
+    @* SÖKRUTA *@
+    <div class="search-section">
+        <div class="search-wrapper">
+            <i data-lucide="info" class="search-icon"></i>
+            <input type="text" value="@searchText" @oninput="OnSearchInput" placeholder="Sök växt..." class="search-input" />
+        </div>
+    </div>
+
+    @* FILTERPANEL (BILD 3) *@
+    @if (showFilters)
+    {
+        <div class="filter-panel fade-in">
+            <div class="filter-group">
+                <label>HÄRDIGHET</label>
+                <div class="chip-group">
+                    <button class="chip @(activeHardiness == null ? "active" : "")" @onclick="() => SetHardiness(null)">Alla</button>
+                    <button class="chip @(activeHardiness == 2 ? "active" : "")" @onclick="() => SetHardiness(2)">Härdig</button>
+                    <button class="chip @(activeHardiness == 1 ? "active" : "")" @onclick="() => SetHardiness(1)">Halvhärdig</button>
+                    <button class="chip @(activeHardiness == 0 ? "active" : "")" @onclick="() => SetHardiness(0)">Känslig</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>EGENSKAPER</label>
+                <div class="property-row" @onclick="ToggleLightGerm">
+                    <span>Ljusgroende</span>
+                    <span class="status-text">@(onlyLightGerm ? "Ja" : "Alla")</span>
+                </div>
+                <div class="property-row" @onclick="ToggleTopping">
+                    <span>Toppas</span>
+                    <span class="status-text">@(onlyTopping ? "Ja" : "Alla")</span>
+                </div>
+            </div>
+
+            <div class="filter-footer">
+                <button class="reset-btn" @onclick="ResetFilters">NOLLSTÄLL FILTER</button>
+            </div>
+        </div>
+    }
+
+    @* VÄXTGRID *@
+    <div class="plant-grid">
+        @foreach (var plant in FilteredPlants)
+        {
+            <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
+                <div class="card-top">
+                    <div class="plant-icon-circle">
+                        <i data-lucide="leaf"></i>
+                    </div>
+                    <span class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
+                        @GetHardinessText(plant.HardinessLevel)
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <h3 class="plant-name">@plant.PlantName</h3>
+                    <p class="sowing-info">Sås @plant.SowingLeadTime v. före frost</p>
+                </div>
+
+                <div class="card-footer">
+                    <div class="feature-icons">
+                        @if (plant.IsLightGerminating)
+                        {
+                            <i data-lucide="sparkles" class="icon-light"></i>
+                        }
+                        @if (plant.RequiresTopping)
+                        {
+                            <i data-lucide="scissors" class="icon-topping"></i>
+                        }
+                    </div>
+                    <i data-lucide="chevron-right" class="arrow"></i>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<PlantDetailModal IsVisible="showDetailModal" Plant="selectedPlant" OnClose="() => showDetailModal = false" />
+
+@code {
+    private List<Plant> allPlants = new();
+    private string searchText = "";
+    private bool showFilters = false;
+    private int? activeHardiness = null;
+    private bool onlyLightGerm = false;
+    private bool onlyTopping = false;
+    private CancellationTokenSource? _searchCts;
+
+    private const string StorageKey = "guide_filters";
+
+    protected override async Task OnInitializedAsync()
+    {
+        allPlants = await PlantService.GetAllPlantsAsync();
+    }
+
+    private IEnumerable<Plant> FilteredPlants => allPlants
+        .Where(p => string.IsNullOrEmpty(searchText) || p.PlantName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+        .Where(p => activeHardiness == null || p.HardinessLevel == activeHardiness)
+        .Where(p => !onlyLightGerm || p.IsLightGerminating)
+        .Where(p => !onlyTopping || p.RequiresTopping);
+
+    private void ToggleFilters() => showFilters = !showFilters;
+    private async Task SetHardiness(int? level) { activeHardiness = level; await SaveFilters(); }
+    private async Task ToggleLightGerm() { onlyLightGerm = !onlyLightGerm; await SaveFilters(); }
+    private async Task ToggleTopping() { onlyTopping = !onlyTopping; await SaveFilters(); }
+
+    private async Task ResetFilters()
+    {
+        searchText = "";
+        activeHardiness = null;
+        onlyLightGerm = false;
+        onlyTopping = false;
+        await JS.InvokeVoidAsync("localStorage.removeItem", StorageKey);
+    }
+
+    // För sökfältet sparar vi när användaren ändrar texten
+    private async Task OnSearchInput(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? "";
+
+        _searchCts?.Cancel();
+        _searchCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(300, _searchCts.Token);
+            await SaveFilters();
+            StateHasChanged();
+        }
+        catch(TaskCanceledException)
+        {
+
+        }
+    }
+
+    public void Dispose()
+    {
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+    }
+
+    private string GetHardinessText(int level) => level switch { 0 => "KÄNSLIG", 1 => "HALVHÄRDIG", 2 => "HÄRDIG", _ => "" };
+    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
+
+    // Modal hantering
+    private bool showDetailModal = false;
+    private Plant? selectedPlant;
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadFilters();
+            StateHasChanged(); // Tvinga UI att uppdateras med de laddade filtren
+            await JS.InvokeVoidAsync("initializeLucide");
+        }
+    }
+    private async Task SaveFilters()
+    {
+        var filterData = new
+        {
+            SearchText = searchText,
+            Hardiness = activeHardiness,
+            LightGerm = onlyLightGerm,
+            Topping = onlyTopping
+        };
+
+        var json = JsonSerializer.Serialize(filterData);
+        await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
+    }
+
+    private async Task LoadFilters()
+    {
+        var json = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
+        if (!string.IsNullOrEmpty(json))
+        {
+            try
+            {
+                var data = JsonDocument.Parse(json).RootElement;
+                searchText = data.GetProperty("SearchText").GetString() ?? "";
+                
+                // Hantera nullable int för härdighet
+                if (data.GetProperty("Hardiness").ValueKind != JsonValueKind.Null)
+                    activeHardiness = data.GetProperty("Hardiness").GetInt32();
+                
+                onlyLightGerm = data.GetProperty("LightGerm").GetBoolean();
+                onlyTopping = data.GetProperty("Topping").GetBoolean();
+            }
+            catch { /* Om formatet ändrats, ignorera och kör standard */ }
+        }
+    }
+}

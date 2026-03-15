@@ -30,5 +30,17 @@ namespace SeedPlan.Shared.Models
         public Plant? Plant { get; set; }
         [Reference(typeof(Variety))]
         public Variety? Variety { get; set; }
+
+        public Seed() { }
+        public Seed(Seed newSeed)
+        {
+            Id = newSeed.Id;
+            Name = newSeed.Name;
+            Quantity = newSeed.Quantity;
+            ExpiryDate = newSeed.ExpiryDate;
+            PlantId = newSeed.PlantId;
+            UserId = newSeed.UserId;
+            
+        }
     }
 }
