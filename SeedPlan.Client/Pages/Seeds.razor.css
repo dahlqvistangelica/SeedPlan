@@ -1,7 +1,18 @@
-﻿.seeds-container {
-    max-width: 800px;
+﻿/* ==========================================================================
+   CONTAINER & HEADER
+   ========================================================================== */
+.seeds-container {
+    padding: 1rem;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 2rem 1rem;
+    /* Extra plats för bottenmenyn på mobilen */
+    padding-bottom: 120px;
+}
+
+@media (min-width: 768px) {
+    .seeds-container {
+        padding: 2rem;
+    }
 }
 
 .seeds-header {
@@ -11,46 +22,87 @@
     margin-bottom: 2rem;
 }
 
+/* ==========================================================================
+   FRÖ-LISTA & GRID
+   ========================================================================== */
 .seed-list {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr; /* Mobil: 1 kolumn */
     gap: 1rem;
 }
 
+/* Tablet & Desktop: 2 kolumner */
+@media (min-width: 768px) {
+    .seed-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
 
+/* Stor skärm: 3 kolumner */
+@media (min-width: 1200px) {
+    .seed-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
 
+/* ==========================================================================
+   FRÖ-KORT
+   ========================================================================== */
 .seed-card {
     background: white;
     padding: 1.2rem;
-    border-radius: 20px;
+    border-radius: 24px; /* Mjukare hörn som i din dashboard */
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    border: 1px solid #f0f0f0;
+    border: 1px solid var(--border-color, #f0f0f0);
     cursor: pointer;
-    transition: transform 0.1s ease, box-shadow 0.2s;
+    transition: transform 0.2s ease, border-color 0.2s;
 }
+
+    .seed-card:hover {
+        border-color: var(--primary, #10b981);
+        transform: translateY(-2px);
+    }
+
     .seed-card:active {
         transform: scale(0.98);
     }
 
-
 .seed-info h3 {
     margin: 0;
     font-size: 1.1rem;
+    color: var(--text-dark, #1e293b);
 }
 
 .plant-type {
-    color: #10b981;
-    font-weight: 600;
+    color: var(--primary, #10b981);
+    font-weight: 700;
+    font-size: 0.8rem;
+    margin: 4px 0;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   BADGES & KNAPPAR
+   ========================================================================== */
+.qty-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdf4;
+    padding: 6px 12px;
+    border-radius: 12px;
+    color: var(--primary, #10b981);
+    font-weight: 700;
     font-size: 0.85rem;
-    margin: 2px 0;
 }
 
 .expiry-tag {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--text-muted, #94a3b8);
 }
 
     .expiry-tag.expired {
@@ -58,91 +110,53 @@
         font-weight: 700;
     }
 
-.seed-actions {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: #cbd5e1;
-}
-
-.qty {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-}
-
+/* Den gröna runda knappen för att lägga till */
 .btn-add-circle {
-    background: #10b981;
+    background: var(--primary, #10b981);
     color: white;
     border: none;
-    width: 48px;
-    height: 48px;
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3);
+    transition: transform 0.2s;
 }
 
+    .btn-add-circle:active {
+        transform: scale(0.9);
+    }
 
-
-.qty-badge {
+.seed-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: #f0fdf4;
-    padding: 6px 12px;
-    border-radius: 12px;
-    color: #10b981;
+    gap: 12px;
 }
 
-.sow-icon {
-    width: 16px;
-    height: 16px;
-    stroke-width: 2.5;
-}
-
-.arrow-icon {
-    color: #cbd5e1;
-    width: 20px;
-}
 .delete-seed-btn {
     background: none;
     border: none;
-    color: #cbd5e1; /* Ljusgrå som standard */
+    color: #cbd5e1;
     cursor: pointer;
-    padding: 5px;
+    padding: 8px;
     display: flex;
     align-items: center;
     transition: color 0.2s;
 }
 
     .delete-seed-btn:hover {
-        color: #ef4444; /* Blir röd vid hover */
+        color: #ef4444;
     }
 
-    .delete-seed-btn i {
-        width: 18px;
-        height: 18px;
-    }
-
-/* Modal styling för att matcha din design */
+/* ==========================================================================
+   MODAL SPECIFIK STYLING
+   ========================================================================== */
 .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
     margin-bottom: 15px;
-}
-
-.sp-save-btn {
-    width: 100%;
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
 }
