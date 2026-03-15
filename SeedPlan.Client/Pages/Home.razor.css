@@ -170,6 +170,7 @@
 }
 
 .seed-status-tag {
+    display: inline-block;
     font-size: 0.7rem;
     background: #f1f5f9;
     padding: 3px 8px;
@@ -178,7 +179,9 @@
     font-weight: 600;
     margin-left: 0.5rem;
 }
-
+.seed-status-missing {
+    display: none;
+}
 .plant-core-info {
     flex: 1;
 }
@@ -364,4 +367,27 @@
         padding: 1rem 0.6rem; /* Ännu mindre padding på sidorna på små mobiler */
         padding-bottom: 100px;
     }
+    .plant-card {
+        padding: 0.7rem;
+    }
+    
+    .seed-status-tag {
+        display: none;
+    }
+
+    .seed-status-missing {
+        display: flex; /* Visa ikonen istället */
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 8px;
+        margin-left: 0.3rem;
+    }
+
+        .seed-status-missing i {
+            width: 14px; /* Liten storlek för att få plats på raden */
+            height: 14px;
+        }
 }

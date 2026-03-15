@@ -117,8 +117,12 @@
                                         </button>
                                     }
                                     else
-                                    {
+                                    { @*Text för desktop / större skärmar*@
                                         <span class="seed-status-tag">Saknar frö</span>
+                                        @*ikon för mobil/små skärmar*@
+                                        <div class="seed-status-missing" title="Saknar frö">
+                                            <i data-lucide="bean-off"></i>
+                                        </div>
                                     }
                                 </div>
                                 <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
