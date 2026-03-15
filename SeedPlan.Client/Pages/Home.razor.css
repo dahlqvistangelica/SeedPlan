@@ -4,26 +4,12 @@
     margin: 0 auto;
 }
 
-.date-badge {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: white;
-    padding: 8px 14px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #64748b;
-    border: 1px solid #f1f5f9;
-}
-
 /* Statistik-sektionen */
 .stats-mini-grid {
     display: flex;
-    flex-wrap: nowrap;
     gap: 12px;
     margin-top: 10px;
-    overflow-x: auto; /* Tillåter skroll på tablet om det behövs */
+    flex-wrap: nowrap;
 }
 
 .mini-stat-card {
@@ -35,10 +21,30 @@
     border-radius: 16px;
     border: 1px solid #f1f5f9;
     flex: 1;
-    min-width: 140px;
 }
 
-/* Plant Grid - 2 kolumner på desktop! */
+/* Återställer färgerna på dina ikoner */
+.mini-icon.blue {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+
+.mini-icon.green {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.mini-icon.yellow {
+    background: #fefce8;
+    color: #ca8a04;
+}
+
+.mini-icon.purple {
+    background: #faf5ff;
+    color: #a855f7;
+}
+
+/* Återställer grid till 2 kolumner på desktop */
 .plant-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -53,7 +59,6 @@
     border: 1px solid #f0f0f0;
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
     cursor: pointer;
     transition: transform 0.2s;
 }
@@ -63,7 +68,7 @@
         border: 1px solid #10b981;
     }
 
-/* Media query som BARA ändrar till 1 kolumn på mobil */
+/* MOBIL-FIX: Byt till 1 kolumn om skärmen är liten */
 @media (max-width: 768px) {
     .plant-grid {
         grid-template-columns: 1fr;
@@ -73,21 +78,4 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
     }
-}
-
-/* Accordion för redan passerat */
-.past-section summary {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    cursor: pointer;
-    font-weight: 600;
-    color: #94a3b8;
-}
-
-.plant-grid.mini {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
 }
