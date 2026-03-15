@@ -44,14 +44,14 @@
                     @* 2. SORT / NAMN (Nu med sökfunktion för varianter) *@
                     <div class="sp-input-block">
                         <label>SORT / NAMN</label>
-                        <input type="text" @bind="newSeed.Name" @bind:event="oninput"
+                        <input type="text" @bind="newSeed.VarietyName" @bind:event="oninput"
                                placeholder="T.ex. Katz Purple" class="sp-input" />
                         
                         @if (selectedPlant != null && !string.IsNullOrEmpty(newSeed.Name) && !isVarietySelected)
                         {
                             var varietySuggestions = allVarieties
                                 .Where(v => v.PlantId == selectedPlant.Id &&
-                                           v.VarietyName.Contains(newSeed.Name, StringComparison.OrdinalIgnoreCase))
+                                           v.VarietyName.Contains(newSeed.VarietyName, StringComparison.OrdinalIgnoreCase))
                                 .Take(5);
 
                             @if (varietySuggestions.Any())
@@ -125,14 +125,21 @@
     private void SelectResult(SearchResult res)
     {
         selectedPlant = res.Plant;
-        newSeed.PlantId = res.Plant?.Id ?? 0;
+        newSeed.PlantId = res.Plant?.Id;
+
+        newSeed.Name = res.Plant?.PlantName ?? "";
         searchText = "";
-        isVarietySelected = false;
+        isVarietySelected = res.Variety != null;
+        if(isVarietySelected)
+        {
+            newSeed.VarietyId = res.Variety?.Id;
+            newSeed.VarietyName = res.Variety?.VarietyName ?? "";
+        }
     }
 
     private void SelectVariety(Variety v)
     {
-        newSeed.Name = v.VarietyName;
+        newSeed.VarietyName = v.VarietyName;
         newSeed.VarietyId = v.Id;
         isVarietySelected = true;
     }
@@ -142,6 +149,8 @@
         selectedPlant = null;
         newSeed.PlantId = 0;
         newSeed.Name = "";
+        newSeed.VarietyName = "";
+        newSeed.VarietyId = null;
         isVarietySelected = false;
     }
 
@@ -149,16 +158,17 @@
     {
         try
         {
-            if (selectedPlant != null && !isVarietySelected && !string.IsNullOrWhiteSpace(newSeed.Name))
+
+            if (selectedPlant != null && !isVarietySelected && !string.IsNullOrWhiteSpace(newSeed.VarietyName))
             {
-                var existingVariety = allVarieties.FirstOrDefault(v => v.PlantId == selectedPlant.Id && v.VarietyName.Equals(newSeed.Name, StringComparison.OrdinalIgnoreCase));
+                var existingVariety = allVarieties.FirstOrDefault(v => v.PlantId == selectedPlant.Id && v.VarietyName.Equals(newSeed.VarietyName, StringComparison.OrdinalIgnoreCase));
 
                 if (existingVariety == null)
                 {
                     var newVarietyObj = new Variety
                         {
                             PlantId = selectedPlant.Id,
-                            VarietyName = newSeed.Name
+                            VarietyName = newSeed.VarietyName
                         };
 
                     var savedVariety = await PlantService.AddVarietyAsync(newVarietyObj);

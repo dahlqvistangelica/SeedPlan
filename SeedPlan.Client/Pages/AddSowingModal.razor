@@ -13,10 +13,20 @@
                 <div class="input-block">
                     <label>VÄLJ FRÖ</label>
                     <select @bind="newSowing.SeedId" class="sp-input">
-                        <option value="0">Välj ett frö från lagret...</option>
+                        @if(InitialPlant != null)
+                        {
+                            <option value="0">Välj vilken sort av @InitialPlant.PlantName du sår..</option>
+                        }
+                        else
+                        {
+                            <option value="0">Välj ett frö från lagret...</option>
+                        }
                         @foreach (var seed in availableSeeds)
                         {
-                            <option value="@seed.Id">@seed.Name (@(seed.Plant?.PlantName ?? "Okänd"))</option>
+                            @* Visa sortnamn (VarietyName) om det finns, annars fröets namn *@
+                            <option value="@seed.Id">
+                                @(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)
+                            </option>
                         }
                     </select>
                 </div>
@@ -50,6 +60,7 @@
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public Plant? InitialPlant { get; set; }
 
     private List<Seed> availableSeeds = new();
     private Sowing newSowing = new() { SownDate = DateTime.Now }; // Använder DateTime som du ändrat till
@@ -59,8 +70,26 @@
     {
         if (IsVisible)
         {
-            availableSeeds = await SeedService.GetMySeeds(); // Hämtar dina fröer
+            newSowing = new() { SownDate = DateTime.Now };
             errorMessage = "";
+
+            var allOwnedSeeds = await SeedService.GetMySeeds(); // Hämtar dina fröer
+            if(InitialPlant != null)
+            {
+                availableSeeds = allOwnedSeeds.Where(s => s.PlantId == InitialPlant.Id).ToList();
+                if(availableSeeds.Count == 1)
+                {
+                    newSowing.SeedId = availableSeeds.First().Id;
+                }
+                else
+                {
+                    newSowing.SeedId = 0;
+                }
+            }
+            else
+            {
+                availableSeeds = allOwnedSeeds;
+            }
         }
     }
 
@@ -74,6 +103,16 @@
 
         try
         {
+            var selectedSeed = availableSeeds.FirstOrDefault(s => s.Id == newSowing.Id);
+            if(selectedSeed != null)
+            {
+                if(selectedSeed.Quantity > 0)
+                {
+                    selectedSeed.Quantity--;
+                    await SeedService.UpdateSeed(selectedSeed);
+                }
+            }
+
             await SowingService.AddSowing(newSowing); // Sparar sådden
             newSowing = new() { SownDate = DateTime.Now };
             await OnSaved.InvokeAsync();
@@ -81,7 +120,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = ex.Message;
+            errorMessage = "Kunde inte spara: " + ex.Message;
         }
     }
 

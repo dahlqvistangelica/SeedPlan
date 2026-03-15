@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 /* ==========================================================================
    CSS VARIABLER (Design System)
    ========================================================================== */
@@ -58,8 +57,8 @@ h1:focus {
 
     .header-top h1 {
         margin: 0;
-        font-family: serif;
-        font-size: 1.8rem;
+        font-family: 'Lora', serif;
+        font-size: 2.2rem;
         font-style: italic;
         color: #333;
         
@@ -71,6 +70,14 @@ h1:focus {
     color: #999;
     margin-bottom: 1.5rem;
     text-transform: uppercase;
+}
+
+.serif-title {
+    font-family: 'Lora', serif;
+    font-style: italic;
+    font-size: 2.2rem;
+    color: #1e293b;
+    margin: 0;
 }
 
 /* ==========================================================================

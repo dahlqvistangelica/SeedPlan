@@ -16,7 +16,7 @@
 <div class="dashboard-container">
     <header class="dashboard-header">
         <div class="header-top">
-            <h1>Välkommen tillbaka</h1>
+            <h1 class="serif-title">Välkommen tillbaka</h1>
             <div class="date-badge">
                 <i data-lucide="calendar"></i>
                 <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
@@ -92,7 +92,7 @@
         @if (!sowingSuggestions.Any())
         {
             <div class="empty-state">
-                <p>Inga växter rekommenderas för sådd just nu. 🌱</p>
+                <p>Inga växter rekommenderas för sådd just nu. </p>
             </div>
         }
         else
@@ -103,7 +103,7 @@
                     <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
                         <div class="plant-main">
                             <div class="plant-icon-circle">
-                                <i data-lucide="sprout"></i>
+                                <i data-lucide="leaf"></i>
                             </div>
                             <div class="plant-core-info">
                                 <div class="plant-title-row">
@@ -113,7 +113,7 @@
                                     {
                                         @* stopPropagation hindrar att PlantDetailModal öppnas när man klickar på knappen *@
                                         <button class="btn-sow-now" @onclick:stopPropagation="true" @onclick="() => StartSowing(item.Plant)">
-                                            <i data-lucide="plus-circle"></i> SÅ NU
+                                            Så nu
                                         </button>
                                     }
                                     else

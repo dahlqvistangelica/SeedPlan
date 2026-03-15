@@ -42,7 +42,7 @@
                             <div class="title-area">
                                 <h3>
                                     @sowing.Seed?.Plant?.PlantName
-                                    <span class="variety-name">(@(sowing.Seed?.Name ?? "Okänd sort"))</span>
+                                    <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
                                 </h3>
                                 <p class="sown-date">
                                     <i data-lucide="calendar"></i> Sådd den @sowing.SownDate
@@ -79,7 +79,7 @@
                         </div>
                     </div>
 
-                    @* INFOBON (BILD image_c250bf.png) *@
+                    @*  *@
                     @if(sowing.Status == 0)
                     {
                     <div class="info-box">
@@ -89,6 +89,15 @@
                             @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
                         </span>
                     </div>
+                    }
+                    @if (sowing.Status == 2 && sowing.Seed.Plant.RequiresTopping)
+                    {
+                        <div class="info-box">
+                            <i data-lucide="info"></i>
+                            <span>
+                                @(sowing.Seed.Plant.PlantName) bör toppas!
+                            </span>
+                        </div>
                     }
                 </div>
             }

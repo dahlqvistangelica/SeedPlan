@@ -5,7 +5,7 @@ namespace SeedPlan.Shared.Models
     [Table("seeds")] // Detta mappar klassen till tabellen "seeds" i Supabase
     public class Seed : BaseModel
     {
-        [PrimaryKey("id", false)]
+        [PrimaryKey("id", true)]
         public int Id { get; set; }
         [Column("plant_id")]
         public int? PlantId { get; set; }
@@ -14,6 +14,8 @@ namespace SeedPlan.Shared.Models
 
         [Column("name")]
         public string Name { get; set; } = string.Empty;
+        [Column("variety")]
+        public string VarietyName { get; set; } = string.Empty;
 
         [Column("quantity")]
         public int Quantity { get; set; }
@@ -40,6 +42,7 @@ namespace SeedPlan.Shared.Models
             ExpiryDate = newSeed.ExpiryDate;
             PlantId = newSeed.PlantId;
             UserId = newSeed.UserId;
+            VarietyName = newSeed.VarietyName;
             
         }
     }
