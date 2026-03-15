@@ -16,8 +16,8 @@ namespace SeedPlan.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            var supabaseUrl = "https://vymaxxeiosihvqklvzpw.supabase.co";
-            var supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5bWF4eGVpb3NpaHZxa2x2enB3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMjY3OTMsImV4cCI6MjA4ODkwMjc5M30.sGoh1LHXBn_3AUwEyUzXGmokh2PZbGoVL3fttTJcfb0";
+            var supabaseUrl = builder.Configuration["SUPABASE_URL"] ?? "";
+            var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"] ?? "";
 
             builder.Services.AddScoped(provider =>
             {
