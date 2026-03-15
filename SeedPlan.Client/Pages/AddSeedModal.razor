@@ -195,4 +195,11 @@
         public Variety? Variety { get; set; }
         public string DisplayName { get; set; } = "";
     }
+    private void ChangePlant()
+    {
+        selectedPlant = null;
+        newSeed.PlantId = 0;
+        newSeed.Name = "";
+        searchText = "";
+    }
 }
