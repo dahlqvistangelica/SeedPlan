@@ -14,8 +14,9 @@
     <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
 <body>
+    <div id="#app">
     <Routes @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
-
+    </div>
     <script src="_framework/blazor.web.js"></script>
 
     @* BARA en säker funktion som vi kallar på manuellt, INGEN Observer som kraschar appen *@
