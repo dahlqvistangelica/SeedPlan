@@ -33,15 +33,27 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
 
             builder.Services.AddAuthentication("SupabaseAuth")
-                .AddCookie("SupabaseAuth", options =>
-                {
-                    options.Cookie.Name = "SeedPlanAuth";
-                    options.Events.OnRedirectToLogin = context =>
-                    {
-                        context.Response.StatusCode = 401;
-                        return Task.CompletedTask;
-                    };
-                });
+    .AddCookie("SupabaseAuth", options =>
+    {
+        options.Cookie.Name = "SeedPlanAuth";
+
+        // --- TILLÄGG: GÖR INLOGGNINGEN PERMANENT ---
+        options.Cookie.MaxAge = TimeSpan.FromDays(30); // Sparas i 30 dagar
+        options.Cookie.IsEssential = true;
+        options.SlidingExpiration = true;
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            // Blockera bara API-anrop med 401. 
+            // För vanliga sidladdningar vill vi att servern släpper igenom användaren 
+            // så att WASM-klienten kan ta över och kolla localStorage.
+            if (context.Request.Path.StartsWithSegments("/api"))
+            {
+                context.Response.StatusCode = 401;
+            }
+            return Task.CompletedTask;
+        };
+    });
 
             builder.Services.AddAuthorization();
             builder.Services.AddCascadingAuthenticationState();
