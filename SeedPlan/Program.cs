@@ -67,7 +67,7 @@ namespace SeedPlan
             app.UseAntiforgery();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.MapStaticAssets();
+            app.UseStaticFiles();
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode()

@@ -1,0 +1,114 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using SeedPlan.Shared.Models
+@using SeedPlan.Shared.Interfaces
+@inject Supabase.Client Supabase
+@inject IUserProfileService ProfileService
+@inject NavigationManager Nav
+
+<div class="auth-container">
+    <h3>Skapa konto</h3>
+    <p>Börja planera din trädgård genom att registrera dig nedan.</p>
+
+    <EditForm Model="@regData" OnValidSubmit="HandleRegister">
+        <DataAnnotationsValidator />
+        
+        <div class="form-group">
+            <label>Namn</label>
+            <InputText @bind-Value="regData.FullName" class="form-control" placeholder="Ditt namn" />
+        </div>
+
+        <div class="form-group">
+            <label>E-post</label>
+            <InputText @bind-Value="regData.Email" class="form-control" type="email" />
+            <ValidationMessage For="@(() => regData.Email)" />
+        </div>
+
+        <div class="form-group">
+            <label>Lösenord</label>
+            <InputText @bind-Value="regData.Password" class="form-control" type="password" />
+            <ValidationMessage For="@(() => regData.Password)" />
+        </div>
+
+        <div class="form-group">
+            <label>Bekräfta lösenord</label>
+            <InputText @bind-Value="regData.ConfirmPassword" class="form-control" type="password" />
+            <ValidationMessage For="@(() => regData.ConfirmPassword)" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <button type="submit" class="btn-primary" disabled="@isSubmitting">
+            @(isSubmitting ? "Skapar konto..." : "Registrera konto")
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private LocalRegisterData regData = new();
+    private string? errorMessage;
+    private bool isSubmitting = false;
+
+    private async Task HandleRegister()
+    {
+        if (regData.Password != regData.ConfirmPassword)
+        {
+            errorMessage = "Lösenorden matchar inte.";
+            return;
+        }
+
+        isSubmitting = true;
+        errorMessage = null;
+
+        try
+        {
+            // 1. Registrera användaren i Supabase Auth
+            var session = await Supabase.Auth.SignUp(regData.Email, regData.Password);
+
+            if (session?.User != null)
+            {
+                // 2. Skapa din UserProfile med det ID vi fick från Auth
+                var newProfile = new UserProfile
+                {
+                    Id = session.User.Id, // Kopplar ihop Auth-kontot med profilen
+                    FullName = regData.FullName,
+                    UpdatedLast = DateTime.UtcNow,
+                    GrowingZone = 1 // Standardvärde
+                };
+
+                // Sparar profilen i databasen via din befintliga service
+                await ProfileService.UpsertUserProfile(newProfile);
+                
+                Nav.NavigateTo("/");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Kunde inte registrera. Kontrollera om e-posten redan används.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+
+    // Vi skapar en liten klass här bara för att validera formuläret
+    public class LocalRegisterData
+    {
+        public string? FullName { get; set; }
+
+        [Required(ErrorMessage = "E-post krävs")]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required(ErrorMessage = "Lösenord krävs")]
+        [MinLength(6, ErrorMessage = "Minst 6 tecken")]
+        public string Password { get; set; } = "";
+
+        [Required(ErrorMessage = "Bekräfta lösenord")]
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

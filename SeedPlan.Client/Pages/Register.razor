@@ -1,0 +1,26 @@
+﻿@page "/register"
+@using SeedPlan.Client.Shared
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Skapa konto - SeedPlan</PageTitle>
+
+<div class="auth-page-container">
+    <div class="auth-header">
+        <button class="btn-back" @onclick="GoBack">
+            <i data-lucide="chevron-left"></i> Tillbaka
+        </button>
+    </div>
+
+    <RegisterForm />
+</div>
+
+@code {
+
+    private void GoBack() => Nav.NavigateTo("/");
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+}
