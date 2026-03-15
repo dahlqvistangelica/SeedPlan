@@ -45,9 +45,12 @@
                                     <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
                                 </h3>
                                 <p class="sown-date">
-                                    <i data-lucide="calendar"></i> Sådd den @sowing.SownDate
+                                    <i data-lucide="calendar"></i>
+                                    Sådd den @(sowing.SownDate?.ToString("yyyy-MM-dd"))
+                                    <span class="sown-quantity">(@sowing.Quantity st)</span>
                                 </p>
                             </div>
+
                         </div>
                         <div class="header-actions">
                             <span class="status-badge">@GetStatusText(sowing.Status)</span>
@@ -79,23 +82,23 @@
                         </div>
                     </div>
 
-                    @*  *@
-                    @if(sowing.Status == 0)
-                    {
-                    <div class="info-box">
-                        <i data-lucide="info"></i>
-                        <span>
-                            Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
-                            @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
-                        </span>
-                    </div>
-                    }
-                    @if (sowing.Status == 2 && sowing.Seed.Plant.RequiresTopping)
+                    @* STATUSBOXAR SOM DYKER UPP VID BEHOV *@
+                    @if (sowing.Status == 0)
                     {
                         <div class="info-box">
                             <i data-lucide="info"></i>
                             <span>
-                                @(sowing.Seed.Plant.PlantName) bör toppas!
+                                Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
+                                @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
+                            </span>
+                        </div>
+                    }
+                    @if (sowing.Status == 2 && (sowing.Seed?.Plant?.RequiresTopping ?? false))
+                    {
+                        <div class="info-box">
+                            <i data-lucide="info"></i>
+                            <span>
+                                @(sowing.Seed?.Plant?.PlantName ?? "Växten") bör toppas!
                             </span>
                         </div>
                     }
