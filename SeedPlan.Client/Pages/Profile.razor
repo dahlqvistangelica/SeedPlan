@@ -103,7 +103,7 @@
             userProfile.LastFrostDate = DateTime.SpecifyKind(userProfile.LastFrostDate.Value.Date, DateTimeKind.Utc);
         }
 
-        await ProfileService.UpdateUserProfile(userProfile);
+        await ProfileService.UpsertUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";
         StateHasChanged();
 
