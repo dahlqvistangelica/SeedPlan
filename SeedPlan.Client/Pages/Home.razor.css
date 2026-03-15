@@ -1,10 +1,12 @@
 ﻿/* Container för dashboarden */
+
 .dashboard-container {
     padding: 2rem 1.5rem;
     max-width: 1000px;
     margin: 0 auto;
 }
 /*DATEBAGDE */
+
 .date-badge {
     display: flex;
     align-items: center;
@@ -22,22 +24,21 @@
         width: 16px;
         color: #10b981;
     }
-
 /* --- SEKTION FÖR STATISTIK --- */
+
 .sowing-stats-section {
     margin-bottom: 2.5rem;
 }
-
 /* Behållaren som lägger korten på rad */
+
 .stats-mini-grid {
     display: flex;
     flex-wrap: wrap; /* Gör att korten hoppar ner på nästa rad på mobilen */
     gap: 12px;
     margin-top: 10px;
-    flex-wrap: nowrap;
 }
-
 /* Det lilla stat-kortet */
+
 .mini-stat-card {
     display: flex;
     align-items: center;
@@ -50,8 +51,8 @@
     flex: 1; /* Gör att korten försöker ta lika mycket plats */
     min-width: 140px; /* Förhindrar att de blir för smala */
 }
-
 /* Ikon-boxen */
+
 .mini-icon {
     width: 36px;
     min-width: 36px;
@@ -87,8 +88,8 @@
         background: #faf5ff;
         color: #a855f7;
     }
-
 /* Text-info i kortet */
+
 .mini-info {
     display: flex;
     flex-direction: column;
@@ -108,8 +109,8 @@
     color: #1e293b;
     line-height: 1.2;
 }
-
 /* Responsivitet för mindre skärmar */
+
 @media (max-width: 480px) {
     .stats-mini-grid {
         display: grid;
@@ -117,13 +118,14 @@
     }
 }
 /* Gridden för korten */
+
 .plant-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
-
 /* Själva växtkortet */
+
 .plant-card {
     background: white;
     border-radius: 20px;
@@ -148,8 +150,8 @@
     gap: 1rem;
     position: relative;
 }
-
 /* Element inuti kortet */
+
 .plant-icon-circle {
     width: 48px;
     height: 48px;
@@ -164,7 +166,7 @@
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;
-    text-transform:uppercase;
+    text-transform: uppercase;
 }
 
 .seed-status-tag {
@@ -176,6 +178,7 @@
     font-weight: 600;
     margin-left: 0.5rem;
 }
+
 .plant-core-info {
     flex: 1;
 }
@@ -186,8 +189,8 @@
     gap: 0.8rem;
     margin-bottom: 2px;
 }
-
 /* Härdighetsbadges */
+
 .hardiness-badge {
     position: absolute;
     top: 0;
@@ -197,11 +200,10 @@
     padding: 4px 8px;
     border-radius: 8px;
 }
-
 /* Footer och ikoner */
+
 .plant-footer {
     border-top: 1px solid #f8fafc;
-
     padding-left: 0.5rem;
     display: flex;
     justify-content: space-between;
@@ -223,6 +225,7 @@
     justify-content: center;
     padding: 0.2rem 0.2rem;
 }
+
     .feature-icon i {
         width: 12px;
         height: 12px;
@@ -242,14 +245,15 @@
     color: #e2e8f0;
     width: 20px;
 }
-
 /* Responsivitet för dashboarden */
+
 @media (max-width: 768px) {
     .plant-grid {
         grid-template-columns: 1fr;
     }
 }
 /* --- REDAN PASSERAT (ACCORDION) --- */
+
 .past-section {
     margin-bottom: 2rem;
     border-bottom: 1px solid #f1f5f9;
@@ -276,17 +280,15 @@
             transition: transform 0.2s;
         }
 
-/* MOBIL-FIX: Byt till 1 kolumn om skärmen är liten */
-@media (max-width: 768px) {
-    .plant-grid {
-        grid-template-columns: 1fr;
+    .past-section[open] summary::before {
+        transform: rotate(90deg);
     }
 
     .past-section summary:hover {
         color: #64748b;
     }
-
 /* Grid för de små korten inuti */
+
 .plant-grid.mini {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -328,7 +330,6 @@
     text-transform: uppercase;
     font-weight: 800;
 }
-
 /* SOW NOW */
 
 .btn-sow-now {
@@ -342,6 +343,7 @@
     text-transform: uppercase;
     padding: 3px 8px;
 }
+
     .btn-sow-now:active {
         transform: scale(0.95);
     }

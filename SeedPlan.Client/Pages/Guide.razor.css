@@ -21,13 +21,15 @@
     cursor: pointer;
 }
 
+
+
     .filter-toggle.active {
         background: #10b981;
         color: white;
         border-color: #10b981;
     }
-
 /* SÖKRUTA */
+
 .search-wrapper {
     position: relative;
     margin-bottom: 2rem;
@@ -51,8 +53,8 @@
     font-size: 1rem;
     outline: none;
 }
-
 /* FILTERPANEL (BILD 3) */
+
 .filter-panel {
     background: white;
     border-radius: 20px;
@@ -87,6 +89,8 @@
     cursor: pointer;
 }
 
+
+
     .chip.active {
         background: #10b981;
         color: white;
@@ -120,13 +124,14 @@
     margin-bottom: 10px;
     padding: 15px, 15px;
 }
-
 /* VÄXTKORT MED HOVER (BILD 2) */
+
 .plant-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
 }
+
 .plant-card {
     background: white;
     border-radius: 20px;
@@ -145,11 +150,13 @@
     align-items: flex-start;
     margin-bottom: 15px;
 }
-
 /* HOVER EFFEKT */
+
 .plant-card:hover {
     border-color: #10b981;
 }
+
+
 
     .plant-card:hover .plant-icon-circle {
         background: #10b981;
@@ -194,6 +201,8 @@
     gap: 8px;
 }
 
+
+
     .feature-icons i {
         font-size: 14px;
     }
@@ -210,8 +219,8 @@
     color: #f1f5f9;
     width: 16px;
 }
-
 /* HÄRDIGHET BADGES */
+
 .hardiness-badge {
     font-size: 0.6rem;
     font-weight: 800;

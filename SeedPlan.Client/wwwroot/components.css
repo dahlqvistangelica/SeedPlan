@@ -1,4 +1,5 @@
 ﻿/* Inloggningskort och andra vita kort */
+
 .login-card, .sp-modal-card {
     background: white;
     padding: 2.5rem;
@@ -8,9 +9,8 @@
     max-width: 450px;
     width: 100%;
 }
+/* Den stora gröna knappen */ /* Gemensamma knappar för hela appen */
 
-/* Den stora gröna knappen */
-/* Gemensamma knappar för hela appen */
 .sp-save-btn, .btn-primary {
     background: #10b981;
     color: white;
@@ -44,14 +44,14 @@
     margin-top: 10px;
 }
 
-.btn-secondary:hover {
-    background: #f8fafc;
-    color: #1e293b;
-}
+    .btn-secondary:hover {
+        background: #f8fafc;
+        color: #1e293b;
+    }
 
 
-    .btn-primary:hover, .sp-save-btn:hover {
-        background: #059669;
+.btn-primary:hover, .sp-save-btn:hover {
+    background: #059669;
 }
 
 .sp-cancel-btn, .btn-secondary {
@@ -63,6 +63,7 @@
     cursor: pointer;
 }
 /* SIGNUP FORM*/
+
 .auth-container {
     max-width: 400px;
     margin: 2rem auto;
@@ -71,6 +72,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
 .auth-page-container {
     padding: 1rem;
     max-width: 500px;

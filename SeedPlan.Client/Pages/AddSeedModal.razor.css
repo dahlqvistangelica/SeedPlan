@@ -1,4 +1,5 @@
 ﻿/* FIXAR ATT FÄLTEN STICKER UT */
+
 .sp-modal-card, .sp-modal-card * {
     box-sizing: border-box;
 }
@@ -24,8 +25,8 @@
     padding: 30px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
-
 /* SÖK-DROPDOWN STYLING */
+
 .sp-dropdown {
     position: absolute;
     top: 100%;
@@ -50,8 +51,8 @@
         background: #f0fdf4;
         color: #10b981;
     }
-
 /* GRID-FIX FÖR ATT UNDVIKA KROCKAR */
+
 .sp-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -76,6 +77,7 @@
     min-height: 80px;
     resize: none;
 }
+
 .sp-modal-overlay {
     position: fixed;
     top: 0;
@@ -97,8 +99,8 @@
     padding: 40px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
-
 /* Gruppering av etikett och inmatning */
+
 .sp-input-block {
     margin-bottom: 18px;
     display: flex;
@@ -183,10 +185,10 @@
     from {
         opacity: 0;
         transform: translateY(10px);
-}
+    }
 
     to {
         opacity: 1;
         transform: translateY(0);
     }
-    }
+}

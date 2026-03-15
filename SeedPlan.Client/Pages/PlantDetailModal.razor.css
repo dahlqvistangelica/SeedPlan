@@ -55,6 +55,7 @@
         width: 20px;
         height: 20px;
     }
+
 .sowing-guide-text {
     color: #10b981;
     font-weight: 700;
@@ -89,26 +90,29 @@
         font-weight: 600;
         color: #1e293b;
     }
-    .growing-advice {
-        margin-top: 20px;
-    }
+
+.growing-advice {
+    margin-top: 20px;
+}
+
     .growing-advice label {
         display: block;
-            font-size: 0.9rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            margin-bottom: 5px;
-            padding-left: 5px;
-        }
+        font-size: 0.9rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 5px;
+        padding-left: 5px;
+    }
+
 .growing-advice-text {
     background: #f8fafc;
     padding: 15px;
     border-radius: 16px;
     font-size: 0.9rem;
 }
-
 /* Grön container för att lägga till frö */
+
 .form-header {
     display: flex;
     justify-content: space-between; /* Skickar rubriken till vänster och knappen till höger */
@@ -132,15 +136,15 @@
     padding: 10px;
 }
 
-.input-block label {
-    display: block;
-    font-size: 0.65rem;
-    font-weight: 800;
-    color: #065f46;
-    margin-bottom: 0px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-}
+    .input-block label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #065f46;
+        margin-bottom: 0px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
 
 .text-link {
     background: none;
@@ -156,8 +160,8 @@
     .text-link:hover {
         opacity: 0.7;
     }
-
 /* Säkerställ att den gröna rutan har rätt avstånd */
+
 .add-seed-container {
     background: #f0fdf4;
     border-radius: 20px;
@@ -234,8 +238,8 @@
         transform: translateY(0);
     }
 }
-/* --- LAGERSEKTION ---*/
-/* Lager-sektionen */
+/* --- LAGERSEKTION ---*/ /* Lager-sektionen */
+
 .inventory-section {
     margin-bottom: 2rem;
 }
@@ -253,8 +257,8 @@
         color: #94a3b8;
         letter-spacing: 0.05em;
     }
-
 /* Den lilla "Så nu"-knappen bredvid rubriken */
+
 .sow-now-pill-small {
     background: #10b981;
     color: white;
@@ -267,8 +271,8 @@
     align-items: center;
     gap: 4px;
 }
-
 /* Kortet för den specifika sorten */
+
 .variety-card {
     background: #f0fdf4; /* Ljusgrön bakgrund */
     border: 1px solid #dcfce7;
@@ -296,8 +300,8 @@
     font-size: 0.75rem;
     color: #64748b;
 }
-
 /* "Så nu"-knappen inuti kortet */
+
 .sow-now-action {
     background: #10b981;
     color: white;

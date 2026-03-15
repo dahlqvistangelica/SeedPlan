@@ -17,8 +17,6 @@
     gap: 1rem;
 }
 
-
-
 .seed-card {
     background: white;
     padding: 1.2rem;
@@ -31,10 +29,10 @@
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.2s;
 }
+
     .seed-card:active {
         transform: scale(0.98);
     }
-
 
 .seed-info h3 {
     margin: 0;
@@ -85,8 +83,6 @@
     box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
 }
 
-
-
 .qty-badge {
     display: flex;
     align-items: center;
@@ -107,6 +103,7 @@
     color: #cbd5e1;
     width: 20px;
 }
+
 .delete-seed-btn {
     background: none;
     border: none;
@@ -126,8 +123,8 @@
         width: 18px;
         height: 18px;
     }
-
 /* Modal styling för att matcha din design */
+
 .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
