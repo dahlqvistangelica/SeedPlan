@@ -98,11 +98,21 @@
 
     private async Task SaveProfile()
     {
+        if(userProfile.LastFrostDate.HasValue)
+        {
+            userProfile.LastFrostDate = DateTime.SpecifyKind(userProfile.LastFrostDate.Value.Date, DateTimeKind.Utc);
+        }
+
         await ProfileService.UpdateUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";
+        StateHasChanged();
+
+
         await Task.Delay(3000);
+
         statusMessage = "";
         StateHasChanged();
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

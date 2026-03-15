@@ -37,7 +37,10 @@ namespace SeedPlan.Client.Services
             userProfile.Id = user.Id;
             userProfile.UpdatedLast = DateTime.UtcNow;
 
-            await _supabase.From<UserProfile>().Upsert(userProfile);
+            await _supabase
+                .From<UserProfile>()
+                .Where(x => x.Id == user.Id)
+                .Update(userProfile);
 
         }
         public async Task<DateTime?> GetUserLastFrostDate()

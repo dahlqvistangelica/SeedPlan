@@ -2,10 +2,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using SeedPlan.Shared.Models
+@using SeedPlan.Shared.Models.ViewModels
 @using global::Shared.Models
 @inject IPlantLibraryService PlantService
 @inject IUserSowingService SowingService
 @inject IUserProfileService ProfileService
+@inject IUserInventoryService InventoryService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
 
@@ -87,7 +89,7 @@
     }
 
         <h2 class="section-title">BÖR SÅS NU</h2>
-        @if (!overview.Current.Any())
+        @if (!sowingSuggestions.Any())
         {
             <div class="empty-state">
                 <p>Inga växter rekommenderas för sådd just nu. 🌱</p>
@@ -96,37 +98,48 @@
         else
         {
             <div class="plant-grid">
-                @foreach (var plant in overview.Current)
+                @foreach (var item in sowingSuggestions)
                 {
-                    <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
+                    <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
                         <div class="plant-main">
                             <div class="plant-icon-circle">
                                 <i data-lucide="sprout"></i>
                             </div>
                             <div class="plant-core-info">
                                 <div class="plant-title-row">
-                                    <span class="plant-name">@plant.PlantName</span>
-                                    @* Om du använder PlantSowingView kan du visa 'Saknar frö' här *@
-                                    <span class="seed-status-tag">Saknar frö</span>
+                                    <span class="plant-name">@item.Plant.PlantName</span>
+                                    @* Här kommer lager-logiken! *@
+                                    @if (item.HasSeeds)
+                                    {
+                                        @* stopPropagation hindrar att PlantDetailModal öppnas när man klickar på knappen *@
+                                        <button class="btn-sow-now" @onclick:stopPropagation="true" @onclick="() => StartSowing(item.Plant)">
+                                            <i data-lucide="plus-circle"></i> SÅ NU
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="seed-status-tag">Saknar frö</span>
+                                    }
                                 </div>
-                                <span class="frost-info">@GetFrostText(plant.WeeksBeforeFrost)</span>
+                                <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
+
                             </div>
                 
                             @* Härdighetsbadge *@
-                            <div class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
-                                @GetHardinessText(plant.HardinessLevel)
+                            <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
+                                @GetHardinessText(item.Plant.HardinessLevel)
                             </div>
                         </div>
 
                         <div class="plant-footer">
                             <div class="footer-icons">
-                                @if (plant.IsLightGerminating)
+                                @if (item.Plant.IsLightGerminating)
                                 {
                                     <div class="feature-icon light" title="Ljusgroende">
                                         <i data-lucide="sparkles"></i>
                                     </div>
                                 }
-                                @if (plant.RequiresTopping)
+                                @if (item.Plant.RequiresTopping)
                                 {
                                     <div class="feature-icon topping" title="Ska toppas">
                                         <i data-lucide="scissors"></i>
@@ -146,11 +159,20 @@
                   OnClose="() => showDetailModal = false"
                   OnSaved="HandleRefresh" />
 
+<AddSowingModal IsVisible="showSowModal"
+                InitialPlant="selectedPlantForSowing"
+                OnClose="() => showSowModal = false"
+                OnSaved="HandleRefresh" />
+
 @code {
     private bool isLoading = true;
     private SowingOverview overview = new();
     private List<Sowing> activeSowings = new();
     private int countSown, countGerminated, countRepotted, countPlantedOut;
+    private List<PlantSowingView> sowingSuggestions = new();
+
+    private bool showSowModal = false;
+    private Plant? selectedPlantForSowing;
 
     private string GetFrostText(int weeks)
     {
@@ -192,11 +214,13 @@
                 countRepotted = activeSowings.Count(s => s.Status >= 3 && s.Status <= 4);
                 countPlantedOut = activeSowings.Count(s => s.Status >= 5 && s.Status <= 6);
 
+
                 // Hämta förslag
                 var lastFrost = await ProfileService.GetUserLastFrostDate() ?? new DateTime(DateTime.Now.Year, 5, 15);
                 var today = DateTime.Today;
 
                 overview = await PlantService.GetSowingOverviewAsync(lastFrost);
+                sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
             }
         }
         catch (Exception ex)
@@ -227,5 +251,11 @@
     private async Task HandleRefresh()
     {//Uppdaterar listan om man sparat ett nytt frö
         await OnInitializedAsync();
+    }
+
+    private void StartSowing(Plant plant)
+    {
+        selectedPlantForSowing = plant;
+        showSowModal = true;
     }
 }
