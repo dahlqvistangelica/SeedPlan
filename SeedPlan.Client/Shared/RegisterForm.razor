@@ -64,6 +64,10 @@
 
         try
         {
+            var options = new Supabase.Gotrue.SignUpOptions
+            {
+                Data = new Dictionary<string, object> { { "full_name", regData.FullName ?? "" } }
+            };
             // 1. Registrera användaren i Supabase Auth
             var session = await Supabase.Auth.SignUp(regData.Email, regData.Password);
 
