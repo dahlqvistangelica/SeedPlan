@@ -70,20 +70,8 @@
         await JS.InvokeVoidAsync("initializeLucide");
     }
 
-    protected override void OnInitialized()
-    {
-        Nav.LocationChanged += HandleLocationChanged;
-    }
-
-    private async void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
-    {
-        await Task.Delay(50);
-        await JS.InvokeVoidAsync("initializeLucide");
-        StateHasChanged();
-    }
-
     public void Dispose()
     {
-        Nav.LocationChanged -= HandleLocationChanged;
+       
     }
 }

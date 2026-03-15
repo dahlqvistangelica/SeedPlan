@@ -22,11 +22,31 @@
 
     @* BARA en säker funktion som vi kallar på manuellt, INGEN Observer som kraschar appen *@
     <script>
+        let lucideTimer;
+    
         window.initializeLucide = () => {
         if (window.lucide) {
+        // Avbryt tidigare timer om en ny ändring sker snabbt
+        clearTimeout(lucideTimer);
+            
+        lucideTimer = setTimeout(() => {
         window.lucide.createIcons();
+        }, 100);
         }
         };
+
+        // Skapa observatören men med skydd mot oändliga loopar
+        const observer = new MutationObserver((mutations) => {
+        // Kontrollera om ändringen faktiskt rör något som inte redan är en Lucide-ikon
+        // (Ett enkelt sätt är att bara köra vår debounced funktion)
+        window.initializeLucide();
+        });
+
+        // Starta bevakningen på hela bodyn
+        observer.observe(document.body, {
+        childList: true,
+        subtree: true
+        });
     </script>
 </body>
 </html>
