@@ -1,143 +1,88 @@
-﻿/* ==========================================================================
-   MODAL OVERLAY & CARD
-   ========================================================================== */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.45);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(4px); /* Snygg suddighet bakom modalen */
+﻿.modal-overlay {
+position: fixed;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0, 0, 0, 0.4);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
 }
 
 .modal-card {
-    background: white;
-    width: 95%;
-    max-width: 550px;
-    border-radius: 28px;
-    padding: 24px; /* Mindre padding på mobil för mer plats */
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-    box-sizing: border-box;
-    max-height: 90vh;
-    overflow-y: auto;
-    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+background: white;
+width: 95%;
+max-width: 550px;
+border-radius: 28px;
+padding: 35px;
+box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+box-sizing: border-box;
 }
 
-@media (min-width: 600px) {
-    .modal-card {
-        padding: 40px; /* Mer luft på större skärmar */
-    }
-}
-
-@keyframes modalPop {
-    from {
-        opacity: 0;
-        transform: translateY(10px) scale(0.95);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* ==========================================================================
-   INPUTS & LABELS
-   ========================================================================== */
+/* Etiketter i ljusgrå versaler */
 .input-block {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+margin-bottom: 20px;
+display: flex;
+flex-direction: column;
+gap: 8px;
 }
 
-    .input-block label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #94a3b8;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding-left: 4px;
-    }
+.input-block label {
+font-size: 0.7rem;
+font-weight: 700;
+color: #94a3b8;
+letter-spacing: 0.05em;
+}
 
+/* Inmatningsfält med ljus bakgrund */
 .sp-input, .sp-textarea {
-    width: 100%;
-    padding: 14px 20px;
-    border-radius: 14px;
-    border: 1px solid #f1f5f9;
-    background: #f8fafc;
-    font-size: 1rem;
-    color: #334155;
-    outline: none;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
+width: 100%;
+padding: 14px 20px;
+border-radius: 14px;
+border: 1px solid #f1f5f9;
+background: #f8fafc;
+font-size: 1rem;
+color: #334155;
+outline: none;
+box-sizing: border-box;
 }
-
-    .sp-input:focus, .sp-textarea:focus {
-        border-color: var(--primary, #10b981);
-    }
 
 .sp-textarea {
-    min-height: 100px;
-    resize: none;
+min-height: 100px;
+resize: none;
 }
 
-/* ==========================================================================
-   KNAPPAR & FELMEDDELANDEN
-   ========================================================================== */
+/* Den stora gröna knappen */
 .sp-submit-btn {
-    width: 100%;
-    background: #059669; /* Din djupgröna färg */
-    color: white;
-    border: none;
-    padding: 16px;
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: all 0.2s;
-    user-select: none;
+width: 100%;
+background: #059669; /* Den djupgröna färgen på din bild */
+color: white;
+border: none;
+padding: 18px;
+border-radius: 16px;
+font-weight: 700;
+font-size: 1.1rem;
+cursor: pointer;
+margin-top: 10px;
+transition: background 0.2s;
 }
 
-    .sp-submit-btn:active {
-        transform: scale(0.98); /* Feedback vid klick på mobil */
-    }
-
-    .sp-submit-btn:hover {
-        background: #047857;
-    }
+.sp-submit-btn:hover {
+background: #047857;
+}
 
 .error-msg {
-    color: #ef4444;
-    font-size: 0.85rem;
-    margin-bottom: 15px;
-    text-align: center;
-    background: #fef2f2;
-    padding: 10px;
-    border-radius: 10px;
+color: #ef4444;
+font-size: 0.85rem;
+margin-bottom: 15px;
+text-align: center;
 }
 
-/* ==========================================================================
-   ANIMATIONER
-   ========================================================================== */
+/* Animation */
 .fade-in {
-    animation: fadeIn 0.3s ease-out;
+animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
 }

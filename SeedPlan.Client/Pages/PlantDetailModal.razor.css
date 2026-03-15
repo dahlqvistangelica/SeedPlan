@@ -1,18 +1,14 @@
-﻿/* ==========================================================================
-   MODAL OVERLAY & CARD
-   ========================================================================== */
-.modal-overlay {
+﻿.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 2000;
-    backdrop-filter: blur(4px); /* Snygg suddighet bakom modaler */
 }
 
 .detail-card {
@@ -20,176 +16,153 @@
     width: 95%;
     max-width: 550px;
     border-radius: 30px;
-    padding: 24px; /* Mindre padding på mobil */
+    padding: 40px; /* Mer luft inuti */
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
-    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-@media (min-width: 480px) {
-    .detail-card {
-        padding: 40px; /* Mer luft på större skärmar */
-    }
-}
-
-@keyframes modalPop {
-    from {
-        opacity: 0;
-        transform: scale(0.9);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-/* ==========================================================================
-   HEADER & TITEL
-   ========================================================================== */
 .title-with-plus {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 12px; /* Avstånd mellan text och plus */
     margin-bottom: 5px;
 }
 
 .serif-title {
-    font-family: 'Lora', serif;
-    font-size: 1.8rem; /* Något mindre på mobil */
-    margin: 0;
+    font-family: serif;
+    font-size: 2.2rem;
+    margin: 0; /* Tar bort marginaler som annars knuffar ner pluset */
     font-style: italic;
     color: #1e293b;
-    line-height: 1.2;
 }
 
-@media (min-width: 480px) {
-    .serif-title {
-        font-size: 2.2rem;
-    }
-}
-
-.close-x {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: #f1f5f9;
+.expand-btn {
+    background: #dcfce7; /* Ljusgrön bakgrund */
+    color: #10b981;
     border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    color: #64748b;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
-    z-index: 10;
 }
 
-@media (min-width: 480px) {
-    .close-x {
-        top: 25px;
-        right: 25px;
+    .expand-btn i {
+        width: 20px;
+        height: 20px;
     }
+.sowing-guide-text {
+    color: #10b981;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 25px;
 }
 
-/* ==========================================================================
-   INFO GRID (2 kolumner)
-   ========================================================================== */
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 15px;
     margin-top: 20px;
 }
 
 .info-box {
     background: #f8fafc;
-    padding: 12px;
+    padding: 15px;
     border-radius: 16px;
-    display: flex;
-    flex-direction: column;
 }
 
     .info-box label {
+        display: block;
         font-size: 0.65rem;
         font-weight: 800;
         color: #94a3b8;
-        margin-bottom: 4px;
+        margin-bottom: 5px;
         letter-spacing: 0.05em;
-        text-transform: uppercase;
     }
 
     .info-box span {
-        font-size: 0.85rem;
-        font-weight: 700;
+        font-size: 0.9rem;
+        font-weight: 600;
         color: #1e293b;
     }
-
-/* ==========================================================================
-   LAGER & VARIANTER
-   ========================================================================== */
-.inventory-section {
-    margin-top: 2rem;
-    margin-bottom: 1.5rem;
-}
-
-.variety-card {
-    background: #f0fdf4;
-    border: 1px solid #dcfce7;
-    border-radius: 20px;
-    padding: 16px;
-    display: flex;
-    flex-direction: column; /* Stapla på små mobiler */
-    gap: 12px;
-    margin-bottom: 10px;
-}
-
-@media (min-width: 400px) {
-    .variety-card {
-        flex-direction: row; /* Sida vid sida om det finns plats */
-        justify-content: space-between;
-        align-items: center;
+    .growing-advice {
+        margin-top: 20px;
     }
+    .growing-advice label {
+        display: block;
+            font-size: 0.9rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            padding-left: 5px;
+        }
+.growing-advice-text {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 16px;
+    font-size: 0.9rem;
 }
 
-.variety-name {
+/* Grön container för att lägga till frö */
+.form-header {
+    display: flex;
+    justify-content: space-between; /* Skickar rubriken till vänster och knappen till höger */
+    align-items: center;
+    margin-bottom: 1.2rem;
+    width: 100%;
+    padding: 10 0 10 0;
+}
+
+    .form-header h3 {
+        margin: 0; /* VIKTIGT: Tar bort standard-marginalen som annars knuffar ner knappen */
+        font-size: 0.9rem;
+        font-weight: 800;
+        color: #065f46;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding-left: 10px;
+    }
+
+.input-block {
+    padding: 10px;
+}
+
+.input-block label {
+    display: block;
+    font-size: 0.65rem;
     font-weight: 800;
-    color: #1e293b;
-    font-size: 1rem;
+    color: #065f46;
+    margin-bottom: 0px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
-.sow-now-action {
-    background: var(--primary, #10b981);
-    color: white;
+.text-link {
+    background: none;
     border: none;
-    padding: 10px 18px;
-    border-radius: 50px;
+    color: #10b981;
     font-weight: 700;
     font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
     cursor: pointer;
-    transition: transform 0.2s;
+    padding: 0 10px 0 0;
+    transition: opacity 0.2s;
 }
 
-    .sow-now-action:active {
-        transform: scale(0.95);
+    .text-link:hover {
+        opacity: 0.7;
     }
 
-/* ==========================================================================
-   LÄGG TILL FRÖ (Grön Container)
-   ========================================================================== */
+/* Säkerställ att den gröna rutan har rätt avstånd */
 .add-seed-container {
     background: #f0fdf4;
-    border-radius: 24px;
+    border-radius: 20px;
     padding: 20px;
-    margin: 1.5rem 0;
+    margin-bottom: 2rem;
     border: 1px solid #dcfce7;
     animation: slideDown 0.3s ease-out;
 }
@@ -197,34 +170,63 @@
 .form-input {
     background: white;
     border: 1px solid #dcfce7;
-    padding: 12px 15px;
-    border-radius: 12px;
+    padding: 10px 15px;
+    border-radius: 10px;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 5px;
     box-sizing: border-box;
-    font-size: 1rem;
 }
 
 .save-btn-large {
-    background: var(--primary, #10b981);
+    background: #10b981;
     color: white;
     border: none;
     width: 100%;
-    padding: 16px;
-    border-radius: 14px;
-    font-weight: 700;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 15px;
+}
+
+.close-x {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    background: #f1f5f9;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: background 0.2s;
 }
 
-/* ==========================================================================
-   ANIMATIONER
-   ========================================================================== */
+    .close-x:hover {
+        background: #e2e8f0;
+    }
+
+.text-link {
+    background: none;
+    border: none;
+    color: #10b981;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.slide-down {
+    animation: slideDown 0.3s ease-out;
+}
+
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-15px);
+        transform: translateY(-10px);
     }
 
     to {
@@ -232,12 +234,85 @@
         transform: translateY(0);
     }
 }
-
-.growing-advice-text {
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 16px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: #475569;
+/* --- LAGERSEKTION ---*/
+/* Lager-sektionen */
+.inventory-section {
+    margin-bottom: 2rem;
 }
+
+.inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+    .inventory-header label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
+    }
+
+/* Den lilla "Så nu"-knappen bredvid rubriken */
+.sow-now-pill-small {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Kortet för den specifika sorten */
+.variety-card {
+    background: #f0fdf4; /* Ljusgrön bakgrund */
+    border: 1px solid #dcfce7;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.variety-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.variety-name {
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 1.05rem;
+}
+
+.variety-meta {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* "Så nu"-knappen inuti kortet */
+.sow-now-action {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+    .sow-now-action i {
+        width: 14px;
+        height: 14px;
+    }

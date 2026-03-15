@@ -12,7 +12,6 @@
     top: 0;
     z-index: 100;
 }
-
 .header-content {
     max-width: 1000px;
     margin: 0 auto;
@@ -21,11 +20,11 @@
     align-items: center;
     width: 100%;
 }
-
+/* --- 2. LOGOTYP & BRANDING --- */
 .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    display: flex; /* Detta lägger ikon och text på samma rad */
+    align-items: center; /* Centrerar dem vertikalt mot varandra */
+    gap: 10px; /* Ger lite luft mellan ikonen och texten */
     cursor: pointer;
 }
 
@@ -44,26 +43,32 @@
     font-weight: 700;
     margin: 0;
     color: #1e293b;
+    line-height: 1; /* Förhindrar att texten tar upp extra plats på höjden */
 }
 
-/* Inloggningskortet – Återställt till originalstorlek */
+
+/* --- 3. INLOGGNINGSSKÄRM (Fixar Centrerad rutan) --- */
+/* Centrerar inloggningsboxen på skärmen */
 .login-screen {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background-color: #fdfcf9;
+    background-color: #fdfcf9; /* Krämvit bakgrund */
+    min-height: calc(100vh - 70px);
 }
 
+/* Själva kortet */
 .login-card {
     background: white;
-    padding: 3rem; /* Mer luft som du hade */
-    border-radius: 24px;
-    width: 100%;
-    max-width: 450px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    padding: 3rem;
+    border-radius: 28px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.05);
     text-align: center;
+    max-width: 440px;
+    width: 100%;
+    border: 1px solid #f1f5f9;
 }
 
 /* Bottenmeny – Aktiveras bara på mobilen */
@@ -71,32 +76,69 @@
     display: none;
 }
 
-@media (max-width: 768px) {
-    .bottom-nav {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 75px;
-        background: white;
-        justify-content: space-evenly;
-        align-items: center;
-        border-top: 1px solid #eeeeee;
-        z-index: 1000;
-        padding-bottom: env(safe-area-inset-bottom);
-    }
+.login-card h2 {
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.login-card p {
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+/* --- 3. BOTTENMENY --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    border-top: 1px solid #eeeeee;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    text-decoration: none;
 }
 
 ::deep .nav-item {
     display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    color: #888;
+    flex-direction: column !important; /* Staplar elementen vertikalt */
+    align-items: center !important; /* Centrerar dem horisontellt */
+    justify-content: center;
+    gap: 4px; /* Avstånd mellan ikon och text */
     text-decoration: none !important;
     flex: 1;
+    height: 100%;
 }
 
-    ::deep .nav-item.active {
+    ::deep .nav-item i {
+        width: 24px;
+        height: 24px;
+        display: block;
+    }
+
+    ::deep .nav-item span {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Färg vid aktiv länk */
+    ::deep .nav-item.active, ::deep a:active {
+        text-decoration: none;
         color: #10b981 !important;
     }
+
+
+::deep a,
+::deep a:visited,
+::deep a:hover, {
+    text-decoration: none !important;
+    color: #888888;
+}

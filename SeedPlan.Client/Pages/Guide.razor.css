@@ -1,135 +1,111 @@
-﻿/* ==========================================================================
-   CONTAINER & HEADER
-   ========================================================================== */
-.guide-container {
-    padding: 1rem;
-    max-width: 1100px;
+﻿.guide-container {
+    padding: 2rem 1.5rem;
+    max-width: 1000px;
     margin: 0 auto;
-    /* Extra plats för bottenmenyn på mobilen */
-    padding-bottom: 120px;
-}
-
-@media (min-width: 768px) {
-    .guide-container {
-        padding: 2rem;
-    }
 }
 
 .guide-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .filter-toggle {
     background: white;
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: 12px;
-    width: 44px;
-    height: 44px;
-    color: var(--text-muted, #64748b);
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    color: #64748b;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
 }
 
     .filter-toggle.active {
-        background: var(--primary, #10b981);
+        background: #10b981;
         color: white;
-        border-color: var(--primary, #10b981);
+        border-color: #10b981;
     }
 
-/* ==========================================================================
-   SÖKRUTA (Pillerformad)
-   ========================================================================== */
+/* SÖKRUTA */
 .search-wrapper {
     position: relative;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .search-icon {
     position: absolute;
-    left: 18px;
+    left: 15px;
     top: 50%;
     transform: translateY(-50%);
     color: #cbd5e1;
     width: 18px;
-    pointer-events: none;
 }
 
 .search-input {
     width: 100%;
-    padding: 14px 15px 14px 48px;
-    border-radius: 50px; /* Matchar din bild */
-    border: 1px solid var(--border-color, #f1f5f9);
+    padding: 15px 15px 15px 45px;
+    border-radius: 15px;
+    border: 1px solid #f1f5f9;
     background: white;
     font-size: 1rem;
     outline: none;
-    transition: border-color 0.2s;
 }
 
-    .search-input:focus {
-        border-color: var(--primary, #10b981);
-    }
-
-/* ==========================================================================
-   FILTERPANEL
-   ========================================================================== */
+/* FILTERPANEL (BILD 3) */
 .filter-panel {
     background: white;
-    border-radius: 24px;
-    padding: 20px;
+    border-radius: 20px;
+    padding: 25px;
     margin-bottom: 2rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .filter-group label {
     display: block;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 800;
-    color: #94a3b8;
+    color: #cbd5e1;
     margin-bottom: 12px;
     letter-spacing: 0.05em;
-    text-transform: uppercase;
 }
 
 .chip-group {
     display: flex;
-    flex-wrap: wrap; /* Gör att de hoppar ner på rad på små skärmar */
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 20px;
 }
 
 .chip {
     padding: 8px 16px;
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid #f1f5f9;
     background: #f8fafc;
     font-size: 0.85rem;
     font-weight: 600;
     color: #64748b;
     cursor: pointer;
-    user-select: none;
-    transition: all 0.2s;
 }
 
     .chip.active {
-        background: var(--primary, #10b981);
+        background: #10b981;
         color: white;
-        border-color: var(--primary, #10b981);
+        border-color: #10b981;
     }
 
 .property-row {
     display: flex;
     justify-content: space-between;
-    padding: 14px 0;
+    padding: 12px 0;
     border-bottom: 1px solid #f8fafc;
     cursor: pointer;
     color: #64748b;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+}
+
+.status-text {
+    color: #cbd5e1;
+    font-weight: 600;
 }
 
 .reset-btn {
@@ -137,37 +113,20 @@
     background: none;
     color: #ef4444;
     font-weight: 800;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     cursor: pointer;
+    float: right;
     margin-top: 10px;
-    padding: 8px 0;
-    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding: 15px, 15px;
 }
 
-/* ==========================================================================
-   VÄXTKORT & GRID
-   ========================================================================== */
+/* VÄXTKORT MED HOVER (BILD 2) */
 .plant-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Mobil: 1 kolumn */
-    gap: 1rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
-
-/* Tablet: 2 kolumner */
-@media (min-width: 650px) {
-    .plant-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-}
-
-/* Desktop: 3 kolumner */
-@media (min-width: 1000px) {
-    .plant-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
-}
-
 .plant-card {
     background: white;
     border-radius: 20px;
@@ -175,49 +134,49 @@
     border: 1px solid #f1f5f9;
     cursor: pointer;
     transition: all 0.2s ease;
+    position: relative;
     display: flex;
     flex-direction: column;
 }
-
-    .plant-card:hover {
-        border-color: var(--primary, #10b981);
-        transform: translateY(-2px);
-    }
 
 .card-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 12px;
+    margin-bottom: 15px;
 }
 
+/* HOVER EFFEKT */
+.plant-card:hover {
+    border-color: #10b981;
+}
+
+    .plant-card:hover .plant-icon-circle {
+        background: #10b981;
+        color: white;
+    }
+
 .plant-icon-circle {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     background: #f0fdf4;
-    color: var(--primary, #10b981);
+    color: #10b981;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
 }
 
-.plant-card:hover .plant-icon-circle {
-    background: var(--primary, #10b981);
-    color: white;
-}
-
 .plant-name {
     font-weight: 700;
-    font-size: 1.1rem;
     margin: 0 0 4px 0;
-    color: var(--text-dark, #1e293b);
+    color: #1e293b;
 }
 
 .sowing-info {
     font-size: 0.8rem;
-    color: var(--text-muted, #94a3b8);
+    color: #94a3b8;
     margin: 0;
 }
 
@@ -225,18 +184,39 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto; /* Trycker ner foten till botten */
+    margin-top: 15px;
     padding-top: 15px;
     border-top: 1px solid #f8fafc;
 }
 
-/* --- Härdighet Badges --- */
+.feature-icons {
+    display: flex;
+    gap: 8px;
+}
+
+    .feature-icons i {
+        font-size: 14px;
+    }
+
+.icon-light {
+    color: #3b82f6;
+}
+
+.icon-topping {
+    color: #a855f7;
+}
+
+.arrow {
+    color: #f1f5f9;
+    width: 16px;
+}
+
+/* HÄRDIGHET BADGES */
 .hardiness-badge {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 8px;
-    text-transform: uppercase;
 }
 
 .sensitive {
