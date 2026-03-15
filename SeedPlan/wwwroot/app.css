@@ -48,9 +48,8 @@ h1:focus {
 
 .header-top {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
     .header-top h1 {
