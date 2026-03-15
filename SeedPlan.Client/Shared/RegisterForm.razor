@@ -72,19 +72,7 @@
             var session = await Supabase.Auth.SignUp(regData.Email, regData.Password);
 
             if (session?.User != null)
-            {
-                // 2. Skapa din UserProfile med det ID vi fick från Auth
-                var newProfile = new UserProfile
-                {
-                    Id = session.User.Id, // Kopplar ihop Auth-kontot med profilen
-                    FullName = regData.FullName,
-                    UpdatedLast = DateTime.UtcNow,
-                    GrowingZone = 1 // Standardvärde
-                };
-
-                // Sparar profilen i databasen via din befintliga service
-                await ProfileService.UpsertUserProfile(newProfile);
-                
+            {                
                 Nav.NavigateTo("/");
             }
         }
