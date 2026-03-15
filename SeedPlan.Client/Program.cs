@@ -16,8 +16,15 @@ namespace SeedPlan.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+            builder.Configuration.AddJsonStream(await new HttpClient
+            {
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+            }.GetStreamAsync("appsettings.json"));
+
             var supabaseUrl = builder.Configuration["SUPABASE_URL"] ?? "";
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"] ?? "";
+
+            Console.WriteLine($"Ansluter till Supabase: {supabaseUrl}");
 
             builder.Services.AddScoped(provider =>
             {
