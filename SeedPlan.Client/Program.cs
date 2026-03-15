@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using SeedPlan.Client.Services;
@@ -16,8 +17,18 @@ namespace SeedPlan.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+            builder.RootComponents.Add<Routes>("#app");
+            builder.RootComponents.Add<HeadOutlet>("head::after");
+
+            builder.Configuration.AddJsonStream(await new HttpClient
+            {
+                BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
+            }.GetStreamAsync("appsettings.json"));
+
             var supabaseUrl = builder.Configuration["SUPABASE_URL"] ?? "";
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"] ?? "";
+
+            Console.WriteLine($"Ansluter till Supabase: {supabaseUrl}");
 
             builder.Services.AddScoped(provider =>
             {
