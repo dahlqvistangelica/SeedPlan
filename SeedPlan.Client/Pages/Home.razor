@@ -131,7 +131,8 @@
                 
                             @* Härdighetsbadge *@
                             <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
-                                @GetHardinessText(item.Plant.HardinessLevel)
+                                <span class="full-text">@GetHardinessText(item.Plant.HardinessLevel)</span>
+                                <span class="short-text">@GetShortHardinessText(item.Plant.HardinessLevel)</span>
                             </div>
                         </div>
 
@@ -193,6 +194,15 @@
         2 => "Härdig",
         _ => ""
     };
+
+    private string GetShortHardinessText(int level) => level switch
+    {
+        0 => "K",
+        1 => "HH",
+        2 => "H",
+        _ => ""
+    };
+
     private string GetHardinessClass(int level) => level switch
     {
         0 => "sensitive",
