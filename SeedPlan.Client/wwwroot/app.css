@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 
 /* ==========================================================================
-   CSS VARIABLER (Design System)
+   CSS VARIABLER
    ========================================================================== */
 :root {
     --primary: #10b981;
@@ -20,11 +20,6 @@
 /* ==========================================================================
    BASE / GLOBALA STILAR
    ========================================================================== */
-* {
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
 body {
     background-color: var(--bg-main);
     color: var(--text-dark);
@@ -32,15 +27,45 @@ body {
     margin: 0;
 }
 
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .page-body {
     flex: 1;
     padding: 1.5rem;
-    padding-bottom: 120px; /* Plats för bottenmenyn */
-    max-width: 1100px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
-/* --- Typografi --- */
+/* Responsiv padding för bottenmenyn på mobil */
+@media (max-width: 768px) {
+    .page-body {
+        padding-bottom: 100px;
+    }
+}
+
+/* Typografi */
+.header-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+    .header-top h1 {
+        margin: 0;
+        font-family: 'Lora', serif;
+        font-size: 2.2rem;
+        font-style: italic;
+        color: #333;
+    }
+
 .serif-title {
     font-family: 'Lora', serif;
     font-style: italic;
@@ -53,12 +78,12 @@ body {
     font-size: 0.8rem;
     letter-spacing: 0.1em;
     color: #999;
-    margin: 1.5rem 0;
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
 }
 
 /* ==========================================================================
-   FORMULÄR & KNAPPAR
+   KNAPPAR OCH FORMULÄR
    ========================================================================== */
 .btn-primary {
     background: var(--primary);
@@ -68,6 +93,7 @@ body {
     border-radius: var(--radius-md);
     font-weight: 600;
     width: 100%;
+    margin-top: 20px;
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -76,90 +102,50 @@ body {
         background: var(--primary-hover);
     }
 
-.custom-input, .search-input {
+.custom-input {
     width: 100%;
     padding: 14px 16px;
-    border-radius: 50px; /* Pillerform som i bilden */
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     background: white;
     font-size: 1rem;
     outline: none;
+    transition: border-color 0.2s;
     box-sizing: border-box;
 }
 
 /* ==========================================================================
-   VÄXTKORT OCH STATISTIK
+   BADGES (FÄRGER ÅTERSTÄLLDA)
    ========================================================================== */
-.plant-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* Mobil: 1 kolumn */
-    gap: 1rem;
-}
-
-@media (min-width: 700px) {
-    .plant-grid {
-        grid-template-columns: repeat(2, 1fr); /* Tablet: 2 kolumner */
-    }
-}
-
-@media (min-width: 1024px) {
-    .plant-grid {
-        grid-template-columns: repeat(3, 1fr); /* Desktop: 3 kolumner */
-    }
-}
-
-.frost-info {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
 .sensitive {
-    background: #fee2e2;
-    color: #ef4444;
+    background: #fee2e2 !important;
+    color: #ef4444 !important;
     text-transform: uppercase;
+    font-weight: 400;
+    padding: 4px 8px;
+    border-radius: 8px;
 }
 
 .half-hardy {
-    background: #fff7ed;
-    color: #f97316;
+    background: #fff7ed !important;
+    color: #f97316 !important;
     text-transform: uppercase;
+    font-weight: 400;
+    padding: 4px 8px;
+    border-radius: 8px;
 }
 
 .hardy {
-    background: #f0fdf4;
-    color: #22c55e;
+    background: #f0fdf4 !important;
+    color: #22c55e !important;
     text-transform: uppercase;
+    font-weight: 400;
+    padding: 4px 8px;
+    border-radius: 8px;
 }
 
 /* ==========================================================================
-   MODALER
-   ========================================================================== */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.modal-card {
-    background: #f8fafc;
-    border-radius: 28px;
-    padding: 24px;
-    width: 92%;
-    max-width: 500px;
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-/* ==========================================================================
-   FELHANTERING (Behålls intakt)
+   FELHANTERING (BEHÅLLS INTAKT)
    ========================================================================== */
 .blazor-error-boundary {
     background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3LjgyOSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
