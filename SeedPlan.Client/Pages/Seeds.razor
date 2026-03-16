@@ -44,7 +44,7 @@
                         <i data-lucide="flower" class="group-arrow @(isExpanded ? "expanded" : "")"></i>
                         <h2 class="serif-title">@if (group.Key == "Övrigt")
                             {
-                                <span>Blandade fröer</span>                    
+                                @extraSeedGroup                   
                             }
                             else
                             {
@@ -106,6 +106,7 @@
     private Seed? selectedSeed;
     private HashSet<string> expandedGroups = new();
     private bool showAddModal = false;
+    private string extraSeedGroup ="Blandade fröer";
 
     protected override async Task OnInitializedAsync()
     {
