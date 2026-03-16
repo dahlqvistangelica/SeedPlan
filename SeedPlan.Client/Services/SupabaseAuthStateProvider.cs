@@ -14,6 +14,7 @@ namespace SeedPlan.Client.Services
         {
             _supabase = supabaseClient;
 
+            // Lyssna på ändringar (inloggning/utloggning)
             _supabase.Auth.AddStateChangedListener((sender, state) =>
             {
                 if (state == Constants.AuthState.SignedIn ||
@@ -27,8 +28,8 @@ namespace SeedPlan.Client.Services
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // Detta säkerställer att alla som frågar efter auth-status 
-            // väntar på att samma initiering blir klar.
+            // Om vi inte har börjat initiera än, gör det nu. 
+            // Alla anrop till denna metod kommer vänta på samma Task.
             _initializationTask ??= InitializeInternal();
             return _initializationTask;
         }
@@ -37,10 +38,16 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // Initiera Supabase (läser localStorage)
+                // Kontrollera att vi faktiskt är i webbläsaren
+                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("BROWSER")))
+                {
+                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                }
+
+                // Vänta på att Supabase läser från localStorage
                 await _supabase.InitializeAsync();
 
-                // Om sessionen inte dök upp direkt, gör ett aktivt försök att hämta den
+                // Om ingen session hittades direkt, gör ett sista försök att hämta den
                 if (_supabase.Auth.CurrentSession == null)
                 {
                     await _supabase.Auth.RetrieveSessionAsync();
@@ -70,10 +77,12 @@ namespace SeedPlan.Client.Services
             new Claim("sub", session.User.Id ?? "")
         };
 
-            var identity = new ClaimsIdentity(claims, "SupabaseAuth");
-            return new AuthenticationState(new ClaimsPrincipal(identity));
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "SupabaseAuth")));
         }
 
-        public void NotifyAuthStateChanged() => NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        public void NotifyAuthStateChanged()
+        {
+            NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
+        }
     }
 }
