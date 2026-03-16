@@ -5,7 +5,7 @@ namespace SeedPlan.Shared.Models
     [Table("seeds")] // Detta mappar klassen till tabellen "seeds" i Supabase
     public class Seed : BaseModel
     {
-        [PrimaryKey("id", true)]
+        [PrimaryKey("id", false)]
         public int Id { get; set; }
         [Column("plant_id")]
         public int? PlantId { get; set; }

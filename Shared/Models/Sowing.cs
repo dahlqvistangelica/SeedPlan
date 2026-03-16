@@ -6,7 +6,7 @@ namespace SeedPlan.Shared.Models
     [Table("sowings")]
     public class Sowing : BaseModel
     {
-        [PrimaryKey("id", true)]
+        [PrimaryKey("id", false)]
         public int Id { get; set; }
 
         [Column("seed_id")]
