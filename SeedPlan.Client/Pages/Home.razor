@@ -4,7 +4,6 @@
 @using SeedPlan.Shared.Models
 @using SeedPlan.Shared.Models.ViewModels
 @using global::Shared.Models
-@attribute [Authorize]
 
 @inject IPlantLibraryService PlantService
 @inject IUserSowingService SowingService
@@ -32,139 +31,129 @@
     }
     else
     {
-        <AuthorizeView>
-            <Authorized>
-                @* 1. AKTIVA SÅDDER (Statistik) *@
-                @if (activeSowings != null && activeSowings.Any())
-                {
-                    <div class="sowing-stats-section">
-                        <h2 class="section-title">AKTIVA SÅDDER</h2>
-                        <div class="stats-mini-grid">
-                            <div class="mini-stat-card">
-                                <div class="mini-icon blue"><i data-lucide="sprout"></i></div>
-                                <div class="mini-info">
-                                    <span class="mini-label">Nysått</span>
-                                    <span class="mini-value">@countSown</span>
-                                </div>
-                            </div>
-                            <div class="mini-stat-card">
-                                <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
-                                <div class="mini-info">
-                                    <span class="mini-label">GRODDAT</span>
-                                    <span class="mini-value">@countGerminated</span>
-                                </div>
-                            </div>
-                            <div class="mini-stat-card">
-                                <div class="mini-icon yellow"><i data-lucide="leaf"></i></div>
-                                <div class="mini-info">
-                                    <span class="mini-label">OMSKOLADE</span>
-                                    <span class="mini-value">@countRepotted</span>
-                                </div>
-                            </div>
-                            <div class="mini-stat-card">
-                                <div class="mini-icon purple"><i data-lucide="sun"></i></div>
-                                <div class="mini-info">
-                                    <span class="mini-label">UTPLANTERADE</span>
-                                    <span class="mini-value">@countPlantedOut</span>
-                                </div>
-                            </div>
+        @* 1. AKTIVA SÅDDER (Statistik) *@
+        @if (activeSowings != null && activeSowings.Any())
+        {
+            <div class="sowing-stats-section">
+                <h2 class="section-title">AKTIVA SÅDDER</h2>
+                <div class="stats-mini-grid">
+                    <div class="mini-stat-card">
+                        <div class="mini-icon blue"><i data-lucide="sprout"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">Nysått</span>
+                            <span class="mini-value">@countSown</span>
                         </div>
                     </div>
-                }
-
-                @* 2. REDAN PASSERAT (Accordion från overview) *@
-                @if (overview?.Past != null && overview.Past.Any())
-                {
-                    <details class="past-section">
-                        <summary>Redan passerat (@overview.Past.Count)</summary>
-                        <div class="plant-grid mini">
-                            @foreach (var plant in overview.Past)
-                            {
-                                <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
-                                    <div class="mini-card-content">
-                                        <i data-lucide="calendar-x" class="mini-icon"></i>
-                                        <span>@plant.PlantName</span>
-                                    </div>
-                                    <span class="mini-badge">Passerat</span>
-                                </div>
-                            }
+                    <div class="mini-stat-card">
+                        <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">GRODDAT</span>
+                            <span class="mini-value">@countGerminated</span>
                         </div>
-                    </details>
-                }
-
-                @* 3. BÖR SÅS NU *@
-                <h2 class="section-title">BÖR SÅS NU</h2>
-
-                @if (userProfile?.LastFrostDate == null)
-                {
-                    <div class="alert alert-info">
-                        <p>Inga såförslag hittades. Har du ställt in ditt <strong>sista frostdatum</strong> i profilen?</p>
-                        <a href="/profile" class="btn-link">Gå till profil</a>
                     </div>
-                }
-                else if (sowingSuggestions == null || !sowingSuggestions.Any())
-                {
-                    <div class="alert alert-success">
-                        <p>Du är i fas! Inget behöver sås just nu baserat på ditt frostdatum.</p>
+                    <div class="mini-stat-card">
+                        <div class="mini-icon yellow"><i data-lucide="leaf"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">OMSKOLADE</span>
+                            <span class="mini-value">@countRepotted</span>
+                        </div>
                     </div>
-                }
-                else
-                {
-                    <div class="plant-grid">
-                        @foreach (var item in sowingSuggestions)
-                        {
-                            <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
-                                <div class="plant-main">
-                                    <div class="plant-icon-circle">
-                                        <i data-lucide="leaf"></i>
-                                    </div>
-                                    <div class="plant-core-info">
-                                        <div class="plant-title-row">
-                                            <span class="plant-name">@item.Plant.PlantName</span>
-                                            @if (item.HasSeeds)
-                                            {
-                                                <button class="btn-sow-now" @onclick:stopPropagation="true" @onclick="() => StartSowing(item.Plant)">
-                                                    Så nu
-                                                </button>
-                                            }
-                                            else
-                                            {
-                                                <span class="seed-status-tag">Saknar frö</span>
-                                            }
-                                        </div>
-                                        <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
-                                    </div>
-                                    <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
-                                        <span>@GetHardinessText(item.Plant.HardinessLevel)</span>
-                                    </div>
-                                </div>
-                                <div class="plant-footer">
-                                    <div class="footer-icons">
-                                        @if (item.Plant.IsLightGerminating)
-                                        {
-                                            <i data-lucide="sparkles"></i>
-                                        }
-                                        @if (item.Plant.RequiresTopping)
-                                        {
-                                            <i data-lucide="scissors"></i>
-                                        }
-                                    </div>
-                                    <i data-lucide="chevron-right" class="arrow"></i>
-                                </div>
-                            </div>
-                        }
+                    <div class="mini-stat-card">
+                        <div class="mini-icon purple"><i data-lucide="sun"></i></div>
+                        <div class="mini-info">
+                            <span class="mini-label">UTPLANTERADE</span>
+                            <span class="mini-value">@countPlantedOut</span>
+                        </div>
                     </div>
-                }
-            </Authorized>
-            <NotAuthorized>
-                <div class="auth-error">
-                    <p>Logga in för att se din dashboard.</p>
-                    <a href="/login" class="btn-primary">Logga in</a>
                 </div>
-            </NotAuthorized>
-        </AuthorizeView>
+            </div>
+        }
+
+        @* 2. REDAN PASSERAT (Accordion) *@
+        @if (overview?.Past != null && overview.Past.Any())
+        {
+            <details class="past-section">
+                <summary>Redan passerat (@overview.Past.Count)</summary>
+                <div class="plant-grid mini">
+                    @foreach (var plant in overview.Past)
+                    {
+                        <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
+                            <div class="mini-card-content">
+                                <i data-lucide="calendar-x" class="mini-icon"></i>
+                                <span>@plant.PlantName</span>
+                            </div>
+                            <span class="mini-badge">Passerat</span>
+                        </div>
+                    }
+                </div>
+            </details>
+        }
+
+        @* 3. BÖR SÅS NU *@
+        <h2 class="section-title">BÖR SÅS NU</h2>
+
+        @if (userProfile?.LastFrostDate == null)
+        {
+            <div class="alert alert-info">
+                <p>Inga såförslag hittades. Har du ställt in ditt <strong>sista frostdatum</strong> i profilen?</p>
+                <a href="/profile" class="btn-link">Gå till profil</a>
+            </div>
+        }
+        else if (sowingSuggestions == null || !sowingSuggestions.Any())
+        {
+            <div class="alert alert-success">
+                <p>Du är i fas! Inget behöver sås just nu baserat på ditt frostdatum.</p>
+            </div>
+        }
+        else
+        {
+            <div class="plant-grid">
+                @foreach (var item in sowingSuggestions)
+                {
+                    <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
+                        <div class="plant-main">
+                            <div class="plant-icon-circle">
+                                <i data-lucide="leaf"></i>
+                            </div>
+                            <div class="plant-core-info">
+                                <div class="plant-title-row">
+                                    <span class="plant-name">@item.Plant.PlantName</span>
+                                    @if (item.HasSeeds)
+                                    {
+                                        <button class="btn-sow-now" @onclick:stopPropagation="true" @onclick="() => StartSowing(item.Plant)">
+                                            Så nu
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="seed-status-tag">Saknar frö</span>
+                                    }
+                                </div>
+                                <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
+                            </div>
+                            <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
+                                <span>@GetHardinessText(item.Plant.HardinessLevel)</span>
+                            </div>
+                        </div>
+                        <div class="plant-footer">
+                            <div class="footer-icons">
+                                @if (item.Plant.IsLightGerminating)
+                                {
+                                    <i data-lucide="sparkles"></i>
+                                }
+                                @if (item.Plant.RequiresTopping)
+                                {
+                                    <i data-lucide="scissors"></i>
+                                }
+                            </div>
+                            <i data-lucide="chevron-right" class="arrow"></i>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     }
-</div>
+</div> @* HÄR ÄR DEN SAKNADE DIVEN SOM STÄNGER CONTAINER *@
 
 @* Modaler *@
 <PlantDetailModal IsVisible="showDetailModal" Plant="selectedPlant" OnClose="() => showDetailModal = false" OnSaved="HandleRefresh" />
