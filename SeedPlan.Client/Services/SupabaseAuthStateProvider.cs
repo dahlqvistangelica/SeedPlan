@@ -16,11 +16,13 @@ namespace SeedPlan.Client.Services
 
             _supabase.Auth.AddStateChangedListener((sender, state) =>
             {
+                // Vi lyssnar fortfarande, men vi anropar en metod som inte startar nya anrop
                 if (state == Constants.AuthState.SignedIn ||
                     state == Constants.AuthState.SignedOut ||
-                    state == Constants.AuthState.TokenRefreshed)
+                    state == Constants.AuthState.TokenRefreshed ||
+                    state == Constants.AuthState.UserUpdated)
                 {
-                    NotifyAuthStateChanged();
+                    NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
                 }
             });
         }
@@ -31,27 +33,40 @@ namespace SeedPlan.Client.Services
             {
                 if (!_isInitialized)
                 {
+                    // Initiera bara EN gång. Detta läser in sessionen från localStorage.
                     await _supabase.InitializeAsync();
                     _isInitialized = true;
                 }
 
-                var session = await _supabase.Auth.RetrieveSessionAsync();
-
-                if(session?.User == null)
-                {
-                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-                }
-                var identity = new ClaimsIdentity(CreateClaims(session.User), "SupabaseAuth");
-                return new AuthenticationState(new ClaimsPrincipal(identity));
-
+                return GetStateFromCurrentSession();
             }
             catch (Exception ex)
             {
-                // Logga gärna felet här om du har en logger
                 Console.WriteLine($"Auth Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
+
+        private AuthenticationState GetStateFromCurrentSession()
+        {
+            var session = _supabase.Auth.CurrentSession;
+
+            if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
+            {
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+
+            var claims = new List<Claim> {
+            new Claim(ClaimTypes.Name, session.User.Email ?? ""),
+            new Claim(ClaimTypes.Email, session.User.Email ?? ""),
+            new Claim(ClaimTypes.NameIdentifier, session.User.Id ?? ""),
+            new Claim("sub", session.User.Id ?? "")
+        };
+
+            var identity = new ClaimsIdentity(claims, "SupabaseAuth");
+            return new AuthenticationState(new ClaimsPrincipal(identity));
+        }
+
         private IEnumerable<Claim> CreateClaims(User user)
         {
             return new List<Claim>
