@@ -20,6 +20,12 @@
     gap: 12px;
 }
 
+.plant-group-header .serif-title {
+    font-size: 1.2rem; /* Mycket mindre än sidans huvudtitel */
+    margin: 0;
+    display: inline-block;
+}
+
 .plant-group-header-main h2 {
     margin: 0;
     font-size: 1.3rem;
@@ -28,11 +34,13 @@
 }
 
 .seed-count {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: #64748b;
     background: #f1f5f9;
-    padding: 2px 8px;
-    border-radius: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .group-content {

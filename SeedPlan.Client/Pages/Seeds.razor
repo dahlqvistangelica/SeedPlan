@@ -31,7 +31,7 @@
         <div class="seed-list">
     @foreach (var group in groupedSeeds)
     {
-                var isExpanded = explandedGroups.Contains(group.Key);
+                var isExpanded = expandedGroups.Contains(group.Key);
 
                 <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
                     <div class="plant-group-header-main">
@@ -90,7 +90,7 @@
     private bool isLoading = true;
     private bool showEditModal = false;
     private Seed? selectedSeed;
-    private HashSet<string> explandedGroups = new();
+    private HashSet<string> expandedGroups = new();
     private bool showAddModal = false;
 
     protected override async Task OnInitializedAsync()
@@ -111,13 +111,13 @@
 
     private async Task ToggleGroup(string plantName)
     {
-        if(explandedGroups.Contains(plantName))
+        if(expandedGroups.Contains(plantName))
         {
-            explandedGroups.Remove(plantName);
+            expandedGroups.Remove(plantName);
         }
         else
         {
-            explandedGroups.Add(plantName);
+            expandedGroups.Add(plantName);
         }
         await Task.Delay(1);
         await JS.InvokeVoidAsync("initializeLucide");
