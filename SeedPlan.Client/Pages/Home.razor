@@ -174,14 +174,13 @@
         try
         {
             isLoading = true;
-            StateHasChanged();
-
-            var authState = await AuthProvider.GetAuthenticationStateAsync();
-            if (authState.User.Identity?.IsAuthenticated == true)
-            {
                 // Hämta profil
                 userProfile = await ProfileService.GetUserProfile();
-
+            if (userProfile?.LastFrostDate != null)
+            {
+                overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
+                sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
+            }
                 // Hämta sådder (Här är fixen för statistiken!)
                 var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
 
@@ -193,12 +192,8 @@
                 countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
                 countPlantedOut = activeSowings.Count(s => (int)s.Status >= 5 && (int)s.Status <= 6);
 
-                if (userProfile?.LastFrostDate != null)
-                {
-                    overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
-                    sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
-                }
-            }
+                
+            
         }
         catch (Exception ex)
         {

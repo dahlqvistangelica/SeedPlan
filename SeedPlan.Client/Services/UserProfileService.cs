@@ -15,22 +15,19 @@ namespace SeedPlan.Client.Services
         //Hämta användarens profilinställningar
         public async Task<UserProfile?> GetUserProfile()
         {
-            var session = _supabase.Auth.CurrentSession;
-            if (session == null)
-            {
-                session = await _supabase.Auth.RetrieveSessionAsync();
-            }
-            if(session?.User == null)
-            {
-                Console.WriteLine("DEBUG: Ingen användare hittades ens efter RetriveSession");
-                return null;
-            }
+            
             try
             {
+                await _supabase.InitializeAsync();
+
+                var user = _supabase.Auth.CurrentUser;
+                if (user == null) return null;
+
                 var response = await _supabase
                     .From<UserProfile>()
-                    .Where(x => x.Id == session.User.Id)
+                    .Where(x => x.Id == user.Id)
                     .Get();
+
                 return response.Model;
             }
             catch(Exception ex)
