@@ -184,7 +184,7 @@
 
                 // Hämta sådder (Här är fixen för statistiken!)
                 var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
-                
+
                 // Vi konverterar status till int i jämförelsen för att slippa CS0019
                 activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
 
@@ -206,7 +206,7 @@
         }
         finally
         {
-            
+            isLoading = false;
             StateHasChanged();
             await Task.Delay(50);
             await JS.InvokeVoidAsync("initializeLucide");
