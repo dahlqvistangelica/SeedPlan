@@ -67,5 +67,12 @@ namespace SeedPlan.Client.Services
             var identity = new ClaimsIdentity(claims, "SupabaseAuth");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
+
+        public void NotifyAuthStateChanged()
+        {
+            // Vi behöver inte göra något här eftersom lyssnaren ovan sköter jobbet,
+            // men metoden måste finnas för att LoginForm.razor ska kunna byggas.
+            NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
+        }
     }
 }
