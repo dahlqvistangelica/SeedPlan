@@ -185,3 +185,67 @@
     .info-box span {
         font-size: 0.9rem;
     }
+
+/* --- Gruppering och Rubriker --- */
+.group-header {
+    margin: 2.5rem 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3d5a44; /* En mörkare grön ton */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #e8f0e9;
+    padding-bottom: 0.3rem;
+}
+
+/* Första grupprubriken behöver inte så mycket marginal uppåt */
+.sowing-list .group-header:first-of-type {
+    margin-top: 1rem;
+}
+
+/* --- Responsivitet (Mobil) --- */
+@media (max-width: 600px) {
+    /* Döljer "Sådd den" på små skärmar */
+    .hide-on-mobile {
+        display: none;
+    }
+
+    /* Gör headern mer kompakt på mobil */
+    .sowings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .group-controls {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .group-select {
+        flex-grow: 1; /* Låter select-boxen ta plats */
+    }
+
+    .sown-date {
+        font-size: 0.85rem;
+    }
+}
+
+/* --- Styling för select-boxen --- */
+.group-select {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ccd5ae;
+    background-color: white;
+    font-size: 0.9rem;
+    color: #444;
+    outline: none;
+    cursor: pointer;
+}
+
+    .group-select:focus {
+        border-color: #a3b18a;
+        box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2);
+    }

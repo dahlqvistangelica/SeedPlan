@@ -45,6 +45,7 @@
 
 .group-content {
     padding-top: 0.5rem;
+    gap: 10px;
 }
 .group-arrow {
     transition: transform 0.2s ease; /* Gör så att pilen snurrar mjukt */

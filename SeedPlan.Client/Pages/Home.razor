@@ -82,6 +82,7 @@
                                 <i data-lucide="calendar-x" class="mini-icon"></i>
                                 <span>@plant.PlantName</span>
                             </div>
+                            <span class="mini-badge">Passerat</span>
                         </div>
                     }
                 </div>
@@ -126,11 +127,8 @@
                                     else
                                     {
                                         @*Text för desktop / större skärmar*@
-                                        <span class="seed-status-tag">Saknar frö</span>
+                                        <span class="seed-status-tag">Frö</span>
                                         @*ikon för mobil/små skärmar*@
-                                        <div class="seed-status-missing" title="Saknar frö">
-                                            <i data-lucide="bean-off"></i>
-                                        </div>
                                     }
                                 </div>
                                 <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
@@ -223,7 +221,7 @@
     }
 
     // Hjälpmetoder
-    private string GetFrostText(int weeks) => weeks <= 0 ? "efter frost" : $"{weeks} v. före frost";
+    private string GetFrostText(int weeks) => weeks <= 0 ? "planteras ut efter frost" : $"planteras ut {weeks} v. före frost";
     private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
     private string GetShortHardinessText(int level) => level switch { 0 => "K", 1 => "HH", 2 => "H", _ => "" };

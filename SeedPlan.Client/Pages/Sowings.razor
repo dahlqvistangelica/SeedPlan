@@ -10,9 +10,20 @@
 <div class="sowings-container">
     <header class="sowings-header">
         <h1 class="serif-title">Mina Sådder</h1>
-        <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
-            <i data-lucide="plus"></i>
-        </button>
+        
+        @* NYTT: Grupperingsväljare *@
+        <div class="group-controls">
+            <select @bind="currentGrouping" class="group-select">
+                <option value="none">Ingen gruppering</option>
+                <option value="status">Gruppera efter Status</option>
+                <option value="plant">Gruppera efter Växt</option>
+                <option value="date">Gruppera efter Datum</option>
+            </select>
+            
+            <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
+                <i data-lucide="plus"></i>
+            </button>
+        </div>
     </header>
     <AddSowingModal IsVisible="showAddModal"
                     OnClose="() => showAddModal = false"
@@ -31,78 +42,86 @@
     else
     {
         <div class="sowing-list">
-            @foreach (var sowing in mySowings)
+            @foreach (var group in GetGroupedSowings())
             {
-                <div class="sowing-card fade-in">
-                    <div class="card-header">
-                        <div class="header-main">
-                            <div class="icon-box">
-                                <i data-lucide="@GetStatusIcon(sowing.Status)"></i>
-                            </div>
-                            <div class="title-area">
-                                <h3>
-                                    @sowing.Seed?.Plant?.PlantName
-                                    <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
-                                </h3>
-                                <p class="sown-date">
-                                    <i data-lucide="calendar"></i>
-                                    Sådd den @(sowing.SownDate?.ToString("yyyy-MM-dd"))
-                                    <span class="sown-quantity">(@sowing.Quantity st)</span>
-                                </p>
+                @if (currentGrouping != "none")
+                {
+                    <h2 class="group-header">@group.Key</h2>
+                }
+                @foreach (var sowing in group)
+                {
+                    <div class="sowing-card fade-in">
+                        <div class="card-header">
+                            <div class="header-main">
+                                <div class="icon-box">
+                                    <i data-lucide="@GetStatusIcon(sowing.Status)"></i>
+                                </div>
+                                <div class="title-area">
+                                    <h3>
+                                        @sowing.Seed?.Plant?.PlantName
+                                        <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
+                                    </h3>
+                                    <p class="sown-date">
+                                        <i data-lucide="calendar"></i>
+                                        @* NYTT: CSS-klass för att dölja text på mobil *@
+                                        <span class="hide-on-mobile">Sådd den </span>
+                                        @(sowing.SownDate?.ToString("yyyy-MM-dd"))
+                                        <span class="sown-quantity">(@sowing.Quantity st)</span>
+                                    </p>
+                                </div>
+                                <div class="header-actions">
+                                    <span class="status-badge">@GetStatusText(sowing.Status)</span>
+                                    <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
                             </div>
 
-                        </div>
-                        <div class="header-actions">
-                            <span class="status-badge">@GetStatusText(sowing.Status)</span>
-                            <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
-                                <i data-lucide="trash-2"></i>
-                            </button>
+                            @* DEN INTERAKTIVA STATUSLINJEN *@
+                            <div class="progress-container">
+                                <div class="progress-line"></div>
+                                <div class="progress-steps">
+                                    <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)">
+                                        <i data-lucide="sprout"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)">
+                                        <i data-lucide="check-circle"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)">
+                                        <i data-lucide="leaf"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)">
+                                        <i data-lucide="wind"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)">
+                                        <i data-lucide="sun"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* STATUSBOXAR SOM DYKER UPP VID BEHOV *@
+                            @if (sowing.Status == 0)
+                            {
+                                <div class="info-box">
+                                    <i data-lucide="info"></i>
+                                    <span>
+                                        Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
+                                        @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
+                                    </span>
+                                </div>
+                            }
+                            @if (sowing.Status == 2 && (sowing.Seed?.Plant?.RequiresTopping ?? false))
+                            {
+                                <div class="info-box">
+                                    <i data-lucide="info"></i>
+                                    <span>
+                                        @(sowing.Seed?.Plant?.PlantName ?? "Växten") bör toppas!
+                                    </span>
+                                </div>
+                            }
                         </div>
                     </div>
-
-                    @* DEN INTERAKTIVA STATUSLINJEN *@
-                    <div class="progress-container">
-                        <div class="progress-line"></div>
-                        <div class="progress-steps">
-                            <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)">
-                                <i data-lucide="sprout"></i>
-                            </div>
-                            <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)">
-                                <i data-lucide="check-circle"></i>
-                            </div>
-                            <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)">
-                                <i data-lucide="leaf"></i>
-                            </div>
-                            <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)">
-                                <i data-lucide="wind"></i>
-                            </div>
-                            <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)">
-                                <i data-lucide="sun"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    @* STATUSBOXAR SOM DYKER UPP VID BEHOV *@
-                    @if (sowing.Status == 0)
-                    {
-                        <div class="info-box">
-                            <i data-lucide="info"></i>
-                            <span>
-                                Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
-                                @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
-                            </span>
-                        </div>
-                    }
-                    @if (sowing.Status == 2 && (sowing.Seed?.Plant?.RequiresTopping ?? false))
-                    {
-                        <div class="info-box">
-                            <i data-lucide="info"></i>
-                            <span>
-                                @(sowing.Seed?.Plant?.PlantName ?? "Växten") bör toppas!
-                            </span>
-                        </div>
-                    }
-                </div>
+                }
             }
         </div>
     }
@@ -110,6 +129,7 @@
 
 @code {
     private List<Sowing> mySowings = new();
+    private string currentGrouping = "none";
     private bool isLoading = true;
     private bool showAddModal = false;
 
@@ -133,9 +153,34 @@
         isLoading = true;
         mySowings = await SowingService.GetMySowings();
         isLoading = false;
-        
+
         await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
+    }
+
+    private IEnumerable<IGrouping<string, Sowing>> GetGroupedSowings()
+    {
+        if(currentGrouping == "status")
+        {
+            return mySowings
+            .OrderBy(s => s.Status)
+            .GroupBy(s => GetStatusText(s.Status));
+        }
+        if(currentGrouping == "plant")
+        {
+            return mySowings
+            .OrderBy(s => s.Seed?.Plant?.PlantName)
+            .GroupBy(s => s.Seed?.Plant?.PlantName ?? "Ospecifierat");
+        }
+        if(currentGrouping == "date")
+        {
+            return mySowings
+            .OrderBy(s => s.SownDate)
+            .GroupBy(s => s.SownDate?.ToString("yyyy-MM-dd") ?? "Inget datum");
+        }
+        return mySowings
+            .OrderByDescending(s => s.SownDate)
+            .GroupBy(s => "");
     }
 
     private string GetStatusText(int status) => status switch

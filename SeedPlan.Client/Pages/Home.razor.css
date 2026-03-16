@@ -166,7 +166,7 @@
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;
-    text-transform: uppercase;
+    font-variant:small-caps;
 }
 
 .seed-status-tag {
@@ -178,9 +178,8 @@
     color: #64748b;
     font-weight: 600;
     margin-left: 0.5rem;
-}
-.seed-status-missing {
-    display: none;
+    text-decoration: line-through;
+    text-transform: uppercase;
 }
 .plant-core-info {
     flex: 1;
@@ -205,9 +204,10 @@
     top: 0;
     right: 0;
     font-size: 0.65rem;
-    font-weight: 800;
+    font-weight: 600;
     padding: 4px 8px;
     border-radius: 8px;
+    text-transform:uppercase;
 }
 /* Footer och ikoner */
 
@@ -380,18 +380,6 @@
         gap: 8px;
     }
 
-    .seed-status-tag {
-        display: none;
-    }
-
-    .seed-status-missing {
-        display: none;
-    }
-
-        .seed-status-missing i {
-            width: 12px; /* Liten storlek för att få plats på raden */
-            height: 12px;
-        }
     .mini-badge{
         display:none;
     }
@@ -401,17 +389,18 @@
     .full-text {
         display: none; /* Dölj "Härdig" etc. på mobilen */
     }
-
     .short-text {
         display: inline; /* Visa K, HH, H istället */
         font-weight: 800;
         letter-spacing: 0;
     }
-
     /* Gör själva badgen ännu tajtare på mobilen */
     .hardiness-badge {
         padding: 2px 5px;
         min-width: 20px;
         text-align: center;
+    }
+    .mini-badge {
+        display: none;
     }
 }
