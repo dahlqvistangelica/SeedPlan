@@ -69,7 +69,7 @@
             </div>
         }
 
-        @* 2. REDAN PASSERAT (Accordion) *@
+        @* 2. REDAN PASSERAT *@
         @if (overview?.Past != null && overview.Past.Any())
         {
             <details class="past-section">
@@ -82,7 +82,6 @@
                                 <i data-lucide="calendar-x" class="mini-icon"></i>
                                 <span>@plant.PlantName</span>
                             </div>
-                            <span class="mini-badge">Passerat</span>
                         </div>
                     }
                 </div>
@@ -102,7 +101,7 @@
         else if (sowingSuggestions == null || !sowingSuggestions.Any())
         {
             <div class="alert alert-success">
-                <p>Du är i fas! Inget behöver sås just nu baserat på ditt frostdatum.</p>
+                <p>Du är i fas! Inget behöver sås just nu.</p>
             </div>
         }
         else
@@ -131,9 +130,6 @@
                                 </div>
                                 <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
                             </div>
-                            <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
-                                <span>@GetHardinessText(item.Plant.HardinessLevel)</span>
-                            </div>
                         </div>
                         <div class="plant-footer">
                             <div class="footer-icons">
@@ -153,76 +149,46 @@
             </div>
         }
     }
-</div> @* HÄR ÄR DEN SAKNADE DIVEN SOM STÄNGER CONTAINER *@
+</div>
 
-@* Modaler *@
 <PlantDetailModal IsVisible="showDetailModal" Plant="selectedPlant" OnClose="() => showDetailModal = false" OnSaved="HandleRefresh" />
 <AddSowingModal IsVisible="showSowModal" InitialPlant="selectedPlantForSowing" OnClose="() => showSowModal = false" OnSaved="HandleRefresh" />
+
 @code {
     private bool isLoading = true;
-    private UserProfile? userProfile; // Tillagd!
+    private UserProfile? userProfile;
     private SowingOverview overview = new();
     private List<Sowing> activeSowings = new();
-    private int countSown, countGerminated, countRepotted, countPlantedOut;
     private List<PlantSowingView> sowingSuggestions = new();
+    private int countSown, countGerminated, countRepotted, countPlantedOut;
 
+    private bool showDetailModal = false;
     private bool showSowModal = false;
+    private Plant? selectedPlant;
     private Plant? selectedPlantForSowing;
 
-    private string GetFrostText(int weeks)
-    {
-        if(weeks <= 0)
-        {
-            return "planteras ut efter sista frost";
-        }
-        return $"planteras ut {weeks}. v före sista frost";
-    }
-    private string GetHardinessText(int level) => level switch
-    {
-        0 => "Känslig",
-        1 => "Halvhärdig",
-        2 => "Härdig",
-        _ => ""
-    };
-
-    private string GetShortHardinessText(int level) => level switch
-    {
-        0 => "K",
-        1 => "HH",
-        2 => "H",
-        _ => ""
-    };
-
-    private string GetHardinessClass(int level) => level switch
-    {
-        0 => "sensitive",
-        1 => "half-hardy",
-        2 => "hardy",
-        _ => ""
-    };
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadData();
-    }
+    protected override async Task OnInitializedAsync() => await LoadData();
 
     private async Task LoadData()
     {
         try
         {
             isLoading = true;
-            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            StateHasChanged();
 
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
             if (authState.User.Identity?.IsAuthenticated == true)
             {
-                // 1. Hämta profilen FÖRST
+                // Hämta profil
                 userProfile = await ProfileService.GetUserProfile();
 
-                // 2. Hämta övrig data
-                var allSowings = await SowingService.GetMySowings();
-                activeSowings = allSowings.Where(s => s.Status < 7).ToList();
+                // Hämta sådder (Här är fixen för statistiken!)
+                var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
+                
+                // Vi konverterar status till int i jämförelsen för att slippa CS0019
+                activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
 
-                // Räkna statistik
-                countSown = activeSowings.Count(s => s.Status == 0);
+                countSown = activeSowings.Count(s => (int)s.Status == 0);
                 countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
                 countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
                 countPlantedOut = activeSowings.Count(s => (int)s.Status >= 5 && (int)s.Status <= 6);
@@ -236,39 +202,23 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Dashboard error: {ex.Message}");
+            Console.WriteLine($"Error: {ex.Message}");
         }
         finally
         {
             isLoading = false;
-            await Task.Delay(100);
-            await JS.InvokeVoidAsync("initializeLucide");
             StateHasChanged();
+            await Task.Delay(50);
+            await JS.InvokeVoidAsync("initializeLucide");
         }
     }
 
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JS.InvokeVoidAsync("initializeLucide");
-    }
-    //PLANT DETAIL MODAL CODE
-
-    private bool showDetailModal = false;
-    private Plant? selectedPlant;
-
-    //Öppnar fönstret med plantdetails
-    private void OpenPlantDetail(Plant plant)
-    {
-        selectedPlant = plant;
-        showDetailModal = true;
-    }
+    // Hjälpmetoder
+    private string GetFrostText(int weeks) => weeks <= 0 ? "efter frost" : $"{weeks} v. före frost";
+    private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "HH", 2 => "Härdig", _ => "" };
+    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
+    
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+    private void StartSowing(Plant plant) { selectedPlantForSowing = plant; showSowModal = true; }
     private async Task HandleRefresh() => await LoadData();
-
-    private void StartSowing(Plant plant)
-    {
-        selectedPlantForSowing = plant;
-        showSowModal = true;
-    }
-}
 }
