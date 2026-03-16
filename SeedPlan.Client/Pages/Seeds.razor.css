@@ -235,6 +235,11 @@
 }
 @media(max-width: 600px)
 {
+    .seeds-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
     .btn-add-seed span {
         display: none; /* Dölj texten "Ny sådd" på små skärmar, visa bara + */
     }

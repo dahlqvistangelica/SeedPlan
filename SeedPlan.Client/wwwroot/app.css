@@ -247,7 +247,9 @@ p, label, span {
     .page-body {
         padding-bottom: 100px;
     }
-
+    .serif-title {
+        font-size: 1.8rem; /* Gör titeln mindre bara på mobilen */
+    }
     .header-top h1 {
         font-size: 1.8rem;
     }
@@ -255,22 +257,10 @@ p, label, span {
 
 /* --- Längst ner i din fil --- */
 
-@media (max-width: 768px) {
-    /* Här lägger vi ALL mobil-logik. 
-       Ingen kod härifrån påverkar din dator-version. */
-
-    .serif-title {
-        font-size: 1.8rem; /* Gör titeln mindre bara på mobilen */
-    }
-
-    .page-body {
-        padding-bottom: 100px; /* Ger plats för bottenmenyn */
-    }
-}
 
 @media (max-width: 480px) {
     .page-body {
-        padding: 1rem 0.6rem; /* Ännu mindre padding på sidorna på små mobiler */
+        padding: 1rem 0rem; /* Ännu mindre padding på sidorna på små mobiler */
         padding-bottom: 100px;
     }
     .

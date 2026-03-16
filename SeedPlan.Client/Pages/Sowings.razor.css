@@ -320,6 +320,14 @@
         transition: all 0.2s ease;
     }
 
+    .sowings-container {
+        margin: 0 auto;
+        padding: 2rem 0.5rem;
+    }
+    .sowing-card{
+        padding: 1.5rem;
+    }
+
 }
 
 /* --- Styling för select-boxen --- */
