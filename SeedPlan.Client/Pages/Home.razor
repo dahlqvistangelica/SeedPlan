@@ -89,11 +89,11 @@
     }
 
         <h2 class="section-title">BÖR SÅS NU</h2>
-        @if(sowingSuggestions == null)
+        @if(overview == null)
         {
             <p>Laddar förslag...</p>
         }
-        else if (!sowingSuggestions.Any())
+        else if (!overview.Current.Any())
         {
             <div class="alert alert-info">
                 <p>Inga såförslag hittades. Har du ställt in ditt <strong>sista frostdatum</strong> i profilen?</p>
