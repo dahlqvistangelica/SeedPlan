@@ -32,6 +32,10 @@ namespace SeedPlan.Client.Services
         {
             try
             {
+                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("BROWSER")))
+                {
+                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                }
                 if (!_isInitialized)
                 {
                     await _supabase.InitializeAsync();

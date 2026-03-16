@@ -33,19 +33,6 @@
         }, 100);
         }
         };
-
-        // Skapa observatören men med skydd mot oändliga loopar
-        const observer = new MutationObserver((mutations) => {
-        // Kontrollera om ändringen faktiskt rör något som inte redan är en Lucide-ikon
-        // (Ett enkelt sätt är att bara köra vår debounced funktion)
-        window.initializeLucide();
-        });
-
-        // Starta bevakningen på hela bodyn
-        observer.observe(document.body, {
-        childList: true,
-        subtree: true
-        });
     </script>
 </body>
 </html>

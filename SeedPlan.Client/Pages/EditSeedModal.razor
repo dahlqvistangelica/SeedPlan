@@ -48,9 +48,12 @@
 
     private async Task HandleSave()
     {
-        await SeedService.UpdateSeed(Seed);
-        await OnSaved.InvokeAsync();
-        await Close();
+        if (Seed != null)
+        {
+            await SeedService.UpdateSeed(Seed);
+            await OnSaved.InvokeAsync();
+            await Close();
+        }
     }
 
     private Task Close() => OnClose.InvokeAsync();
