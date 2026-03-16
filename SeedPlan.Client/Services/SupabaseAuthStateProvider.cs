@@ -37,17 +37,10 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // Kontrollera att vi är i webbläsaren
-                bool isBrowser = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
-                    System.Runtime.InteropServices.OSPlatform.Create("BROWSER"));
-
-                if (!isBrowser)
-                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-
                 // Vänta på att sessionen läses in från localStorage
                 await _supabase.InitializeAsync();
 
-                // Dubbelkolla sessionen
+                // Gör ett aktivt försök att hämta sessionen om InitializeAsync missade den
                 if (_supabase.Auth.CurrentSession == null)
                 {
                     await _supabase.Auth.RetrieveSessionAsync();
@@ -55,9 +48,8 @@ namespace SeedPlan.Client.Services
 
                 return GetStateFromCurrentSession();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Auth Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
