@@ -1,4 +1,62 @@
-﻿.seeds-container {
+﻿.plant-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    border-bottom: 2px solid #f1f5f9;
+    margin-top: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none; /* Hindrar att texten markeras vid snabba klick */
+}
+
+    .plant-group-header:hover {
+        background-color: #f8fafc;
+    }
+
+.plant-group-header-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.plant-group-header-main h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: #064e3b;
+    font-family: 'Playfail Display', serif;
+}
+
+.seed-count {
+    font-size: 0.85rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.group-content {
+    padding-top: 0.5rem;
+}
+
+/* En enkel animation för när listan dyker upp */
+.fade-in {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.seeds-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem 1rem;

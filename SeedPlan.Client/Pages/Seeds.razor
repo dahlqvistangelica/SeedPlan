@@ -19,7 +19,7 @@
     {
         <div class="loading">Hämtar din frösamling...</div>
     }
-    else if (!mySeeds.Any())
+    else if (!groupedSeeds.Any())
     {
         <div class="empty-state">
             <p>Ditt fröbibliotek är tomt. Dags att fylla på! 📦</p>
@@ -29,34 +29,51 @@
     else
     {
         <div class="seed-list">
-    @foreach (var seed in mySeeds)
+    @foreach (var group in groupedSeeds)
     {
-        @* Hela kortet är nu klickbart för att redigera *@
-        <div class="seed-card" @onclick="() => OpenEditSeed(seed)">
-            <div class="seed-info">
-                <h3>@seed.Name</h3>
-                <p class="plant-type">@(seed.Plant?.PlantName ?? "Okänd växt")</p>
-                @if (seed.ExpiryDate.HasValue)
-                {
-                    <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
-                        Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
-                    </span>
-                }
-            </div>
-            <div class="seed-actions">
-                <div class="qty-badge">
-                    @* Din nya ikon för att "stoppa ner frö i jorden" *@
-                    <i data-lucide="sprout" class="sow-icon"></i>
-                    <span class="qty">@seed.Quantity st kvar</span>
+                var isExpanded = explandedGroups.Contains(group.Key);
+
+                <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
+                    <div class="plant-group-header-main">
+                       <i data-lucide="@(isExpanded ? "chevron-down": "chevron-right")"></i>
+                       <h2 class="serif-title">@group.Key</h2>
+                    </div>
+                    <span class="seed-count">@group.Count() st</span>
                 </div>
-                <i data-lucide="chevron-right" class="arrow-icon"></i>
-                        @* NY RADERINGSKNAPP *@
-                        <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
-                            <i data-lucide="trash-2"></i>
-                        </button>
-            </div>
-        </div>
-    }
+                @if (isExpanded)
+                {
+                    <div class="group-content fade-in">
+                        @foreach (var seed in group)
+                        {
+                            @* Hela kortet är nu klickbart för att redigera *@
+                            <div class="seed-card" @onclick="() => OpenEditSeed(seed)">
+                                <div class="seed-info">
+                                    <h3>@(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)</h3>
+
+                                    @if (seed.ExpiryDate.HasValue)
+                                    {
+                                        <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
+                                            Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
+                                        </span>
+                                    }
+                                </div>
+                                <div class="seed-actions">
+                                    <div class="qty-badge">
+                                        @* Din nya ikon för att "stoppa ner frö i jorden" *@
+                                        <i data-lucide="sprout" class="sow-icon"></i>
+                                        <span class="qty">@seed.Quantity st kvar</span>
+                                    </div>
+                                    <i data-lucide="chevron-right" class="arrow-icon"></i>
+                                    @* NY RADERINGSKNAPP *@
+                                    <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
+                                        <i data-lucide="trash-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    }
+            }
 </div>
     }
 </div>
@@ -69,15 +86,17 @@
                OnSaved="RefreshSeeds"/>
 
 @code {
-    private List<Seed> mySeeds = new();
+    private IEnumerable<IGrouping<string, Seed>> groupedSeeds = Enumerable.Empty<IGrouping<string, Seed>>();
     private bool isLoading = true;
     private bool showEditModal = false;
     private Seed? selectedSeed;
+    private HashSet<string> explandedGroups = new();
+    private bool showAddModal = false;
 
     protected override async Task OnInitializedAsync()
     {
         try {
-            mySeeds = await SeedService.GetMySeeds();
+            await RefreshSeeds();
         } finally {
             isLoading = false;
         }
@@ -88,13 +107,29 @@
         await JS.InvokeVoidAsync("initializeLucide");
     }
 
-    private bool showAddModal = false;
     private void OpenAddSeed() => showAddModal = true;
+
+    private async Task ToggleGroup(string plantName)
+    {
+        if(explandedGroups.Contains(plantName))
+        {
+            explandedGroups.Remove(plantName);
+        }
+        else
+        {
+            explandedGroups.Add(plantName);
+        }
+        await Task.Delay(1);
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
 
     private async Task RefreshSeeds()
     {
-        mySeeds = await SeedService.GetMySeeds();
+        isLoading = true;
+        groupedSeeds = await SeedService.GetMySeedsGrouped();
+        isLoading = false;
         StateHasChanged();
+        await JS.InvokeVoidAsync("initializeLucide");
     }
 
     private void OpenEditSeed(Seed seed)
@@ -113,7 +148,7 @@
     }
     private async Task HandleDelete(Seed seed)
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.Name}?");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.VarietyName ?? seed.Name} ?");
         if(confirmed)
         {
             await SeedService.DeleteSeed(seed.Id);

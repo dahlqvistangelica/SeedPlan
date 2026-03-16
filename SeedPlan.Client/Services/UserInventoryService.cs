@@ -53,6 +53,16 @@ namespace SeedPlan.Client.Services
             return response.Models;
         }
 
+        public async Task<IEnumerable<IGrouping<string, Seed>>> GetMySeedsGrouped()
+        {
+            var allSeeds = await GetMySeeds();
+
+            return allSeeds
+                .OrderBy(s => s.Plant?.PlantName ?? "Övrigt")
+                .ThenBy(s => s.VarietyName)
+                .GroupBy(s => s.Plant?.PlantName ?? "Övrigt");
+        }
+
         // Spara ett nytt frö
         public async Task AddSeed(Seed newSeed)
         {
