@@ -21,7 +21,7 @@ namespace SeedPlan.Client.Services
             // Vi tar bort "*" och skriver ut fälten explicit för att undvika dubbletter
             var response = await _supabase
                 .From<Sowing>()
-                .Select("id, seed_id, sown_date, status, notes, user_id, Seed:seed_id(*, Plant:plant_id(*))")
+                .Select("id, seed_id, sown_date, quantity, status, notes, user_id, Seed:seed_id(*, Plant:plant_id(*))")
                 .Where(x => x.UserId == user.Id)
                 .Order(x => x.SownDate, Supabase.Postgrest.Constants.Ordering.Descending)
                 .Get();
