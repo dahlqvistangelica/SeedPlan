@@ -46,6 +46,12 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSaved { get; set; }
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Delay(50);
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+
     private async Task HandleSave()
     {
         if (Seed != null)
@@ -54,6 +60,7 @@
             await OnSaved.InvokeAsync();
             await Close();
         }
+
     }
 
     private Task Close() => OnClose.InvokeAsync();

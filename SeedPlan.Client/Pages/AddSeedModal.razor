@@ -112,6 +112,12 @@
     private Seed newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2) };
     private string errorMessage = "";
 
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Delay(50);
+        await JS.InvokeVoidAsync("initializeLucide");
+    }
+
     protected override async Task OnInitializedAsync()
     {
         allPlants = await PlantService.GetAllPlantsAsync();

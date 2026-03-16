@@ -125,21 +125,35 @@
                                     }
                                     else
                                     {
+                                        @*Text för desktop / större skärmar*@
                                         <span class="seed-status-tag">Saknar frö</span>
+                                        @*ikon för mobil/små skärmar*@
+                                        <div class="seed-status-missing" title="Saknar frö">
+                                            <i data-lucide="bean-off"></i>
+                                        </div>
                                     }
                                 </div>
                                 <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
+                            </div>
+                            @* Härdighetsbadge *@
+                            <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
+                                <span class="full-text">@GetHardinessText(item.Plant.HardinessLevel)</span>
+                                <span class="short-text">@GetShortHardinessText(item.Plant.HardinessLevel)</span>
                             </div>
                         </div>
                         <div class="plant-footer">
                             <div class="footer-icons">
                                 @if (item.Plant.IsLightGerminating)
                                 {
+                                    <div class="feature-icon light" title="Ljusgroende">
                                     <i data-lucide="sparkles"></i>
+                                    </div>
                                 }
                                 @if (item.Plant.RequiresTopping)
                                 {
-                                    <i data-lucide="scissors"></i>
+                                    <div class="feature-icon topping" title="Ska toppas">
+                                        <i data-lucide="scissors"></i>
+                                    </div>
                                 }
                             </div>
                             <i data-lucide="chevron-right" class="arrow"></i>
@@ -174,26 +188,26 @@
         try
         {
             isLoading = true;
-                // Hämta profil
-                userProfile = await ProfileService.GetUserProfile();
+            // Hämta profil
+            userProfile = await ProfileService.GetUserProfile();
             if (userProfile?.LastFrostDate != null)
             {
                 overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
                 sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
             }
-                // Hämta sådder (Här är fixen för statistiken!)
-                var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
+            // Hämta sådder (Här är fixen för statistiken!)
+            var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
 
-                // Vi konverterar status till int i jämförelsen för att slippa CS0019
-                activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
+            // Vi konverterar status till int i jämförelsen för att slippa CS0019
+            activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
 
-                countSown = activeSowings.Count(s => (int)s.Status == 0);
-                countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
-                countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
-                countPlantedOut = activeSowings.Count(s => (int)s.Status >= 5 && (int)s.Status <= 6);
+            countSown = activeSowings.Count(s => (int)s.Status == 0);
+            countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
+            countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
+            countPlantedOut = activeSowings.Count(s => (int)s.Status >= 5 && (int)s.Status <= 6);
 
-                
-            
+
+
         }
         catch (Exception ex)
         {
@@ -203,17 +217,18 @@
         {
             isLoading = false;
             StateHasChanged();
-            await Task.Delay(50);
+            await Task.Delay(200);
             await JS.InvokeVoidAsync("initializeLucide");
         }
     }
 
     // Hjälpmetoder
     private string GetFrostText(int weeks) => weeks <= 0 ? "efter frost" : $"{weeks} v. före frost";
-    private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "HH", 2 => "Härdig", _ => "" };
+    private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
-    
-    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+    private string GetShortHardinessText(int level) => level switch { 0 => "K", 1 => "HH", 2 => "H", _ => "" };
+
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true;  }
     private void StartSowing(Plant plant) { selectedPlantForSowing = plant; showSowModal = true; }
     private async Task HandleRefresh() => await LoadData();
 }

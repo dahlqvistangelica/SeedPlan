@@ -135,6 +135,8 @@
         {
             var allSeeds = await SeedService.GetMySeeds();
             ownedSeeds = allSeeds.Where(s => s.PlantId == Plant.Id).ToList();
+            await Task.Delay(50);
+            await JS.InvokeVoidAsync("initializeLucide");
         }
     }
 
