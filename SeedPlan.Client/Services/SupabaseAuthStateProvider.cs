@@ -14,7 +14,6 @@ namespace SeedPlan.Client.Services
         {
             _supabase = supabaseClient;
 
-            // Lyssna på ändringar (inloggning/utloggning)
             _supabase.Auth.AddStateChangedListener((sender, state) =>
             {
                 if (state == Constants.AuthState.SignedIn ||
@@ -28,8 +27,8 @@ namespace SeedPlan.Client.Services
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // Om vi inte har börjat initiera än, gör det nu. 
-            // Alla anrop till denna metod kommer vänta på samma Task.
+            // Vi sparar ner initieringen i en Task. Alla som anropar denna metod 
+            // kommer nu att vänta på att exakt samma initiering blir klar.
             _initializationTask ??= InitializeInternal();
             return _initializationTask;
         }
@@ -38,16 +37,17 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // Kontrollera att vi faktiskt är i webbläsaren
-                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("BROWSER")))
-                {
-                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-                }
+                // Kontrollera att vi är i webbläsaren
+                bool isBrowser = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+                    System.Runtime.InteropServices.OSPlatform.Create("BROWSER"));
 
-                // Vänta på att Supabase läser från localStorage
+                if (!isBrowser)
+                    return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+
+                // Vänta på att sessionen läses in från localStorage
                 await _supabase.InitializeAsync();
 
-                // Om ingen session hittades direkt, gör ett sista försök att hämta den
+                // Dubbelkolla sessionen
                 if (_supabase.Auth.CurrentSession == null)
                 {
                     await _supabase.Auth.RetrieveSessionAsync();
@@ -57,7 +57,7 @@ namespace SeedPlan.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Auth Init Error: {ex.Message}");
+                Console.WriteLine($"Auth Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
@@ -77,7 +77,8 @@ namespace SeedPlan.Client.Services
             new Claim("sub", session.User.Id ?? "")
         };
 
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "SupabaseAuth")));
+            var identity = new ClaimsIdentity(claims, "SupabaseAuth");
+            return new AuthenticationState(new ClaimsPrincipal(identity));
         }
 
         public void NotifyAuthStateChanged()
