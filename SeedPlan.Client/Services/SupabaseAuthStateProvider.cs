@@ -50,7 +50,7 @@ namespace SeedPlan.Client.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Auth Error: {ex.Message}");
+                Console.WriteLine($"Auth Init Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
