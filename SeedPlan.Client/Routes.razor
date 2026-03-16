@@ -1,13 +1,40 @@
-﻿<Router AppAssembly="typeof(Program).Assembly" AdditionalAssemblies="new[] { typeof(SeedPlan.Client._Imports).Assembly }">
-    <Found Context="routeData">
-        @* Vi använder RouteView istället för AuthorizeRouteView *@
-        @* Din MainLayout har redan <AuthorizeView> så den skyddar ändå sidan! *@
-        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <LayoutView Layout="typeof(MainLayout)">
-            <p role="alert">Sidan hittades inte.</p>
-        </LayoutView>
-    </NotFound>
-</Router>
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Program).Assembly"
+            AdditionalAssemblies="new[] { typeof(SeedPlan.Client._Imports).Assembly }">
+        <Found Context="routeData">
+            @* Här använder vi AuthorizeRouteView för att hantera [Authorize] korrekt *@
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                
+                @* Detta visas medan SupabaseAuthStateProvider kör InitializeAsync *@
+                <Authorizing>
+                    <div class="loading-screen">
+                        <p>Verifierar inloggning... 🛡️</p>
+                    </div>
+                </Authorizing>
+
+                @* Detta visas om man försöker gå till en [Authorize]-sida utan att vara inloggad *@
+                <NotAuthorized>
+                    @if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        @* Skicka användaren till login eller visa ett meddelande *@
+                        <div class="auth-error">
+                            <h2>Hoppsan!</h2>
+                            <p>Du måste vara inloggad för att se denna sida.</p>
+                            <a href="/login" class="btn-primary">Logga in</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <p role="alert">Du har inte behörighet att se denna sida.</p>
+                    }
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sidan hittades inte.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

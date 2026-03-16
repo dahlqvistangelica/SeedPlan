@@ -27,17 +27,15 @@ namespace SeedPlan.Client.Services
             public void DestroySession() =>
                 _js.InvokeVoid("localStorage.removeItem", "sb_session");
 
-            public Session? LoadSession()
+        public Session? LoadSession()
+        {
+            if (_js == null) return null; // Förhindra krasch om JS inte är redo
+            try
             {
-                try
-                {
-                    var json = _js.Invoke<string>("localStorage.getItem", "sb_session");
-                    return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
-                }
-                catch
-                {
-                    return null;
-                }
+                var json = _js.Invoke<string>("localStorage.getItem", "sb_session");
+                return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
             }
+            catch { return null; }
         }
+    }
     }

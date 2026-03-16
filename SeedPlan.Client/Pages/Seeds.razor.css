@@ -46,6 +46,18 @@
 .group-content {
     padding-top: 0.5rem;
 }
+.group-arrow {
+    transition: transform 0.2s ease; /* Gör så att pilen snurrar mjukt */
+    color: #64748b;
+    width: 20px;
+    height: 20px;
+}
+
+    /* När klassen 'expanded' finns, rotera 90 grader */
+    .group-arrow.expanded {
+        transform: rotate(90deg);
+        color: #10b981; /* Valfritt: Gör pilen grön när den är öppen */
+    }
 
 /* En enkel animation för när listan dyker upp */
 .fade-in {

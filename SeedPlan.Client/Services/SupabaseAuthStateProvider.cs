@@ -35,29 +35,15 @@ namespace SeedPlan.Client.Services
                     _isInitialized = true;
                 }
 
-                var session = _supabase.Auth.CurrentSession;
+                var session = await _supabase.Auth.RetrieveSessionAsync();
 
-                // FÖRBÄTTRING 2: Om sessionen är null, gör ett extra försök att hämta den
-                if (session == null)
-                {
-                    session = await _supabase.Auth.RetrieveSessionAsync();
-                }
-
-                // Kontrollera att vi har både en användare och en giltig token
-                if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
+                if(session?.User == null)
                 {
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
                 }
-
-                var claims = new List<Claim> {
-                    new Claim(ClaimTypes.Name, session.User.Email ?? ""),
-                    new Claim(ClaimTypes.Email, session.User.Email ?? ""),
-                    new Claim("sub", session.User.Id ?? "")
-                };
-
-                // Ange "SupabaseAuth" som autentiseringstyp för att IsAuthenticated ska bli true
-                var identity = new ClaimsIdentity(claims, "SupabaseAuth");
+                var identity = new ClaimsIdentity(CreateClaims(session.User), "SupabaseAuth");
                 return new AuthenticationState(new ClaimsPrincipal(identity));
+
             }
             catch (Exception ex)
             {
@@ -66,7 +52,16 @@ namespace SeedPlan.Client.Services
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
-
+        private IEnumerable<Claim> CreateClaims(User user)
+        {
+            return new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Email ?? ""),
+                new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
+                new Claim("sub", user.Id ?? "")
+            };
+        }
         public void NotifyAuthStateChanged()
         {
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());

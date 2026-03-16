@@ -35,10 +35,11 @@
 
                 <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
                     <div class="plant-group-header-main">
-                       <i data-lucide="@(isExpanded ? "chevron-down": "chevron-right")"></i>
+                        @* Vi har alltid samma ikon, men lägger till klassen 'expanded' om den är öppen *@
+                        <i data-lucide="chevron-right" class="group-arrow @(isExpanded ? "expanded" : "")"></i>
                        <h2 class="serif-title">@group.Key</h2>
                     </div>
-                    <span class="seed-count">@group.Count() st</span>
+                    <span class="seed-count">@group.Count() sort</span>
                 </div>
                 @if (isExpanded)
                 {

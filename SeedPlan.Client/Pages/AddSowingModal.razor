@@ -64,6 +64,7 @@
 
 @code {
     [Parameter] public bool IsVisible { get; set; }
+    private bool _wasVisible;
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSaved { get; set; }
     [Parameter] public Plant? InitialPlant { get; set; }
@@ -74,7 +75,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (IsVisible)
+        if (IsVisible && !_wasVisible)
         {
             newSowing = new() { SownDate = DateTime.Now };
             errorMessage = "";
@@ -96,6 +97,10 @@
             {
                 availableSeeds = allOwnedSeeds;
             }
+        }
+        else if(!IsVisible)
+        {
+            _wasVisible = false;
         }
     }
 
