@@ -15,21 +15,21 @@ namespace SeedPlan.Client.Services
             public Session? LoadSession() => _session;
         }
 
-        // 2. För Klienten (sparar inloggningen i webbläsarens minne)
-        public class LocalStorageSessionHandler : IGotrueSessionPersistence<Session>
-        {
-            private readonly IJSInProcessRuntime _js;
-            public LocalStorageSessionHandler(IJSInProcessRuntime js) { _js = js; }
+    // 2. För Klienten (sparar inloggningen i webbläsarens minne)
+    public class LocalStorageSessionHandler : IGotrueSessionPersistence<Session>
+    {
+        private readonly IJSInProcessRuntime? _js;
+        public LocalStorageSessionHandler(IJSInProcessRuntime? js) { _js = js; }
 
-            public void SaveSession(Session session) =>
-                _js.InvokeVoid("localStorage.setItem", "sb_session", JsonSerializer.Serialize(session));
+        public void SaveSession(Session session) =>
+            _js?.InvokeVoid("localStorage.setItem", "sb_session", JsonSerializer.Serialize(session));
 
-            public void DestroySession() =>
-                _js.InvokeVoid("localStorage.removeItem", "sb_session");
+        public void DestroySession() =>
+            _js?.InvokeVoid("localStorage.removeItem", "sb_session");
 
         public Session? LoadSession()
         {
-            if (_js == null) return null; // Förhindra krasch om JS inte är redo
+            if (_js == null) return null;
             try
             {
                 var json = _js.Invoke<string>("localStorage.getItem", "sb_session");
@@ -39,3 +39,20 @@ namespace SeedPlan.Client.Services
         }
     }
     }
+/*
+ * public class WasmSessionHandler : IGotrueSessionPersistence<Session>
+    {
+        private readonly IJSInProcessRuntime? _js;
+        public WasmSessionHandler(IJSInProcessRuntime? js) { _js = js; }
+        public void SaveSession(Session session) => _js?.InvokeVoid("localStorage.setItem", "sb_session", JsonSerializer.Serialize(session));
+        public void DestroySession() => _js?.InvokeVoid("localStorage.removeItem", "sb_session");
+        public Session? LoadSession()
+        {
+            try
+            {
+                var json = _js?.Invoke<string>("localStorage.getItem", "sb_session");
+                return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
+            }
+            catch { return null; }
+        }
+    }*/

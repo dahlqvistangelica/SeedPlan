@@ -8,13 +8,11 @@ namespace SeedPlan.Client.Services
     public class SupabaseAuthStateProvider : AuthenticationStateProvider
     {
         private readonly Supabase.Client _supabase;
-        private bool _isInitialized = false;
-
+        private Task<AuthenticationState>? _initializationTask;
         public SupabaseAuthStateProvider(Supabase.Client supabaseClient)
         {
             _supabase = supabaseClient;
 
-            // Denna lyssnar på in/utloggning och token-uppdateringar
             _supabase.Auth.AddStateChangedListener((sender, state) =>
             {
                 if (state == Constants.AuthState.SignedIn ||
@@ -22,31 +20,44 @@ namespace SeedPlan.Client.Services
                     state == Constants.AuthState.TokenRefreshed ||
                     state == Constants.AuthState.UserUpdated)
                 {
-                    // Vi skickar det aktuella tillståndet direkt till Blazor
+                    // Uppdatera tillståndet asynkront när Supabase ändras
                     NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
                 }
             });
         }
 
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            // Se till att vi bara initierar EN gång och att alla väntar på samma Task
+            _initializationTask ??= InitializeInternal();
+            return _initializationTask;
+        }
+
+        private async Task<AuthenticationState> InitializeInternal()
         {
             try
             {
-                if (!System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Create("BROWSER")))
-                {
+                // Kontrollera att vi är i webbläsaren (viktigt för .NET 8)
+                bool isBrowser = System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(
+                    System.Runtime.InteropServices.OSPlatform.Create("BROWSER"));
+
+                if (!isBrowser)
                     return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-                }
-                if (!_isInitialized)
+
+                // Hämta sessionen från localStorage (WasmSessionHandler)
+                await _supabase.InitializeAsync();
+
+                // Gör ett extra försök att hämta sessionen om den inte laddades direkt
+                if (_supabase.Auth.CurrentSession == null)
                 {
-                    await _supabase.InitializeAsync();
-                    _isInitialized = true;
+                    await _supabase.Auth.RetrieveSessionAsync();
                 }
 
                 return GetStateFromCurrentSession();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Auth Error: {ex.Message}");
+                Console.WriteLine($"Auth Init Error: {ex.Message}");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
@@ -54,7 +65,6 @@ namespace SeedPlan.Client.Services
         private AuthenticationState GetStateFromCurrentSession()
         {
             var session = _supabase.Auth.CurrentSession;
-
             if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -67,15 +77,13 @@ namespace SeedPlan.Client.Services
             new Claim("sub", session.User.Id ?? "")
         };
 
-            // "SupabaseAuth" gör att User.Identity.IsAuthenticated blir true
             var identity = new ClaimsIdentity(claims, "SupabaseAuth");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
 
+        // Metoden som dina komponenter (LoginForm/LoginDisplay) anropar
         public void NotifyAuthStateChanged()
         {
-            // Vi behöver inte göra något här eftersom lyssnaren ovan sköter jobbet,
-            // men metoden måste finnas för att LoginForm.razor ska kunna byggas.
             NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
         }
     }

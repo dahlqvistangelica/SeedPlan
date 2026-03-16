@@ -37,7 +37,7 @@ namespace SeedPlan.Client
                 {
                     AutoRefreshToken = true,
                     AutoConnectRealtime = false, // ÄNDRA TILL FALSE - Detta stoppar kraschen!
-                    SessionHandler = new WasmSessionHandler(js)
+                    SessionHandler = new LocalStorageSessionHandler(js)
                 });
             });
 
@@ -54,20 +54,5 @@ namespace SeedPlan.Client
     }
 
     // --- Hjälparklass för att spara inloggning i webbläsaren ---
-    public class WasmSessionHandler : IGotrueSessionPersistence<Session>
-    {
-        private readonly IJSInProcessRuntime? _js;
-        public WasmSessionHandler(IJSInProcessRuntime? js) { _js = js; }
-        public void SaveSession(Session session) => _js?.InvokeVoid("localStorage.setItem", "sb_session", JsonSerializer.Serialize(session));
-        public void DestroySession() => _js?.InvokeVoid("localStorage.removeItem", "sb_session");
-        public Session? LoadSession()
-        {
-            try
-            {
-                var json = _js?.Invoke<string>("localStorage.getItem", "sb_session");
-                return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
-            }
-            catch { return null; }
-        }
-    }
+    
 }
