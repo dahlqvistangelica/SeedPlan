@@ -1,5 +1,6 @@
 ﻿using SeedPlan.Shared.Models;
 using SeedPlan.Shared.Models.ViewModels;
+using Shared.Models.ViewModels;
 
 namespace SeedPlan.Shared.Interfaces
 {
@@ -12,6 +13,6 @@ namespace SeedPlan.Shared.Interfaces
         Task<List<Seed>> GetSeedsReadyForSowing(); // Använder frostdatum från profilen
         Task<List<PlantSowingView>> GetCurrentSowingCalendar();
 
-        Task<IEnumerable<IGrouping<string, Seed>>> GetMySeedsGrouped();
+        Task<IEnumerable<IGrouping<string, SeedView>>> GetMySeedsGrouped();
     }
 }

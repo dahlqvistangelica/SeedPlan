@@ -97,10 +97,11 @@
 
 .mini-label {
     font-size: 0.6rem;
-    font-weight: 800;
+    font-weight: 700;
     color: #94a3b8;
     letter-spacing: 0.05em;
     line-height: 1;
+    text-transform: uppercase;
 }
 
 .mini-value {
@@ -144,6 +145,10 @@
         transform: translateY(-2px);
         border: 1px solid #10b981;
     }
+    .plan-icon-cicle:hover{
+        background: #10b981;
+        color: #f8f8f8;
+    }
 
 .plant-main {
     display: flex;
@@ -166,7 +171,8 @@
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;
-    font-variant:small-caps;
+    font-style: italic;
+    font-family: 'Lora', serif;
 }
 
 .seed-status-tag {
@@ -208,6 +214,7 @@
     padding: 4px 8px;
     border-radius: 8px;
     text-transform:uppercase;
+    
 }
 /* Footer och ikoner */
 
@@ -259,6 +266,9 @@
 @media (max-width: 768px) {
     .plant-grid {
         grid-template-columns: 1fr;
+    }
+    .mini-badge {
+        display: none;
     }
 }
 /* --- REDAN PASSERAT (ACCORDION) --- */
@@ -400,7 +410,5 @@
         min-width: 20px;
         text-align: center;
     }
-    .mini-badge {
-        display: none;
-    }
+
 }

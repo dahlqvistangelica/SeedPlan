@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SeedPlan/appsettings.Development.json
+# Ignorera alla miljöspecifika appsettings
+appsettings.*.json

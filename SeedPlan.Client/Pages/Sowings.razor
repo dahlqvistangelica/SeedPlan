@@ -13,16 +13,19 @@
         
         @* NYTT: Grupperingsväljare *@
         <div class="group-controls">
+            <div class="control-select">
             <select @bind="currentGrouping" class="group-select">
                 <option value="none">Ingen gruppering</option>
-                <option value="status">Gruppera efter Status</option>
-                <option value="plant">Gruppera efter Växt</option>
-                <option value="date">Gruppera efter Datum</option>
+                <option value="status">Gruppera efter såstatus</option>
+                <option value="plant">Gruppera efter växtnamn</option>
+                <option value="date">Gruppera efter sådatum</option>
             </select>
-            
+            </div>
+            <div class="control-button">
             <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
                 <i data-lucide="plus"></i>
             </button>
+            </div>
         </div>
     </header>
     <AddSowingModal IsVisible="showAddModal"
@@ -53,12 +56,12 @@
                     <div class="sowing-card fade-in">
                         <div class="card-header">
                             <div class="header-main">
-                                <div class="icon-box">
+                                <div class="icon-box hide-on-mobile">
                                     <i data-lucide="@GetStatusIcon(sowing.Status)"></i>
                                 </div>
                                 <div class="title-area">
                                     <h3>
-                                        @sowing.Seed?.Plant?.PlantName
+                                        @sowing.Seed?.PlantData?.PlantName
                                         <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
                                     </h3>
                                     <p class="sown-date">
@@ -69,14 +72,15 @@
                                         <span class="sown-quantity">(@sowing.Quantity st)</span>
                                     </p>
                                 </div>
-                                <div class="header-actions">
-                                    <span class="status-badge">@GetStatusText(sowing.Status)</span>
-                                    <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
-                                        <i data-lucide="trash-2"></i>
-                                    </button>
-                                </div>
+                                
                             </div>
-
+                            <div class="header-actions">
+                                <span class="status-badge hide-on-mobile">@GetStatusText(sowing.Status)</span>
+                                <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
+                                    <i data-lucide="trash-2"></i>
+                                </button>
+                            </div>
+                            </div>
                             @* DEN INTERAKTIVA STATUSLINJEN *@
                             <div class="progress-container">
                                 <div class="progress-line"></div>
@@ -105,22 +109,22 @@
                                 <div class="info-box">
                                     <i data-lucide="info"></i>
                                     <span>
-                                        Sås på <strong>@(sowing.Seed?.Plant?.SowingDepth ?? 0) mm djup</strong>.
-                                        @(sowing.Seed?.Plant?.IsLightGerminating == true ? "Ljusgroende." : "")
+                                        Sås på <strong>@(sowing.Seed?.PlantData?.SowingDepth ?? 0) mm djup</strong>.
+                                        @(sowing.Seed?.PlantData?.IsLightGerminating == true ? "Ljusgroende." : "")
                                     </span>
                                 </div>
                             }
-                            @if (sowing.Status == 2 && (sowing.Seed?.Plant?.RequiresTopping ?? false))
+                            @if (sowing.Status == 2 && (sowing.Seed?.PlantData?.RequiresTopping ?? false))
                             {
                                 <div class="info-box">
                                     <i data-lucide="info"></i>
                                     <span>
-                                        @(sowing.Seed?.Plant?.PlantName ?? "Växten") bör toppas!
+                                        @(sowing.Seed?.PlantData?.PlantName ?? "Växten") bör toppas!
                                     </span>
                                 </div>
                             }
                         </div>
-                    </div>
+                    
                 }
             }
         </div>
@@ -169,8 +173,8 @@
         if(currentGrouping == "plant")
         {
             return mySowings
-            .OrderBy(s => s.Seed?.Plant?.PlantName)
-            .GroupBy(s => s.Seed?.Plant?.PlantName ?? "Ospecifierat");
+            .OrderBy(s => s.Seed?.PlantData?.PlantName)
+            .GroupBy(s => s.Seed?.PlantData?.PlantName ?? "Ospecifierat");
         }
         if(currentGrouping == "date")
         {
@@ -208,14 +212,18 @@
     {
         sowing.Status = newStatus;
         await SowingService.UpdateSowingStatus(sowing.Id, newStatus);
-        
+
         await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
     }
 
     private async Task HandleDelete(int id)
     {
-        await SowingService.DeleteSowing(id);
-        await LoadSowings();
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Är du säker på att du vill ta bort den här sådden? Det går inte att ångra.");
+        if (confirmed)
+        {
+            await SowingService.DeleteSowing(id);
+            await LoadSowings();
+        }
     }
 }

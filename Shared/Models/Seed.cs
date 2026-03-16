@@ -28,22 +28,28 @@ namespace SeedPlan.Shared.Models
 
         [Column("user_id")] // För att koppla fröet till en specifik användare
         public string UserId { get; set; } = string.Empty;
+
+        // Vi döper om dessa så att biblioteket inte autogenererar "!inner"
         [Reference(typeof(Plant))]
-        public Plant? Plant { get; set; }
+        public Plant? PlantData { get; set; }
+
         [Reference(typeof(Variety))]
-        public Variety? Variety { get; set; }
+        public Variety? VarietyData { get; set; }
 
         public Seed() { }
-        public Seed(Seed newSeed)
+        public Seed(Seed old)
         {
-            Id = newSeed.Id;
-            Name = newSeed.Name;
-            Quantity = newSeed.Quantity;
-            ExpiryDate = newSeed.ExpiryDate;
-            PlantId = newSeed.PlantId;
-            UserId = newSeed.UserId;
-            VarietyName = newSeed.VarietyName;
-            
+            Id = old.Id;
+            PlantId = old.PlantId;
+            VarietyId = old.VarietyId;
+            Name = old.Name;
+            VarietyName = old.VarietyName;
+            Quantity = old.Quantity;
+            ExpiryDate = old.ExpiryDate;
+            Notes = old.Notes;
+            UserId = old.UserId;
+            PlantData = old.PlantData;
+            VarietyData = old.VarietyData;
         }
     }
 }

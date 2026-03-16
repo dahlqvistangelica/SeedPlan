@@ -1,6 +1,7 @@
 ﻿@page "/seeds"
 @using Microsoft.AspNetCore.Authorization
 @using SeedPlan.Shared.Models
+@using global::Shared.Models.ViewModels
 @attribute [Authorize]
 @inject IUserInventoryService SeedService
 @inject IJSRuntime JS
@@ -30,14 +31,23 @@
     {
         <div class="seed-list">
     @foreach (var group in groupedSeeds)
-    {
+            {
+                
                 var isExpanded = expandedGroups.Contains(group.Key);
 
                 <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
                     <div class="plant-group-header-main">
                         @* Vi har alltid samma ikon, men lägger till klassen 'expanded' om den är öppen *@
-                        <i data-lucide="chevron-right" class="group-arrow @(isExpanded ? "expanded" : "")"></i>
-                       <h2 class="serif-title">@group.Key</h2>
+                        <i data-lucide="flower" class="group-arrow @(isExpanded ? "expanded" : "")"></i>
+                        <h2 class="serif-title">@if (group.Key == "Övrigt")
+                            {
+                                <span>Blandade fröer</span>                    
+                            }
+                            else
+                            {
+                                @group.Key
+                            }
+                        </h2>
                     </div>
                     <span class="seed-count">@group.Count() sort</span>
                 </div>
@@ -62,7 +72,7 @@
                                     <div class="qty-badge">
                                         @* Din nya ikon för att "stoppa ner frö i jorden" *@
                                         <i data-lucide="sprout" class="sow-icon"></i>
-                                        <span class="qty">@seed.Quantity st kvar</span>
+                                        <span class="qty">@seed.Quantity st</span>
                                     </div>
                                     <i data-lucide="chevron-right" class="arrow-icon"></i>
                                     @* NY RADERINGSKNAPP *@
@@ -87,7 +97,7 @@
                OnSaved="RefreshSeeds"/>
 
 @code {
-    private IEnumerable<IGrouping<string, Seed>> groupedSeeds = Enumerable.Empty<IGrouping<string, Seed>>();
+    private IEnumerable<IGrouping<string, SeedView>> groupedSeeds = Enumerable.Empty<IGrouping<string, SeedView>>();
     private bool isLoading = true;
     private bool showEditModal = false;
     private Seed? selectedSeed;
@@ -133,9 +143,19 @@
         await JS.InvokeVoidAsync("initializeLucide");
     }
 
-    private void OpenEditSeed(Seed seed)
+    private void OpenEditSeed(SeedView seed)
     {
-        selectedSeed = new Seed(seed);
+        selectedSeed = new Seed
+        {
+            Id = seed.Id,
+            Name = seed.Name,
+            VarietyName = seed.VarietyName ?? "",
+            Quantity = seed.Quantity,
+            PlantId = seed.PlantId,
+            VarietyId = seed.VarietyId,
+            Notes = seed.Notes,
+            ExpiryDate = seed.ExpiryDate
+        };
         showEditModal = true;
     }
     private async Task SaveQuantity()
@@ -147,7 +167,7 @@
             showEditModal = false;
         }
     }
-    private async Task HandleDelete(Seed seed)
+    private async Task HandleDelete(SeedView seed)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.VarietyName ?? seed.Name} ?");
         if(confirmed)

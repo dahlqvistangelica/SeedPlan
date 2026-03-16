@@ -38,7 +38,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .header-main {
@@ -118,8 +118,7 @@
 
 .progress-container {
     position: relative;
-    padding: 2rem 0;
-    margin-bottom: 1.5rem;
+    padding: 1rem 0;
 }
 
 .progress-line {
@@ -197,10 +196,19 @@
     border-bottom: 2px solid #e8f0e9;
     padding-bottom: 0.3rem;
 }
+.group-controls {
+    display: flex;
+    align-items: center; /* Centrerar elementen vertikalt mot varandra */
+    gap: 1rem; /* Skapar mellanrum mellan dropdown och knapp */
+}
 
 /* Första grupprubriken behöver inte så mycket marginal uppåt */
 .sowing-list .group-header:first-of-type {
     margin-top: 1rem;
+}
+
+.hide-on-desktop {
+    display: none;
 }
 
 /* --- Responsivitet (Mobil) --- */
@@ -208,6 +216,9 @@
     /* Döljer "Sådd den" på små skärmar */
     .hide-on-mobile {
         display: none;
+    }
+    .show-on-mobile{
+        display:contents;
     }
 
     /* Gör headern mer kompakt på mobil */
@@ -219,18 +230,37 @@
 
     .group-controls {
         width: 100%;
-        display: flex;
-        justify-content: space-between;
+        justify-content: space-between; /* Trycker ut dem mot kanterna på mobilen */
         gap: 0.5rem;
     }
 
     .group-select {
-        flex-grow: 1; /* Låter select-boxen ta plats */
+        flex-grow: 1; /* Gör så att dropdown-menyn tar upp resten av bredden på mobil */
     }
 
     .sown-date {
         font-size: 0.85rem;
     }
+    .title-area h3{
+        font-size: 1.3rem;
+    }
+    .title-area .variety-name {
+        font-size: 0.9rem;
+    }
+    .step {
+        width: 30px;
+        height: 30px;
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
 }
 
 /* --- Styling för select-boxen --- */

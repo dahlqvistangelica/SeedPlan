@@ -110,7 +110,7 @@
 
             <div class="growing-advice">
                 <label>ODLINGSRÅD</label>
-                <div class="growing-advice-text"><p>Här kan du lägga till specifika odlingsråd från databasen framöver.</p>
+                <div class="growing-advice-text">@GetSowingAdvice(Plant)
                 </div>
             </div>
         </div>
@@ -141,6 +141,8 @@
     }
 
     private void ToggleAddForm() => showAddForm = !showAddForm;
+
+    private string GetSowingAdvice(Plant plant) => $"Inga planteringsråd om {plant.PlantName} ännu";
 
     private string GetPlantingText(int weeks){
         if (weeks <= 0) {

@@ -149,16 +149,19 @@ h1:focus {
 .sensitive {
     background: #fee2e2;
     color: #ef4444;
+    border: 1px #ef4444 dashed;
 }
 
 .half-hardy {
     background: #fff7ed;
     color: #f97316;
+    border: 1px #f97316 dashed;
 }
 
 .hardy {
     background: #f0fdf4;
     color: #22c55e;
+    border: 1px #22c55e dashed;
 }
 
 /* Footer & Funktionsikoner */

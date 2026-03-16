@@ -1,6 +1,7 @@
 ﻿using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
 using SeedPlan.Shared.Models.ViewModels;
+using Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {
@@ -30,8 +31,8 @@ namespace SeedPlan.Client.Services
 
             return allSeeds.Where(s =>
             {
-                if (s.Plant == null) { return false; }
-                var targetDate = lastFrost.AddDays(-(s.Plant.SowingLeadTime * 7));
+                if (s.PlantData == null) { return false; }
+                var targetDate = lastFrost.AddDays(-(s.PlantData.SowingLeadTime * 7));
                 var diff = (targetDate - DateTime.Now).TotalDays;
 
                 return diff <= 7 && diff >= 7;
@@ -53,14 +54,23 @@ namespace SeedPlan.Client.Services
             return response.Models;
         }
 
-        public async Task<IEnumerable<IGrouping<string, Seed>>> GetMySeedsGrouped()
+        public async Task<IEnumerable<IGrouping<string, SeedView>>> GetMySeedsGrouped()
         {
-            var allSeeds = await GetMySeeds();
+            var user = _supabase.Auth.CurrentUser;
+            if (user == null) return Enumerable.Empty<IGrouping<string, SeedView>>();
+
+            // Vi hämtar från Vyn istället för tabellen
+            var response = await _supabase
+                .From<SeedView>()
+                .Where(x => x.UserId == user.Id)
+                .Get();
+
+            var allSeeds = response.Models;
 
             return allSeeds
-                .OrderBy(s => s.Plant?.PlantName ?? "Övrigt")
-                .ThenBy(s => s.VarietyName)
-                .GroupBy(s => s.Plant?.PlantName ?? "Övrigt");
+                .OrderBy(s => s.VarietyId == null ? "Övrigt" : s.PlantName)
+        .ThenBy(s => s.VarietyName ?? s.Name)
+        .GroupBy(s => s.VarietyId == null ? "Övrigt" : s.PlantName ?? "Övrigt");
         }
 
         // Spara ett nytt frö
@@ -128,11 +138,9 @@ namespace SeedPlan.Client.Services
 
             seed.UserId = user.Id;
 
-            await _supabase
-                .From<Seed>()
-                .Where(x => x.Id == seed.Id)
-                .Where(x => x.UserId == user.Id)
-                .Update(seed);
+            // Genom att köra Update direkt på objektet säkerställer du 
+            // att Supabase använder PrimaryKey (Id) automatiskt.
+            await _supabase.From<Seed>().Update(seed);
         }
 
         public async Task DeleteSeed(int id)
