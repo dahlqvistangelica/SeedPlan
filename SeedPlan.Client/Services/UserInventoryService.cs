@@ -80,12 +80,31 @@ namespace SeedPlan.Client.Services
 
         public async Task<List<PlantSowingView>> GetCurrentSowingCalendar()
         {
-            var profile = await _profileService.GetUserProfile();
-            if(profile?.LastFrostDate == null)
+            var session = _supabase.Auth.CurrentSession;
+            if(session == null)
             {
+                session = await _supabase.Auth.RetrieveSessionAsync();
+            }
+            if(session?.User == null)
+            {
+                return new List<PlantSowingView>();
+            }
+
+
+            var profile = await _profileService.GetUserProfile();
+
+            if (profile == null)
+            {
+                Console.WriteLine("DEBUG: Profilen kunde inte hämtas.");
+                return new();
+            }
+            if (profile?.LastFrostDate == null)
+            {
+                Console.WriteLine("DEBUG: LastFrostDate är null i databasen.");
                 return new();
             }
             var suggestions = await _plantLibrary.GetGeneralSowingSuggestionsAsync(profile.LastFrostDate.Value);
+            Console.WriteLine($"DEBUG: Hittade {suggestions.Count} förslag från biblioteket.");
 
             var mySeeds = await GetMySeeds();
 

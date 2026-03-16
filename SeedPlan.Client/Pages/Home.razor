@@ -89,10 +89,15 @@
     }
 
         <h2 class="section-title">BÖR SÅS NU</h2>
-        @if (!sowingSuggestions.Any())
+        @if(sowingSuggestions == null)
         {
-            <div class="empty-state">
-                <p>Inga växter rekommenderas för sådd just nu. </p>
+            <p>Laddar förslag...</p>
+        }
+        else if (!sowingSuggestions.Any())
+        {
+            <div class="alert alert-info">
+                <p>Inga såförslag hittades. Har du ställt in ditt <strong>sista frostdatum</strong> i profilen?</p>
+                <a href="/profile" class="btn-link">Gå till profil</a>
             </div>
         }
         else
@@ -212,14 +217,21 @@
     };
     protected override async Task OnInitializedAsync()
     {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
         try
         {
             isLoading = true;
+        
+            // 1. Vänta på att AuthProvidern är helt redo (stoppar "utkastning")
             var authState = await AuthProvider.GetAuthenticationStateAsync();
 
             if (authState.User.Identity?.IsAuthenticated == true)
             {
-                // Hämta och räkna sådder
+                // 2. Hämta och räkna sådder (Din logik är tillbaka här!)
                 var allSowings = await SowingService.GetMySowings();
                 activeSowings = allSowings.Where(s => s.Status < 7).ToList();
 
@@ -228,22 +240,29 @@
                 countRepotted = activeSowings.Count(s => s.Status >= 3 && s.Status <= 4);
                 countPlantedOut = activeSowings.Count(s => s.Status >= 5 && s.Status <= 6);
 
-
-                // Hämta förslag
-                var lastFrost = await ProfileService.GetUserLastFrostDate() ?? new DateTime(DateTime.Now.Year, 5, 15);
-                var today = DateTime.Today;
-
+                // 3. Hämta frostdatum och översikt
+                var lastFrost = await ProfileService.GetUserLastFrostDate()
+                               ?? new DateTime(DateTime.Now.Year, 5, 15);
+            
                 overview = await PlantService.GetSowingOverviewAsync(lastFrost);
+            
+                // 4. Hämta förslag (Använd kalendern vi fixade nyss)
                 sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
+
+                // 5. VIKTIGT: Vänta på att Blazor renderat ut HTML, rita sen ikonerna
+                await Task.Yield();
+                await Task.Delay(50);
+                await JS.InvokeVoidAsync("initializeLucide");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine($"Error i Dashboard: {ex.Message}");
         }
         finally
         {
             isLoading = false;
+            StateHasChanged(); // Tvinga en sista uppdatering av UI
         }
     }
 
