@@ -14,14 +14,15 @@ namespace SeedPlan.Client.Services
         {
             _supabase = supabaseClient;
 
+            // Denna lyssnar på in/utloggning och token-uppdateringar
             _supabase.Auth.AddStateChangedListener((sender, state) =>
             {
-                // Vi lyssnar fortfarande, men vi anropar en metod som inte startar nya anrop
                 if (state == Constants.AuthState.SignedIn ||
                     state == Constants.AuthState.SignedOut ||
                     state == Constants.AuthState.TokenRefreshed ||
                     state == Constants.AuthState.UserUpdated)
                 {
+                    // Vi skickar det aktuella tillståndet direkt till Blazor
                     NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
                 }
             });
@@ -33,7 +34,6 @@ namespace SeedPlan.Client.Services
             {
                 if (!_isInitialized)
                 {
-                    // Initiera bara EN gång. Detta läser in sessionen från localStorage.
                     await _supabase.InitializeAsync();
                     _isInitialized = true;
                 }
@@ -63,23 +63,9 @@ namespace SeedPlan.Client.Services
             new Claim("sub", session.User.Id ?? "")
         };
 
+            // "SupabaseAuth" gör att User.Identity.IsAuthenticated blir true
             var identity = new ClaimsIdentity(claims, "SupabaseAuth");
             return new AuthenticationState(new ClaimsPrincipal(identity));
-        }
-
-        private IEnumerable<Claim> CreateClaims(User user)
-        {
-            return new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Email ?? ""),
-                new Claim(ClaimTypes.NameIdentifier, user.Id ?? ""),
-                new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim("sub", user.Id ?? "")
-            };
-        }
-        public void NotifyAuthStateChanged()
-        {
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
     }
 }
