@@ -225,9 +225,10 @@
         try
         {
             isLoading = true;
-        
+
             // 1. Vänta på att AuthProvidern är helt redo (stoppar "utkastning")
             var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
             if (authState.User.Identity?.IsAuthenticated == true)
             {
@@ -241,16 +242,21 @@
                 countPlantedOut = activeSowings.Count(s => s.Status >= 5 && s.Status <= 6);
 
                 // 3. Hämta frostdatum och översikt
-                var lastFrost = await ProfileService.GetUserLastFrostDate()
-                               ?? new DateTime(DateTime.Now.Year, 5, 15);
-            
-                overview = await PlantService.GetSowingOverviewAsync(lastFrost);
-            
-                // 4. Hämta förslag (Använd kalendern vi fixade nyss)
-                sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
+                var lastFrost = await ProfileService.GetUserLastFrostDate();
+                if (lastFrost.HasValue)
+                {
+
+                    overview = await PlantService.GetSowingOverviewAsync(lastFrost.Value);
+
+                    // 4. Hämta förslag (Använd kalendern vi fixade nyss)
+                    sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
+                }
+                else
+                {
+                    Console.WriteLine("Frostdatum saknas fortfarande i databasen.");
+                }
 
                 // 5. VIKTIGT: Vänta på att Blazor renderat ut HTML, rita sen ikonerna
-                await Task.Yield();
                 await Task.Delay(50);
                 await JS.InvokeVoidAsync("initializeLucide");
             }
@@ -265,6 +271,7 @@
             StateHasChanged(); // Tvinga en sista uppdatering av UI
         }
     }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
