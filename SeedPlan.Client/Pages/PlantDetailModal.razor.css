@@ -31,7 +31,7 @@
 }
 
 .serif-title {
-    font-family: serif;
+    font-family: 'Lora', serif;
     font-size: 2.2rem;
     margin: 0; /* Tar bort marginaler som annars knuffar ner pluset */
     font-style: italic;
@@ -252,10 +252,11 @@
 }
 
     .inventory-header label {
-        font-size: 0.7rem;
-        font-weight: 800;
+        font-size: 0.8rem;
+        font-weight: 700;
         color: #94a3b8;
         letter-spacing: 0.05em;
+        text-transform: uppercase;
     }
 /* Den lilla "Så nu"-knappen bredvid rubriken */
 
@@ -294,6 +295,8 @@
     font-weight: 800;
     color: #1e293b;
     font-size: 1.05rem;
+    font-family: 'Lora', serif;
+    font-style: italic;
 }
 
 .variety-meta {

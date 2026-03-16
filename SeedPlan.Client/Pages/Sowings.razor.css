@@ -11,19 +11,31 @@
     margin-bottom: 2.5rem;
 }
 
+/* "Ny sådd"-knappen */
 .btn-add-sowing {
-    background: #10b981;
-    color: white;
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    justify-content: space-evenly;
+    gap: 6px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 12px;
     cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.1s active, background-color 0.2s;
+    white-space: nowrap;
 }
+
+    .btn-add-sowing:hover {
+        background-color: #047857;
+    }
+
+    .btn-add-sowing i {
+        width: 20px !important;
+        height: 20px !important;
+    }
 
 .sowing-card {
     background: white;
@@ -211,6 +223,46 @@
     display: none;
 }
 
+.control-select {
+    position: relative;
+    flex-grow: 1; /* Låter dropdownen ta upp platsen som finns */
+    max-width: 300px;
+}
+
+/* Själva dropdown-menyn */
+.group-select {
+    appearance: none; /* Döljer webbläsarens fula standardpil */
+    -webkit-appearance: none;
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    background-color: #f9fbf9; /* Mycket svagt grönvit */
+    border: 1px solid #d1d9d1;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #334d33;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0,02);
+}
+
+    .group-select:focus {
+        outline: none;
+        border-color: #4a674a;
+        box-shadow: 0 0 0 3px rgba(74, 103, 74, 0.1);
+    }
+
+/* Den egna pil-ikonen */
+.select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none; /* Så man kan klicka "igenom" ikonen */
+    width: 18px !important;
+    height: 18px !important;
+    color: #7a8e7a;
+}
+
 /* --- Responsivitet (Mobil) --- */
 @media (max-width: 600px) {
     /* Döljer "Sådd den" på små skärmar */
@@ -228,10 +280,17 @@
         gap: 1rem;
     }
 
+    .btn-add-sowing span {
+        display: none; /* Dölj texten "Ny sådd" på små skärmar, visa bara + */
+    }
+
+    .btn-add-sowing {
+        padding: 10px;
+        aspect-ratio: 1/1; /* Gör knappen helt rund/kvadratisk */
+    }
+
     .group-controls {
-        width: 100%;
-        justify-content: space-between; /* Trycker ut dem mot kanterna på mobilen */
-        gap: 0.5rem;
+        gap: 8px;
     }
 
     .group-select {

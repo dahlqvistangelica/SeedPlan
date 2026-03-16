@@ -42,7 +42,9 @@ h1:focus {
     padding-bottom: 100px;
 }
 
-
+p, label, span {
+    font-family: 'Inter', sans-serif;
+}
 /* Typografi & Containers */
 
 .header-top {

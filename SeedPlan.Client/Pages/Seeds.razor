@@ -11,9 +11,12 @@
 <div class="seeds-container">
     <header class="seeds-header">
         <h1 class="serif-title">Mina Fröer 🌱</h1>
-        <button class="btn-add-circle" @onclick="OpenAddSeed">
-            <i data-lucide="plus"></i>
-        </button>
+        <div class="control-button">
+            <button class="btn-add-seed" title="Lägg till frö" @onclick="OpenAddSeed">
+                <i data-lucide="plus"></i>
+                <span>Nytt frö</span> @* Texten döljs på mobil med CSS *@
+            </button>
+        </div>
     </header>
 
     @if (isLoading)

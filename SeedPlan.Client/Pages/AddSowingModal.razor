@@ -1,6 +1,8 @@
 ﻿@using SeedPlan.Shared.Models
+@using global::Shared.Models.ViewModels
 @inject IUserInventoryService SeedService
 @inject IUserSowingService SowingService
+@inject Supabase.Client _supabase
 @inject IJSRuntime JS
 
 @if (IsVisible)
@@ -11,25 +13,30 @@
                 
                 @* 1. VÄLJ FRÖ *@
                 <div class="input-block">
-                    <label>VÄLJ FRÖ</label>
-                    <select @bind="newSowing.SeedId" class="sp-input">
-                        @if(InitialPlant != null)
-                        {
-                            <option value="0">Välj vilken sort av @InitialPlant.PlantName du sår..</option>
-                        }
-                        else
-                        {
-                            <option value="0">Välj ett frö från lagret...</option>
-                        }
-                        @foreach (var seed in availableSeeds)
-                        {
-                            @* Visa sortnamn (VarietyName) om det finns, annars fröets namn *@
-                            <option value="@seed.Id">
-                                @(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)
-                            </option>
-                        }
-                    </select>
-                </div>
+                        <label>VÄLJ FRÖ</label>
+                        <select @bind="newSowing.SeedId" class="sp-input">
+                            @if (InitialPlant != null)
+                            {
+                                <option value="0">Välj vilken sort av @InitialPlant.PlantName du sår..</option>
+                            }
+                            else
+                            {
+                                <option value="0">Välj ett frö från lagret...</option>
+                            }
+        
+                            @foreach (var group in availableSeeds.GroupBy(s => s.PlantName))
+                            {
+                                <optgroup label="@group.Key">
+                                    @foreach (var seed in group)
+                                    {
+                                        <option value="@seed.Id">
+                                            @(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)
+                                        </option>
+                                    }
+                                </optgroup>
+                            }
+                        </select>
+                    </div>
                 @* 2. ANTAL FRÖER SÅDDA *@
                 <div class="input-block">
                     <label>ANTAL SÅDDA FRÖER</label>
@@ -69,7 +76,7 @@
     [Parameter] public EventCallback OnSaved { get; set; }
     [Parameter] public Plant? InitialPlant { get; set; }
 
-    private List<Seed> availableSeeds = new();
+    private List<SeedView> availableSeeds = new();
     private Sowing newSowing = new() { SownDate = DateTime.Now }; // Använder DateTime som du ändrat till
     private string errorMessage = "";
 
@@ -81,10 +88,12 @@
             newSowing = new() { SownDate = DateTime.Now };
             errorMessage = "";
 
-            var allOwnedSeeds = await SeedService.GetMySeeds(); // Hämtar dina fröer
+            var groupedSeeds = await SeedService.GetMySeedsGrouped(); // Hämtar dina fröer
+
+            var allSeeds = groupedSeeds.SelectMany(g => g).ToList();
             if(InitialPlant != null)
             {
-                availableSeeds = allOwnedSeeds.Where(s => s.PlantId == InitialPlant.Id).ToList();
+                availableSeeds = allSeeds.Where(s => s.PlantId == InitialPlant.Id).ToList();
                 if(availableSeeds.Count == 1)
                 {
                     newSowing.SeedId = availableSeeds.First().Id;
@@ -96,7 +105,7 @@
             }
             else
             {
-                availableSeeds = allOwnedSeeds;
+                availableSeeds = allSeeds;
             }
         }
         else if(!IsVisible)
@@ -118,21 +127,36 @@
         try
         {
             // FIX 1: Använd rätt ID för att hitta fröet
-            var selectedSeed = availableSeeds.FirstOrDefault(s => s.Id == newSowing.SeedId);
-        
-            if (selectedSeed != null)
+            var selectedView = availableSeeds.FirstOrDefault(s => s.Id == newSowing.SeedId);
+
+            if (selectedView != null)
             {
+                int sowingQty = newSowing.Quantity;
                 // FIX 2: Kontrollera att lagret räcker
-                if (selectedSeed.Quantity < newSowing.Quantity)
+                if (selectedView.Quantity < sowingQty)
                 {
-                    errorMessage = $"Du har bara {selectedSeed.Quantity} fröer kvar.";
+                    errorMessage = $"Du har bara {selectedView.Quantity} fröer kvar.";
                     return;
                 }
 
-                selectedSeed.Quantity -= newSowing.Quantity;
-                await SeedService.UpdateSeed(selectedSeed);
+                var seedToUpdate = new Seed
+                {
+                    Id = selectedView.Id,
+                    UserId = selectedView.UserId,
+                    Name = selectedView.Name,
+                    VarietyName = selectedView.VarietyName ?? "", // Se till att strängen inte är null
+                    Quantity = selectedView.Quantity - sowingQty,
+                    PlantId = selectedView.PlantId,
+                    VarietyId = selectedView.VarietyId,
+                    ExpiryDate = selectedView.ExpiryDate,
+                    Notes = selectedView.Notes
+                };
+
+                await SeedService.UpdateSeed(seedToUpdate);
+
             }
 
+            newSowing.UserId = _supabase.Auth.CurrentUser?.Id;
             await SowingService.AddSowing(newSowing); // Sparar sådden
             await OnSaved.InvokeAsync();
             await Close();

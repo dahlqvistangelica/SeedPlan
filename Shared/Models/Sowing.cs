@@ -28,8 +28,8 @@ namespace SeedPlan.Shared.Models
         public string? UserId { get; set; }
 
         // Denna används för att visa namnet på fröet i gränssnittet
-        [Reference(typeof(Seed))]
-        public Seed? Seed { get; set; }
+        //[Reference(typeof(Seed))]
+        //public Seed? Seed { get; set; }
 
         public Sowing() { }
         public Sowing(int sId, int quantity)

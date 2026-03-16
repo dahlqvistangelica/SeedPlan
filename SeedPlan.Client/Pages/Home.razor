@@ -18,6 +18,9 @@
     <header class="dashboard-header">
         <div class="header-top">
             <h1 class="serif-title">Välkommen tillbaka</h1>
+            <p style="color: gray; font-size: 0.8rem;">
+                Debug: Hittade totalt @(activeSowings?.Count ?? 0) sådder i databasen.
+            </p>
             <div class="date-badge">
                 <i data-lucide="calendar"></i>
                 <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
@@ -47,21 +50,21 @@
                     <div class="mini-stat-card">
                         <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
                         <div class="mini-info">
-                            <span class="mini-label">GRODDAT</span>
+                            <span class="mini-label">Grodda</span>
                             <span class="mini-value">@countGerminated</span>
                         </div>
                     </div>
                     <div class="mini-stat-card">
                         <div class="mini-icon yellow"><i data-lucide="leaf"></i></div>
                         <div class="mini-info">
-                            <span class="mini-label">OMSKOLADE</span>
+                            <span class="mini-label">Omskolade</span>
                             <span class="mini-value">@countRepotted</span>
                         </div>
                     </div>
                     <div class="mini-stat-card">
                         <div class="mini-icon purple"><i data-lucide="sun"></i></div>
                         <div class="mini-info">
-                            <span class="mini-label">UTPLANTERADE</span>
+                            <span class="mini-label">Utplanterade</span>
                             <span class="mini-value">@countPlantedOut</span>
                         </div>
                     </div>

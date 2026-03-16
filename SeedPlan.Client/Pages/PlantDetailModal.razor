@@ -2,6 +2,8 @@
 @inject IUserInventoryService SeedService
 @inject IUserSowingService SowingService
 @inject IJSRuntime JS
+@inject Supabase.Client _supabase
+@inject IPlantLibraryService PlantService
 
 @if (Plant != null && IsVisible)
 {
@@ -34,8 +36,8 @@
                         {
                             <div class="variety-card">
                                 <div class="variety-info">
-                                    <span class="variety-name">@(string.IsNullOrEmpty(seed.Name) ? "Okänd sort" : seed.Name)</span>
-                                    <span class="variety-meta">@seed.Quantity påsar </span>
+                                    <span class="variety-name">@(string.IsNullOrEmpty(seed.VarietyName) ? "Okänd sort" : seed.VarietyName)</span>
+                                    <span class="variety-meta">@seed.Quantity st </span>
                                 </div>
                                 <button class="sow-now-action" @onclick="() => HandleQuickSow(seed)">
                                     <i data-lucide="plus"></i> Så nu
@@ -58,12 +60,12 @@
                     <div class="form-grid">
                         <div class="input-block full">
                             <label>Sortnamn</label>
-                            <input type="text" @bind="newSeed.Name" placeholder="T.ex. Genovese" class="form-input" />
+                            <input type="text" @bind="newSeed.VarietyName" placeholder="T.ex. Genovese" class="form-input" />
                         </div>
 
                         <div class="input-row">
                             <div class="input-block">
-                                <label>Antal</label>
+                                <label>Antal fröer</label>
                                 <input type="number" @bind="newSeed.Quantity" class="form-input" />
                             </div>
                             <div class="input-block">
@@ -72,15 +74,10 @@
                             </div>
                         </div>
 
-                        <div class="input-row">
-                            <div class="input-block">
-                                <label>Inköpsdatum</label>
-                                <input type="date" @bind="purchaseDate" class="form-input" />
-                            </div>
-                            <div class="input-block">
-                                <label>Inköpsställe</label>
-                                <input type="text" placeholder="T.ex. Impecta" class="form-input" />
-                            </div>
+                        @* Noteringar (Ersätter inköpsinfo) *@
+                        <div class="input-block full">
+                            <label>Noteringar</label>
+                            <textarea @bind="newSeed.Notes" placeholder="T.ex. köpt på rean, ekologiska, bra grobarhet..." class="sp-textarea"></textarea>
                         </div>
                     </div>
 
@@ -123,8 +120,9 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSaved { get; set; }
 
+    private List<Variety> allVarieties = new();
     private bool showAddForm = false;
-    private Seed newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2) };
+    private Seed newSeed = new() { ExpiryDate = DateTime.Now.AddYears(2), Quantity = 1 };
     private DateTime purchaseDate = DateTime.Now;
     private List<Seed> ownedSeeds = new();
     private string errorMessage = "";
@@ -135,6 +133,8 @@
         {
             var allSeeds = await SeedService.GetMySeeds();
             ownedSeeds = allSeeds.Where(s => s.PlantId == Plant.Id).ToList();
+
+            allVarieties = await PlantService.GetVarietiesForPlantAsync(Plant.Id);
             await Task.Delay(50);
             await JS.InvokeVoidAsync("initializeLucide");
         }
@@ -147,17 +147,59 @@
     private string GetPlantingText(int weeks){
         if (weeks <= 0) {
             return $"planteras ut efter sista frost"; }
-        
-         return $"kan planteras ut {weeks}v. före sista frost"; 
-        
+
+        return $"kan planteras ut {weeks}v. före sista frost"; 
+
     }
     private async Task HandleSave()
     {
-        newSeed.PlantId = Plant?.Id;
-        await SeedService.AddSeed(newSeed);
-        showAddForm = false;
-        await OnSaved.InvokeAsync();
-        await Close();
+        if(Plant == null)
+        {
+            return;
+        }
+        try
+        {
+            errorMessage = "";
+            newSeed.PlantId = Plant.Id;
+            newSeed.Name = Plant.PlantName;
+            newSeed.UserId = _supabase.Auth.CurrentUser?.Id;
+
+            if(!string.IsNullOrWhiteSpace(newSeed.VarietyName))
+            {
+                var existingVariety = allVarieties.FirstOrDefault(v => v.VarietyName.Equals(newSeed.VarietyName, StringComparison.OrdinalIgnoreCase));
+
+                if(existingVariety == null)
+                {
+                    var newVarietyObj = new Variety
+                        {
+                            PlantId = Plant.Id,
+                            VarietyName = newSeed.VarietyName
+                        };
+
+                    var savedVariety = await PlantService.AddVarietyAsync(newVarietyObj);
+                    newSeed.VarietyId = savedVariety.Id;
+
+                    allVarieties.Add(savedVariety);
+                }
+                else
+                {
+                    newSeed.VarietyId = existingVariety.Id;
+                }
+
+            }
+            
+            await SeedService.AddSeed(newSeed);
+            newSeed = new Seed { ExpiryDate = DateTime.Now.AddYears(2), Quantity = 1 };
+            showAddForm = false;
+            await OnSaved.InvokeAsync();
+            await Close();
+            
+        }
+        catch(Exception ex)
+        {
+            errorMessage = "Kunde inte spara fröet: " + ex.Message;
+            await JS.InvokeVoidAsync("alert", errorMessage);
+        }
     }
 
     private async Task Close()

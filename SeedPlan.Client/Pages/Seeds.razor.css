@@ -148,19 +148,30 @@
     font-weight: 600;
 }
 
-.btn-add-circle {
-    background: #10b981;
-    color: white;
-    border: none;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+.btn-add-seed {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-evenly;
+    gap: 6px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    font-weight: 500;
+    transition: transform 0.1s active, background-color 0.2s;
+    white-space: nowrap;
 }
+
+    .btn-add-seed:hover {
+        background-color: #047857;
+    }
+
+    .btn-add-seed i {
+        width: 20px !important;
+        height: 20px !important;
+    }
 
 .qty-badge {
     display: flex;
@@ -221,4 +232,15 @@
     font-weight: 700;
     cursor: pointer;
     margin-top: 10px;
+}
+@media(max-width: 600px)
+{
+    .btn-add-seed span {
+        display: none; /* Dölj texten "Ny sådd" på små skärmar, visa bara + */
+    }
+
+    .btn-add-seed {
+        padding: 10px;
+        aspect-ratio: 1/1; /* Gör knappen helt rund/kvadratisk */
+    }
 }

@@ -1,6 +1,7 @@
 ﻿@page "/sowings"
 @using Microsoft.AspNetCore.Authorization
 @using SeedPlan.Shared.Models
+@using global::Shared.Models.ViewModels
 @attribute [Authorize]
 @inject IUserSowingService SowingService
 @inject IJSRuntime JS
@@ -20,11 +21,13 @@
                 <option value="plant">Gruppera efter växtnamn</option>
                 <option value="date">Gruppera efter sådatum</option>
             </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
             </div>
             <div class="control-button">
-            <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
-                <i data-lucide="plus"></i>
-            </button>
+                <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
+                    <i data-lucide="plus"></i>
+                    <span>Ny sådd</span> @* Texten döljs på mobil med CSS *@
+                </button>
             </div>
         </div>
     </header>
@@ -61,14 +64,14 @@
                                 </div>
                                 <div class="title-area">
                                     <h3>
-                                        @sowing.Seed?.PlantData?.PlantName
-                                        <span class="variety-name">(@(sowing.Seed?.VarietyName ?? "Okänd sort"))</span>
+                                        @sowing.PlantName
+                                        <span class="variety-name">(@(sowing.VarietyName ?? "Okänd sort"))</span>
                                     </h3>
                                     <p class="sown-date">
                                         <i data-lucide="calendar"></i>
                                         @* NYTT: CSS-klass för att dölja text på mobil *@
                                         <span class="hide-on-mobile">Sådd den </span>
-                                        @(sowing.SownDate?.ToString("yyyy-MM-dd"))
+                                        @(sowing.SownDate.ToString("yyyy-MM-dd"))
                                         <span class="sown-quantity">(@sowing.Quantity st)</span>
                                     </p>
                                 </div>
@@ -85,19 +88,22 @@
                             <div class="progress-container">
                                 <div class="progress-line"></div>
                                 <div class="progress-steps">
-                                    <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)">
+                                    <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)"> @* SÅDD *@
+                                        <i data-lucide="bean"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)"> @* GRODD *@
                                         <i data-lucide="sprout"></i>
                                     </div>
-                                    <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)">
-                                        <i data-lucide="check-circle"></i>
-                                    </div>
-                                    <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)">
+                                    <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)"> @*KARAKTÄRSBLAD*@
                                         <i data-lucide="leaf"></i>
                                     </div>
-                                    <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)">
+                                    <div class="step @(sowing.Status == 4 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 4)"> @*OMSKOLNING*@
+                                        <i data-lucide="circle-check-big"></i>
+                                    </div>
+                                    <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)"> @*AVHÄRDNING*@
                                         <i data-lucide="wind"></i>
                                     </div>
-                                    <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)">
+                                    <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)"> @*UTPLANTERING*@
                                         <i data-lucide="sun"></i>
                                     </div>
                                 </div>
@@ -109,17 +115,17 @@
                                 <div class="info-box">
                                     <i data-lucide="info"></i>
                                     <span>
-                                        Sås på <strong>@(sowing.Seed?.PlantData?.SowingDepth ?? 0) mm djup</strong>.
-                                        @(sowing.Seed?.PlantData?.IsLightGerminating == true ? "Ljusgroende." : "")
+                                    Sås på <strong>@(sowing.SowingDepth ?? 0) mm djup</strong>.
+                                        @(sowing.IsLightGerminating == true ? $"{sowing.PlantName} är ljusgroende." : "")
                                     </span>
                                 </div>
                             }
-                            @if (sowing.Status == 2 && (sowing.Seed?.PlantData?.RequiresTopping ?? false))
+                            @if (sowing.Status == 2 && sowing.RequiresTopping == true)
                             {
                                 <div class="info-box">
                                     <i data-lucide="info"></i>
                                     <span>
-                                        @(sowing.Seed?.PlantData?.PlantName ?? "Växten") bör toppas!
+                                        @(sowing.PlantName ?? "Växten") bör toppas!
                                     </span>
                                 </div>
                             }
@@ -132,7 +138,7 @@
 </div>
 
 @code {
-    private List<Sowing> mySowings = new();
+    private List<SowingView> mySowings = new();
     private string currentGrouping = "none";
     private bool isLoading = true;
     private bool showAddModal = false;
@@ -155,14 +161,14 @@
     private async Task LoadSowings()
     {
         isLoading = true;
-        mySowings = await SowingService.GetMySowings();
+        mySowings = await SowingService.GetMySowingViews();
         isLoading = false;
 
         await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
     }
 
-    private IEnumerable<IGrouping<string, Sowing>> GetGroupedSowings()
+    private IEnumerable<IGrouping<string, SowingView>> GetGroupedSowings()
     {
         if(currentGrouping == "status")
         {
@@ -173,14 +179,14 @@
         if(currentGrouping == "plant")
         {
             return mySowings
-            .OrderBy(s => s.Seed?.PlantData?.PlantName)
-            .GroupBy(s => s.Seed?.PlantData?.PlantName ?? "Ospecifierat");
+            .OrderBy(s => s.PlantName)
+            .GroupBy(s => s.PlantName ?? "Ospecifierat");
         }
         if(currentGrouping == "date")
         {
             return mySowings
             .OrderBy(s => s.SownDate)
-            .GroupBy(s => s.SownDate?.ToString("yyyy-MM-dd") ?? "Inget datum");
+            .GroupBy(s => s.SownDate.ToString("yyyy-MM-dd"));
         }
         return mySowings
             .OrderByDescending(s => s.SownDate)
@@ -192,7 +198,7 @@
         0 => "SÅDD",
         1 => "GRODD",
         2 => "KARAKTÄRSBLAD",
-        3 or 4 => "OMSKOLAD",
+        3 or 4 => "OMSKOLNING",
         5 => "AVHÄRDNING",
         6 => "UTPLANTERAD",
         _ => "AKTIV"
@@ -208,7 +214,7 @@
         _ => "sprout"
     };
 
-    private async Task UpdateStatus(Sowing sowing, int newStatus)
+    private async Task UpdateStatus(SowingView sowing, int newStatus)
     {
         sowing.Status = newStatus;
         await SowingService.UpdateSowingStatus(sowing.Id, newStatus);
