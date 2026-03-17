@@ -23,3 +23,7 @@ SeedPlan är en modern trädgårdsapplikation byggd för att hjälpa odlare att 
 - **Ändra sådd:** Möjlighet att ändra antal sådda/variant av sådd. 
 - **Samla såråd i databas:** Samla användarnas såråd och publicera i odlingsråd för varje växt.
 - **Sådetaljer/noteringar:** Syns i nuläget inte i UI men ska läggas till.
+
+## Bilder
+![Dashboard efter inloggning](docs/images/dashboard.png)
+![Vyn för sådder](docs/images/sowings.png)
