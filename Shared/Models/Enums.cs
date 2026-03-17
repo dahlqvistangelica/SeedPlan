@@ -12,5 +12,12 @@
         Harvested = 7,
         Failed = 99
     }
+    public enum PlantCategory
+    {
+        Vegetable,
+        Flower,
+        Herb,
+        Fruit
+    }
 
 }

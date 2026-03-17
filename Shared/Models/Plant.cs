@@ -33,6 +33,9 @@ namespace SeedPlan.Shared.Models
         [Column("direct_sowing")]
         public bool DirectSowing { get; set; } = false;
 
+        [Column("plant_category")]
+        public PlantCategory Category { get; set; } = PlantCategory.Flower;
+
         // --- FIXARNA HÄR: Vi lägger till ? för att tillåta tomma värden från databasen ---
 
         [Column("sowing_depth_mm")]
