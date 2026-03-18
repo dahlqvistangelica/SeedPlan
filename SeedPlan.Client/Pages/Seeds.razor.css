@@ -162,15 +162,14 @@
     font-weight: 500;
     transition: transform 0.1s active, background-color 0.2s;
     white-space: nowrap;
+    font-size: 1.2rem;
+}
+.btn-add-seed span{
+    font-size: 0.9rem;
 }
 
     .btn-add-seed:hover {
         background-color: #047857;
-    }
-
-    .btn-add-seed i {
-        width: 20px !important;
-        height: 20px !important;
     }
 
 .qty-badge {

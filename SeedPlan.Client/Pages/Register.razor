@@ -8,7 +8,7 @@
 <div class="auth-page-container">
     <div class="auth-header">
         <button class="btn-back" @onclick="GoBack">
-            <i data-lucide="chevron-left"></i> Tillbaka
+            <Blazicon Svg="Lucide.ChevronLeft" /> Tillbaka
         </button>
     </div>
 
@@ -19,8 +19,4 @@
 
     private void GoBack() => Nav.NavigateTo("/");
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JS.InvokeVoidAsync("initializeLucide");
-    }
 }

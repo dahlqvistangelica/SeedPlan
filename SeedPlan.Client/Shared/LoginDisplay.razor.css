@@ -68,8 +68,8 @@
     background: #fee2e2;
     color: #ef4444;
     border: none;
-    width: 34px;
-    height: 34px;
+    font-size: 1.2rem;
+    padding: 6px;
     border-radius: 50%;
     display: flex;
     align-items: center;

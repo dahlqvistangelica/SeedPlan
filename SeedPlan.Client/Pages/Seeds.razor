@@ -10,10 +10,10 @@
 
 <div class="seeds-container">
     <header class="seeds-header">
-        <h1 class="serif-title">Mina Fröer 🌱</h1>
+        <h1 class="serif-title">Mina Fröer</h1>
         <div class="control-button">
             <button class="btn-add-seed" title="Lägg till frö" @onclick="OpenAddSeed">
-                <i data-lucide="plus"></i>
+                <div class="btn-add-seed-icon"><Blazicon Svg="MdiIcon.SeedPlusOutline" /></div>
                 <span>Nytt frö</span> @* Texten döljs på mobil med CSS *@
             </button>
         </div>
@@ -26,7 +26,7 @@
     else if (!groupedSeeds.Any())
     {
         <div class="empty-state">
-            <p>Ditt fröbibliotek är tomt. Dags att fylla på! 📦</p>
+            <p>Ditt fröbibliotek är tomt. Dags att fylla på! <Blazicon Svg="MdiIcon.SeedOutline"/></p>
             <button class="btn-primary" @onclick="OpenAddSeed">Lägg till ditt första frö</button>
         </div>
     }
@@ -40,8 +40,17 @@
 
                 <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
                     <div class="plant-group-header-main">
+                        <div class="chevron">
                         @* Vi har alltid samma ikon, men lägger till klassen 'expanded' om den är öppen *@
-                        <i data-lucide="flower" class="group-arrow @(isExpanded ? "expanded" : "")"></i>
+                        @if(!isExpanded)
+                        {
+                                <Blazicon Svg="Lucide.ChevronRight" />
+                        }
+                        else
+                        {
+                                <Blazicon Svg="Lucide.ChevronDown" />
+                        }
+                        </div>
                         <h2 class="serif-title">@if (group.Key == "Övrigt")
                             {
                                 @extraSeedGroup                   
@@ -52,7 +61,7 @@
                             }
                         </h2>
                     </div>
-                    <span class="seed-count">@group.Count() sort</span>
+                    <span class="seed-count">@group.Count() sorter</span>
                 </div>
                 @if (isExpanded)
                 {
@@ -72,15 +81,15 @@
                                     }
                                 </div>
                                 <div class="seed-actions">
-                                    <div class="qty-badge">
+                                    <div class="qty-badge" onclick="Open">
                                         @* Din nya ikon för att "stoppa ner frö i jorden" *@
-                                        <i data-lucide="sprout" class="sow-icon"></i>
+                                        <Blazicon Svg="MdiIcon.SeedOutline" />
                                         <span class="qty">@seed.Quantity st</span>
                                     </div>
-                                    <i data-lucide="chevron-right" class="arrow-icon"></i>
+                                    <div class="arrow-icon"><Blazicon Svg="Lucide.ChevronRight" /></div>
                                     @* NY RADERINGSKNAPP *@
                                     <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
-                                        <i data-lucide="trash-2"></i>
+                                        <Blazicon Svg="Lucide.Trash2" />
                                     </button>
                                 </div>
                             </div>
@@ -119,7 +128,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("initializeLucide");
+
     }
 
     private void OpenAddSeed() => showAddModal = true;
@@ -135,7 +144,6 @@
             expandedGroups.Add(plantName);
         }
         await Task.Delay(1);
-        await JS.InvokeVoidAsync("initializeLucide");
     }
 
     private async Task RefreshSeeds()
@@ -144,7 +152,6 @@
         groupedSeeds = await SeedService.GetMySeedsGrouped();
         isLoading = false;
         StateHasChanged();
-        await JS.InvokeVoidAsync("initializeLucide");
     }
 
     private void OpenEditSeed(SeedView seed)

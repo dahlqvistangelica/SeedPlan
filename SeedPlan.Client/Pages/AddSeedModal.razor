@@ -8,7 +8,7 @@
     <div class="sp-modal-overlay">
         <div class="sp-modal-card fade-in">
             <header class="sp-modal-header">
-                <h2>Lägg till frö <span>🌱</span></h2>
+                <h2>Lägg till frö <span><Blazicon Svg="MdiIcon.Seed" /></span></h2>
             </header>
 
             <div class="sp-modal-body">
@@ -115,7 +115,7 @@
     protected override async Task OnParametersSetAsync()
     {
         await Task.Delay(50);
-        await JS.InvokeVoidAsync("initializeLucide");
+      
     }
 
     protected override async Task OnInitializedAsync()
