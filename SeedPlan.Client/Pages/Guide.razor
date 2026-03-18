@@ -105,19 +105,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        searchText = "";
         allPlants = await PlantService.GetAllPlantsAsync();
     }
 
-    private IEnumerable<Plant> FilteredPlants => allPlants
-        .Where(p => string.IsNullOrEmpty(searchText) || p.PlantName.Contains(searchText, StringComparison.OrdinalIgnoreCase))
-        .Where(p => activeHardiness == null || p.HardinessLevel == activeHardiness)
-        .Where(p => !onlyLightGerm || p.IsLightGerminating)
-        .Where(p => !onlyTopping || p.RequiresTopping);
-
     private void ToggleFilters() => showFilters = !showFilters;
-    private async Task SetHardiness(int? level) { activeHardiness = level; await SaveFilters(); }
-    private async Task ToggleLightGerm() { onlyLightGerm = !onlyLightGerm; await SaveFilters(); }
-    private async Task ToggleTopping() { onlyTopping = !onlyTopping; await SaveFilters(); }
+    private async Task SetHardiness(int? level) { activeHardiness = level; StateHasChanged(); await SaveFilters(); }
+    private async Task ToggleLightGerm() { onlyLightGerm = !onlyLightGerm; StateHasChanged(); await SaveFilters(); }
+    private async Task ToggleTopping() { onlyTopping = !onlyTopping; StateHasChanged(); await SaveFilters(); }
 
     private async Task ResetFilters()
     {
@@ -133,19 +128,22 @@
     {
         searchText = e.Value?.ToString() ?? "";
 
+        // Vi behöver inte köra StateHasChanged här manuellt eftersom
+        // Blazor gör det efter event-handlers, men vi vill debounca sparandet.
+
         _searchCts?.Cancel();
         _searchCts = new CancellationTokenSource();
+        var token = _searchCts.Token;
 
         try
         {
-            await Task.Delay(300, _searchCts.Token);
-            await SaveFilters();
-            StateHasChanged();
+            await Task.Delay(500, token); // Lite längre delay för att spara disk/JS-anrop
+            if (!token.IsCancellationRequested)
+            {
+                await SaveFilters();
+            }
         }
-        catch(TaskCanceledException)
-        {
-
-        }
+        catch (TaskCanceledException) { }
     }
 
     public void Dispose()
@@ -188,21 +186,55 @@
     private async Task LoadFilters()
     {
         var json = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
-        if (!string.IsNullOrEmpty(json))
+        if (string.IsNullOrEmpty(json)) return;
+
+        try
         {
-            try
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            // Använd GetProperty säkert
+            if (root.TryGetProperty("SearchText", out var s)) searchText = s.GetString() ?? "";
+
+            if (root.TryGetProperty("Hardiness", out var h))
             {
-                var data = JsonDocument.Parse(json).RootElement;
-                searchText = data.GetProperty("SearchText").GetString() ?? "";
-                
-                // Hantera nullable int för härdighet
-                if (data.GetProperty("Hardiness").ValueKind != JsonValueKind.Null)
-                    activeHardiness = data.GetProperty("Hardiness").GetInt32();
-                
-                onlyLightGerm = data.GetProperty("LightGerm").GetBoolean();
-                onlyTopping = data.GetProperty("Topping").GetBoolean();
+                activeHardiness = h.ValueKind == JsonValueKind.Null ? null : h.GetInt32();
             }
-            catch { /* Om formatet ändrats, ignorera och kör standard */ }
+
+            if (root.TryGetProperty("LightGerm", out var l)) onlyLightGerm = l.GetBoolean();
+            if (root.TryGetProperty("Topping", out var t)) onlyTopping = t.GetBoolean();
+
+            // Här är nyckeln: Efter att vi laddat allt, tvinga fram en omritning
+            StateHasChanged();
+        }
+        catch
+        {
+            
+        }
+    }
+    private IEnumerable<Plant> FilteredPlants
+    {
+        get
+        {
+            var query = allPlants.AsEnumerable();
+
+            // 1. Söktext
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                query = query.Where(p => p.PlantName != null && p.PlantName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // 2. Härdighet (Viktigt: kolla .HasValue)
+            if (activeHardiness.HasValue)
+            {
+                query = query.Where(p => p.HardinessLevel == activeHardiness.Value);
+            }
+
+            // 3. Egenskaper
+            if (onlyLightGerm) query = query.Where(p => p.IsLightGerminating);
+            if (onlyTopping) query = query.Where(p => p.RequiresTopping);
+
+            return query.ToList(); // ToList tvingar fram filtreringen direkt
         }
     }
 }
