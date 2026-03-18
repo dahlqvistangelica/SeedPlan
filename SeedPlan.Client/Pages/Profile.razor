@@ -9,7 +9,7 @@
 
 <div class="profile-container">
     <header class="profile-header">
-        <h1 class="serif-title">Inställningar 🌱</h1>
+        <h1 class="serif-title">Inställningar <Blazicon Svg="MdiIcon.AccountCogOutline" /></h1>
         <p>Anpassa appen efter din trädgårds förutsättningar.</p>
     </header>
 
@@ -36,7 +36,7 @@
         }
 
         <button class="btn-save" @onclick="SaveProfile">
-            <i data-lucide="save"></i> Spara inställningar
+           <Blazicon Svg="Lucide.Save"/>
         </button>
     </div>
 </div>
@@ -82,6 +82,5 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("initializeLucide");
     }
 }

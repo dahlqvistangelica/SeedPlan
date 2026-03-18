@@ -9,7 +9,7 @@
     <header class="main-header">
         <div class="header-content">
             <div class="brand" @onclick='() => Nav.NavigateTo("/")'>
-                <div class="logo-circle"><i data-lucide="leaf"></i></div>
+                <div class="logo-circle"><Blazicon Svg="MdiIcon.LeafCircleOutline" /></div>
                 <h1 class="app-title">SeedPlan</h1>
             </div>
             <div class="header-actions">
@@ -28,23 +28,23 @@
                 @* DEN NYA BOTTENMENYN *@
                 <nav class="bottom-nav">
                     <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
-                        <i data-lucide="sun"></i>
+                        <Blazicon Svg="Lucide.Sun" />
                         <span>ÖVERSIKT</span>
                     </NavLink>
                     <NavLink class="nav-item" href="seeds">
-                        <i data-lucide="package"></i>
+                        <Blazicon Svg="MdiIcon.SeedOutline" />
                         <span>FRÖER</span>
                     </NavLink>
                     <NavLink class="nav-item" href="sowings">
-                        <i data-lucide="leaf"></i>
+                        <Blazicon Svg="MdiIcon.Sprout" />
                         <span>SÅDDER</span>
                     </NavLink>
                     <NavLink class="nav-item" href="guide">
-                        <i data-lucide="info"></i>
+                        <Blazicon Svg="MdiIcon.InformationSlabCircleOutline" />
                         <span>GUIDE</span>
                     </NavLink>
                     <NavLink class="nav-item" href="profile">
-                        <i data-lucide="settings"></i>
+                        <Blazicon Svg="Lucide.Settings" />
                         <span>INSTÄLLN.</span>
                     </NavLink>
                 </nav>
@@ -60,7 +60,7 @@
                 {
                     <div class="login-screen">
                         <div class="login-card">
-                            <div class="login-icon"><i data-lucide="lock"></i></div>
+                            <div class="login-icon"><Blazicon Svg="Lucide.Lock" /></div>
                             <h2>Välkommen tillbaka</h2>
                             <p>Logga in för att hantera din trädgård.</p>
                             <LoginForm />
@@ -88,7 +88,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("initializeLucide");
+        
     }
 
     public void Dispose()

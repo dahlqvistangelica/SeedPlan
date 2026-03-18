@@ -21,11 +21,10 @@
                 <option value="plant">Gruppera efter växtnamn</option>
                 <option value="date">Gruppera efter sådatum</option>
             </select>
-                <i data-lucide="chevron-down" class="select-arrow"></i>
             </div>
             <div class="control-button">
                 <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
-                    <i data-lucide="plus"></i>
+                    <Blazicon Svg="Lucide.Sprout" />
                     <span>Ny sådd</span> @* Texten döljs på mobil med CSS *@
                 </button>
             </div>
@@ -60,7 +59,7 @@
                         <div class="card-header">
                             <div class="header-main">
                                 <div class="icon-box hide-on-mobile">
-                                    <i data-lucide="@GetStatusIcon(sowing.Status)"></i>
+                                   <Blazicon Svg="@GetStatusIcon(sowing.Status)"/>
                                 </div>
                                 <div class="title-area">
                                     <h3>
@@ -68,7 +67,7 @@
                                         <span class="variety-name">(@(sowing.VarietyName ?? "Okänd sort"))</span>
                                     </h3>
                                     <p class="sown-date">
-                                        <i data-lucide="calendar"></i>
+                                        <Blazicon Svg="Lucide.Calendar" />
                                         @* NYTT: CSS-klass för att dölja text på mobil *@
                                         <span class="hide-on-mobile">Sådd den </span>
                                         @(sowing.SownDate.ToString("yyyy-MM-dd"))
@@ -80,7 +79,7 @@
                             <div class="header-actions">
                                 <span class="status-badge hide-on-mobile">@GetStatusText(sowing.Status)</span>
                                 <button class="delete-btn" @onclick="() => HandleDelete(sowing.Id)">
-                                    <i data-lucide="trash-2"></i>
+                                    <Blazicon Svg="Lucide.Trash2" />
                                 </button>
                             </div>
                             </div>
@@ -89,22 +88,22 @@
                                 <div class="progress-line"></div>
                                 <div class="progress-steps">
                                     <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)"> @* SÅDD *@
-                                        <i data-lucide="bean"></i>
+                                        <Blazicon Svg="MdiIcon.SeedOutline" />
                                     </div>
                                     <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)"> @* GRODD *@
-                                        <i data-lucide="sprout"></i>
+                                       <Blazicon Svg="Lucide.Sprout" />
                                     </div>
                                     <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)"> @*KARAKTÄRSBLAD*@
-                                        <i data-lucide="leaf"></i>
+                                        <Blazicon Svg="Lucide.Leaf"/>
                                     </div>
                                     <div class="step @(sowing.Status == 4 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 4)"> @*OMSKOLNING*@
-                                        <i data-lucide="circle-check-big"></i>
+                                    <Blazicon Svg="MdiIcon.Shovel" />
                                     </div>
                                     <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)"> @*AVHÄRDNING*@
-                                        <i data-lucide="wind"></i>
+                                        <Blazicon Svg="MdiIcon.SunThermometerOutline"/>
                                     </div>
                                     <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)"> @*UTPLANTERING*@
-                                        <i data-lucide="sun"></i>
+                                    <Blazicon Svg="MdiIcon.BeeFlower" />
                                     </div>
                                 </div>
                             </div>
@@ -113,7 +112,7 @@
                             @if (sowing.Status == 0)
                             {
                                 <div class="info-box">
-                                    <i data-lucide="info"></i>
+                                    <Blazicon Svg="Lucide.Info" />
                                     <span>
                                     Sås på <strong>@(sowing.SowingDepth ?? 0) mm djup</strong>.
                                         @(sowing.IsLightGerminating == true ? $"{sowing.PlantName} är ljusgroende." : "")
@@ -123,7 +122,7 @@
                             @if (sowing.Status == 2 && sowing.RequiresTopping == true)
                             {
                                 <div class="info-box">
-                                    <i data-lucide="info"></i>
+                                    <Blazicon Svg="Lucide.Info" />
                                     <span>
                                         @(sowing.PlantName ?? "Växten") bör toppas!
                                     </span>
@@ -153,18 +152,12 @@
         await LoadSowings();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await JS.InvokeVoidAsync("initializeLucide");
-    }
-
     private async Task LoadSowings()
     {
         isLoading = true;
         mySowings = await SowingService.GetMySowingViews();
         isLoading = false;
 
-        await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
     }
 
@@ -204,14 +197,15 @@
         _ => "AKTIV"
     };
 
-    private string GetStatusIcon(int status) => status switch
+    private SvgIcon GetStatusIcon(int status) => status switch
     {
-        0 => "sprout",
-        1 => "check-circle",
-        2 => "leaf",
-        5 => "wind",
-        6 => "sun",
-        _ => "sprout"
+        0 => MdiIcon.SeedOutline,
+        1 => Lucide.Sprout,
+        2 => Lucide.Leaf,
+        3 => MdiIcon.Shovel,
+        5 => MdiIcon.SunClockOutline,
+        6 => MdiIcon.BeeFlower,
+        _ => Lucide.Sprout
     };
 
     private async Task UpdateStatus(SowingView sowing, int newStatus)
@@ -219,7 +213,6 @@
         sowing.Status = newStatus;
         await SowingService.UpdateSowingStatus(sowing.Id, newStatus);
 
-        await JS.InvokeVoidAsync("initializeLucide");
         StateHasChanged();
     }
 

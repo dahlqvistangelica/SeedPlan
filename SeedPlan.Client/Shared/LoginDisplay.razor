@@ -13,13 +13,13 @@
             <span class="user-display-name">@displayName</span>
             
             @* 2. Sol-ikonen i mitten *@
-            <div class="theme-toggle-header">
+           @* <div class="theme-toggle-header">
                 <i data-lucide="sun"></i>
-            </div>
+            </div>*@
             
             @* 3. Utloggnings-ikonen sist *@
             <button class="logout-icon-btn" @onclick="HandleLogout" title="Logga ut">
-                <i data-lucide="log-out"></i>
+                <Blazicon Svg="Lucide.LogOut" />
             </button>
         </div>
     </Authorized>

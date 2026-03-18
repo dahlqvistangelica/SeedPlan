@@ -19,10 +19,8 @@
     height: 40px;
     color: #64748b;
     cursor: pointer;
+    font-size: 1.5rem;
 }
-
-
-
     .filter-toggle.active {
         background: #10b981;
         color: white;
@@ -33,15 +31,17 @@
 .search-wrapper {
     position: relative;
     margin-bottom: 2rem;
+    width: 94%;
 }
-
+/* Sökikonen */
 .search-icon {
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #cbd5e1;
+    color: #cbd5e1; /* Ändrat från color till stroke */
     width: 18px;
+    height: 18px; /* Lägg till höjd för säkerhets skull */
 }
 
 .search-input {
@@ -155,9 +155,6 @@
 .plant-card:hover {
     border-color: #10b981;
 }
-
-
-
     .plant-card:hover .plant-icon-circle {
         background: #10b981;
         color: white;
@@ -173,6 +170,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    font-size: 1.4rem;
 }
 
 .plant-name {
@@ -200,24 +198,27 @@
     display: flex;
     gap: 8px;
 }
-
-
-
-    .feature-icons i {
-        font-size: 14px;
+    .feature-icons svg {
+     font-size: 1rem;
     }
 
+
+/* Ljusgroende (Sparkles) */
 .icon-light {
-    color: #3b82f6;
+    color: #3b82f6 !important; /* Blå */
+    font-size: 1.2rem;
 }
 
+/* Toppas (Scissors) */
 .icon-topping {
-    color: #a855f7;
+    color: #a855f7 !important; /* Lila */
+    font-size: 1.2rem;
 }
 
+/* Pilen */
 .arrow {
-    color: #f1f5f9;
-    width: 16px;
+    color: #cbd5e1 !important; /* Ljusgrå (du hade #f1f5f9 som är nästan vit) */
+    font-size: 1.2rem;
 }
 /* HÄRDIGHET BADGES */
 

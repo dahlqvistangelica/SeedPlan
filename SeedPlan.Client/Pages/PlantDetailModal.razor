@@ -16,7 +16,7 @@
                 <div class="title-with-plus">
                     <h2 class="serif-title">@Plant.PlantName</h2>
                     <button class="expand-btn" @onclick="ToggleAddForm" title="Lägg till frö">
-                        <i data-lucide="plus"></i>
+                        <Blazicon Svg="MdiIcon.SeedPlusOutline"/>
                     </button>
                 </div>
             </header>
@@ -40,7 +40,7 @@
                                     <span class="variety-meta">@seed.Quantity st </span>
                                 </div>
                                 <button class="sow-now-action" @onclick="() => HandleQuickSow(seed)">
-                                    <i data-lucide="plus"></i> Så nu
+                                   <Blazicon Svg="Lucide.Plus" /> Så nu
                                 </button>
                             </div>
                         }
@@ -136,7 +136,6 @@
 
             allVarieties = await PlantService.GetVarietiesForPlantAsync(Plant.Id);
             await Task.Delay(50);
-            await JS.InvokeVoidAsync("initializeLucide");
         }
     }
 

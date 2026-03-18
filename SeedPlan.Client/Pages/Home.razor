@@ -19,7 +19,7 @@
         <div class="header-top">
             <h1 class="serif-title">Välkommen tillbaka</h1>
             <div class="date-badge">
-                <i data-lucide="calendar"></i>
+                <Blazicon Svg="Lucide.Calendar" />
                 <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
             </div>
         </div>
@@ -38,28 +38,28 @@
                 <h2 class="section-title">AKTIVA SÅDDER</h2>
                 <div class="stats-mini-grid">
                     <div class="mini-stat-card">
-                        <div class="mini-icon blue"><i data-lucide="sprout"></i></div>
-                        <div class="mini-info">
-                            <span class="mini-label">Nysått</span>
-                            <span class="mini-value">@countSown</span>
-                        </div>
-                    </div>
-                    <div class="mini-stat-card">
-                        <div class="mini-icon green"><i data-lucide="check-circle"></i></div>
+                        <div class="mini-icon blue"><Blazicon Svg="Lucide.Sprout" /></div>
                         <div class="mini-info">
                             <span class="mini-label">Grodda</span>
                             <span class="mini-value">@countGerminated</span>
                         </div>
                     </div>
                     <div class="mini-stat-card">
-                        <div class="mini-icon yellow"><i data-lucide="leaf"></i></div>
+                        <div class="mini-icon green"><Blazicon Svg="MdiIcon.Shovel" /></div>
                         <div class="mini-info">
                             <span class="mini-label">Omskolade</span>
                             <span class="mini-value">@countRepotted</span>
                         </div>
                     </div>
                     <div class="mini-stat-card">
-                        <div class="mini-icon purple"><i data-lucide="sun"></i></div>
+                        <div class="mini-icon yellow"><Blazicon Svg="MdiIcon.SunClockOutline" /></div>
+                        <div class="mini-info">
+                            <span class="mini-label">Avhärdade</span>
+                            <span class="mini-value">@countAcclimated</span>
+                        </div>
+                    </div>
+                    <div class="mini-stat-card">
+                        <div class="mini-icon purple"><Blazicon Svg="MdiIcon.BeeFlower" /></div>
                         <div class="mini-info">
                             <span class="mini-label">Utplanterade</span>
                             <span class="mini-value">@countPlantedOut</span>
@@ -79,7 +79,7 @@
                     {
                         <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
                             <div class="mini-card-content">
-                                <i data-lucide="calendar-x" class="mini-icon"></i>
+                                <div class="mini-icon"><Blazicon Svg="Lucide.CalendarX" /></div>
                                 <span>@plant.PlantName</span>
                             </div>
                             <span class="mini-badge">Passerat</span>
@@ -113,7 +113,7 @@
                     <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
                         <div class="plant-main">
                             <div class="plant-icon-circle">
-                                <i data-lucide="leaf"></i>
+                                <Blazicon Svg="Lucide.Flower"/>
                             </div>
                             <div class="plant-core-info">
                                 <div class="plant-title-row">
@@ -144,17 +144,17 @@
                                 @if (item.Plant.IsLightGerminating)
                                 {
                                     <div class="feature-icon light" title="Ljusgroende">
-                                    <i data-lucide="sparkles"></i>
+                                    <Blazicon Svg="Lucide.Sparkles"/>
                                     </div>
                                 }
                                 @if (item.Plant.RequiresTopping)
                                 {
                                     <div class="feature-icon topping" title="Ska toppas">
-                                        <i data-lucide="scissors"></i>
+                                       <Blazicon Svg="Lucide.Scissors"/>
                                     </div>
                                 }
                             </div>
-                            <i data-lucide="chevron-right" class="arrow"></i>
+                            <Blazicon Svg="Lucide.ChevronRight" />
                         </div>
                     </div>
                 }
@@ -172,7 +172,7 @@
     private SowingOverview overview = new();
     private List<Sowing> activeSowings = new();
     private List<PlantSowingView> sowingSuggestions = new();
-    private int countSown, countGerminated, countRepotted, countPlantedOut;
+    private int countGerminated, countRepotted, countAcclimated, countPlantedOut;
 
     private bool showDetailModal = false;
     private bool showSowModal = false;
@@ -199,10 +199,10 @@
             // Vi konverterar status till int i jämförelsen för att slippa CS0019
             activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
 
-            countSown = activeSowings.Count(s => (int)s.Status == 0);
             countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
             countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
-            countPlantedOut = activeSowings.Count(s => (int)s.Status >= 5 && (int)s.Status <= 6);
+            countAcclimated = activeSowings.Count(s => (int)s.Status == 5);
+            countPlantedOut = activeSowings.Count(s => (int)s.Status == 6);
 
 
 
@@ -216,7 +216,6 @@
             isLoading = false;
             StateHasChanged();
             await Task.Delay(200);
-            await JS.InvokeVoidAsync("initializeLucide");
         }
     }
 
