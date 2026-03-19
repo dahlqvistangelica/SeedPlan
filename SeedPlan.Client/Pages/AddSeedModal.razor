@@ -5,8 +5,8 @@
 
 @if (IsVisible)
 {
-    <div class="sp-modal-overlay">
-        <div class="sp-modal-card fade-in">
+    <div class="sp-modal-overlay" @onclick="Close">
+        <div class="sp-modal-card fade-in" @onclick:stopPropagation>
             <header class="sp-modal-header">
                 <h2>Lägg till frö <span><Blazicon Svg="MdiIcon.Seed" /></span></h2>
             </header>
@@ -178,6 +178,17 @@
             {
                 await JS.InvokeVoidAsync("alert", "Antalet fröer kan inte vara under 0.");
                 return;
+            }
+            if(!string.IsNullOrWhiteSpace(newSeed.VarietyName))
+            {
+                newSeed.VarietyName = newSeed.VarietyName.Trim();
+
+                // Make sure that variant name can't be less than 3 letters.
+                if (newSeed.VarietyName.Count(char.IsLetter) < 3)
+                {
+                    await JS.InvokeVoidAsync("alert", "Namnet på sorten måste innehålla minst tre bokstäver.");
+                    return;
+                }
             }
             if (selectedPlant != null && !isVarietySelected && !string.IsNullOrWhiteSpace(newSeed.VarietyName))
             {
