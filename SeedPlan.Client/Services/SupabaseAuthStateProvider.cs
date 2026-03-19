@@ -12,9 +12,33 @@ namespace SeedPlan.Client.Services
 
         public SupabaseAuthStateProvider(Supabase.Client supabaseClient)
         {
+<<<<<<< Updated upstream
             _supabase = supabaseClient;
 
             _supabase.Auth.AddStateChangedListener((sender, state) =>
+=======
+            _supabase = supabase;
+            _profileService = profileService;
+            //IMPORTANT: We removed 'AddStateChangedListener' to stop infitity updateloop.
+
+        }
+        /// <summary>
+        /// Asynchronously retrieves the current user's authentication state, including claims from both the
+        /// authentication provider and the user profile service.
+        /// </summary>
+        /// <remarks>This method combines authentication information from the underlying authentication
+        /// provider and additional user profile data, if available. If the user profile cannot be retrieved,
+        /// authentication proceeds with available claims. The result is cached for the session to improve
+        /// performance.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an AuthenticationState object
+        /// representing the current user's authentication state. If the user is not authenticated, the state represents
+        /// an anonymous user.</returns>
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            //If user is already loaded, return from memory.
+            
+            if (_cachedState != null)
+>>>>>>> Stashed changes
             {
                 if (state == Constants.AuthState.SignedIn ||
                     state == Constants.AuthState.SignedOut ||
@@ -50,7 +74,11 @@ namespace SeedPlan.Client.Services
         {
             try
             {
+<<<<<<< Updated upstream
                 // Vänta på att sessionen läses in från localStorage
+=======
+                // Force check of LocalStorage before anything else. 
+>>>>>>> Stashed changes
                 await _supabase.InitializeAsync();
 
                 // Gör ett aktivt försök att hämta sessionen om InitializeAsync missade den
@@ -59,13 +87,57 @@ namespace SeedPlan.Client.Services
                     await _supabase.Auth.RetrieveSessionAsync();
                 }
 
+<<<<<<< Updated upstream
                 return GetStateFromCurrentSession();
+=======
+                var session = _supabase.Auth.CurrentSession;
+
+
+                if (session?.User == null)
+                {
+                    return CreateAnonymousState();
+                }
+
+                // 3. Build baseidientity (Supabase Auth model)
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
+                    new Claim(ClaimTypes.Email, session.User.Email ?? ""),
+                    new Claim("sub", session.User.Id!)
+                };
+
+                // 4. Collect data from user_profiles table
+                try
+                {
+                    var profile = await _profileService.GetUserProfile();
+                    if (profile != null)
+                    {
+                        claims.Add(new Claim("full_name", profile.FullName ?? ""));
+                            claims.Add(new Claim("growing_zone", profile.GrowingZone.ToString()));
+
+                        if (profile.LastFrostDate.HasValue)
+                            claims.Add(new Claim("frost_date", profile.LastFrostDate.Value.ToString("yyyy-MM-dd")));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    //Silent errorhandling, if db blocks us, the user is still signed in without crashing.
+                    
+                    Console.WriteLine($"Kunde inte hämta profil: {ex.Message}");
+                }
+
+                // 5. Save and return the finished login.
+                var identity = new ClaimsIdentity(claims, "SupabaseAuth");
+                _cachedState = new AuthenticationState(new ClaimsPrincipal(identity));
+                return _cachedState;
+>>>>>>> Stashed changes
             }
             catch
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
+<<<<<<< Updated upstream
         /// <summary>
         /// Retrieves the current authentication state based on the active Supabase session.
         /// </summary>
@@ -75,6 +147,17 @@ namespace SeedPlan.Client.Services
         /// <returns>An AuthenticationState representing the current user if a valid session exists; otherwise, an
         /// unauthenticated state with an empty ClaimsPrincipal.</returns>
         private AuthenticationState GetStateFromCurrentSession()
+=======
+
+
+        /// <summary>
+        /// Notifies the authentication state provider that the current user's authentication state has changed.
+        /// </summary>
+        /// <remarks>Call this method after a user logs in or out to ensure that components depending on
+        /// authentication state are updated. This triggers a re-evaluation of the authentication state and causes the
+        /// UI to refresh as needed.</remarks>
+        public void NotifyUserChanged()
+>>>>>>> Stashed changes
         {
             var session = _supabase.Auth.CurrentSession;
             if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
