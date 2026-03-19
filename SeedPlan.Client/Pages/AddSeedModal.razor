@@ -115,7 +115,7 @@
     protected override async Task OnParametersSetAsync()
     {
         await Task.Delay(50);
-      
+
     }
 
     protected override async Task OnInitializedAsync()
@@ -172,6 +172,11 @@
             if (selectedPlant == null)
             {
                 await JS.InvokeVoidAsync("alert", "Du måste välja en växt i listan först.");
+                return;
+            }
+            if(newSeed.Quantity <= 0)
+            {
+                await JS.InvokeVoidAsync("alert", "Antalet fröer kan inte vara under 0.");
                 return;
             }
             if (selectedPlant != null && !isVarietySelected && !string.IsNullOrWhiteSpace(newSeed.VarietyName))
