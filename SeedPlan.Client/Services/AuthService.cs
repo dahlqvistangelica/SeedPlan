@@ -48,7 +48,18 @@ namespace SeedPlan.Client.Services
                 return Result.Fail(GetErrorMessage(ex.Message));
             }
         }
-
+        /// <summary>
+        /// Registers a new user account with the specified email address, password, and personal information
+        /// asynchronously.
+        /// </summary>
+        /// <remarks>The user's first and last name are stored as metadata during registration. If
+        /// registration fails, the returned Result contains an error message describing the failure.</remarks>
+        /// <param name="email">The email address to associate with the new user account. Cannot be null or empty.</param>
+        /// <param name="password">The password to use for the new user account. Cannot be null or empty.</param>
+        /// <param name="firstName">The first name of the user to register. Cannot be null or empty.</param>
+        /// <param name="lastName">The last name of the user to register. Cannot be null or empty.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains a Result indicating whether the
+        /// registration was successful or failed.</returns>
         public async Task<Result> RegisterAsync(string email, string password, string firstName, string lastName)
         {
             try
@@ -84,7 +95,6 @@ namespace SeedPlan.Client.Services
             await _supabase.Auth.SignOut();
             _authStateProvider.NotifyUserChanged(); // Update screen instantly.
             //Change: Removed 'forceLoad: true'. Soft renderingen without blink.
-           
             _nav.NavigateTo("/");
         }
 
