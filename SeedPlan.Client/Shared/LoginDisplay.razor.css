@@ -24,7 +24,8 @@
 .user-display-name {
     font-size: 0.85rem;
     font-weight: 600;
-    color: #2d3436;
+    color: black;
+    font-size: 2rem;
     white-space: nowrap;
 }
 

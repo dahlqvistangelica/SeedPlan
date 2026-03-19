@@ -55,11 +55,16 @@
         }
         else
         {
-            // Standardvärden om profil saknas
+            //Standardvalues if profile is missing (Should not occur)
             userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
             userProfile.GrowingZone = 1;
         }
     }
+
+    /// <summary>
+    /// Method for saving user changes to profile.
+    /// </summary>
+    /// <returns></returns>
 
     private async Task SaveProfile()
     {

@@ -11,7 +11,7 @@
         <div class="modal-card fade-in" @onclick:stopPropagation>
             <div class="modal-body">
                 
-                @* 1. VÄLJ FRÖ *@
+                @* 1. CHOOSE SEED *@
                 <div class="input-block">
                         <label>VÄLJ FRÖ</label>
                         <select @bind="newSowing.SeedId" class="sp-input">
@@ -37,20 +37,20 @@
                             }
                         </select>
                     </div>
-                @* 2. ANTAL FRÖER SÅDDA *@
+                @* 2. NUMBER OF SEEDS SOWN *@
                 <div class="input-block">
                     <label>ANTAL SÅDDA FRÖER</label>
                     <input type="number" @bind="newSowing.Quantity" class="sp-input" />
                 </div>
 
 
-                @* 2. SÅDATUM *@
+                @* 2. SOWING DATE *@
                 <div class="input-block">
                     <label>SÅDATUM</label>
                     <input type="date" @bind="newSowing.SownDate" class="sp-input" />
                 </div>
 
-                @* 3. ANTECKNINGAR *@
+                @* 3. NOTES *@
                 <div class="input-block">
                     <label>ANTECKNINGAR</label>
                     <textarea @bind="newSowing.Notes" class="sp-textarea" placeholder="Plats, jord, etc."></textarea>
@@ -61,7 +61,7 @@
                     <p class="error-msg">@errorMessage</p>
                 }
 
-                @* 4. STARTA SÅDD-KNAPP *@
+                @* 4. START SOWING *@
                 <button type="button" class="sp-submit-btn" @onclick="HandleSave">Starta sådd</button>
 
             </div>
@@ -77,7 +77,7 @@
     [Parameter] public Plant? InitialPlant { get; set; }
 
     private List<SeedView> availableSeeds = new();
-    private Sowing newSowing = new() { SownDate = DateTime.Now }; // Använder DateTime som du ändrat till
+    private Sowing newSowing = new() { SownDate = DateTime.Now }; 
     private string errorMessage = "";
 
     protected override async Task OnParametersSetAsync()
@@ -88,7 +88,7 @@
             newSowing = new() { SownDate = DateTime.Now };
             errorMessage = "";
 
-            var groupedSeeds = await SeedService.GetMySeedsGrouped(); // Hämtar dina fröer
+            var groupedSeeds = await SeedService.GetMySeedsGrouped();
 
             var allSeeds = groupedSeeds.SelectMany(g => g).ToList();
             if(InitialPlant != null)
@@ -125,13 +125,13 @@
 
         try
         {
-            // FIX 1: Använd rätt ID för att hitta fröet
+            // FIX 1: USE CORRECT ID TO FIND SEED IN STOCK
             var selectedView = availableSeeds.FirstOrDefault(s => s.Id == newSowing.SeedId);
 
             if (selectedView != null)
             {
                 int sowingQty = newSowing.Quantity;
-                // FIX 2: Kontrollera att lagret räcker
+                // FIX 2: CHECK QUANTITY IN STOCK IS ENOUGH
                 if (selectedView.Quantity < sowingQty)
                 {
                     errorMessage = $"Du har bara {selectedView.Quantity} fröer kvar.";
@@ -143,7 +143,7 @@
                     Id = selectedView.Id,
                     UserId = selectedView.UserId,
                     Name = selectedView.Name,
-                    VarietyName = selectedView.VarietyName ?? "", // Se till att strängen inte är null
+                    VarietyName = selectedView.VarietyName ?? "", // Make sure string is not null
                     Quantity = selectedView.Quantity - sowingQty,
                     PlantId = selectedView.PlantId,
                     VarietyId = selectedView.VarietyId,
@@ -156,7 +156,7 @@
             }
 
             newSowing.UserId = _supabase.Auth.CurrentUser?.Id;
-            await SowingService.AddSowing(newSowing); // Sparar sådden
+            await SowingService.AddSowing(newSowing); // Save sowing
             await OnSaved.InvokeAsync();
             await Close();
         }

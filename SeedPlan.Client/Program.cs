@@ -17,9 +17,6 @@ namespace SeedPlan.Client
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            //builder.RootComponents.Add<Routes>("#app");
-            //builder.RootComponents.Add<HeadOutlet>("head::after");
-
             builder.Configuration.AddJsonStream(await new HttpClient
             {
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
@@ -37,7 +34,6 @@ namespace SeedPlan.Client
                 {
                     AutoRefreshToken = true,
                     AutoConnectRealtime = false,
-                    // Använd klassen från SessionHandlers.cs istället för den lokala
                     SessionHandler = new LocalStorageSessionHandler(js)
                 });
             });
@@ -54,6 +50,6 @@ namespace SeedPlan.Client
         }
     }
 
-    // --- Hjälparklass för att spara inloggning i webbläsaren ---
+  
     
 }

@@ -31,7 +31,7 @@
     }
     else
     {
-        @* 1. AKTIVA SÅDDER (Statistik) *@
+        @* ACTIVE SOWINGS (STATISTICS) *@
         @if (activeSowings != null && activeSowings.Any())
         {
             <div class="sowing-stats-section">
@@ -69,7 +69,7 @@
             </div>
         }
 
-        @* 2. REDAN PASSERAT *@
+        @* SOWING WINDOW PASSED *@
         @if (overview?.Past != null && overview.Past.Any())
         {
             <details class="past-section">
@@ -89,7 +89,7 @@
             </details>
         }
 
-        @* 3. BÖR SÅS NU *@
+        @* CURRENT SOWING WINDOW *@
         <h2 class="section-title">BÖR SÅS NU</h2>
 
         @if (userProfile?.LastFrostDate == null)
@@ -126,14 +126,14 @@
                                     }
                                     else
                                     {
-                                        @*Text för desktop / större skärmar*@
+                                       
                                         <span class="seed-status-tag">Frö</span>
-                                        @*ikon för mobil/små skärmar*@
+                                        
                                     }
                                 </div>
                                 <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
                             </div>
-                            @* Härdighetsbadge *@
+                            @* HARDINESSBADGE *@
                             <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
                                 <span class="full-text">@GetHardinessText(item.Plant.HardinessLevel)</span>
                                 <span class="short-text">@GetShortHardinessText(item.Plant.HardinessLevel)</span>
@@ -186,25 +186,23 @@
         try
         {
             isLoading = true;
-            // Hämta profil
+            //Get profile
             userProfile = await ProfileService.GetUserProfile();
             if (userProfile?.LastFrostDate != null)
             {
                 overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
                 sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
             }
-            // Hämta sådder (Här är fixen för statistiken!)
+            //Get sowings
             var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
 
-            // Vi konverterar status till int i jämförelsen för att slippa CS0019
+            //Converting to int.
             activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
 
             countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
             countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
             countAcclimated = activeSowings.Count(s => (int)s.Status == 5);
             countPlantedOut = activeSowings.Count(s => (int)s.Status == 6);
-
-
 
         }
         catch (Exception ex)
@@ -219,7 +217,7 @@
         }
     }
 
-    // Hjälpmetoder
+    // HELPMETHODS
     private string GetFrostText(int weeks) => weeks <= 0 ? "planteras ut efter frost" : $"planteras ut {weeks} v. före frost";
     private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };

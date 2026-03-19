@@ -14,7 +14,7 @@
         <div class="control-button">
             <button class="btn-add-seed" title="Lägg till frö" @onclick="OpenAddSeed">
                 <div class="btn-add-seed-icon"><Blazicon Svg="MdiIcon.SeedPlusOutline" /></div>
-                <span>Nytt frö</span> @* Texten döljs på mobil med CSS *@
+                <span>Nytt frö</span> @* Hides on mobile *@
             </button>
         </div>
     </header>
@@ -41,7 +41,7 @@
                 <div class="plant-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
                     <div class="plant-group-header-main">
                         <div class="chevron">
-                        @* Vi har alltid samma ikon, men lägger till klassen 'expanded' om den är öppen *@
+                        @* Chevron-icon to that changes with expansion. *@
                         @if(!isExpanded)
                         {
                                 <Blazicon Svg="Lucide.ChevronRight" />
@@ -68,7 +68,7 @@
                     <div class="group-content fade-in">
                         @foreach (var seed in group)
                         {
-                            @* Hela kortet är nu klickbart för att redigera *@
+                            
                             <div class="seed-card" @onclick="() => OpenEditSeed(seed)">
                                 <div class="seed-info">
                                     <h3>@(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)</h3>
@@ -82,12 +82,11 @@
                                 </div>
                                 <div class="seed-actions">
                                     <div class="qty-badge" onclick="Open">
-                                        @* Din nya ikon för att "stoppa ner frö i jorden" *@
                                         <Blazicon Svg="MdiIcon.SeedOutline" />
                                         <span class="qty">@seed.Quantity st</span>
                                     </div>
                                     <div class="arrow-icon"><Blazicon Svg="Lucide.ChevronRight" /></div>
-                                    @* NY RADERINGSKNAPP *@
+                                    @* DELEBUTTON *@
                                     <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
                                         <Blazicon Svg="Lucide.Trash2" />
                                     </button>
@@ -130,8 +129,16 @@
     {
 
     }
-
+    /// <summary>
+    /// Method that opens the modal for adding a seed to the collection.
+    /// </summary>
     private void OpenAddSeed() => showAddModal = true;
+
+    /// <summary>
+    /// Toggles the expansion state of a plant group in the UI.
+    /// </summary>
+    /// <param name="plantName">The name of the plant group to expand or collapse.</param>
+    /// <returns>A task representing the asynchronous toggle operation.</returns>
 
     private async Task ToggleGroup(string plantName)
     {
@@ -145,7 +152,10 @@
         }
         await Task.Delay(1);
     }
-
+    /// <summary>
+    /// Refreshes the list of seeds by fetching grouped seed data from the service.
+    /// </summary>
+    /// <returns>A task representing the asynchronous refresh operation.</returns>
     private async Task RefreshSeeds()
     {
         isLoading = true;
@@ -153,7 +163,10 @@
         isLoading = false;
         StateHasChanged();
     }
-
+    /// <summary>
+    /// Prepares a seed for editing by mapping the view model to a seed entity and opening the edit modal.
+    /// </summary>
+    /// <param name="seed">The seed view model containing the data to be edited.</param>
     private void OpenEditSeed(SeedView seed)
     {
         selectedSeed = new Seed
@@ -169,6 +182,10 @@
         };
         showEditModal = true;
     }
+    /// <summary>
+    /// Persists the updated seed information to the database and refreshes the current view.
+    /// </summary>
+    /// <returns>A task representing the asynchronous save operation.</returns>
     private async Task SaveQuantity()
     {
         if(selectedSeed != null)
@@ -178,6 +195,11 @@
             showEditModal = false;
         }
     }
+    /// <summary>
+    /// Displays a confirmation dialog and deletes the specified seed if the user confirms.
+    /// </summary>
+    /// <param name="seed">The seed view model to be deleted.</param>
+    /// <returns>A task representing the asynchronous delete operation.</returns>
     private async Task HandleDelete(SeedView seed)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.VarietyName ?? seed.Name} ?");

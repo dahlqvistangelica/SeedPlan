@@ -12,7 +12,7 @@
     <header class="sowings-header">
         <h1 class="serif-title">Mina Sådder</h1>
         
-        @* NYTT: Grupperingsväljare *@
+        @* GROUPCONTROLS *@
         <div class="group-controls">
             <div class="control-select">
             <select @bind="currentGrouping" class="group-select">
@@ -25,7 +25,7 @@
             <div class="control-button">
                 <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
                     <Blazicon Svg="Lucide.Sprout" />
-                    <span>Ny sådd</span> @* Texten döljs på mobil med CSS *@
+                    <span>Ny sådd</span> @* HIDE on mobilescreen *@
                 </button>
             </div>
         </div>
@@ -68,7 +68,7 @@
                                     </h3>
                                     <p class="sown-date">
                                         <Blazicon Svg="Lucide.Calendar" />
-                                        @* NYTT: CSS-klass för att dölja text på mobil *@
+                                        @* CCS-CLASS TO HIDE ON MOBILE *@
                                         <span class="hide-on-mobile">Sådd den </span>
                                         @(sowing.SownDate.ToString("yyyy-MM-dd"))
                                         <span class="sown-quantity">(@sowing.Quantity st)</span>
@@ -83,32 +83,32 @@
                                 </button>
                             </div>
                             </div>
-                            @* DEN INTERAKTIVA STATUSLINJEN *@
+                            @* INTERACTIVE STATUSLINE *@
                             <div class="progress-container">
                                 <div class="progress-line"></div>
                                 <div class="progress-steps">
-                                    <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)"> @* SÅDD *@
+                                    <div class="step @(sowing.Status == 0 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 0)"> @* SOWING *@
                                         <Blazicon Svg="MdiIcon.SeedOutline" />
                                     </div>
-                                    <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)"> @* GRODD *@
+                                    <div class="step @(sowing.Status == 1 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 1)"> @* SPROUT *@
                                        <Blazicon Svg="Lucide.Sprout" />
                                     </div>
-                                    <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)"> @*KARAKTÄRSBLAD*@
+                                    <div class="step @(sowing.Status == 2 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 2)"> @*TRUE LEAVES*@
                                         <Blazicon Svg="Lucide.Leaf"/>
                                     </div>
-                                    <div class="step @(sowing.Status == 4 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 4)"> @*OMSKOLNING*@
+                                    <div class="step @(sowing.Status == 4 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 4)"> @*TRANSPLANTING*@
                                     <Blazicon Svg="MdiIcon.Shovel" />
                                     </div>
-                                    <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)"> @*AVHÄRDNING*@
+                                    <div class="step @(sowing.Status == 5 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 5)"> @*HARDENING OFF*@
                                         <Blazicon Svg="MdiIcon.SunThermometerOutline"/>
                                     </div>
-                                    <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)"> @*UTPLANTERING*@
+                                    <div class="step @(sowing.Status == 6 ? "active" : "")" @onclick="() => UpdateStatus(sowing, 6)"> @*PLANTED OUT*@
                                     <Blazicon Svg="MdiIcon.BeeFlower" />
                                     </div>
                                 </div>
                             </div>
 
-                            @* STATUSBOXAR SOM DYKER UPP VID BEHOV *@
+                            @* Statusboxes that shows up when alerted. *@
                             @if (sowing.Status == 0)
                             {
                                 <div class="info-box">
@@ -160,7 +160,16 @@
 
         StateHasChanged();
     }
-
+    /// <summary>
+    /// Groups the collection of sowings according to the current grouping criteria.
+    /// </summary>
+    /// <remarks>The grouping is determined by the value of the current grouping setting. If the
+    /// grouping is by status, sowings are grouped by their status text. If by plant, sowings are grouped by plant
+    /// name, with unspecified names grouped under "Ospecifierat". If by date, sowings are grouped by the sowing
+    /// date in "yyyy-MM-dd" format. If no recognized grouping is set, all sowings are returned in a single
+    /// group.</remarks>
+    /// <returns>A sequence of groupings of sowings, where each group key represents the selected grouping criterion such as
+    /// status, plant name, or sowing date.</returns>
     private IEnumerable<IGrouping<string, SowingView>> GetGroupedSowings()
     {
         if(currentGrouping == "status")
@@ -186,6 +195,11 @@
             .GroupBy(s => "");
     }
 
+    /// <summary>
+    /// Converts a numerical status code into its corresponding localized display text.
+    /// </summary>
+    /// <param name="status">The status code representing the plant's growth stage.</param>
+    /// <returns>A string representation of the growth stage (e.g., Sowing, Sprout, True Leaves).</returns>
     private string GetStatusText(int status) => status switch
     {
         0 => "SÅDD",
@@ -197,6 +211,12 @@
         _ => "AKTIV"
     };
 
+    /// <summary>
+    /// Retrieves the appropriate icon for a given status to be used in the UI.
+    /// </summary>
+    /// <param name="status">The status code for which to find an icon.</param>
+    /// <returns>An SvgIcon representing the specific growth phase.</returns>
+
     private SvgIcon GetStatusIcon(int status) => status switch
     {
         0 => MdiIcon.SeedOutline,
@@ -207,6 +227,12 @@
         6 => MdiIcon.BeeFlower,
         _ => Lucide.Sprout
     };
+    /// <summary>
+    /// Updates the status of a specific sowing record and persists the change via the service.
+    /// </summary>
+    /// <param name="sowing">The sowing view model to update.</param>
+    /// <param name="newStatus">The new status code to assign.</param>
+    /// <returns>A task representing the asynchronous update operation.</returns>
 
     private async Task UpdateStatus(SowingView sowing, int newStatus)
     {
@@ -216,6 +242,12 @@
         StateHasChanged();
     }
 
+
+    /// <summary>
+    /// Prompts the user for confirmation and deletes a sowing record if confirmed.
+    /// </summary>
+    /// <param name="id">The unique identifier of the sowing to delete.</param>
+    /// <returns>A task representing the asynchronous delete operation.</returns>
     private async Task HandleDelete(int id)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Är du säker på att du vill ta bort den här sådden? Det går inte att ångra.");

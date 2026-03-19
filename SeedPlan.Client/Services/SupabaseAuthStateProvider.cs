@@ -24,15 +24,28 @@ namespace SeedPlan.Client.Services
                 }
             });
         }
-
+        /// <summary>
+        /// Asynchronously retrieves the current authentication state for the user.
+        /// </summary>
+        /// <remarks>This method may cache the authentication state to improve performance. Subsequent
+        /// calls may return the same result until the authentication state changes.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the current <see
+        /// cref="AuthenticationState"/>.</returns>
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // Vi sparar ner initieringen i en Task. Alla som anropar denna metod 
-            // kommer nu att vänta på att exakt samma initiering blir klar.
+
             _initializationTask ??= InitializeInternal();
             return _initializationTask;
         }
-
+        /// <summary>
+        /// Initializes the authentication state by ensuring the session is loaded and returns the current
+        /// authentication state.
+        /// </summary>
+        /// <remarks>This method attempts to load the authentication session from storage and retrieve it
+        /// if not already available. If an error occurs during initialization, an unauthenticated state is
+        /// returned.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the current authentication state
+        /// based on the loaded session, or an unauthenticated state if initialization fails.</returns>
         private async Task<AuthenticationState> InitializeInternal()
         {
             try
@@ -53,7 +66,14 @@ namespace SeedPlan.Client.Services
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
         }
-
+        /// <summary>
+        /// Retrieves the current authentication state based on the active Supabase session.
+        /// </summary>
+        /// <remarks>This method constructs a ClaimsPrincipal using information from the Supabase session.
+        /// If the session or user information is missing, the returned AuthenticationState will indicate an
+        /// unauthenticated user.</remarks>
+        /// <returns>An AuthenticationState representing the current user if a valid session exists; otherwise, an
+        /// unauthenticated state with an empty ClaimsPrincipal.</returns>
         private AuthenticationState GetStateFromCurrentSession()
         {
             var session = _supabase.Auth.CurrentSession;
@@ -72,7 +92,13 @@ namespace SeedPlan.Client.Services
             var identity = new ClaimsIdentity(claims, "SupabaseAuth");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
-
+        /// <summary>
+        /// Notifies subscribers that the authentication state has changed.
+        /// </summary>
+        /// <remarks>Call this method to trigger an update to all components or services that are
+        /// observing authentication state changes. This is typically used after a sign-in, sign-out, or other
+        /// authentication event to ensure that dependent components receive the latest authentication
+        /// information.</remarks>
         public void NotifyAuthStateChanged()
         {
             NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
