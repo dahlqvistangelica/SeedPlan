@@ -1,23 +1,16 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using SeedPlan.Client.Services
-@using SeedPlan.Shared.Models
-@inject AuthenticationStateProvider AuthProvider
-@inject IUserProfileService ProfileService
-@inject Supabase.Client Supabase
-@inject NavigationManager Nav
+@inject AuthService Auth
 
 <AuthorizeView>
     <Authorized>
         <div class="user-header-widget">
-            @* 1. Name/Email first. *@
-            <span class="user-display-name">@displayName</span>
+            @* Läs namnet direkt från minnet (Claims). Finns det inte, visa e-postens förled *@
+            <span class="user-display-name">
+                @(context.User.FindFirst("full_name")?.Value ??
+                  context.User.Identity?.Name?.Split('@')[0] ?? "Odlare")
+            </span>
             
-            @* 2. Sun-icon for future update with dark/light theme *@
-           @* <div class="theme-toggle-header">
-            <Blazicon Svg="Lucide.Sun" />
-            </div>*@
-            
-            @* 3. Signout icon last *@
             <button class="logout-icon-btn" @onclick="HandleLogout" title="Logga ut">
                 <Blazicon Svg="Lucide.LogOut" />
             </button>
@@ -26,50 +19,9 @@
 </AuthorizeView>
 
 @code {
-    private string displayName = "";
-
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadUserData();
-    }
-
-    private async Task LoadUserData()
-    {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            var emailClaim = user.FindFirst(c => c.Type == "email")?.Value;
-            var fallbackName = emailClaim?.Split('@')[0] ?? "Odlare";
-
-            // Assign fallback instantly to make sure it's not empty. 
-            displayName = fallbackName;
-
-            try
-            {
-                var profile = await ProfileService.GetUserProfile();
-                if (profile != null && !string.IsNullOrEmpty(profile.FullName))
-                {
-                    displayName = profile.FullName;
-                }
-            }
-            catch
-            {
-              
-            }
-            
-            StateHasChanged();
-        }
-    }
-
     private async Task HandleLogout()
     {
-        await Supabase.Auth.SignOut();
-        if (AuthProvider is SupabaseAuthStateProvider provider)
-        {
-            provider.NotifyAuthStateChanged();
-        }
-        Nav.NavigateTo("/", forceLoad: true);
+        // AuthService sköter nu utloggning, rensning av minne och omladdning av sidan
+        await Auth.LogoutAsync();
     }
 }
