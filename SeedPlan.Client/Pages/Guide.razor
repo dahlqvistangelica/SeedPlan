@@ -13,14 +13,14 @@
         </button>
     </header>
 
-    @* SÖKRUTA *@
+    @* SEARCHFIELD *@
     <div class="search-section">
         <div class="search-wrapper">
             <input type="text" value="@searchText" @oninput="OnSearchInput" placeholder="Sök växt..." class="search-input" />
         </div>
     </div>
 
-    @* FILTERPANEL (BILD 3) *@
+    @* FILTERPANEL *@
     @if (showFilters)
     {
         <div class="filter-panel fade-in">
@@ -52,7 +52,7 @@
         </div>
     }
 
-    @* VÄXTGRID *@
+    @* PLANTGRID *@
     <div class="plant-grid">
         @foreach (var plant in FilteredPlants)
         {
@@ -112,11 +112,16 @@
         searchText = "";
         allPlants = await PlantService.GetAllPlantsAsync();
     }
-
+    //MODAL HANDLING AND HELP METHODS
     private void ToggleFilters() => showFilters = !showFilters;
     private async Task SetHardiness(int? level) { activeHardiness = level; StateHasChanged(); await SaveFilters(); }
     private async Task ToggleLightGerm() { onlyLightGerm = !onlyLightGerm; StateHasChanged(); await SaveFilters(); }
     private async Task ToggleTopping() { onlyTopping = !onlyTopping; StateHasChanged(); await SaveFilters(); }
+    private string GetHardinessText(int level) => level switch { 0 => "KÄNSLIG", 1 => "HALVHÄRDIG", 2 => "HÄRDIG", _ => "" };
+    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
+    private bool showDetailModal = false;
+    private Plant? selectedPlant;
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
 
     private async Task ResetFilters()
     {
@@ -127,13 +132,9 @@
         await JS.InvokeVoidAsync("localStorage.removeItem", StorageKey);
     }
 
-    // För sökfältet sparar vi när användaren ändrar texten
     private async Task OnSearchInput(ChangeEventArgs e)
     {
         searchText = e.Value?.ToString() ?? "";
-
-        // Vi behöver inte köra StateHasChanged här manuellt eftersom
-        // Blazor gör det efter event-handlers, men vi vill debounca sparandet.
 
         _searchCts?.Cancel();
         _searchCts = new CancellationTokenSource();
@@ -141,7 +142,7 @@
 
         try
         {
-            await Task.Delay(500, token); // Lite längre delay för att spara disk/JS-anrop
+            await Task.Delay(500, token); // Longer delay to save memory/Js-call. 
             if (!token.IsCancellationRequested)
             {
                 await SaveFilters();
@@ -156,20 +157,12 @@
         _searchCts?.Dispose();
     }
 
-    private string GetHardinessText(int level) => level switch { 0 => "KÄNSLIG", 1 => "HALVHÄRDIG", 2 => "HÄRDIG", _ => "" };
-    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
-
-    // Modal hantering
-    private bool showDetailModal = false;
-    private Plant? selectedPlant;
-    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await LoadFilters();
-            StateHasChanged(); // Tvinga UI att uppdateras med de laddade filtren
+            StateHasChanged(); // Force change to UI
         }
     }
     private async Task SaveFilters()
@@ -186,6 +179,11 @@
         await JS.InvokeVoidAsync("localStorage.setItem", StorageKey, json);
     }
 
+    /// <summary>
+    /// Asynchronously restores the UI filter states from the browser's local storage.
+    /// Parses the stored JSON to populate search text, hardiness levels, and specific plant properties.
+    /// </summary>
+    /// <returns>A task representing the asynchronous load operation.</returns>
     private async Task LoadFilters()
     {
         var json = await JS.InvokeAsync<string>("localStorage.getItem", StorageKey);
@@ -196,7 +194,7 @@
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            // Använd GetProperty säkert
+            // Use GetProperty safely
             if (root.TryGetProperty("SearchText", out var s)) searchText = s.GetString() ?? "";
 
             if (root.TryGetProperty("Hardiness", out var h))
@@ -207,37 +205,43 @@
             if (root.TryGetProperty("LightGerm", out var l)) onlyLightGerm = l.GetBoolean();
             if (root.TryGetProperty("Topping", out var t)) onlyTopping = t.GetBoolean();
 
-            // Här är nyckeln: Efter att vi laddat allt, tvinga fram en omritning
+            // Force reload
             StateHasChanged();
         }
         catch
         {
-            
+
         }
     }
+
+    /// <summary>
+    /// Gets a filtered collection of plants based on the current search text,
+    /// hardiness level, and specific growth properties like light germination or topping requirements.
+    /// </summary>
+    /// <value>An enumerable collection of plants that match the active filter criteria.</value>
     private IEnumerable<Plant> FilteredPlants
     {
         get
         {
             var query = allPlants.AsEnumerable();
 
-            // 1. Söktext
+            // 1. Search-text
             if (!string.IsNullOrWhiteSpace(searchText))
             {
                 query = query.Where(p => p.PlantName != null && p.PlantName.Contains(searchText, StringComparison.OrdinalIgnoreCase));
             }
 
-            // 2. Härdighet (Viktigt: kolla .HasValue)
+            // 2. Hardiness
             if (activeHardiness.HasValue)
             {
                 query = query.Where(p => p.HardinessLevel == activeHardiness.Value);
             }
 
-            // 3. Egenskaper
+            // 3. Properties
             if (onlyLightGerm) query = query.Where(p => p.IsLightGerminating);
             if (onlyTopping) query = query.Where(p => p.RequiresTopping);
 
-            return query.ToList(); // ToList tvingar fram filtreringen direkt
+            return query.ToList(); // Force-filtration 
         }
     }
 }

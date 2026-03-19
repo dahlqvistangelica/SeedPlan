@@ -9,15 +9,15 @@
 <AuthorizeView>
     <Authorized>
         <div class="user-header-widget">
-            @* 1. Namnet/E-posten först *@
+            @* 1. Name/Email first. *@
             <span class="user-display-name">@displayName</span>
             
-            @* 2. Sol-ikonen i mitten *@
+            @* 2. Sun-icon for future update with dark/light theme *@
            @* <div class="theme-toggle-header">
-                <i data-lucide="sun"></i>
+            <Blazicon Svg="Lucide.Sun" />
             </div>*@
             
-            @* 3. Utloggnings-ikonen sist *@
+            @* 3. Signout icon last *@
             <button class="logout-icon-btn" @onclick="HandleLogout" title="Logga ut">
                 <Blazicon Svg="Lucide.LogOut" />
             </button>
@@ -40,13 +40,12 @@
 
         if (user.Identity?.IsAuthenticated == true)
         {
-            // Försök hämta e-postadressen direkt från claims för att ha något att visa direkt
             var emailClaim = user.FindFirst(c => c.Type == "email")?.Value;
             var fallbackName = emailClaim?.Split('@')[0] ?? "Odlare";
-            
-            // Sätt fallback direkt så det inte är tomt
+
+            // Assign fallback instantly to make sure it's not empty. 
             displayName = fallbackName;
-            
+
             try
             {
                 var profile = await ProfileService.GetUserProfile();
@@ -57,7 +56,7 @@
             }
             catch
             {
-                // Vid fel behåller vi fallback-namnet
+              
             }
             
             StateHasChanged();

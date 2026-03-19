@@ -2,21 +2,21 @@
     <Router AppAssembly="@typeof(Program).Assembly"
             AdditionalAssemblies="new[] { typeof(SeedPlan.Client._Imports).Assembly }">
         <Found Context="routeData">
-            @* Här använder vi AuthorizeRouteView för att hantera [Authorize] korrekt *@
+            @* USE AuthorizeRouteView to handle [Authorize] correct. *@
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
                 
-                @* Detta visas medan SupabaseAuthStateProvider kör InitializeAsync *@
+                @* Shows while SupabaseAuthStateProvice is running InitializeAsync*@
                 <Authorizing>
                     <div class="loading-screen">
                         <p>Verifierar inloggning... 🛡️</p>
                     </div>
                 </Authorizing>
 
-                @* Detta visas om man försöker gå till en [Authorize]-sida utan att vara inloggad *@
+                @* This shows if you try to enter a [Authorize]-page without beeing signed in*@
                 <NotAuthorized>
                     @if (context.User.Identity?.IsAuthenticated != true)
                     {
-                        @* Skicka användaren till login eller visa ett meddelande *@
+                        @* Sends the user to login or show a message *@
                         <div class="auth-error">
                             <h2>Hoppsan!</h2>
                             <p>Du måste vara inloggad för att se denna sida.</p>

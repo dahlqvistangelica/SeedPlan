@@ -7,12 +7,17 @@ namespace SeedPlan.Client.Services
     {
         private readonly Supabase.Client _supabase;
 
-        // Här injiceras både Supabase och en annan tjänst automatiskt
         public UserProfileService(Supabase.Client supabase)
         {
             _supabase = supabase;
         }
-        //Hämta användarens profilinställningar
+        /// <summary>
+        /// Retrieves the current authenticated user's profile asynchronously.
+        /// </summary>
+        /// <remarks>This method returns null if there is no authenticated user or if the profile cannot
+        /// be retrieved. Ensure that the user is authenticated before calling this method.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the user's profile if the user
+        /// is authenticated and a profile exists; otherwise, null.</returns>
         public async Task<UserProfile?> GetUserProfile()
         {
             
@@ -32,10 +37,18 @@ namespace SeedPlan.Client.Services
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"DEBUG: Fel vid hämtning av profil: {ex.Message}");
+                Console.WriteLine($"DEBUG MSG: {ex.Message}");
                 return null;
             }
         }
+        /// <summary>
+        /// Updates the current authenticated user's profile with the specified information.
+        /// </summary>
+        /// <remarks>If there is no authenticated user, the method completes without performing any
+        /// update. The method updates the profile for the currently authenticated user only.</remarks>
+        /// <param name="userProfile">The user profile data to update. The profile's identifier and last updated timestamp are set automatically
+        /// based on the current authenticated user.</param>
+        /// <returns>A task that represents the asynchronous update operation.</returns>
         public async Task UpdateUserProfile(UserProfile userProfile)
         {
             var user = _supabase.Auth.CurrentUser;
@@ -53,11 +66,18 @@ namespace SeedPlan.Client.Services
                 .Update(userProfile);
 
         }
-
+        /// <summary>
+        /// Inserts a new user profile or updates an existing one in the data store asynchronously.
+        /// </summary>
+        /// <remarks>If a user profile with the same identifier exists, its data is updated; otherwise, a
+        /// new profile is created. The operation is performed asynchronously and completes when the upsert is
+        /// finished.</remarks>
+        /// <param name="userProfile">The user profile to insert or update. The profile's identifier determines whether an insert or update
+        /// operation is performed. Cannot be null.</param>
+        /// <returns></returns>
         public async Task UpsertUserProfile(UserProfile userProfile)
         {
-            // Vi behöver inte filtrera med .Where() vid en Upsert om Id är PrimaryKey, 
-            // Supabase sköter det automatiskt baserat på modellen.
+            
             userProfile.UpdatedLast = DateTime.UtcNow;
 
             await _supabase

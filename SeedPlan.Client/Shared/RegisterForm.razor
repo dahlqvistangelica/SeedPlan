@@ -68,7 +68,7 @@
             {
                 Data = new Dictionary<string, object> { { "full_name", regData.FullName ?? "" } }
             };
-            // 1. Registrera användaren i Supabase Auth
+            // 1. Register user in Supabase Auth.
             var session = await Supabase.Auth.SignUp(regData.Email, regData.Password, options);
 
             if (session?.User != null)
@@ -87,7 +87,8 @@
         }
     }
 
-    // Vi skapar en liten klass här bara för att validera formuläret
+    //Class to handle validation of the form.
+    
     public class LocalRegisterData
     {
         public string? FullName { get; set; }

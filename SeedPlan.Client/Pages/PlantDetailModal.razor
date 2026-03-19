@@ -9,10 +9,8 @@
 {
     <div class="modal-overlay" @onclick="Close">
         <div class="detail-card fade-in" @onclick:stopPropagation>
-            @* 1. STÄNG-KNAPP I HÖRNET *@
             <button class="close-x" @onclick="Close">×</button>
             <header class="detail-header">
-                @* 2. NAMN OCH PLUS PÅ SAMMA RAD *@
                 <div class="title-with-plus">
                     <h2 class="serif-title">@Plant.PlantName</h2>
                     <button class="expand-btn" @onclick="ToggleAddForm" title="Lägg till frö">
@@ -23,7 +21,7 @@
 
             <p class="sowing-guide-text">Sås @Plant.SowingLeadTime veckor före sista frost</p>
 
-            @* FRÖER I LAGER *@
+            @* SEEDS IN STOCK *@
             @if(ownedSeeds.Any())
             {
                 <div class="inventory-section">
@@ -48,7 +46,7 @@
                 </div>
             }
 
-            @* EXPANDERBART FORMULÄR *@
+            @* EXPANDABLE FORM FOR ADDING SEEDS *@
             @if (showAddForm)
             {
                 <div class="add-seed-container slide-down">
@@ -74,7 +72,7 @@
                             </div>
                         </div>
 
-                        @* Noteringar (Ersätter inköpsinfo) *@
+                        @* NOTES *@
                         <div class="input-block full">
                             <label>Noteringar</label>
                             <textarea @bind="newSeed.Notes" placeholder="T.ex. köpt på rean, ekologiska, bra grobarhet..." class="sp-textarea"></textarea>
@@ -141,8 +139,20 @@
 
     private void ToggleAddForm() => showAddForm = !showAddForm;
 
+
+    /// <summary>
+    /// Current - Method that only shows the text "No plantingadvice about plant yet".
+    /// Future update - A collection of usernotes with planting advices about the plant.
+    /// </summary>
+    /// <param name="plant"></param>
+    /// <returns>A string with plantingadvice.</returns>
     private string GetSowingAdvice(Plant plant) => $"Inga planteringsråd om {plant.PlantName} ännu";
 
+    /// <summary>
+    /// A method for returning the correct text depending on when the plant should be planted outside.
+    /// </summary>
+    /// <param name="weeks"></param>
+    /// <returns></returns>
     private string GetPlantingText(int weeks){
         if (weeks <= 0) {
             return $"planteras ut efter sista frost"; }
@@ -150,6 +160,11 @@
         return $"kan planteras ut {weeks}v. före sista frost"; 
 
     }
+
+    /// <summary>
+    /// Method for saving a new seed added by a user. Checking if the added variety is already in db or otherwise adding it to the db.
+    /// </summary>
+    /// <returns></returns>
     private async Task HandleSave()
     {
         if(Plant == null)
@@ -206,7 +221,13 @@
         showAddForm = false;
         await OnClose.InvokeAsync();
     }
-
+    /// <summary>
+    /// Quickly registers a new sowing for a specific seed, decrements the seed quantity,
+    /// and handles potential exceptions during the process.
+    /// </summary>
+    /// <param name="seed">The seed entity to be sown.</param>
+    /// <returns>A task representing the asynchronous quick-sow operation.</returns>
+    
     private async Task HandleQuickSow(Seed seed)
     {
         try
