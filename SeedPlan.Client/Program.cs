@@ -27,6 +27,7 @@ namespace SeedPlan.Client
 
             Console.WriteLine($"Ansluter till Supabase: {supabaseUrl}");
 
+            // 1. Supabase-klienten och SessionHandler
             builder.Services.AddScoped(provider =>
             {
                 var js = provider.GetRequiredService<IJSRuntime>() as IJSInProcessRuntime;
@@ -38,13 +39,26 @@ namespace SeedPlan.Client
                 });
             });
 
-            builder.Services.AddAuthorizationCore();
-            builder.Services.AddCascadingAuthenticationState();
-            builder.Services.AddScoped<AuthenticationStateProvider, SupabaseAuthStateProvider>();
+            // 2. Alla dina databastjänster (UserProfiles m.m.)
             builder.Services.AddScoped<IPlantLibraryService, PlantLibraryService>();
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
+
+            // 3. Blazors inbyggda säkerhet
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddCascadingAuthenticationState();
+
+            // 4. DEN NYA AUTH-ARKITEKTUREN (Viktig ordning!)
+            // A: Registrera klassen så att vår motor (AuthService) kan anropa den
+            builder.Services.AddScoped<SupabaseAuthStateProvider>();
+
+            // B: Säg åt Blazor (AuthorizeView etc) att använda den
+            builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+                sp.GetRequiredService<SupabaseAuthStateProvider>());
+
+            // C: Registrera vår nya inloggnings-motor
+            builder.Services.AddScoped<AuthService>();
 
             await builder.Build().RunAsync();
         }
