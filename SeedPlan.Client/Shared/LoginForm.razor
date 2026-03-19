@@ -30,7 +30,7 @@
 
     private async Task HandleLogin()
     {
-        errorMessage = ""; // Rensa gamla fel
+        errorMessage = ""; // Clear old errormsgs.
         
         var result = await Auth.LoginAsync(email, password);
         

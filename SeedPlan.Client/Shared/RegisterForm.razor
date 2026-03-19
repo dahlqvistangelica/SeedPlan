@@ -67,7 +67,7 @@
         isSubmitting = true;
         errorMessage = null;
 
-        // Använd den nya AuthService-motorn istället för att prata med Supabase direkt
+        // Using the new AuthService-engine instead of talking with supabase directly. 
         var result = await Auth.RegisterAsync(regData.Email, regData.Password, regData.FirstName!, regData.LastName!);
         
         if (result.IsSuccess)

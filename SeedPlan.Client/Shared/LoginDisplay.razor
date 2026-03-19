@@ -5,7 +5,7 @@
 <AuthorizeView>
     <Authorized>
         <div class="user-header-widget">
-            @* Läs namnet direkt från minnet (Claims). Finns det inte, visa e-postens förled *@
+            @* Read name direkt from memory. If name doesn't exsist use e-mail start. *@
             <span class="user-display-name">
                 @(context.User.FindFirst("full_name")?.Value ??
                   context.User.Identity?.Name?.Split('@')[0] ?? "Odlare")
@@ -21,7 +21,7 @@
 @code {
     private async Task HandleLogout()
     {
-        // AuthService sköter nu utloggning, rensning av minne och omladdning av sidan
+        // AuthService now handles signing out, clearing of memory and page reload.
         await Auth.LogoutAsync();
     }
 }

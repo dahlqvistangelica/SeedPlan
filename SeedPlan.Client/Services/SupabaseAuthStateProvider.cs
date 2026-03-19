@@ -15,13 +15,23 @@ namespace SeedPlan.Client.Services
             _supabase = supabase;
             _profileService = profileService;
             
-            // VIKTIGT: Här låg 'AddStateChangedListener' tidigare. 
-            // Den är borttagen nu för att förhindra oändliga uppdateringsloopar!
+            // IMPORTANT: Removed 'AddStateChangedListener' to stop infinity loops. 
         }
 
+        /// <summary>
+        /// Asynchronously retrieves the current authentication state, including user identity and claims, for the
+        /// application.
+        /// </summary>
+        /// <remarks>This method attempts to load the authentication state from memory, local storage, and
+        /// the user profile service. If the user is authenticated, additional claims from the user profile are
+        /// included. If authentication information cannot be retrieved, the method returns an anonymous authentication
+        /// state. The returned AuthenticationState is cached for subsequent calls.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains an AuthenticationState object
+        /// representing the current user's authentication and claims information. If no user is authenticated, the
+        /// state represents an anonymous user.</returns>
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            // 1. Om vi redan har laddat in användaren denna session, returnera direkt från minnet.
+            // 1. If already loaded userdata, return from memory.
             if (_cachedState != null)
             {
                 return _cachedState;
@@ -29,7 +39,7 @@ namespace SeedPlan.Client.Services
 
             try
             {
-                // 2. Tvinga Supabase att läsa från LocalStorage INNAN vi går vidare
+                // 2. Force read from loaclStorage before other checks
                 await _supabase.InitializeAsync();
 
                 if(_supabase.Auth.CurrentSession == null)
@@ -44,7 +54,7 @@ namespace SeedPlan.Client.Services
                     return CreateAnonymousState();
                 }
 
-                // 3. Bygg upp grund-identiteten (det som Supabase Auth vet)
+                // 3. Build baseidentity (supabase auth)
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
@@ -52,7 +62,7 @@ namespace SeedPlan.Client.Services
                     new Claim("sub", session.User.Id!)
                 };
 
-                // 4. Hämta datan från din egen 'user_profiles' tabell
+                // 4. Collect data from user_profiles table. 
                 try
                 {
                     var profile = await _profileService.GetUserProfile();
@@ -66,8 +76,7 @@ namespace SeedPlan.Client.Services
                 }
                 catch (Exception ex)
                 {
-                    // Tyst felhantering. Blir vi blockade av databasen, 
-                    // så loggar vi bara in användaren ändå utan krasch.
+                    // Silent errorhandling. If db blocks ut sign in user anyway without crashing app.
                     Console.WriteLine($"Kunde inte hämta profil: {ex.Message}");
                 }
 
@@ -83,10 +92,16 @@ namespace SeedPlan.Client.Services
         }
 
         // Metod som anropas manuellt när användaren loggar in eller ut
+        /// <summary>
+        /// Notifies the authentication state provider that the current user's authentication state has changed.
+        /// </summary>
+        /// <remarks>Call this method after a user logs in or out to ensure that components depending on
+        /// authentication state are updated. This triggers a re-evaluation of the authentication state and causes the
+        /// UI to refresh as needed.</remarks>
         public void NotifyUserChanged()
         {
-            _cachedState = null; // Rensa minnet
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync()); // Säg åt Blazor att rita om skärmen
+            _cachedState = null; // Clear memory
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync()); // Tells Blazor to rerender screen.
         }
 
         private AuthenticationState CreateAnonymousState()
