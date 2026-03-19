@@ -164,6 +164,25 @@
     color: #10b981;
 }
 
+.fruit {
+    color: crimson;
+    background: #fff2f2;
+}
+
+.vegetable {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.herb {
+    background: #fefce8;
+    color: #ca8a04;
+}
+
+.flower {
+    background: #faf5ff;
+    color: #a855f7;
+}
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;

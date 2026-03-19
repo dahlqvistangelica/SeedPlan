@@ -112,8 +112,8 @@
                 {
                     <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
                         <div class="plant-main">
-                            <div class="plant-icon-circle">
-                                <Blazicon Svg="Lucide.Flower"/>
+                            <div class="plant-icon-circle @GetPlantCategory(item.Plant.Category)">
+                                <Blazicon Svg="@GetPlantBlazicon(item.Plant.Category)" />
                             </div>
                             <div class="plant-core-info">
                                 <div class="plant-title-row">
@@ -222,6 +222,15 @@
     private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
     private string GetShortHardinessText(int level) => level switch { 0 => "K", 1 => "HH", 2 => "H", _ => "" };
+    private string GetPlantCategory(PlantCategory category) => category switch { PlantCategory.Vegetable => "vegetable", PlantCategory.Flower => "flower", PlantCategory.Herb => "herb", PlantCategory.Fruit => "fruit" };
+    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => Lucide.Carrot,
+        PlantCategory.Flower => Lucide.Flower,
+        PlantCategory.Herb => MdiIcon.Clover,
+        PlantCategory.Fruit => Lucide.Apple
+
+    };
 
     private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true;  }
     private void StartSowing(Plant plant) { selectedPlantForSowing = plant; showSowModal = true; }

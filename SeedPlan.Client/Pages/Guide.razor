@@ -25,6 +25,20 @@
     {
         <div class="filter-panel fade-in">
             <div class="filter-group">
+                <label>KATEGORI</label>
+                <div class="chip-group">
+                    <button class="chip @(activeCategories.Count == 0 ? "active" : "")" @onclick="ClearCategories">Alla</button>
+                    @foreach (PlantCategory category in Enum.GetValues(typeof(PlantCategory)))
+                    {
+                        <button class="chip @(activeCategories.Contains(category) ? "active" : "")"
+                                @onclick="() => ToggleCategory(category)">
+                            @GetCategoryName(category)
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <div class="filter-group">
                 <label>HÄRDIGHET</label>
                 <div class="chip-group">
                     <button class="chip @(activeHardiness == null ? "active" : "")" @onclick="() => SetHardiness(null)">Alla</button>
@@ -33,6 +47,8 @@
                     <button class="chip @(activeHardiness == 0 ? "active" : "")" @onclick="() => SetHardiness(0)">Känslig</button>
                 </div>
             </div>
+
+
 
             <div class="filter-group">
                 <label>EGENSKAPER</label>
@@ -58,8 +74,8 @@
         {
             <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
                 <div class="card-top">
-                    <div class="plant-icon-circle">
-                        <Blazicon Svg="Lucide.Leaf" />
+                    <div class="plant-icon-circle @GetPlantCategory(plant.Category)">
+                        <Blazicon Svg="@GetPlantBlazicon(plant.Category)" />
                     </div>
                     <span class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
                         @GetHardinessText(plant.HardinessLevel)
@@ -104,6 +120,7 @@
     private bool onlyLightGerm = false;
     private bool onlyTopping = false;
     private CancellationTokenSource? _searchCts;
+    private HashSet<PlantCategory> activeCategories = new();
 
     private const string StorageKey = "guide_filters";
 
@@ -119,14 +136,52 @@
     private async Task ToggleTopping() { onlyTopping = !onlyTopping; StateHasChanged(); await SaveFilters(); }
     private string GetHardinessText(int level) => level switch { 0 => "KÄNSLIG", 1 => "HALVHÄRDIG", 2 => "HÄRDIG", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
+    private string GetPlantCategory(PlantCategory category) => category switch { PlantCategory.Vegetable => "vegetable", PlantCategory.Flower => "flower", PlantCategory.Herb => "herb", PlantCategory.Fruit => "fruit" };
+    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => Lucide.Carrot,
+        PlantCategory.Flower => Lucide.Flower,
+        PlantCategory.Herb => MdiIcon.Clover,
+        PlantCategory.Fruit => Lucide.Apple
+
+    };
     private bool showDetailModal = false;
     private Plant? selectedPlant;
     private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+    private async Task ToggleCategory(PlantCategory category)
+    {
+        if (activeCategories.Contains(category))
+            activeCategories.Remove(category);
+        else
+            activeCategories.Add(category);
+    
+        StateHasChanged();
+        await SaveFilters();
+    }
+
+    private async Task ClearCategories()
+    {
+        activeCategories.Clear();
+        StateHasChanged();
+        await SaveFilters();
+    }
+
+    // Hjälpmetod för snygga svenska namn på knapparna
+    private string GetCategoryName(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => "Grönsak",
+        PlantCategory.Flower => "Blomma",
+        PlantCategory.Herb => "Ört",
+        PlantCategory.Fruit => "Frukt",
+        _ => category.ToString()
+    };
+
 
     private async Task ResetFilters()
     {
         searchText = "";
         activeHardiness = null;
+        activeCategories.Clear();
         onlyLightGerm = false;
         onlyTopping = false;
         await JS.InvokeVoidAsync("localStorage.removeItem", StorageKey);
@@ -171,6 +226,7 @@
         {
             SearchText = searchText,
             Hardiness = activeHardiness,
+            Categories = activeCategories.ToList(),
             LightGerm = onlyLightGerm,
             Topping = onlyTopping
         };
@@ -204,6 +260,19 @@
 
             if (root.TryGetProperty("LightGerm", out var l)) onlyLightGerm = l.GetBoolean();
             if (root.TryGetProperty("Topping", out var t)) onlyTopping = t.GetBoolean();
+
+            if (root.TryGetProperty("Categories", out var c) && c.ValueKind == JsonValueKind.Array)
+            {
+                activeCategories.Clear();
+                foreach (var item in c.EnumerateArray())
+                {
+                    if (item.TryGetInt32(out int catInt))
+                    {
+                        activeCategories.Add((PlantCategory)catInt);
+                    }
+                }
+            }
+
 
             // Force reload
             StateHasChanged();
@@ -240,6 +309,13 @@
             // 3. Properties
             if (onlyLightGerm) query = query.Where(p => p.IsLightGerminating);
             if (onlyTopping) query = query.Where(p => p.RequiresTopping);
+
+            //4. Categories
+            if (activeCategories.Any())
+            {
+                query = query.Where(p => activeCategories.Contains(p.Category));
+            }
+
 
             return query.ToList(); // Force-filtration 
         }

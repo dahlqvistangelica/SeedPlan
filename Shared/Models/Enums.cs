@@ -14,10 +14,10 @@
     }
     public enum PlantCategory
     {
-        Vegetable,
-        Flower,
-        Herb,
-        Fruit
+        Vegetable = 0,
+        Flower = 1,
+        Herb = 2,
+        Fruit = 3
     }
 
 }
