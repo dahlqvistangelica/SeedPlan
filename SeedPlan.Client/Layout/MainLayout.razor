@@ -59,12 +59,56 @@
                 else
                 {
                     <div class="login-screen">
-                        <div class="login-card">
-                            <div class="login-icon"><Blazicon Svg="Lucide.Lock" /></div>
-                            <h2>Välkommen tillbaka</h2>
-                            <p>Logga in för att hantera din trädgård.</p>
-                            <LoginForm />
-                        </div>
+                        @if (!showLoginForm)
+                        {
+                            <div class="landing-content fade-in">
+                                <div class="landing-header">
+                                    <div class="logo-circle-large"><Blazicon Svg="MdiIcon.LeafCircleOutline" /></div>
+                                    <h2>Välkommen till SeedPlan 🌱</h2>
+                                    <p>Din smarta trädgårdsassistent för att hålla koll på fröer och sådder.</p>
+                                </div>
+                                
+                                <div class="features-grid">
+                                    <div class="feature-card current">
+                                        <h3>🌟 Just nu i appen</h3>
+                                        <ul>
+                                            <li><strong>Smart Såkalender:</strong> Få förslag på vad som ska sås baserat på ditt lokala frostdatum.</li>
+                                            <li><strong>Fröbibliotek:</strong> Håll koll på ditt lager, antal och utgångsdatum.</li>
+                                            <li><strong>Sådd-spårning:</strong> Följ varje sådds status – från frö till utplantering.</li>
+                                            <li><strong>Växtguide:</strong> Utforska databasen och hitta odlingsråd & härdighet.</li>
+                                            <li><strong>PWA-stöd:</strong> Installera som en app på mobilen för smidig åtkomst i trädgården.</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="feature-card upcoming">
+                                        <h3>🚀 Kommande funktioner</h3>
+                                        <ul>
+                                            <li><strong>Påminnelser:</strong> Notiser om det är dags att skola om eller om sådden stått stilla länge.</li>
+                                            <li><strong>Gemensamma Såråd:</strong> Ta del av andras tips och samla dem i databasen.</li>
+                                            <li><strong>Fler Frödetaljer:</strong> Registrera inköpsställe, pris och egna anteckningar.</li>
+                                            <li><strong>Kom ihåg mig:</strong> Slipp logga in varje gång du öppnar appen.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="landing-actions">
+                                    <button class="sp-save-btn" @onclick="() => showLoginForm = true">Logga in</button>
+                                    <button class="sp-cancel-btn" style="border: 1px solid #e2e8f0; border-radius: 14px;" @onclick='() => Nav.NavigateTo("/register")'>Skapa konto</button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="login-card fade-in">
+                                <button class="btn-back" @onclick="() => showLoginForm = false">
+                                    <Blazicon Svg="Lucide.ChevronLeft" /> Tillbaka
+                                </button>
+                                <div class="login-icon"><Blazicon Svg="Lucide.Lock" /></div>
+                                <h2>Välkommen tillbaka</h2>
+                                <p>Logga in för att hantera din trädgård.</p>
+                                <LoginForm />
+                            </div>
+                        }
                     </div>
                 }
             </NotAuthorized>
@@ -74,6 +118,7 @@
 
 @code {
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
+    private bool showLoginForm = false;
 
     protected override void OnInitialized()
     {
