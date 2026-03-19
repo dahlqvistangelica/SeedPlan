@@ -1,7 +1,6 @@
 ﻿@using SeedPlan.Client.Services
-@inject Supabase.Client Supabase
+@inject AuthService Auth
 @inject NavigationManager Nav
-@inject AuthenticationStateProvider AuthProvider
 
 <div class="login-form">
     <div class="input-group">
@@ -15,7 +14,7 @@
 
     @if (!string.IsNullOrEmpty(errorMessage))
     {
-        <p class="error-text">@errorMessage</p>
+        <p class="error-text" style="color: red;">@errorMessage</p>
     }
 
     <div class="button-group">
@@ -31,24 +30,22 @@
 
     private async Task HandleLogin()
     {
-        try
+        errorMessage = ""; // Rensa gamla fel
+        
+        var result = await Auth.LoginAsync(email, password);
+        
+        if (result.IsSuccess)
         {
-            var session = await Supabase.Auth.SignIn(email, password);
-            if (session != null)
-            {
-                if (AuthProvider is SupabaseAuthStateProvider provider)
-                {
-                    provider.NotifyAuthStateChanged();
-                }
-                Nav.NavigateTo("/");
-            }
+            Nav.NavigateTo("/");
         }
-        catch { errorMessage = "Fel vid inloggning."; }
+        else
+        {
+            errorMessage = result.Errors.First().Message;
+        }
     }
 
     private void NavigateToRegister()
     {
         Nav.NavigateTo("/register");
     }
-
 }

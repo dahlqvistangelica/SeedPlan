@@ -1,107 +1,99 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
-using Supabase;
-using Supabase.Gotrue;
+using SeedPlan.Shared.Interfaces;
 
 namespace SeedPlan.Client.Services
 {
     public class SupabaseAuthStateProvider : AuthenticationStateProvider
     {
         private readonly Supabase.Client _supabase;
-        private Task<AuthenticationState>? _initializationTask;
+        private readonly IUserProfileService _profileService;
+        private AuthenticationState? _cachedState;
 
-        public SupabaseAuthStateProvider(Supabase.Client supabaseClient)
+        public SupabaseAuthStateProvider(Supabase.Client supabase, IUserProfileService profileService)
         {
-            _supabase = supabaseClient;
+            _supabase = supabase;
+            _profileService = profileService;
+            // VIKTIGT: Här låg 'AddStateChangedListener' tidigare. 
+            // Den är borttagen nu för att förhindra oändliga uppdateringsloopar!
+        }
 
-            _supabase.Auth.AddStateChangedListener((sender, state) =>
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            // 1. Om vi redan har laddat in användaren denna session, returnera direkt från minnet.
+            if (_cachedState != null)
             {
-                if (state == Constants.AuthState.SignedIn ||
-                    state == Constants.AuthState.SignedOut ||
-                    state == Constants.AuthState.TokenRefreshed)
-                {
-                    NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
-                }
-            });
-        }
-        /// <summary>
-        /// Asynchronously retrieves the current authentication state for the user.
-        /// </summary>
-        /// <remarks>This method may cache the authentication state to improve performance. Subsequent
-        /// calls may return the same result until the authentication state changes.</remarks>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the current <see
-        /// cref="AuthenticationState"/>.</returns>
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
+                return _cachedState;
+            }
 
-            _initializationTask ??= InitializeInternal();
-            return _initializationTask;
-        }
-        /// <summary>
-        /// Initializes the authentication state by ensuring the session is loaded and returns the current
-        /// authentication state.
-        /// </summary>
-        /// <remarks>This method attempts to load the authentication session from storage and retrieve it
-        /// if not already available. If an error occurs during initialization, an unauthenticated state is
-        /// returned.</remarks>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the current authentication state
-        /// based on the loaded session, or an unauthenticated state if initialization fails.</returns>
-        private async Task<AuthenticationState> InitializeInternal()
-        {
             try
             {
-                // Vänta på att sessionen läses in från localStorage
+                // 2. Tvinga Supabase att läsa från LocalStorage INNAN vi går vidare
                 await _supabase.InitializeAsync();
 
-                // Gör ett aktivt försök att hämta sessionen om InitializeAsync missade den
                 if (_supabase.Auth.CurrentSession == null)
                 {
-                    await _supabase.Auth.RetrieveSessionAsync();
+                    try { await _supabase.Auth.RetrieveSessionAsync(); } catch { }
                 }
 
-                return GetStateFromCurrentSession();
+                var session = _supabase.Auth.CurrentSession;
+
+
+                if (session?.User == null)
+                {
+                    return CreateAnonymousState();
+                }
+
+                // 3. Bygg upp grund-identiteten (det som Supabase Auth vet)
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
+                    new Claim(ClaimTypes.Email, session.User.Email ?? ""),
+                    new Claim("sub", session.User.Id!)
+                };
+
+                // 4. Hämta datan från din egen 'user_profiles' tabell
+                try
+                {
+                    var profile = await _profileService.GetUserProfile();
+                    if (profile != null)
+                    {
+                        claims.Add(new Claim("full_name", profile.FullName ?? ""));
+                            claims.Add(new Claim("growing_zone", profile.GrowingZone.ToString()));
+
+                        if (profile.LastFrostDate.HasValue)
+                            claims.Add(new Claim("frost_date", profile.LastFrostDate.Value.ToString("yyyy-MM-dd")));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Tyst felhantering. Blir vi blockade av databasen, 
+                    // så loggar vi bara in användaren ändå utan krasch.
+                    Console.WriteLine($"Kunde inte hämta profil: {ex.Message}");
+                }
+
+                // 5. Spara och returnera den färdiga inloggningen
+                var identity = new ClaimsIdentity(claims, "SupabaseAuth");
+                _cachedState = new AuthenticationState(new ClaimsPrincipal(identity));
+                return _cachedState;
             }
             catch
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                return CreateAnonymousState();
             }
         }
-        /// <summary>
-        /// Retrieves the current authentication state based on the active Supabase session.
-        /// </summary>
-        /// <remarks>This method constructs a ClaimsPrincipal using information from the Supabase session.
-        /// If the session or user information is missing, the returned AuthenticationState will indicate an
-        /// unauthenticated user.</remarks>
-        /// <returns>An AuthenticationState representing the current user if a valid session exists; otherwise, an
-        /// unauthenticated state with an empty ClaimsPrincipal.</returns>
-        private AuthenticationState GetStateFromCurrentSession()
+
+        // Metod som anropas manuellt när användaren loggar in eller ut
+        public void NotifyUserChanged()
         {
-            var session = _supabase.Auth.CurrentSession;
-            if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
-            {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-
-            var claims = new List<Claim> {
-            new Claim(ClaimTypes.Name, session.User.Email ?? ""),
-            new Claim(ClaimTypes.Email, session.User.Email ?? ""),
-            new Claim(ClaimTypes.NameIdentifier, session.User.Id ?? ""),
-            new Claim("sub", session.User.Id ?? "")
-        };
-
-            var identity = new ClaimsIdentity(claims, "SupabaseAuth");
-            return new AuthenticationState(new ClaimsPrincipal(identity));
+            _cachedState = null; // Rensa minnet
+            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync()); // Säg åt Blazor att rita om skärmen
         }
-        /// <summary>
-        /// Notifies subscribers that the authentication state has changed.
-        /// </summary>
-        /// <remarks>Call this method to trigger an update to all components or services that are
-        /// observing authentication state changes. This is typically used after a sign-in, sign-out, or other
-        /// authentication event to ensure that dependent components receive the latest authentication
-        /// information.</remarks>
-        public void NotifyAuthStateChanged()
+
+        private AuthenticationState CreateAnonymousState()
         {
-            NotifyAuthenticationStateChanged(Task.FromResult(GetStateFromCurrentSession()));
+            _cachedState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return _cachedState;
         }
     }
 }
