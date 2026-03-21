@@ -3,7 +3,6 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using SeedPlan.Shared.Models
 @using SeedPlan.Shared.Models.ViewModels
-@using global::Shared.Models
 
 @inject IPlantLibraryService PlantService
 @inject IUserSowingService SowingService
@@ -11,11 +10,13 @@
 @inject IUserInventoryService InventoryService
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
+@inject NavigationManager Nav
 
 <PageTitle>Dashboard - SeedPlan</PageTitle>
 
 <div class="dashboard-container">
     <header class="dashboard-header">
+        
         <div class="header-top">
             <h1 class="serif-title">Välkommen tillbaka</h1>
             <div class="date-badge">
@@ -23,6 +24,28 @@
                 <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
             </div>
         </div>
+        @if (staleSowings.Any())
+        {
+            <div class="notifications-section">
+                <h2 class="section-title">BEHÖVER UPPMÄRKSAMHET</h2>
+                <div class="notification-list">
+                    @foreach (var sowing in staleSowings)
+                    {
+                        var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate);
+                        <div class="notification-card" @onclick='() => Nav.NavigateTo("/sowings")'>
+                            <div class="notification-icon">
+                                <Blazicon Svg="Lucide.TriangleAlert" />
+                            </div>
+                            <div class="notification-content">
+                                <span class="notification-plant">@sowing.PlantName</span>
+                                <span class="notification-message">@warning.message</span>
+                            </div>
+                            <Blazicon Svg="Lucide.ChevronRight" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
     </header>
 
     @if (isLoading)
@@ -178,6 +201,17 @@
     private bool showSowModal = false;
     private Plant? selectedPlant;
     private Plant? selectedPlantForSowing;
+    // Ta bort: private List<SowingView> staleSowings = new();
+
+    // Lägg till denna property istället
+    private IEnumerable<SowingView> staleSowings =>
+        allSowingViews.Where(s => SowingHelper.GetStaleWarning(
+            s.Status,
+            s.StatusUpdatedAt,
+            s.SownDate).show);
+
+    // Lägg till denna lista som backing field
+    private List<SowingView> allSowingViews = new();
 
     protected override async Task OnInitializedAsync() => await LoadData();
 
@@ -195,6 +229,8 @@
             }
             //Get sowings
             var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
+
+            allSowingViews = await SowingService.GetMySowingViews();
 
             //Converting to int.
             activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();

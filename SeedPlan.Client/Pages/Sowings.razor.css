@@ -200,6 +200,23 @@
         font-size: 0.9rem;
     }
 
+.warning-box {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #c2410c;
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+    .warning-box svg {
+        min-width: 18px;
+        color: #f97316;
+    }
 /* --- Gruppering och Rubriker --- */
 .group-header {
     margin: 2.5rem 0 1rem 0;

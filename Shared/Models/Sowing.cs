@@ -27,6 +27,9 @@ namespace SeedPlan.Shared.Models
         [Column("user_id")]
         public string? UserId { get; set; }
 
+        [Column("status_updated_at")]
+        public DateTime? StatusUpdatedAt { get; set; }
+
         // Denna används för att visa namnet på fröet i gränssnittet
         //[Reference(typeof(Seed))]
         //public Seed? Seed { get; set; }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Models.ViewModels
+namespace SeedPlan.Shared.Models.ViewModels
 {
     [Table("v_user_sowings")]
     public class SowingView : BaseModel
@@ -49,5 +49,7 @@ namespace Shared.Models.ViewModels
 
         [Column("requires_topping")]
         public bool? RequiresTopping { get; set; }
+        [Column("status_updated_at")]
+        public DateTime? StatusUpdatedAt { get; set; }
     }
 }

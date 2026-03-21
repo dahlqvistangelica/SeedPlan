@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
-namespace Shared.Models.ViewModels
+namespace SeedPlan.Shared.Models.ViewModels
 {
 
 

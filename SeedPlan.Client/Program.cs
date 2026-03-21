@@ -22,6 +22,16 @@ namespace SeedPlan.Client
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             }.GetStreamAsync("appsettings.json"));
 
+            if(builder.HostEnvironment.IsDevelopment())
+            {
+                var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+                var response = await http.GetAsync("appsettings.Development.json");
+                if(response.IsSuccessStatusCode)
+                {
+                    builder.Configuration.AddJsonStream(await response.Content.ReadAsStreamAsync());
+                }
+            }
+
             var supabaseUrl = builder.Configuration["SUPABASE_URL"] ?? "";
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"] ?? "";
 

@@ -1,7 +1,5 @@
 ﻿@page "/sowings"
 @using Microsoft.AspNetCore.Authorization
-@using SeedPlan.Shared.Models
-@using global::Shared.Models.ViewModels
 @attribute [Authorize]
 @inject IUserSowingService SowingService
 @inject IJSRuntime JS
@@ -128,6 +126,14 @@
                                     </span>
                                 </div>
                             }
+                            @{var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate);}
+                            @if (warning.show)
+                            {
+                                <div class="warning-box">
+                                    <Blazicon Svg="Lucide.TriangleAlert" />
+                                    <span>@warning.message</span>
+                                </div>
+                            }
                         </div>
                     
                 }
@@ -237,6 +243,7 @@
     private async Task UpdateStatus(SowingView sowing, int newStatus)
     {
         sowing.Status = newStatus;
+        sowing.StatusUpdatedAt = DateTime.Now;
         await SowingService.UpdateSowingStatus(sowing.Id, newStatus);
 
         StateHasChanged();
@@ -257,4 +264,6 @@
             await LoadSowings();
         }
     }
+
+
 }

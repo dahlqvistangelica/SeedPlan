@@ -1,5 +1,4 @@
 ﻿using SeedPlan.Shared.Models;
-using Shared.Models;
 
 namespace SeedPlan.Shared.Interfaces
 {
