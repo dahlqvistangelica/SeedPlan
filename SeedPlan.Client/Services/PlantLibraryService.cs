@@ -96,13 +96,20 @@ namespace SeedPlan.Client.Services
             var today = DateTime.Today;
 
             return allPlants
-                .Select(plant => {
-                    var outDate = lastFrostDate.AddDays(-(plant.WeeksBeforeFrost * 7));
-                    var sowDate = outDate.AddDays(-(plant.SowingLeadTime * 7));
-                    return new { Plant = plant, SowDate = sowDate };
+                .Select(plant =>
+                {
+                    var sowFromDate = lastFrostDate.AddDays(-(plant.SowingLeadTime * 7));
+                    var deadlineDate = sowFromDate.AddDays(14);
+
+                    return new
+                    {
+                        Plant = plant,
+                        SowFrom = sowFromDate,
+                        Deadline = deadlineDate
+                    };
                 })
-                .Where(x => Math.Abs((x.SowDate - today).TotalDays) <= 7)
-                .OrderBy(x => x.SowDate) //Sorting on most urgent first 
+                .Where(x => today >= x.SowFrom && today <= x.Deadline)
+                .OrderBy(x => x.SowFrom)
                 .Select(x => x.Plant)
                 .ToList();
         }
@@ -141,7 +148,7 @@ namespace SeedPlan.Client.Services
             {
                 var start = lastFrost.AddDays(-(plant.SowingLeadTime * 7));
 
-                var end = start.AddDays(28);
+                var end = start.AddDays(14);
                 if(today > end)
                 {
                     overview.Past.Add(plant);
@@ -150,14 +157,16 @@ namespace SeedPlan.Client.Services
                 {
                     overview.Current.Add(plant);
                 }
-                else
+                else if(start > today && start <= today.AddDays(14))
                 {
                     overview.Upcoming.Add(plant);
                 }
 
 
             }
+            overview.Past = overview.Past.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
             overview.Current = overview.Current.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
+            overview.Upcoming = overview.Upcoming.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
 
             return overview;
         }
