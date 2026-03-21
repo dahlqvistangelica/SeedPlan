@@ -1,5 +1,7 @@
 // Importera de filer som Blazor-bygget säger att vi behöver
+// Uppdaterad: 2026-03-21
 self.importScripts('./service-worker-assets.js');
+
 
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
@@ -29,7 +31,18 @@ async function onActivate(event) {
 async function onFetch(event) {
     let cachedResponse = null;
     if (event.request.method === 'GET') {
-        // Försök hämta från cache först (snabbast)
+
+        // Ladda alltid dessa filer färskt från nätverket
+        const neverCache = [
+            'session-cleanup.js',
+            'appsettings.json'
+        ];
+
+        const url = new URL(event.request.url);
+        if (neverCache.some(f => url.pathname.endsWith(f))) {
+            return fetch(event.request);
+        }
+
         const shouldServeFromCache = event.request.mode === 'navigate' ||
             self.assetsManifest.assets.some(asset => event.request.url.endsWith(asset.url));
 

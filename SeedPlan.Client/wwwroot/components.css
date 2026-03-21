@@ -62,6 +62,21 @@
     padding: 10px;
     cursor: pointer;
 }
+
+.remember-me-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+    .remember-me-group input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #10b981;
+        cursor: pointer;
+    }
 /* SIGNUP FORM*/
 
 .auth-container {

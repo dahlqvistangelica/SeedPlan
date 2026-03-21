@@ -12,6 +12,12 @@
         <input id="password" type="password" @bind="password" placeholder="******" />
     </div>
 
+    <div class="remember-me-group">
+        <input type="checkbox" id="rememberMe" @bind="rememberMe" />
+        <label for="rememberMe">Kom ihåg mig</label>
+    </div>
+
+
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <p class="error-text" style="color: red;">@errorMessage</p>
@@ -27,12 +33,13 @@
     private string email = "";
     private string password = "";
     private string errorMessage = "";
+    private bool rememberMe = false;
 
     private async Task HandleLogin()
     {
         errorMessage = ""; // Clear old errormsgs.
         
-        var result = await Auth.LoginAsync(email, password);
+        var result = await Auth.LoginAsync(email, password, rememberMe);
         
         if (result.IsSuccess)
         {

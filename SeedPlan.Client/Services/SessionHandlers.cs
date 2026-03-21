@@ -31,6 +31,11 @@ namespace SeedPlan.Client.Services
     /// multiple threads may result in inconsistent state.</remarks>
     public class LocalStorageSessionHandler : IGotrueSessionPersistence<Session>
     {
+        private Session? _session;
+        public void SaveSession(Session session) => _session = session;
+        public void DestroySession() => _session = null;
+        public Session? LoadSession() => _session;
+        /*
         private readonly IJSInProcessRuntime? _js;
         public LocalStorageSessionHandler(IJSInProcessRuntime? js) { _js = js; }
 
@@ -49,6 +54,7 @@ namespace SeedPlan.Client.Services
                 return string.IsNullOrEmpty(json) ? null : JsonSerializer.Deserialize<Session>(json);
             }
             catch { return null; }
-        }
+        }*/
+        
     }
     }

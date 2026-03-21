@@ -9,9 +9,8 @@
     <link rel="stylesheet" href="SeedPlan.styles.css" /> @* Denna behövs för isolerad CSS (t.ex. .razor.css) *@
     <link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet" />
     <link rel="manifest" href="manifest.webmanifest">
+    <script src="session-cleanup.js?v=2"></script>
     
-    @* Laddar Lucide-ikonerna *@
-    <script src="https://unpkg.com/lucide@latest"></script>
     
     <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 </head>
@@ -23,18 +22,12 @@
 
     @* BARA en säker funktion som vi kallar på manuellt, INGEN Observer som kraschar appen *@
     <script>
-        let lucideTimer;
-    
-        window.initializeLucide = () => {
-        if (window.lucide) {
-        // Avbryt tidigare timer om en ny ändring sker snabbt
-        clearTimeout(lucideTimer);
-            
-        lucideTimer = setTimeout(() => {
-        window.lucide.createIcons();
-        }, 100);
+        if ('serviceWorker' in navigator && window.location.hostname === 'localhost') {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(reg => reg.unregister());
+        });
         }
-        };
     </script>
 </body>
+
 </html>

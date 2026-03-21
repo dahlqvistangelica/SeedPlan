@@ -1,7 +1,10 @@
 ﻿using FluentResults;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 using Supabase.Gotrue;
+using System.Text.Json;
+using static System.Collections.Specialized.BitVector32;
 
 namespace SeedPlan.Client.Services
 {
@@ -10,11 +13,12 @@ namespace SeedPlan.Client.Services
         private readonly Supabase.Client _supabase;
         private readonly SupabaseAuthStateProvider _authStateProvider;
         private readonly NavigationManager _nav;
+        private readonly IJSRuntime _js;
 
-        public AuthService(Supabase.Client supabase, AuthenticationStateProvider authStateProvider, NavigationManager nav)
+        public AuthService(Supabase.Client supabase, AuthenticationStateProvider authStateProvider, NavigationManager nav, IJSRuntime js)
         {
             _supabase = supabase;
-            
+            _js = js;
             _authStateProvider = (SupabaseAuthStateProvider)authStateProvider;
             _nav = nav;
         }
@@ -28,15 +32,28 @@ namespace SeedPlan.Client.Services
         /// <param name="password">The password associated with the specified email address. Cannot be null or empty.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a Result indicating whether the
         /// login was successful. If authentication fails, the Result contains an error message.</returns>
-        public async Task<Result> LoginAsync(string email, string password)
+        public async Task<Result> LoginAsync(string email, string password, bool rememberMe)
         {
             try
             {
-                var response = await _supabase.Auth.SignIn(email, password);
+                var session = await _supabase.Auth.SignIn(email, password);
 
-                if (response?.User == null || string.IsNullOrEmpty(response.AccessToken))
+                if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
                 {
                     return Result.Fail("Inloggning misslyckades.");
+                }
+
+                if (rememberMe)
+                {
+                    await _js.InvokeVoidAsync("localStorage.setItem", "sb_session",
+                        JsonSerializer.Serialize(session));
+                    await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
+                }
+                else
+                {
+                    await _js.InvokeVoidAsync("sessionStorage.setItem", "sb_session",
+                        JsonSerializer.Serialize(session));
+                    await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
                 }
                 //Login sucess, confirm and update UI.
                 _authStateProvider.NotifyUserChanged();
@@ -93,6 +110,7 @@ namespace SeedPlan.Client.Services
         public async Task LogoutAsync()
         {
             await _supabase.Auth.SignOut();
+            await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
             _authStateProvider.NotifyUserChanged(); // Update screen instantly.
             //Change: Removed 'forceLoad: true'. Soft renderingen without blink.
             _nav.NavigateTo("/");

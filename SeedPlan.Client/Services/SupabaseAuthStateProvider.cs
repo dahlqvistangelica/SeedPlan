@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 using SeedPlan.Shared.Interfaces;
+using System.Text.Json;
+using Microsoft.JSInterop;
+using Supabase.Gotrue;
 
 namespace SeedPlan.Client.Services
 {
@@ -8,12 +11,16 @@ namespace SeedPlan.Client.Services
     {
         private readonly Supabase.Client _supabase;
         private readonly IUserProfileService _profileService;
+        private readonly IJSRuntime _js;
         private AuthenticationState? _cachedState;
+        private bool _initialized = false;
 
-        public SupabaseAuthStateProvider(Supabase.Client supabase, IUserProfileService profileService)
+
+        public SupabaseAuthStateProvider(Supabase.Client supabase, IUserProfileService profileService, IJSRuntime js)
         {
             _supabase = supabase;
             _profileService = profileService;
+            _js = js;
             
             // IMPORTANT: Removed 'AddStateChangedListener' to stop infinity loops. 
         }
@@ -32,22 +39,68 @@ namespace SeedPlan.Client.Services
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             // 1. If already loaded userdata, return from memory.
-            if (_cachedState != null)
+            if (_cachedState != null && _initialized)
             {
+                Console.WriteLine("DEBUG: Returnerar cachad state.");
                 return _cachedState;
             }
 
             try
             {
                 // 2. Force read from loaclStorage before other checks
-                await _supabase.InitializeAsync();
+                //await _supabase.InitializeAsync();
+                Console.WriteLine($"DEBUG: CurrentSession = {(_supabase.Auth.CurrentSession == null ? "NULL" : "FINNS")}");
 
-                if(_supabase.Auth.CurrentSession == null)
+                if (_supabase.Auth.CurrentSession == null)
                 {
-                    try { await _supabase.Auth.RetrieveSessionAsync(); }
-                    catch { }
+                    try
+                    {
+                        //Check sessionStorage first(no "remind me")
+                        //After that check localStorage("remind me")
+                        var json = await _js.InvokeAsync<string?>("sessionStorage.getItem", "sb_session");
+
+                        if(string.IsNullOrEmpty(json))
+                        {
+                            json = await _js.InvokeAsync<string?>("localStorage.getItem", "sb_session");
+                        }
+                        Console.WriteLine($"DEBUG: localStorage sb_session = {(string.IsNullOrEmpty(json) ? "TOMT" : json.Length + " tecken")}");
+
+                        if (!string.IsNullOrEmpty(json))
+                        {
+                            var savedSession = JsonSerializer.Deserialize<Session>(json);
+                            Console.WriteLine($"DEBUG: Deserialiserad session AccessToken = {(savedSession?.AccessToken == null ? "NULL" : "FINNS")}");
+                            Console.WriteLine($"DEBUG: Deserialiserad session RefreshToken = {(savedSession?.RefreshToken == null ? "NULL" : "FINNS")}");
+                            if (savedSession?.AccessToken != null && savedSession.RefreshToken != null)
+                            {
+                                try
+                                {
+                                    await _supabase.Auth.SetSession(
+                                        savedSession.AccessToken, savedSession.RefreshToken);
+                                    
+                                    Console.WriteLine($"DEBUG: SetSession klar, CurrentSession = {(_supabase.Auth.CurrentSession == null ? "NULL" : "FINNS")}");
+                                }
+                                catch(Exception ex)
+                                {
+                                    Console.WriteLine($"DEBUG: SetSession KRASCHADE: {ex.Message}");
+                                    //Refresh token has expired - clear and continue as signed out.
+                                    await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
+                                    await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
+                                    Console.WriteLine("Session utgången, rensar localStorage.");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Kunde inte läsa session från localStorage: {ex.Message} ");
+                    }
                 }
+                _initialized = true;
                 var session = _supabase.Auth.CurrentSession;
+
+                //Mark as initialized.
+                Console.WriteLine($"DEBUG: Slutlig session = {(session?.User == null ? "INGEN ANVÄNDARE" : session.User.Email)}");
+                
 
                 if (session?.User == null)
                 {
@@ -80,13 +133,14 @@ namespace SeedPlan.Client.Services
                     Console.WriteLine($"Kunde inte hämta profil: {ex.Message}");
                 }
 
-                // 5. Spara och returnera den färdiga inloggningen
+                // 5. Save and return the complete loggin.
                 var identity = new ClaimsIdentity(claims, "SupabaseAuth");
                 _cachedState = new AuthenticationState(new ClaimsPrincipal(identity));
                 return _cachedState;
             }
             catch
             {
+                _initialized = true; //Even on fault mark as initialized.
                 return CreateAnonymousState();
             }
         }
@@ -101,6 +155,7 @@ namespace SeedPlan.Client.Services
         public void NotifyUserChanged()
         {
             _cachedState = null; // Clear memory
+            _initialized = false;
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync()); // Tells Blazor to rerender screen.
         }
 
