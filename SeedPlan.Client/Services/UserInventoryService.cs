@@ -141,17 +141,16 @@ namespace SeedPlan.Client.Services
 
             if (profile == null)
             {
-                Console.WriteLine("DEBUG: Profilen kunde inte hämtas.");
+                
                 return new();
             }
             if (profile?.LastFrostDate == null)
             {
-                Console.WriteLine("DEBUG: LastFrostDate är null i databasen.");
+                
                 return new();
             }
             var suggestions = await _plantLibrary.GetGeneralSowingSuggestionsAsync(profile.LastFrostDate.Value);
-            Console.WriteLine($"DEBUG: Hittade {suggestions.Count} förslag från biblioteket.");
-
+            
             var mySeeds = await GetMySeeds();
 
             var calendar = suggestions.Select(p => new PlantSowingView

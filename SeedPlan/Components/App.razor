@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="components.css" /> @* Din nya fil för gemensamma element *@
-    <link rel="stylesheet" href="SeedPlan.styles.css" /> @* Denna behövs för isolerad CSS (t.ex. .razor.css) *@
+    <link rel="stylesheet" href="components.css" /> 
+    <link rel="stylesheet" href="SeedPlan.styles.css" /> 
     <link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet" />
     <link rel="manifest" href="manifest.webmanifest">
     <script src="session-cleanup.js?v=2"></script>
@@ -20,7 +20,6 @@
     </div>
     <script src="_framework/blazor.web.js"></script>
 
-    @* BARA en säker funktion som vi kallar på manuellt, INGEN Observer som kraschar appen *@
     <script>
         if ('serviceWorker' in navigator && window.location.hostname === 'localhost') {
         navigator.serviceWorker.getRegistrations().then(regs => {

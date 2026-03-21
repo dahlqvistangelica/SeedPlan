@@ -41,7 +41,7 @@ namespace SeedPlan.Client.Services
             // 1. If already loaded userdata, return from memory.
             if (_cachedState != null && _initialized)
             {
-                Console.WriteLine("DEBUG: Returnerar cachad state.");
+                
                 return _cachedState;
             }
 
@@ -49,7 +49,6 @@ namespace SeedPlan.Client.Services
             {
                 // 2. Force read from loaclStorage before other checks
                 //await _supabase.InitializeAsync();
-                Console.WriteLine($"DEBUG: CurrentSession = {(_supabase.Auth.CurrentSession == null ? "NULL" : "FINNS")}");
 
                 if (_supabase.Auth.CurrentSession == null)
                 {
@@ -63,7 +62,7 @@ namespace SeedPlan.Client.Services
                         {
                             json = await _js.InvokeAsync<string?>("localStorage.getItem", "sb_session");
                         }
-                        Console.WriteLine($"DEBUG: localStorage sb_session = {(string.IsNullOrEmpty(json) ? "TOMT" : json.Length + " tecken")}");
+                       
 
                         if (!string.IsNullOrEmpty(json))
                         {
@@ -77,29 +76,29 @@ namespace SeedPlan.Client.Services
                                     await _supabase.Auth.SetSession(
                                         savedSession.AccessToken, savedSession.RefreshToken);
                                     
-                                    Console.WriteLine($"DEBUG: SetSession klar, CurrentSession = {(_supabase.Auth.CurrentSession == null ? "NULL" : "FINNS")}");
+                                    
                                 }
                                 catch(Exception ex)
                                 {
-                                    Console.WriteLine($"DEBUG: SetSession KRASCHADE: {ex.Message}");
+                                    
                                     //Refresh token has expired - clear and continue as signed out.
                                     await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
                                     await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
-                                    Console.WriteLine("Session utgången, rensar localStorage.");
+
                                 }
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Kunde inte läsa session från localStorage: {ex.Message} ");
+                        Console.WriteLine($"{ex.Message} ");
                     }
                 }
                 _initialized = true;
                 var session = _supabase.Auth.CurrentSession;
 
                 //Mark as initialized.
-                Console.WriteLine($"DEBUG: Slutlig session = {(session?.User == null ? "INGEN ANVÄNDARE" : session.User.Email)}");
+               
                 
 
                 if (session?.User == null)
@@ -130,7 +129,7 @@ namespace SeedPlan.Client.Services
                 catch (Exception ex)
                 {
                     // Silent errorhandling. If db blocks ut sign in user anyway without crashing app.
-                    Console.WriteLine($"Kunde inte hämta profil: {ex.Message}");
+                    Console.WriteLine($"{ex.Message}");
                 }
 
                 // 5. Save and return the complete loggin.

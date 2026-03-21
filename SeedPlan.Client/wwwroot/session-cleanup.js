@@ -24,11 +24,10 @@ if (window.location.hostname === 'localhost') {
             var nowInSeconds = Math.floor(Date.now() / 1000);
             if (session.expires_at < nowInSeconds) {
                 localStorage.removeItem('sb_session');
-                console.log('Utgången session rensad.');
             }
         }
     } catch (e) {
         localStorage.removeItem('sb_session');
-        console.log('Ogiltig session rensad:', e);
+        console.log(e);
     }
 }());

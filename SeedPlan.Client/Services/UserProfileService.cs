@@ -37,8 +37,7 @@ namespace SeedPlan.Client.Services
             }
             catch(Exception ex)
             {
-                Console.WriteLine($"DEBUG MSG: {ex.Message}");
-                return null;
+                                return null;
             }
         }
         /// <summary>
