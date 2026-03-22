@@ -365,3 +365,10 @@ FodyWeavers.xsd
 /SeedPlan/wwwroot/appsettings.Development.json
 # Ignorera alla miljöspecifika appsettings
 appsettings.*.json
+
+# Supabase temporära filer
+supabase/.branches
+supabase/.temp
+supabase/snippets
+supabase/config.toml
+supabase/migrations

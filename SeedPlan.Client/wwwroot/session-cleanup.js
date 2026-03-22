@@ -14,20 +14,33 @@ if (window.location.hostname === 'localhost') {
     });
 }
 
-// Rensa utgången session
+//Clear expired session
 (function () {
     try {
-        var raw = localStorage.getItem('sb_session');
+        var raw = localStorage.getItem('sb_session')
+            || sessionStorage.getItem('sb_session');
+
+        console.log('session-cleanup: hittade session?', raw ? 'JA - ' + raw.length + 'tecken' : 'NEJ');
+
         if (!raw) return;
+
         var session = JSON.parse(raw);
-        if (session && session.expires_at) {
-            var nowInSeconds = Math.floor(Date.now() / 1000);
-            if (session.expires_at < nowInSeconds) {
-                localStorage.removeItem('sb_session');
-            }
+
+        // C# serialiserar som PascalCase - kolla båda varianterna
+        var accessToken = session.AccessToken || session.access_token;
+
+        console.log('session-cleanup: har access token?', accessToken ? 'JA' : 'NEJ');
+
+        if (!accessToken) {
+            localStorage.removeItem('sb_session');
+            sessionStorage.removeItem('sb_session');
+            console.log('session-cleanup: Ingen access token, rensar.');
+        } else {
+            console.log('session-cleanup: Session ser giltig ut, behåller den.');
         }
     } catch (e) {
         localStorage.removeItem('sb_session');
-        console.log(e);
+        sessionStorage.removeItem('sb_session');
+        console.log('session-cleanup: Ogiltig session rensad:', e);
     }
 }());

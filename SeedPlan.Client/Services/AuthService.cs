@@ -39,25 +39,28 @@ namespace SeedPlan.Client.Services
                 var session = await _supabase.Auth.SignIn(email, password);
 
                 if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
-                {
                     return Result.Fail("Inloggning misslyckades.");
-                }
+
 
                 if (rememberMe)
                 {
                     await _js.InvokeVoidAsync("localStorage.setItem", "sb_session",
                         JsonSerializer.Serialize(session));
+                    await _js.InvokeVoidAsync("localStorage.setItem", "sb_remember_me", "true");
                     await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
+
+                    // Verifiera att det sparades
+                    var verify = await _js.InvokeAsync<string?>("localStorage.getItem", "sb_remember_me");
                 }
                 else
                 {
                     await _js.InvokeVoidAsync("sessionStorage.setItem", "sb_session",
                         JsonSerializer.Serialize(session));
                     await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
+                    await _js.InvokeVoidAsync("localStorage.removeItem", "sb_remember_me");
                 }
-                //Login sucess, confirm and update UI.
-                _authStateProvider.NotifyUserChanged();
 
+                _authStateProvider.NotifyUserChanged();
                 return Result.Ok();
             }
             catch (Exception ex)
@@ -111,6 +114,8 @@ namespace SeedPlan.Client.Services
         {
             await _supabase.Auth.SignOut();
             await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
+            await _js.InvokeVoidAsync("localStorage.removeItem", "sb_remember_me");
+            await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
             _authStateProvider.NotifyUserChanged(); // Update screen instantly.
             //Change: Removed 'forceLoad: true'. Soft renderingen without blink.
             _nav.NavigateTo("/");

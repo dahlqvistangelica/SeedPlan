@@ -69,39 +69,67 @@ namespace SeedPlan.Client
             // C: Register our new login engine
             builder.Services.AddScoped<AuthService>();
 
+            // Register notificationservice.
+            builder.Services.AddScoped<NotificationService>();
+
+
             var host = builder.Build();
             var supabase = host.Services.GetRequiredService<Supabase.Client>();
-            await supabase.InitializeAsync();
             var js = host.Services.GetRequiredService<IJSRuntime>();
+
+            // Flagga för att ignorera SignedOut under initialisering
+            var isInitializing = true;
+
             supabase.Auth.AddStateChangedListener(async (sender, state) =>
             {
-                if (state == Supabase.Gotrue.Constants.AuthState.TokenRefreshed || state == Supabase.Gotrue.Constants.AuthState.SignedIn)
+      
+
+                if (state == Supabase.Gotrue.Constants.AuthState.SignedIn)
                 {
+                    // Nu är vi inloggade — sluta ignorera SignedOut
+                    isInitializing = false;
+
+                }
+                else if (state == Supabase.Gotrue.Constants.AuthState.TokenRefreshed)
+                {
+                    isInitializing = false;
                     var session = supabase.Auth.CurrentSession;
                     if (session != null)
                     {
                         var sessionJson = JsonSerializer.Serialize(session);
+                        var rememberMe = await js.InvokeAsync<string?>(
+                            "localStorage.getItem", "sb_remember_me");
 
-                        var inLocal = await js.InvokeAsync<string?>("localStorage.getItem", "sb_session");
+                        if (rememberMe == "true")
+                        {
+                            await js.InvokeVoidAsync("localStorage.setItem", "sb_session", sessionJson);
 
-                        if(inLocal != null)
-                        { await js.InvokeVoidAsync("localStorage.setItem", "sb_session", sessionJson);
                         }
                         else
                         {
-                            await js.InvokeVoidAsync("sessionStorage.setItem", "sb_session",sessionJson);
+                            await js.InvokeVoidAsync("sessionStorage.setItem", "sb_session", sessionJson);
+
                         }
-                       
-                        Console.WriteLine("DEBUG: Session uppdaterad i localStorage");
                     }
                 }
                 else if (state == Supabase.Gotrue.Constants.AuthState.SignedOut)
                 {
+                    if (isInitializing)
+                    {
+
+                        return;
+                    }
+
                     await js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
                     await js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
-                    Console.WriteLine("DEBUG: Session rensad från localStorage");
+                    await js.InvokeVoidAsync("localStorage.removeItem", "sb_remember_me");
+
                 }
             });
+
+            await supabase.InitializeAsync();
+            // Ta bort Task.Delay och isInitializing = false härifrån
+
             await host.RunAsync();
         }
     }
