@@ -39,7 +39,12 @@
             <InputText @bind-Value="regData.ConfirmPassword" class="form-control" type="password" placeholder="******" />
             <ValidationMessage For="@(() => regData.ConfirmPassword)" />
         </div>
-
+        @if (showConfirmationMessage)
+        {
+            <div class="confirmation-message">
+                <p>🌱 Konto skapat! Kolla din mejl för att bekräfta din adress.</p>
+            </div>
+        }
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger" style="color: red; margin-top:10px;">@errorMessage</div>
@@ -48,6 +53,7 @@
         <button type="submit" class="btn-primary" disabled="@isSubmitting" style="margin-top:15px;">
             @(isSubmitting ? "Skapar konto..." : "Registrera konto")
         </button>
+
     </EditForm>
 </div>
 
@@ -55,6 +61,7 @@
     private LocalRegisterData regData = new();
     private string? errorMessage;
     private bool isSubmitting = false;
+    private bool showConfirmationMessage = false;
 
     private async Task HandleRegister()
     {
@@ -72,7 +79,8 @@
         
         if (result.IsSuccess)
         {
-            Nav.NavigateTo("/");
+            // Istället för Nav.NavigateTo("/")
+            showConfirmationMessage = true;
         }
         else
         {
@@ -81,6 +89,7 @@
 
         isSubmitting = false;
     }
+
 
     public class LocalRegisterData
     {
