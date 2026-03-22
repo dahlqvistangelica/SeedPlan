@@ -80,27 +80,20 @@ async function onFetch(event) {
 }
 
 // PUSH NOTIFICATIONS
-self.addEventListener('push', event => {
-    console.log('Push mottaget', event);
+self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET') return;
 
-    let data = { title: 'SeedPlan', body: 'Du har en påminnelse', url: '/sowings' };
-    if (event.data) {
-        try {
-            data = event.data.json();
-        } catch (e) {
-            data.body = event.data.text();
-        }
-    }
+    const url = new URL(event.request.url);
 
-    event.waitUntil(
-        self.registration.showNotification(data.title, {
-            body: data.body,
-            icon: '/icon-512.png',
-            badge: '/icon-512.png',
-            vibrate: [200, 100, 200],
-            data: { url: data.url || '/sowings' }
-        })
-    );
+    // Tillåtna domäner
+    const allowedHosts = [
+        'seedplan.up.railway.app',
+        'seedplan.runasp.net'
+    ];
+
+    if (!allowedHosts.includes(url.hostname)) return;
+
+    event.respondWith(onFetch(event));
 });
 
 // Open app on clicked notification
