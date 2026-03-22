@@ -1,2 +1,0 @@
-ALTER TABLE sowings 
-ADD COLUMN status_updated_at TIMESTAMPTZ DEFAULT NOW();
