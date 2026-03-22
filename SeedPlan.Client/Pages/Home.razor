@@ -215,7 +215,7 @@
     protected override async Task OnInitializedAsync() 
     {
         await LoadData();
-        await NotificationService.RequestPermissionAsync();
+        
         await NotificationService.SubscribeToPushAsync();
     }
 

@@ -7,7 +7,20 @@ try {
 
 self.addEventListener('install', event => event.waitUntil(onInstall(event)));
 self.addEventListener('activate', event => event.waitUntil(onActivate(event)));
-self.addEventListener('fetch', event => event.respondWith(onFetch(event)));
+
+self.addEventListener('fetch', event => {
+    if (event.request.method !== 'GET') return;
+
+    const url = new URL(event.request.url);
+    const allowedHosts = [
+        'seedplan.up.railway.app',
+        'seedplan.runasp.net'
+    ];
+
+    if (!allowedHosts.includes(url.hostname)) return;
+
+    event.respondWith(onFetch(event));
+});
 
 const cacheNamePrefix = 'offline-cache-';
 const cacheName = `${cacheNamePrefix}${self.assetsManifest?.version ?? 'v1'}`;
@@ -17,7 +30,6 @@ async function onInstall(event) {
     self.skipWaiting();
     if (!self.assetsManifest) return;
 
-    // Ladda alla filer utan integrity-check för att undvika SRI-problem
     const assetsRequests = self.assetsManifest.assets
         .map(asset => new Request(asset.url, { cache: 'no-cache' }));
 
@@ -37,6 +49,7 @@ async function onInstall(event) {
     }
 }
 
+
 async function onActivate(event) {
     console.info('Service worker: Activate');
     clients.claim();
@@ -46,55 +59,58 @@ async function onActivate(event) {
         .map(key => caches.delete(key)));
 }
 
+
 async function onFetch(event) {
-    let cachedResponse = null;
-    if (event.request.method === 'GET') {
-        const neverCache = [
-            'session-cleanup.js',
-            'appsettings.json',
-            'notifications.js'
-        ];
-
-        const url = new URL(event.request.url);
-
-        // Skippa service worker för externa domäner
-        if (url.hostname !== 'seedplan.runasp.net') {
-            return fetch(event.request); // ← ändrat från bare return
-        }
-
-        if (neverCache.some(f => url.pathname.endsWith(f))) {
-            return fetch(event.request);
-        }
-
-        if (!self.assetsManifest) return fetch(event.request);
-
-        const shouldServeFromCache = event.request.mode === 'navigate' ||
-            self.assetsManifest.assets.some(asset => event.request.url.endsWith(asset.url));
-
-        if (shouldServeFromCache) {
-            const cache = await caches.open(cacheName);
-            cachedResponse = await cache.match(event.request);
-        }
-    }
-    return cachedResponse || fetch(event.request);
-}
-
-// PUSH NOTIFICATIONS
-self.addEventListener('fetch', event => {
-    if (event.request.method !== 'GET') return;
+    const neverCache = [
+        'session-cleanup.js',
+        'appsettings.json',
+        'notifications.js'
+    ];
 
     const url = new URL(event.request.url);
 
-    // Tillåtna domäner
-    const allowedHosts = [
-        'seedplan.up.railway.app',
-        'seedplan.runasp.net'
-    ];
+    if (neverCache.some(f => url.pathname.endsWith(f))) {
+        return fetch(event.request);
+    }
 
-    if (!allowedHosts.includes(url.hostname)) return;
+    if (!self.assetsManifest) return fetch(event.request);
 
-    event.respondWith(onFetch(event));
+    const shouldServeFromCache = event.request.mode === 'navigate' ||
+        self.assetsManifest.assets.some(asset => event.request.url.endsWith(asset.url));
+
+    if (shouldServeFromCache) {
+        const cache = await caches.open(cacheName);
+        const cachedResponse = await cache.match(event.request);
+        if (cachedResponse) return cachedResponse;
+    }
+
+    return fetch(event.request);
+}
+
+// PUSH NOTIFICATIONS
+self.addEventListener('push', event => {
+    console.log('Push mottaget', event);
+
+    let data = { title: 'SeedPlan', body: 'Du har en påminnelse', url: '/sowings' };
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch (e) {
+            data.body = event.data.text();
+        }
+    }
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, {
+            body: data.body,
+            icon: '/icon-512.png',
+            badge: '/icon-512.png',
+            vibrate: [200, 100, 200],
+            data: { url: data.url || '/sowings' }
+        })
+    );
 });
+
 
 // Open app on clicked notification
 self.addEventListener('notificationclick', event => {
