@@ -67,8 +67,7 @@ namespace SeedPlan.Client.Services
                         if (!string.IsNullOrEmpty(json))
                         {
                             var savedSession = JsonSerializer.Deserialize<Session>(json);
-                            Console.WriteLine($"DEBUG: Deserialiserad session AccessToken = {(savedSession?.AccessToken == null ? "NULL" : "FINNS")}");
-                            Console.WriteLine($"DEBUG: Deserialiserad session RefreshToken = {(savedSession?.RefreshToken == null ? "NULL" : "FINNS")}");
+         
                             if (savedSession?.AccessToken != null && savedSession.RefreshToken != null)
                             {
                                 try

@@ -1,7 +1,6 @@
 ﻿using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
 using SeedPlan.Shared.Models.ViewModels;
-using Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {

@@ -1,7 +1,6 @@
 ﻿@page "/profile"
 @using Microsoft.AspNetCore.Authorization
 @using SeedPlan.Shared.Models
-@attribute [Authorize]
 @inject IUserProfileService ProfileService
 @inject IJSRuntime JS
 
@@ -36,7 +35,7 @@
         }
 
         <button class="btn-save" @onclick="SaveProfile">
-           <Blazicon Svg="Lucide.Save"/>
+            <Blazicon Svg="Lucide.Save" /> <span>Spara</span>
         </button>
     </div>
 </div>

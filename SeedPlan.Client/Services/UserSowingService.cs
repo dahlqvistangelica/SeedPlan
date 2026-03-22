@@ -1,7 +1,7 @@
 ﻿using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
-using Shared.Models.ViewModels;
 using Supabase.Postgrest;
+using SeedPlan.Shared.Models.ViewModels;
 using static Supabase.Postgrest.Constants;
 
 namespace SeedPlan.Client.Services
@@ -115,6 +115,7 @@ namespace SeedPlan.Client.Services
                 .Where(x => x.Id == id)
                 .Where(x => x.UserId == user.Id)
                 .Set(x => x.Status, status)
+                .Set(x => x.StatusUpdatedAt, DateTime.Now)
                 .Update();
         }
         /// <summary>
