@@ -69,13 +69,18 @@ async function onFetch(event) {
 
     const url = new URL(event.request.url);
 
+    // Skippa caching för navigering till specifika sidor
+    if (event.request.mode === 'navigate') {
+        return fetch(event.request);
+    }
+
     if (neverCache.some(f => url.pathname.endsWith(f))) {
         return fetch(event.request);
     }
 
     if (!self.assetsManifest) return fetch(event.request);
 
-    const shouldServeFromCache = event.request.mode === 'navigate' ||
+    const shouldServeFromCache =
         self.assetsManifest.assets.some(asset => event.request.url.endsWith(asset.url));
 
     if (shouldServeFromCache) {
@@ -86,7 +91,6 @@ async function onFetch(event) {
 
     return fetch(event.request);
 }
-
 // PUSH NOTIFICATIONS
 self.addEventListener('push', event => {
     console.log('Push mottaget', event);
