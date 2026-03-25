@@ -375,3 +375,4 @@ supabase/migrations
 /.github/copilot-instructions.md
 /SeedPlan/web.config
 /supabase/functions/delete-account/index.ts
+/docs/images/icon-512.png
