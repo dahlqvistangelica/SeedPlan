@@ -104,7 +104,6 @@
                                 <div class="mini-icon"><Blazicon Svg="Lucide.CalendarX" /></div>
                                 <span>@plant.PlantName</span>
                             </div>
-                            <span class="mini-badge">Passerat</span>
                         </div>
                     }
                 </div>
@@ -133,18 +132,7 @@
                 @foreach (var item in sowingSuggestions)
                 {
                     <div class="plant-card @(item.IsShifted ? "shifted" : "")" @onclick="() => OpenPlantDetail(item.Plant)">
-                            ...
-                            @if (item.IsShifted)
-                            {
-                                <span class="shifted-tag">Sent men möjligt</span>
-                            }
-                            @if (item.HarvestDateEarly.HasValue)
-                            {
-                                <span class="harvest-info">
-                                    Skörd ~@item.HarvestDateEarly.Value.ToString("d MMM")
-                                </span>
-                            }
-                        
+
                         <div class="plant-main">
                             <div class="plant-icon-circle @GetPlantCategory(item.Plant.Category)">
                                 <Blazicon Svg="@GetPlantBlazicon(item.Plant.Category)" />
@@ -165,7 +153,18 @@
                                         
                                     }
                                 </div>
-                                <span class="frost-info">@GetFrostText(item.Plant.WeeksBeforeFrost)</span>
+                                
+                                @if (item.IsShifted)
+                                {
+                                    <span class="shifted-tag">Sent men möjligt</span>
+                                }
+                                @if (item.HarvestDateEarly.HasValue)
+                                {
+                                    <span class="harvest-info">
+                                        <Blazicon Svg="Lucide.Calendar" class="icon-calendar"/>
+                                        Skörd ~@item.HarvestDateEarly.Value.ToString("d MMM")
+                                    </span>
+                                }
                             </div>
                             @* HARDINESSBADGE *@
                             <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
@@ -187,6 +186,7 @@
                                        <Blazicon Svg="Lucide.Scissors"/>
                                     </div>
                                 }
+                                
                             </div>
                             <Blazicon Svg="Lucide.ChevronRight" />
                         </div>

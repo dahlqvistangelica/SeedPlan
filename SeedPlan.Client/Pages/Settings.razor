@@ -1,0 +1,184 @@
+﻿@page "/settings"
+@using SeedPlan.Shared.Models
+@inject IUserProfileService ProfileService
+@inject NotificationService NotificationService
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<PageTitle>Inställningar - SeedPlan</PageTitle>
+
+<div class="settings-overview">
+    <header class="settings-header">
+        <h1 class="serif-title">Inställningar</h1>
+        <p>Översikt av dina inställningar och kontofunktioner.</p>
+    </header>
+
+    <div class="settings-cards">
+        <div class="settings-card" @onclick="() => showFrostModal = true">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.Calendar" />
+            </div>
+            <div class="card-text">
+                <div class="title">Frostdatum</div>
+                <div class="value">@GetFrostDateText()</div>
+            </div>
+        </div>
+
+        <div class="settings-card" @onclick="() => NavigateToProfile()">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.MapPin" />
+            </div>
+            <div class="card-text">
+                <div class="title">Plats</div>
+                <div class="value">@GetZoneText()</div>
+            </div>
+        </div>
+
+        <div class="settings-card" @onclick="() => showNotificationsModal = true">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.Bell" />
+            </div>
+            <div class="card-text">
+                <div class="title">Aviseringar</div>
+                <div class="value">@((notificationsEnabled ? "Påslagna" : "Avstängda"))</div>
+            </div>
+        </div>
+
+        <div class="settings-card" @onclick="() => NavigateToProfile()">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.User" />
+            </div>
+            <div class="card-text">
+                <div class="title">Profil</div>
+                <div class="value">Redigera din profil</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="version-text"></div>
+</div>
+
+@if (showFrostModal)
+{
+    <div class="settings-modal-backdrop">
+        <div class="settings-modal">
+            <h3>Uppdatera frostdatum</h3>
+            <p class="muted">Detta datum används för att räkna ut såfönster.</p>
+
+            <input type="date" @bind="userProfile.LastFrostDate" />
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="CloseFrostModal">Avbryt</button>
+                <button class="btn-primary" @onclick="SaveFrostDate">Spara</button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="status-alert">@statusMessage</div>
+            }
+        </div>
+    </div>
+}
+
+@if (showNotificationsModal)
+{
+    <div class="settings-modal-backdrop">
+        <div class="settings-modal">
+            <h3>Aviseringar</h3>
+            <label class="toggle-row">
+                <input type="checkbox" @bind="notificationsEnabled" />
+                <span>Aktivera påminnelser</span>
+            </label>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="CloseNotificationsModal">Avbryt</button>
+                <button class="btn-primary" @onclick="SaveNotifications">Spara</button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="status-alert">@statusMessage</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private UserProfile userProfile = new();
+    private bool showFrostModal;
+    private bool showNotificationsModal;
+    private bool notificationsEnabled;
+    private string statusMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await ProfileService.GetUserProfile();
+        if (profile != null)
+        {
+            userProfile = profile;
+        }
+        else
+        {
+            userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
+            userProfile.GrowingZone = 1;
+        }
+
+        var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
+        if (bool.TryParse(stored, out var enabled))
+        {
+            notificationsEnabled = enabled;
+        }
+    }
+
+    private string GetFrostDateText()
+        => userProfile.LastFrostDate.HasValue
+            ? userProfile.LastFrostDate.Value.ToString("d MMM")
+            : "Ej inställt";
+
+    private string GetZoneText()
+        => userProfile.GrowingZone > 0 ? $"Zon {userProfile.GrowingZone}" : "Ej inställt";
+
+    private void CloseFrostModal()
+    {
+        showFrostModal = false;
+        statusMessage = "";
+    }
+
+    private void CloseNotificationsModal()
+    {
+        showNotificationsModal = false;
+        statusMessage = "";
+    }
+
+    private async Task SaveFrostDate()
+    {
+        if (userProfile.LastFrostDate.HasValue)
+        {
+            userProfile.LastFrostDate = DateTime.SpecifyKind(userProfile.LastFrostDate.Value.Date, DateTimeKind.Utc);
+        }
+
+        await ProfileService.UpsertUserProfile(userProfile);
+        statusMessage = "Frostdatum sparat ✨";
+        await Task.Delay(1500);
+        CloseFrostModal();
+    }
+
+    private async Task SaveNotifications()
+    {
+        await JS.InvokeVoidAsync("localStorage.setItem", "notifications_enabled", notificationsEnabled.ToString().ToLowerInvariant());
+
+        if (notificationsEnabled)
+        {
+            await NotificationService.SubscribeToPushAsync();
+        }
+
+        statusMessage = "Aviseringar uppdaterade ✨";
+        await Task.Delay(1500);
+        CloseNotificationsModal();
+    }
+
+    private void NavigateToProfile()
+    {
+        Nav.NavigateTo("/profile");
+    }
+}

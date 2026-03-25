@@ -139,5 +139,74 @@ namespace SeedPlan.Client.Services
 
             return "Ett oväntat fel uppstod vid inloggningen.";
         }
+
+        // Lägg till dessa metoder i AuthService
+
+        public async Task<Result> UpdateEmailAsync(string newEmail)
+        {
+            try
+            {
+                var attrs = new UserAttributes { Email = newEmail };
+                var response = await _supabase.Auth.Update(attrs);
+
+                if (response?.Email == null)
+                {
+                    return Result.Fail("Kunde inte uppdatera e-post.");
+                }
+
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail(GetErrorMessage(ex.Message));
+            }
+        }
+
+        public async Task<Result> UpdatePasswordAsync(string currentPassword, string newPassword)
+        {
+            try
+            {
+                // Hämta nuvarande användare
+                var user = _supabase.Auth.CurrentUser;
+                if (user?.Email == null)
+                {
+                    return Result.Fail("Kunde inte hämta användaruppgifter.");
+                }
+
+                // Verifiera det gamla lösenordet genom att försöka logga in igen
+                try
+                {
+                    await _supabase.Auth.SignIn(user.Email, currentPassword);
+                }
+                catch (Exception)
+                {
+                    return Result.Fail("Det gamla lösenordet är felaktigt.");
+                }
+
+                // Om verifieringen lyckas, uppdatera med det nya lösenordet
+                var attrs = new UserAttributes { Password = newPassword };
+                var response = await _supabase.Auth.Update(attrs);
+
+                if (response == null)
+                {
+                    return Result.Fail("Kunde inte uppdatera lösenord.");
+                }
+
+                return Result.Ok();
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail(GetErrorMessage(ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Kontoradering kräver service-role (server/Edge Function).
+        /// </summary>
+        public Task<Result> DeleteAccountAsync()
+        {
+            return Task.FromResult(
+                Result.Fail("Kontoradering kräver en server- eller Edge Function med service-role."));
+        }
     }
 }

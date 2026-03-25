@@ -105,51 +105,51 @@ namespace SeedPlan.Client.Services
             return allPlants
                 .Select(plant =>
                 {
-                    // --- NORMALT FÖNSTER (din nuvarande logik) ---
+                    int leadTimeMin = plant.SowingLeadTimeMin ?? Math.Max(1, plant.SowingLeadTime - 4);
+                    // --- NORMAL WINDOW (your current logic) ---
                     var sowStart = lastFrostDate.AddDays(-(plant.SowingLeadTime * 7));
-                    var sowEnd = sowStart.AddDays(14);
+                    var sowEnd = lastFrostDate.AddDays(-(leadTimeMin * 7));
 
-                    // --- FÖRSENAD BERÄKNING (ny logik) ---
-                    // Kortaste möjliga förodlingstid
-                    var leadMin = plant.SowingLeadTimeMin ?? (plant.SowingLeadTime - 2);
-                    // Plantering ut: sowing_lead_time - weeks_before_frost = inomhustiden
-                    var indoorWeeks = Math.Max(0, leadMin - plant.WeeksBeforeFrost);
-
-                    // Om man sår idag, när kan man plantera ut och när skördas det?
-                    var latestPlantOut = today.AddDays(indoorWeeks * 7);
-                    var latestHarvestEarly = plant.DevelopDaysMin.HasValue
-                        ? today.AddDays(plant.DevelopDaysMin.Value)
-                        : (DateTime?)null;
-                    var latestHarvestLate = plant.DevelopDaysMax.HasValue
-                        ? today.AddDays(plant.DevelopDaysMax.Value)
-                        : (DateTime?)null;
-
-                    // Känsliga/halvhärdiga: utplantering tidigast vid sista frost
-                    if (plant.HardinessLevel <= 1 && latestPlantOut < lastFrostDate)
-                        latestPlantOut = lastFrostDate;
-
-                    // Hinner skörden före 15 aug?
-                    bool harvestAfterAug = latestHarvestEarly.HasValue &&
-                                           latestHarvestEarly.Value > lastHarvestDeadline;
-
+                    // Sowing status
                     bool inNormalWindow = today >= sowStart && today <= sowEnd;
-                    bool canStillSow = today > sowEnd           // Passerat normalt fönster
-                                        && !harvestAfterAug;         // Men hinner skördas
+                    bool canStillSow = today > sowEnd;
 
+                    // Determine the sowing date used for subsequent calculations
+                    DateTime actualSowDate = inNormalWindow ? sowStart : (canStillSow ? today : sowStart);
+
+                    // 3. PLANTING OUT AND INDOOR TIME
+                    int plantOutWeeks = plant.WeeksBeforeFrost;
+                    int indoorWeeks = Math.Max(0, leadTimeMin - plantOutWeeks);
+
+                    DateTime calculatedPlantOutDate = actualSowDate.AddDays(indoorWeeks * 7);
+
+                    if(plant.HardinessLevel <= 1 && calculatedPlantOutDate < lastFrostDate)
+                    {
+                        calculatedPlantOutDate = lastFrostDate;
+                    }
+                    DateTime harvestBaseDate = indoorWeeks > 0 ? calculatedPlantOutDate : actualSowDate;
+
+                    DateTime? harvestEarly = plant.DevelopDaysMin.HasValue ? actualSowDate.AddDays(plant.DevelopDaysMin.Value) : null;
+                    DateTime? harvestLate = plant.DevelopDaysMax.HasValue ? actualSowDate.AddDays(plant.DevelopDaysMax.Value) : null;
+
+                    bool harvestAfterAug = harvestLate.HasValue && harvestLate.Value > lastHarvestDeadline;
+
+                    DateTime? deadlineSowDateForAug = plant.DevelopDaysMin.HasValue ? lastHarvestDeadline.AddDays(-plant.DevelopDaysMin.Value) : null;
                     return new PlantSowingView
                     {
                         Plant = plant,
                         IsInNormalWindow = inNormalWindow,
                         IsShifted = !inNormalWindow && canStillSow,
                         HarvestAfterAug = harvestAfterAug,
+                        DeadlineSowDate = deadlineSowDateForAug,
                         SowDate = inNormalWindow ? sowStart : (canStillSow ? today : null),
-                        PlantOutDate = latestPlantOut,
-                        HarvestDateEarly = latestHarvestEarly,
-                        HarvestDateLate = latestHarvestLate,
+                        PlantOutDate = calculatedPlantOutDate,
+                        HarvestDateEarly = harvestEarly,
+                        HarvestDateLate = harvestLate,
                     };
                 })
-                .Where(x => x.IsInNormalWindow || x.IsShifted)
-                .OrderBy(x => x.IsShifted)          // Normala fönstret först
+                .Where(x => (x.IsInNormalWindow || x.IsShifted) && !x.HarvestAfterAug)
+                .OrderBy(x => x.IsShifted)          // Normal window first
                 .ThenBy(x => x.SowDate)
                 .ToList();
         }
@@ -182,32 +182,48 @@ namespace SeedPlan.Client.Services
         public async Task<SowingOverview> GetSowingOverviewAsync(DateTime lastFrost)
         {
             var allPlants = await GetAllPlantsAsync();
+
             var today = DateTime.Today;
             var overview = new SowingOverview();
 
-            foreach(var plant in allPlants)
+            foreach (var plant in allPlants)
             {
                 var start = lastFrost.AddDays(-(plant.SowingLeadTime * 7));
+                int leadTimeMin = plant.SowingLeadTimeMin ?? Math.Max(1, plant.SowingLeadTime - 4);
+                var end = lastFrost.AddDays(-(leadTimeMin * 7));
 
-                var end = start.AddDays(14);
-                if(today > end)
+                // Descide sowingdate to calculate from
+                DateTime actualSowDate = (today >= start && today <= end) ? start : today;
+
+                // Calculate harvestdate
+                DateTime? harvestEarly = plant.DevelopDaysMin.HasValue
+                    ? actualSowDate.AddDays(plant.DevelopDaysMin.Value)
+                    : null;
+
+                bool harvestAfterAug = harvestEarly.HasValue && harvestEarly.Value > new DateTime(today.Year, 8, 15);
+
+                // Categorise
+                if (today > end || harvestAfterAug)
                 {
+                    // Window has passed ow harvest is to late.
                     overview.Past.Add(plant);
                 }
-                else if(today >= start && today <= end)
+                else if (today >= start && today <= end)
                 {
                     overview.Current.Add(plant);
                 }
-                else if(start > today && start <= today.AddDays(14))
+                else if (start > today && start <= today.AddDays(14))
                 {
                     overview.Upcoming.Add(plant);
                 }
-
-
             }
-            overview.Past = overview.Past.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
-            overview.Current = overview.Current.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
-            overview.Upcoming = overview.Upcoming.OrderBy(p => lastFrost.AddDays(-(p.SowingLeadTime * 7))).ToList();
+
+            // 4. Sorting
+            // Pro tip: Instead of recalculating the date in OrderBy, you can
+            // sort by SowingLeadTime descending (highest value = earliest sowing date).
+            overview.Past = overview.Past.OrderByDescending(p => p.SowingLeadTime).ToList();
+            overview.Current = overview.Current.OrderByDescending(p => p.SowingLeadTime).ToList();
+            overview.Upcoming = overview.Upcoming.OrderByDescending(p => p.SowingLeadTime).ToList();
 
             return overview;
         }
