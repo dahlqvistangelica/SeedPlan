@@ -16,30 +16,39 @@
     width: 95%;
     max-width: 550px;
     border-radius: 30px;
-    padding: 40px; /* Mer luft inuti */
+    padding: 40px; 
     box-shadow: 0 20px 50px rgba(0,0,0,0.2);
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
 }
 
+.detail-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    margin-bottom: 12px;
+}
+
 .title-with-plus {
     display: flex;
     align-items: center;
-    gap: 12px; /* Avstånd mellan text och plus */
-    margin-bottom: 5px;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .serif-title {
-    font-family: 'Lora', serif;
-    font-size: 2.2rem;
-    margin: 0; /* Tar bort marginaler som annars knuffar ner pluset */
-    font-style: italic;
-    color: #1e293b;
+    margin: 0;
+    line-height: 1.1;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .expand-btn {
-    background: #dcfce7; /* Ljusgrön bakgrund */
+    background: #dcfce7; 
     color: #10b981;
     border: none;
     width: 34px;
@@ -112,11 +121,11 @@
     border-radius: 16px;
     font-size: 0.9rem;
 }
-/* Grön container för att lägga till frö */
+
 
 .form-header {
     display: flex;
-    justify-content: space-between; /* Skickar rubriken till vänster och knappen till höger */
+    justify-content: space-between;
     align-items: center;
     margin-bottom: 1.2rem;
     width: 100%;
@@ -124,7 +133,7 @@
 }
 
     .form-header h3 {
-        margin: 0; /* VIKTIGT: Tar bort standard-marginalen som annars knuffar ner knappen */
+        margin: 0; 
         font-size: 0.9rem;
         font-weight: 800;
         color: #065f46;
@@ -161,7 +170,7 @@
     .text-link:hover {
         opacity: 0.7;
     }
-/* Säkerställ att den gröna rutan har rätt avstånd */
+
 
 .add-seed-container {
     background: #f0fdf4;
@@ -195,9 +204,6 @@
 }
 
 .close-x {
-    position: absolute;
-    top: 25px;
-    right: 25px;
     background: #f1f5f9;
     border: none;
     width: 32px;
@@ -206,9 +212,6 @@
     font-size: 1.2rem;
     color: #64748b;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     transition: background 0.2s;
 }
 
@@ -239,17 +242,18 @@
         transform: translateY(0);
     }
 }
-/* --- LAGERSEKTION ---*/ /* Lager-sektionen */
+/* --- INVENTORY SECTION ---*/ 
 
 .inventory-section {
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .inventory-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 1px;
 }
 
     .inventory-header label {
@@ -259,31 +263,81 @@
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
-/* Den lilla "Så nu"-knappen bredvid rubriken */
 
-.sow-now-pill-small {
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 0.65rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-/* Kortet för den specifika sorten */
-
-.variety-card {
-    background: #f0fdf4; /* Ljusgrön bakgrund */
-    border: 1px solid #dcfce7;
-    border-radius: 16px;
-    padding: 16px 20px;
+.inventory-summary {
+    list-style: none;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.inventory-summary::-webkit-details-marker {
+    display: none;
+}
+
+.inventory-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.inventory-section[open] .inventory-chevron {
+    transform: rotate(90deg);
+    color: #10b981;
+}
+
+.inventory-summary:hover {
+    background-color: #f8fafc;
+}
+
+.inventory-summary-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.inventory-summary-title {
+    margin: 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.seed-count {
+    font-size: 0.8rem;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.seed-variety-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-top: 0.25rem;
+}
+/* Sort-card */
+
+.variety-card {
+    background: #f0fdf4; 
+    border: 1px solid #dcfce7;
+    border-radius: 16px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0px;
 }
 
 .variety-info {
@@ -304,7 +358,7 @@
     font-size: 0.75rem;
     color: #64748b;
 }
-/* "Så nu"-knappen inuti kortet */
+
 
 .sow-now-action {
     background: #10b981;
@@ -324,3 +378,71 @@
         width: 14px;
         height: 14px;
     }
+
+.plant-icon-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    background: #f8f8f8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+}
+
+.fruit {
+    color: crimson;
+    background: #fff2f2;
+}
+
+.vegetable {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+.herb {
+    background: #fefce8;
+    color: #ca8a04;
+}
+
+.flower {
+    background: #faf5ff;
+    color: #a855f7;
+}
+
+.modal-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Mobile fallback: stack only on very small widths */
+@media (max-width: 480px) {
+    .detail-card {
+        padding: 20px;
+
+    }
+
+    .detail-header {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "actions"
+            "title";
+        row-gap: 10px;
+    }
+
+    .title-with-plus {
+        grid-area: title;
+    }
+
+    .modal-actions {
+        grid-area: actions;
+        justify-self: end;
+    }
+    .seed-variety-list {
+        grid-template-columns: 1fr;
+    }
+}

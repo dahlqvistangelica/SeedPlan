@@ -3,18 +3,22 @@
     max-width: 600px;
     margin: 0 auto;
     padding: 2rem 1rem;
-    color: #4b5563; /* Mjuk grå textfärg */
+    color: #4b5563;
+
 }
 
 /* --- Rubriker --- */
 .profile-header h1 {
+    font-family: 'Lora', serif;
     margin-bottom: 0.5rem;
 }
 
 .profile-header p {
-    color: #64748b; /* Ljusare grå för undertiteln */
+    color: #64748b;
     font-size: 1rem;
     margin-bottom: 2rem;
+    font-family: 'Lora', serif;
+
 }
 
 /* --- Inställningskortet --- */
@@ -33,6 +37,7 @@
     font-weight: 600;
     margin-top: 0;
     margin-bottom: 1.5rem;
+
 }
 
 /* --- Inputfält och formulär --- */
@@ -47,6 +52,7 @@
     font-weight: 600;
     color: #1e293b;
     font-size: 0.95rem;
+
 }
 
 .input-group input {
@@ -58,6 +64,7 @@
     color: #0f172a;
     transition: all 0.2s ease;
     outline: none;
+
 }
 
 .input-group input:focus {
@@ -66,15 +73,15 @@
     background-color: #ffffff;
 }
 
-/* --- Inline Action Group (E-post och knapp på samma rad) --- */
+/* --- Inline Action Group (E-post och knapp under varandra) --- */
 .inline-action-group {
     display: flex;
+    flex-direction: column;
     gap: 8px;
     align-items: stretch;
 }
 
 .inline-action-group input {
-    flex: 1;
     border: 1px solid #e2e8f0;
     background-color: #f8fafc;
     border-radius: 12px;
@@ -82,6 +89,8 @@
     font-size: 1rem;
     color: #0f172a;
     outline: none;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .inline-action-group input:focus {
@@ -91,47 +100,7 @@
 }
 
 .inline-action-group button {
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-/* --- Knappar --- */
-button {
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: 12px;
-    padding: 12px 20px;
-    transition: all 0.2s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 0.95rem;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-save, .btn-primary {
-    background-color: #059669;
-    color: white;
-}
-
-.btn-save:hover:not(:disabled), .btn-primary:hover:not(:disabled) {
-    background-color: #047857;
-    transform: translateY(-1px);
-}
-
-.btn-secondary {
-    background-color: #f1f5f9;
-    color: #334155;
-}
-
-.btn-secondary:hover {
-    background-color: #e2e8f0;
+    width: 100%;
 }
 
 /* --- Avskiljare --- */
@@ -162,17 +131,23 @@ hr {
     width: 90%;
     max-width: 420px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-
 }
 
 .settings-modal h3 {
     margin-top: 0;
+    margin-bottom: 1rem;
     color: #0f172a;
-
+    font-size: 1.25rem;
+    font-weight: 600;
 }
-
+.modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
 .settings-modal input {
-
+    
 }
 
 /* --- Statusmeddelanden --- */
@@ -185,4 +160,5 @@ hr {
     font-weight: 500;
     border: 1px solid #a7f3d0;
     font-family: inherit;
+    text-align: center;
 }

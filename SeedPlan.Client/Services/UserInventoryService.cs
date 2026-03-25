@@ -56,7 +56,17 @@ namespace SeedPlan.Client.Services
         public async Task<List<Seed>> GetMySeeds()
         {
             var user = _supabase.Auth.CurrentUser;
-            if (user == null) return new List<Seed>();
+
+            if (user == null)
+            {
+                var session = await _supabase.Auth.RetrieveSessionAsync();
+                user = session?.User;
+            }
+
+            if (user == null)
+            {
+                return new List<Seed>();
+            }
 
             var response = await _supabase
                 .From<Seed>()

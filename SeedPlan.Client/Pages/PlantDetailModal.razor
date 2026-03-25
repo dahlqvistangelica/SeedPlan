@@ -1,6 +1,5 @@
 ﻿@using SeedPlan.Shared.Models
 @inject IUserInventoryService SeedService
-@inject IUserSowingService SowingService
 @inject IJSRuntime JS
 @inject Supabase.Client _supabase
 @inject IPlantLibraryService PlantService
@@ -9,44 +8,50 @@
 {
     <div class="modal-overlay" @onclick="Close">
         <div class="detail-card fade-in" @onclick:stopPropagation>
-            <button class="close-x" @onclick="Close">×</button>
+            
+
             <header class="detail-header">
                 <div class="title-with-plus">
+                    <div class="plant-icon-circle @GetPlantCategory(Plant.Category)">
+                        <Blazicon Svg="@GetPlantBlazicon(Plant.Category)" />
+                    </div>
                     <h2 class="serif-title">@Plant.PlantName</h2>
+                </div>
+                <div class="modal-actions">
                     <button class="expand-btn" @onclick="ToggleAddForm" title="Lägg till frö">
-                        <Blazicon Svg="MdiIcon.SeedPlusOutline"/>
+                        <Blazicon Svg="MdiIcon.SeedPlusOutline" />
                     </button>
+                    <button class="close-x" @onclick="Close">×</button>
                 </div>
             </header>
 
-            <p class="sowing-guide-text">Sås @Plant.SowingLeadTime veckor före sista frost</p>
-
-            @* SEEDS IN STOCK *@
-            @if(ownedSeeds.Any())
+            @if (ownedSeeds.Any())
             {
-                <div class="inventory-section">
-                    <div class="inventory-header">
-                        <label>Fröer i lager</label>
-                    </div>
-                    
+                <details class="inventory-section">
+                    <summary class="inventory-summary">
+                        <div class="inventory-summary-main">
+                            <span class="inventory-chevron">
+                                <Blazicon Svg="Lucide.ChevronRight" />
+                            </span>
+                            <span class="inventory-summary-title">Sorter i lager</span>
+                        </div>
+                        <span class="seed-count">@ownedSeeds.Count</span>
+                    </summary>
+
                     <div class="seed-variety-list">
-                        @foreach(var seed in ownedSeeds)
+                        @foreach (var seed in ownedSeeds)
                         {
                             <div class="variety-card">
                                 <div class="variety-info">
                                     <span class="variety-name">@(string.IsNullOrEmpty(seed.VarietyName) ? "Okänd sort" : seed.VarietyName)</span>
-                                    <span class="variety-meta">@seed.Quantity st </span>
+                                    <span class="variety-meta">@seed.Quantity st</span>
                                 </div>
-                                <button class="sow-now-action" @onclick="() => HandleQuickSow(seed)">
-                                   <Blazicon Svg="Lucide.Plus" /> Så nu
-                                </button>
                             </div>
                         }
                     </div>
-                </div>
+                </details>
             }
 
-            @* EXPANDABLE FORM FOR ADDING SEEDS *@
             @if (showAddForm)
             {
                 <div class="add-seed-container slide-down">
@@ -72,7 +77,6 @@
                             </div>
                         </div>
 
-                        @* NOTES *@
                         <div class="input-block full">
                             <label>Noteringar</label>
                             <textarea @bind="newSeed.Notes" placeholder="T.ex. köpt på rean, ekologiska, bra grobarhet..." class="sp-textarea"></textarea>
@@ -83,7 +87,6 @@
                 </div>
             }
 
-            @* INFO-GRID *@
             <div class="info-grid">
                 <div class="info-box">
                     <label>VETENSKAPLIGT NAMN</label>
@@ -91,7 +94,7 @@
                 </div>
                 <div class="info-box">
                     <label>FÖRODLING</label>
-                    <span>@Plant.SowingLeadTime veckor</span>
+                    <span>@Plant.SowingLeadTimeMin - @Plant.SowingLeadTime veckor</span>
                 </div>
                 <div class="info-box">
                     <label>UTPLANTERING</label>
@@ -99,14 +102,21 @@
                 </div>
                 <div class="info-box">
                     <label>PLANTAVSTÅND</label>
-                    <span>@(Plant.PlantSpacing?.ToString() ?? "20") cm</span>
+                    <span>@(Plant.PlantSpacing?.ToString() + " cm" ?? "Okänt")</span>
+                </div>
+                <div class="info-box">
+                    <label>UTVECKLINGSTID</label>
+                    <span>@(Plant.DevelopDaysMin) - @(Plant.DevelopDaysMax) dagar</span>
+                </div>
+                <div class="info-box">
+                    <label>SÅDJUP</label>
+                    <span>@(Plant.SowingDepth?.ToString() + " cm" ?? "Okänt")</span>
                 </div>
             </div>
 
             <div class="growing-advice">
                 <label>ODLINGSRÅD</label>
-                <div class="growing-advice-text">@GetSowingAdvice(Plant)
-                </div>
+                <div class="growing-advice-text">@GetSowingAdvice(Plant)</div>
             </div>
         </div>
     </div>
@@ -124,10 +134,18 @@
     private DateTime purchaseDate = DateTime.Now;
     private List<Seed> ownedSeeds = new();
     private string errorMessage = "";
+    private string GetPlantCategory(PlantCategory category) => category switch { PlantCategory.Vegetable => "vegetable", PlantCategory.Flower => "flower", PlantCategory.Herb => "herb", PlantCategory.Fruit => "fruit" };
+    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => Lucide.Carrot,
+        PlantCategory.Flower => Lucide.Flower,
+        PlantCategory.Herb => MdiIcon.Clover,
+        PlantCategory.Fruit => Lucide.Apple
+    };
 
     protected override async Task OnParametersSetAsync()
     {
-        if(IsVisible && Plant != null)
+        if (IsVisible && Plant != null)
         {
             var allSeeds = await SeedService.GetMySeeds();
             ownedSeeds = allSeeds.Where(s => s.PlantId == Plant.Id).ToList();
@@ -139,38 +157,25 @@
 
     private void ToggleAddForm() => showAddForm = !showAddForm;
 
-
-    /// <summary>
-    /// Current - Method that only shows the text "No plantingadvice about plant yet".
-    /// Future update - A collection of usernotes with planting advices about the plant.
-    /// </summary>
-    /// <param name="plant"></param>
-    /// <returns>A string with plantingadvice.</returns>
     private string GetSowingAdvice(Plant plant) => $"Inga planteringsråd om {plant.PlantName} ännu";
 
-    /// <summary>
-    /// A method for returning the correct text depending on when the plant should be planted outside.
-    /// </summary>
-    /// <param name="weeks"></param>
-    /// <returns></returns>
-    private string GetPlantingText(int weeks){
-        if (weeks <= 0) {
-            return $"planteras ut efter sista frost"; }
+    private string GetPlantingText(int weeks)
+    {
+        if (weeks <= 0)
+        {
+            return "Efter sista frost";
+        }
 
-        return $"kan planteras ut {weeks}v. före sista frost"; 
-
+        return $"{weeks}v. före sista frost";
     }
 
-    /// <summary>
-    /// Method for saving a new seed added by a user. Checking if the added variety is already in db or otherwise adding it to the db.
-    /// </summary>
-    /// <returns></returns>
     private async Task HandleSave()
     {
-        if(Plant == null)
+        if (Plant == null)
         {
             return;
         }
+
         try
         {
             errorMessage = "";
@@ -178,38 +183,35 @@
             newSeed.Name = Plant.PlantName;
             newSeed.UserId = _supabase.Auth.CurrentUser?.Id;
 
-            if(!string.IsNullOrWhiteSpace(newSeed.VarietyName))
+            if (!string.IsNullOrWhiteSpace(newSeed.VarietyName))
             {
                 var existingVariety = allVarieties.FirstOrDefault(v => v.VarietyName.Equals(newSeed.VarietyName, StringComparison.OrdinalIgnoreCase));
 
-                if(existingVariety == null)
+                if (existingVariety == null)
                 {
                     var newVarietyObj = new Variety
-                        {
-                            PlantId = Plant.Id,
-                            VarietyName = newSeed.VarietyName
-                        };
+                    {
+                        PlantId = Plant.Id,
+                        VarietyName = newSeed.VarietyName
+                    };
 
                     var savedVariety = await PlantService.AddVarietyAsync(newVarietyObj);
                     newSeed.VarietyId = savedVariety.Id;
-
                     allVarieties.Add(savedVariety);
                 }
                 else
                 {
                     newSeed.VarietyId = existingVariety.Id;
                 }
-
             }
-            
+
             await SeedService.AddSeed(newSeed);
             newSeed = new Seed { ExpiryDate = DateTime.Now.AddYears(2), Quantity = 1 };
             showAddForm = false;
             await OnSaved.InvokeAsync();
             await Close();
-            
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             errorMessage = "Kunde inte spara fröet: " + ex.Message;
             await JS.InvokeVoidAsync("alert", errorMessage);
@@ -221,40 +223,4 @@
         showAddForm = false;
         await OnClose.InvokeAsync();
     }
-    /// <summary>
-    /// Quickly registers a new sowing for a specific seed, decrements the seed quantity,
-    /// and handles potential exceptions during the process.
-    /// </summary>
-    /// <param name="seed">The seed entity to be sown.</param>
-    /// <returns>A task representing the asynchronous quick-sow operation.</returns>
-    
-    private async Task HandleQuickSow(Seed seed)
-    {
-        try
-        {
-            errorMessage = "";
-            var newSowing = new Sowing(seed.Id, 1)
-                {
-                    SownDate = DateTime.Now
-                };
-
-            await SowingService.AddSowing(newSowing);
-
-            if (seed.Quantity > 0)
-            {
-                seed.Quantity--;
-                await SeedService.UpdateSeed(seed);
-            }
-            await JS.InvokeVoidAsync("alert", $"Sådd registrerad för {seed.Name}.");
-        }
-        catch(ArgumentException ex)
-        {
-            errorMessage = ex.Message;
-        }
-        catch(Exception)
-        {
-            errorMessage = "Ett oväntat fel inträffade.";
-        }
-    }
-
 }

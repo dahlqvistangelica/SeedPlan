@@ -20,8 +20,8 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     box-sizing: border-box;
 }
-/* Etiketter i ljusgrå versaler */
 
+/* Etiketter i ljusgrå versaler */
 .input-block {
     margin-bottom: 20px;
     display: flex;
@@ -29,49 +29,86 @@
     gap: 8px;
 }
 
-    .input-block label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: #94a3b8;
-        letter-spacing: 0.05em;
-    }
-/* Inmatningsfält med ljus bakgrund */
+.input-block label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+}
 
-.sp-input, .sp-textarea {
-    width: 100%;
-    padding: 14px 20px;
-    border-radius: 14px;
-    border: 1px solid #f1f5f9;
-    background: #f8fafc;
-    font-size: 1rem;
-    color: #334155;
-    outline: none;
-    box-sizing: border-box;
+/* Inputs använder unified system från app.css */
+.sp-input {
+    /* Ärver från app.css input[type] rules */
 }
 
 .sp-textarea {
     min-height: 100px;
     resize: none;
 }
-/* Den stora gröna knappen */
 
-.sp-submit-btn {
-    width: 100%;
-    background: #059669; /* Den djupgröna färgen på din bild */
-    color: white;
-    border: none;
-    padding: 18px;
-    border-radius: 16px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.2s;
+/* Button container - knapparna bredvid varandra i mitten */
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 24px;
 }
 
-    .sp-submit-btn:hover {
-        background: #047857;
-    }
+/* Knapp styling - använder unified button system från app.css */
+.sp-submit-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    white-space: nowrap;
+}
+
+.sp-submit-btn:hover {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.sp-submit-btn:active {
+    transform: translateY(0);
+}
+
+.sp-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sp-cancel-btn {
+    background: #f1f5f9;
+    color: #334155;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: fit-content;
+    white-space: nowrap;
+}
+
+.sp-cancel-btn:hover {
+    background: #e2e8f0;
+}
 
 .error-msg {
     color: #ef4444;
@@ -79,8 +116,8 @@
     margin-bottom: 15px;
     text-align: center;
 }
-/* Animation */
 
+/* Animation */
 .fade-in {
     animation: fadeIn 0.3s ease-out;
 }

@@ -29,29 +29,27 @@
             <input type="number" min="1" max="8" @bind="userProfile.GrowingZone" />
         </div>
 
-        <hr style="margin: 1.5rem 0;" />
+        <button class="btn-save" @onclick="SaveProfile">
+            <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
+        </button>
+
+        <hr />
 
         <h3>Kontouppgifter</h3>
 
         <div class="input-group">
             <label>E‑post</label>
-            <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
             <div class="inline-action-group">
-                <button class="btn-secondary" @onclick="UpdateEmail">Ändra e-post</button>
+                <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
+                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@string.IsNullOrWhiteSpace(newEmail)">Ändra e-post</button>
             </div>
         </div>
 
         <div class="input-group">
             <label>Lösenord</label>
-            <div>
-                <button class="btn-secondary" @onclick="() => showPasswordModal = true">
-                    Ändra lösenord
-                </button>
-            </div>
-
-
-            @* Dold tills exporten fungerar igen *@
-            @* <button class="btn-secondary" @onclick="ExportBackup">Exportera data</button> *@
+            <button class="btn-secondary" @onclick="() => showPasswordModal = true">
+                Ändra lösenord
+            </button>
         </div>
 
         @if (!string.IsNullOrEmpty(statusMessage))
@@ -82,13 +80,20 @@
                 <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
                 @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
                 {
-                    <span style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">Lösenorden matchar inte</span>
+                    <span style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">⚠️ Lösenorden matchar inte</span>
                 }
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 1.5rem;">
-                <button class="btn-primary" @onclick="UpdatePassword" disabled="@(!IsPasswordFormValid())">Spara lösenord</button>
-                <button class="btn-secondary" @onclick="ClosePasswordModal">Avbryt</button>
+            @if (isUpdatingPassword)
+            {
+                <div style="text-align: center; padding: 1rem; color: #64748b;">
+                    <span>⏳ Uppdaterar lösenord...</span>
+                </div>
+            }
+
+            <div class="modal-actions">
+                <button class="btn-primary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">Spara lösenord</button>
+                <button class="btn-secondary" @onclick="ClosePasswordModal" disabled="@isUpdatingPassword">Avbryt</button>
             </div>
 
             @if (!string.IsNullOrEmpty(passwordStatus))
@@ -109,6 +114,7 @@
     private string newPassword = "";
     private string confirmPassword = "";
     private string passwordStatus = "";
+    private bool isUpdatingPassword = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,7 +122,6 @@
         if (profile != null)
         {
             userProfile = profile;
-            StateHasChanged();
         }
         else
         {
@@ -128,11 +133,9 @@
     {
         await ProfileService.UpsertUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";
-        StateHasChanged();
 
-        await Task.Delay(3000);
+        await Task.Delay(2500);
         statusMessage = "";
-        StateHasChanged();
     }
 
     private void ClosePasswordModal()
@@ -144,9 +147,10 @@
         confirmPassword = "";
     }
 
-    private bool IsPasswordFormValid()
+    private bool CanSubmitPassword()
     {
-        return !string.IsNullOrWhiteSpace(currentPassword) &&
+        return !isUpdatingPassword &&
+               !string.IsNullOrWhiteSpace(currentPassword) &&
                !string.IsNullOrWhiteSpace(newPassword) &&
                !string.IsNullOrWhiteSpace(confirmPassword) &&
                newPassword == confirmPassword;
@@ -155,52 +159,39 @@
     private async Task UpdateEmail()
     {
         if (string.IsNullOrWhiteSpace(newEmail)) return;
+        
         var result = await Auth.UpdateEmailAsync(newEmail.Trim());
-        statusMessage = result.IsSuccess ? "E‑post uppdaterad (kolla din mejl)" : result.Errors.First().Message;
+        statusMessage = result.IsSuccess ? "E‑post uppdaterad (kolla din mejl) ✨" : result.Errors.First().Message;
         newEmail = "";
-        StateHasChanged();
+
+        await Task.Delay(2500);
+        statusMessage = "";
     }
 
     private async Task UpdatePassword()
     {
-        if (!IsPasswordFormValid())
-        {
-            passwordStatus = "Verifiera att alla fält är ifyllda och att lösenorden matchar";
-            return;
-        }
+        if (!CanSubmitPassword()) return;
+
+        isUpdatingPassword = true;
+        passwordStatus = "";
 
         var result = await Auth.UpdatePasswordAsync(currentPassword, newPassword);
-        passwordStatus = result.IsSuccess ? "Lösenordet har uppdaterats ✨" : result.Errors.First().Message;
         
         if (result.IsSuccess)
         {
+            passwordStatus = "Lösenordet har uppdaterats ✨";
             currentPassword = "";
             newPassword = "";
             confirmPassword = "";
+
             await Task.Delay(2000);
+            isUpdatingPassword = false;
             ClosePasswordModal();
         }
-    }
-
-    /* Dold tills den ska användas igen
-    private async Task ExportBackup()
-    {
-        var profile = await ProfileService.GetUserProfile();
-        var seeds = await InventoryService.GetMySeeds();
-        var sowings = await SowingService.GetMySowings();
-
-        var backup = new
+        else
         {
-            exportedAt = DateTime.UtcNow,
-            profile,
-            seeds,
-            sowings
-        };
-
-        var json = JsonSerializer.Serialize(backup, new JsonSerializerOptions { WriteIndented = true });
-        var filename = $"seedplan-backup-{DateTime.UtcNow:yyyyMMdd}.json";
-
-        await JS.InvokeVoidAsync("downloadJson", filename, json);
+            passwordStatus = result.Errors.First().Message;
+            isUpdatingPassword = false;
+        }
     }
-    */
 }

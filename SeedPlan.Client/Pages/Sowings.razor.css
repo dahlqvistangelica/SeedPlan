@@ -11,7 +11,7 @@
     margin-bottom: 2.5rem;
 }
 
-/* "Ny sådd"-knappen */
+/* Ny sådd-knappen - använder unified button system från app.css */
 .btn-add-sowing {
     display: flex;
     align-items: center;
@@ -26,20 +26,21 @@
     font-weight: 500;
     transition: transform 0.1s active, background-color 0.2s;
     white-space: nowrap;
-    font-size: 1rem;
+    font-size: 1.2rem;
 }
 .btn-add-sowing span {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
-    .btn-add-sowing:hover {
-        background-color: #047857;
-    }
+.btn-add-sowing:hover {
+    background-color: #047857;
+    transform: translateY(-1px);
+}
 
-    .btn-add-sowing i {
-        width: 20px !important;
-        height: 20px !important;
-    }
+.btn-add-sowing:active {
+    transform: translateY(0);
+}
+
 
 .sowing-card {
     background: white;
@@ -87,10 +88,9 @@
     font-size: 1rem;
 }
 
-/* I SeedPlan.Client/Pages/Sowings.razor.css */
 .sown-quantity {
     font-weight: 700;
-    color: #10b981; /* Din gröna tema-färg */
+    color: #10b981;
     margin-left: 8px;
     font-size: 0.85rem;
 }
@@ -127,11 +127,13 @@
     cursor: pointer;
     padding: 5px;
     font-size: 1.1rem;
+    transition: color 0.2s ease;
 }
 
-    .delete-btn:hover {
-        color: #ef4444;
-    }
+.delete-btn:hover {
+    color: #ef4444;
+}
+
 /* PROGRESS LINJE DESIGN */
 
 .progress-container {
@@ -172,14 +174,14 @@
     font-size: 1.5rem;
 }
 
+.step.active {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    transform: scale(1.15);
+}
 
-    .step.active {
-        background: #10b981;
-        border-color: #10b981;
-        color: white;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-        transform: scale(1.15);
-    }
 /* INFOBOX DESIGN */
 
 .info-box {
@@ -192,13 +194,13 @@
     color: #1d4ed8;
 }
 
-    .info-box i {
-        width: 18px;
-    }
+.info-box i {
+    width: 18px;
+}
 
-    .info-box span {
-        font-size: 0.9rem;
-    }
+.info-box span {
+    font-size: 0.9rem;
+}
 
 .warning-box {
     background: #fff7ed;
@@ -213,28 +215,29 @@
     margin-top: 8px;
 }
 
-    .warning-box svg {
-        min-width: 18px;
-        color: #f97316;
-    }
+.warning-box svg {
+    min-width: 18px;
+    color: #f97316;
+}
+
 /* --- Gruppering och Rubriker --- */
 .group-header {
     margin: 2.5rem 0 1rem 0;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #3d5a44; /* En mörkare grön ton */
+    color: #3d5a44;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border-bottom: 2px solid #e8f0e9;
     padding-bottom: 0.3rem;
 }
+
 .group-controls {
     display: flex;
-    align-items: center; /* Centrerar elementen vertikalt mot varandra */
-    gap: 1rem; /* Skapar mellanrum mellan dropdown och knapp */
+    align-items: center;
+    gap: 1rem;
 }
 
-/* Första grupprubriken behöver inte så mycket marginal uppåt */
 .sowing-list .group-header:first-of-type {
     margin-top: 1rem;
 }
@@ -245,31 +248,31 @@
 
 .control-select {
     position: relative;
-    flex-grow: 1; /* Låter dropdownen ta upp platsen som finns */
+    flex-grow: 1;
     max-width: 300px;
 }
 
 /* Själva dropdown-menyn */
 .group-select {
-    appearance: none; /* Döljer webbläsarens fula standardpil */
+    appearance: none;
     -webkit-appearance: none;
     width: 100%;
     padding: 10px 40px 10px 16px;
-    background-color: #f9fbf9; /* Mycket svagt grönvit */
+    background-color: #f9fbf9;
     border: 1px solid #d1d9d1;
     border-radius: 12px;
     font-size: 0.95rem;
     color: #334d33;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0,02);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
-    .group-select:focus {
-        outline: none;
-        border-color: #4a674a;
-        box-shadow: 0 0 0 3px rgba(74, 103, 74, 0.1);
-    }
+.group-select:focus {
+    outline: none;
+    border-color: #4a674a;
+    box-shadow: 0 0 0 3px rgba(74, 103, 74, 0.1);
+}
 
 /* Den egna pil-ikonen */
 .select-arrow {
@@ -277,7 +280,7 @@
     right: 12px;
     top: 50%;
     transform: translateY(-50%);
-    pointer-events: none; /* Så man kan klicka "igenom" ikonen */
+    pointer-events: none;
     width: 18px !important;
     height: 18px !important;
     color: #7a8e7a;
@@ -285,15 +288,14 @@
 
 /* --- Responsivitet (Mobil) --- */
 @media (max-width: 600px) {
-    /* Döljer "Sådd den" på små skärmar */
     .hide-on-mobile {
         display: none;
     }
-    .show-on-mobile{
-        display:contents;
+    
+    .show-on-mobile {
+        display: contents;
     }
 
-    /* Gör headern mer kompakt på mobil */
     .sowings-header {
         flex-direction: column;
         align-items: flex-start;
@@ -362,7 +364,7 @@
     cursor: pointer;
 }
 
-    .group-select:focus {
-        border-color: #a3b18a;
-        box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2);
-    }
+.group-select:focus {
+    border-color: #a3b18a;
+    box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2);
+}

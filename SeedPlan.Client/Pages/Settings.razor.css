@@ -1,127 +1,265 @@
-﻿.settings-overview {
+﻿/* --- Grundlayout --- */
+.settings-overview {
     max-width: 600px;
     margin: 0 auto;
     padding: 2rem 1rem;
+    color: #4b5563;
+    font-family: inherit;
 }
 
 .settings-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
+.settings-header h1 {
+    font-family: inherit;
+    margin-bottom: 0.5rem;
+}
+
+.settings-header p {
+    color: #64748b;
+    font-size: 1rem;
+    font-family: inherit;
+}
+
+/* --- Inställningskort (cards) --- */
 .settings-cards {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-bottom: 2rem;
 }
 
 .settings-card {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: white;
-    border-radius: 18px;
-    padding: 1rem 1.2rem;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.02);
     cursor: pointer;
     transition: transform 0.08s ease;
 }
 
-    .settings-card:active {
-        transform: scale(0.98);
-    }
+.settings-card:active {
+    transform: scale(0.98);
+}
 
 .icon-circle {
-    width: 44px;
-    height: 44px;
-    background: #e7f9f1;
+    width: 48px;
+    height: 48px;
+    background: #ecfdf5;
     border-radius: 999px;
     display: grid;
     place-items: center;
     color: #10b981;
+    flex-shrink: 0;
+}
+
+.card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .card-text .title {
-    font-weight: 700;
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 1rem;
 }
 
 .card-text .value {
     color: #64748b;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .version-text {
     margin-top: 2rem;
     text-align: center;
     color: #94a3b8;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
 }
 
+/* --- Modal --- */
 .settings-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(15, 23, 42, 0.4);
     display: grid;
     place-items: center;
-    z-index: 999;
+    z-index: 1000;
+    font-family: inherit;
 }
 
 .settings-modal {
     background: white;
-    padding: 1.5rem;
-    border-radius: 16px;
-    width: min(90vw, 420px);
+    padding: 2.5rem;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-    .settings-modal input[type="date"] {
-        padding: 0.6rem;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-    }
-
-.toggle-row {
-    display: flex;
-    gap: 0.6rem;
-    align-items: center;
+.settings-modal h3 {
+    margin: 0 0 1rem 0;
+    color: #0f172a;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: inherit;
 }
 
+.settings-modal p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.settings-modal .muted {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* --- Inputfält --- */
+.settings-modal input[type="date"],
+.settings-modal input[type="email"],
+.settings-modal input[type="password"],
+.settings-modal input[type="text"],
+.settings-modal input[type="number"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: #0f172a;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.settings-modal input:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    background-color: #ffffff;
+}
+
+/* --- Toggle Checkbox --- */
+.toggle-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.toggle-row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #10b981;
+}
+
+.toggle-row span {
+    color: #0f172a;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- Modal Actions --- */
 .modal-actions {
     display: flex;
-    gap: 0.75rem;
+    gap: 8px;
     justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+/* --- Knappar (Unified styling) --- */
+button {
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 12px 20px;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .btn-primary {
-    background: #10b981;
+    background-color: #059669;
     color: white;
-    border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #047857;
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background: #e2e8f0;
-    color: #111827;
-    border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
+    background-color: #f1f5f9;
+    color: #334155;
 }
 
+.btn-secondary:hover:not(:disabled) {
+    background-color: #e2e8f0;
+}
+
+.btn-save {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-save:hover:not(:disabled) {
+    background-color: #047857;
+    transform: translateY(-1px);
+}
+
+.btn-danger {
+    background-color: #dc2626;
+    color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background-color: #b91c1c;
+    transform: translateY(-1px);
+}
+
+.btn-danger:disabled {
+    background-color: #fecaca;
+    cursor: not-allowed;
+}
+
+/* --- Status Alerts --- */
 .status-alert {
-    background: #f0fdf4;
-    color: #16a34a;
-    padding: 0.75rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
+    background-color: #ecfdf5;
+    color: #065f46;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border: 1px solid #a7f3d0;
+    font-family: inherit;
     text-align: center;
 }
 
-.muted {
-    color: #64748b;
+/* --- Avskiljare --- */
+hr {
+    border: none;
+    border-top: 1px solid #f1f5f9;
+    margin: 1.5rem 0;
 }

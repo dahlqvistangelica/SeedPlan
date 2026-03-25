@@ -9,59 +9,9 @@
     max-width: 450px;
     width: 100%;
 }
-/* Den stora gröna knappen */ /* Gemensamma knappar för hela appen */
 
-.sp-save-btn, .btn-primary {
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 1rem;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-    .sp-save-btn:active {
-        transform: scale(0.98);
-    }
-
-    .sp-save-btn:hover {
-        background: #047857;
-    }
-
-.btn-secondary, .sp-cancel-btn {
-    background: white;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 600;
-    padding: 10px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-    .btn-secondary:hover {
-        background: #f8fafc;
-        color: #1e293b;
-    }
-
-
-.btn-primary:hover, .sp-save-btn:hover {
-    background: #059669;
-}
-
-.sp-cancel-btn, .btn-secondary {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    font-weight: 600;
-    padding: 10px;
-    cursor: pointer;
-}
+/* Buttons - använder unified styles från app.css */
+/* .btn-primary, .btn-secondary, .sp-save-btn, .sp-cancel-btn definieras i app.css */
 
 .remember-me-group {
     display: flex;
@@ -71,13 +21,14 @@
     color: #64748b;
 }
 
-    .remember-me-group input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #10b981;
-        cursor: pointer;
-    }
-/* SIGNUP FORM*/
+.remember-me-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #10b981;
+    cursor: pointer;
+}
+
+/* SIGNUP FORM */
 
 .auth-container {
     max-width: 400px;
@@ -101,7 +52,7 @@
 .btn-back {
     background: none;
     border: none;
-    color: var(--primary-green);
+    color: #10b981;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -114,12 +65,12 @@
     margin-bottom: 1.2rem;
 }
 
-    .form-group label {
-        display: block;
-        margin-bottom: 0.4rem;
-        font-weight: 600;
-        color: var(--text-dark);
-    }
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #1e293b;
+}
 
 .form-control {
     width: 100%;
@@ -128,19 +79,3 @@
     border-radius: 8px;
     font-size: 1rem;
 }
-
-.btn-primary {
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--primary-green, #4CAF50);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-    .btn-primary:disabled {
-        background-color: #ccc;
-    }
