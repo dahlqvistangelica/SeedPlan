@@ -9,6 +9,7 @@
         public bool IsInNormalWindow { get; set; }
         public bool IsShifted { get; set; }      // "Delayed but possible"
         public bool HarvestAfterAug { get; set; }
+        public DateTime? DeadlineSowDate { get; set; }
         public DateTime? SowDate { get; set; }
         public DateTime? PlantOutDate { get; set; }
         public DateTime? HarvestDateEarly { get; set; }

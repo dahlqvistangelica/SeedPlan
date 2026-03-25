@@ -1,11 +1,11 @@
-﻿/* Container för dashboarden */
+﻿/* Dashboard container */
 
 .dashboard-container {
     padding: 2rem 1.5rem;
     max-width: 1000px;
     margin: 0 auto;
 }
-/*DATEBAGDE */
+/* DATE BADGE */
 
 .date-badge {
     display: flex;
@@ -22,20 +22,20 @@
     .date-badge span {
         font-size: 0.85rem;
     }
-/* --- SEKTION FÖR STATISTIK --- */
+/* --- STATISTICS SECTION --- */
 
 .sowing-stats-section {
     margin-bottom: 2.5rem;
 }
-/* Behållaren som lägger korten på rad */
+/* Container that lays cards in a row */
 
 .stats-mini-grid {
     display: flex;
-    flex-wrap: wrap; /* Gör att korten hoppar ner på nästa rad på mobilen */
+    flex-wrap: wrap; /* Makes cards wrap to the next row on mobile */
     gap: 12px;
     margin-top: 10px;
 }
-/* Det lilla stat-kortet */
+/* Small stats card */
 
 .mini-stat-card {
     display: flex;
@@ -46,10 +46,10 @@
     border-radius: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     border: 1px solid #f1f5f9;
-    flex: 1; /* Gör att korten försöker ta lika mycket plats */
-    min-width: 140px; /* Förhindrar att de blir för smala */
+    flex: 1; /* Makes cards try to take equal space */
+    min-width: 140px; /* Prevents them from becoming too narrow */
 }
-/* Ikon-boxen */
+/* Icon box */
 
 .mini-icon {
     width: 36px;
@@ -63,7 +63,7 @@
 }
 
 
-    /* Färgteman för dina ikoner */
+    /* Color themes for your icons */
     .mini-icon.blue {
         background: #eff6ff;
         color: #3b82f6;
@@ -83,7 +83,7 @@
         background: #faf5ff;
         color: #a855f7;
     }
-/* Text-info i kortet */
+/* Text info in the card */
 
 .mini-info {
     display: flex;
@@ -105,22 +105,22 @@
     color: #1e293b;
     line-height: 1.2;
 }
-/* Responsivitet för mindre skärmar */
+/* Responsiveness for smaller screens */
 
 @media (max-width: 480px) {
     .stats-mini-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Två i bredd på mobilen */
+        grid-template-columns: 1fr 1fr; /* Two columns on mobile */
     }
 }
-/* Gridden för korten */
+/* Card grid */
 
 .plant-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
-/* Själva växtkortet */
+/* The plant card itself */
 
 .plant-card {
     background: white;
@@ -150,7 +150,7 @@
     gap: 1rem;
     position: relative;
 }
-/* Element inuti kortet */
+/* Elements inside the card */
 
 .plant-icon-circle {
     width: 48px;
@@ -212,9 +212,36 @@
     gap: 0.8rem;
     margin-bottom: 2px;
 }
-/* Härdighetsbadges */
+.shifted-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fef3c7; /* Very light orange/amber yellow */
+    color: #a16207; /* Dark amber/orange text */
+    padding: 4px 7px; /* Padding around text */
+    border-radius: 999px; /* Very rounded corners (pill shape) */
+    font-size: 0.7rem; /* Slightly smaller than main text */
+    font-weight: 500; /* Medium weight */
+}
+
+/* --- Harvest row --- */
+.harvest-info {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Spacing between icon and text */
+    color: #4b5563; /* Medium gray text color */
+    font-size: 0.7rem; /* Standard size */
+}
+
+/* Style for the calendar icon (in harvest-info) */
+.icon-calendar {
+    font-size: 1rem;
+    color: #1e293b; /* Dark gray/blue icon stroke color */
+    
+}
+
+/* Hardiness badges */
 .short-text {
-    display: none; /* Dölj K, HH, H på datorn */
+    display: none; /* Hide K, HH, H on desktop */
 }
 
 .full-text {
@@ -231,7 +258,7 @@
     text-transform:uppercase;
     
 }
-/* Footer och ikoner */
+/* Footer and icons */
 
 .plant-footer {
     border-top: 1px solid #f8fafc;
@@ -276,7 +303,7 @@
     color: #e2e8f0;
     width: 20px;
 }
-/* Responsivitet för dashboarden */
+/* Dashboard responsiveness */
 
 @media (max-width: 768px) {
     .plant-grid {
@@ -285,8 +312,14 @@
     .mini-badge {
         display: none;
     }
+    .plant-grid.mini {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px 0;
+    }
 }
-/* --- REDAN PASSERAT (ACCORDION) --- */
+/* --- ALREADY PASSED (ACCORDION) --- */
 
 .past-section {
     margin-bottom: 2rem;
@@ -294,7 +327,7 @@
 }
 
     .past-section summary {
-        list-style: none; /* Tar bort standard-pilen */
+        list-style: none; /* Removes the default arrow */
         display: flex;
         align-items: center;
         padding: 10px 0;
@@ -305,7 +338,7 @@
         transition: color 0.2s;
     }
 
-        /* Skapar en egen liten pil som roterar */
+        /* Creates a custom small rotating arrow */
         .past-section summary::before {
             content: '›';
             display: inline-block;
@@ -321,11 +354,11 @@
     .past-section summary:hover {
         color: #64748b;
     }
-/* Grid för de små korten inuti */
+/* Grid for the small cards inside */
 
 .plant-grid.mini {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 10px;
     padding: 15px 0;
 }
@@ -448,7 +481,7 @@
 
 @media (max-width: 480px) {
     .dashboard-container {
-        padding: 1rem 0.6rem; /* Ännu mindre padding på sidorna på små mobiler */
+        padding: 1rem 0.6rem; /* Even smaller side padding on small mobile screens */
         padding-bottom: 100px;
     }
     .plant-card {
@@ -465,14 +498,14 @@
         display:none;
     }
     .full-text {
-        display: none; /* Dölj "Härdig" etc. på mobilen */
+        display: none; /* Hide "Hardy" etc. on mobile */
     }
     .short-text {
-        display: inline; /* Visa K, HH, H istället */
+        display: inline; /* Show K, HH, H instead */
         font-weight: 800;
         letter-spacing: 0;
     }
-    /* Gör själva badgen ännu tajtare på mobilen */
+    /* Make the badge itself even tighter on mobile */
     .hardiness-badge {
         padding: 2px 5px;
         min-width: 20px;
