@@ -42,7 +42,7 @@ namespace SeedPlan.Client.Services
                 var targetDate = lastFrost.AddDays(-(s.PlantData.SowingLeadTime * 7));
                 var diff = (targetDate - DateTime.Now).TotalDays;
 
-                return diff <= 7 && diff >= 7;
+                return diff <= 7 && diff >= 0;
             }).ToList();
         }
 
@@ -148,16 +148,13 @@ namespace SeedPlan.Client.Services
                 
                 return new();
             }
-            var suggestions = await _plantLibrary.GetGeneralSowingSuggestionsAsync(profile.LastFrostDate.Value);
+            var calendar = await _plantLibrary.GetSowingCalendarAsync(profile.LastFrostDate.Value);
             
             var mySeeds = await GetMySeeds();
-
-            var calendar = suggestions.Select(p => new PlantSowingView
-            {
-                Plant = p,
-                OwnedSeeds = mySeeds.Where(s => s.PlantId == p.Id).ToList(),
-                HasSeeds = mySeeds.Any(s => s.PlantId == p.Id)
-            }).ToList();
+            foreach(var item in calendar)
+            {   item.OwnedSeeds = mySeeds.Where(s => s.PlantId == item.Plant.Id).ToList();
+                item.HasSeeds = mySeeds.Any(s => s.PlantId == item.Plant.Id); 
+            }
 
             return calendar;
 

@@ -372,3 +372,4 @@ supabase/.temp
 supabase/snippets
 supabase/config.toml
 supabase/migrations
+/.github/copilot-instructions.md

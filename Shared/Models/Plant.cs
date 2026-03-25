@@ -36,18 +36,21 @@ namespace SeedPlan.Shared.Models
         [Column("category")]
         public PlantCategory Category { get; set; } = PlantCategory.Flower;
 
-        // --- FIXARNA HÄR: Vi lägger till ? för att tillåta tomma värden från databasen ---
+        // --- NULLABLE VALUES BELOW. ---
+
+        [Column("sowing_lead_time_min")]
+        public int? SowingLeadTimeMin { get; set; }
 
         [Column("sowing_depth_mm")]
-        public float? SowingDepth { get; set; } // float? istället för float
+        public float? SowingDepth { get; set; } 
 
         [Column("plant_spacing_cm")]
-        public int? PlantSpacing { get; set; } // int? istället för int
+        public int? PlantSpacing { get; set; } 
 
         [Column("dev_time_min")]
-        public int? DevelopDaysMin { get; set; } // int? istället för int
+        public int? DevelopDaysMin { get; set; } 
 
         [Column("dev_time_max")]
-        public int? DevelopDaysMax { get; set; } // int? istället för int
+        public int? DevelopDaysMax { get; set; } 
     }
 }

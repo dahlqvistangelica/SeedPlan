@@ -17,11 +17,11 @@ namespace SeedPlan
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // --- 1. KONFIGURATION & MILJÖ ---
+            // --- 1. CONFIGURATION & ENVIRONMENT ---
             var supabaseUrl = builder.Configuration["SUPABASE_URL"];
             var supabaseKey = builder.Configuration["SUPABASE_ANON_KEY"];
 
-            // --- 2. INFRASTRUKTUR & PROXY (Railway/Docker fix) ---
+            // --- 2. INFRASTRUCTURE & PROXY (Railway/Docker fix) ---
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
@@ -29,23 +29,23 @@ namespace SeedPlan
                 options.KnownProxies.Clear();
             });
 
-            // --- 3. SUPABASE KONFIGURATION ---
-            // Scoped klient för server-side operationer
+            // --- 3. SUPABASE CONFIGURATION ---
+            // Scoped client for server-side operations
             builder.Services.AddScoped(provider =>
                 new Supabase.Client(supabaseUrl, supabaseKey, new SupabaseOptions
                 {
-                    AutoRefreshToken = false, // Måste vara false på servern
-                    AutoConnectRealtime = false, // Måste vara false på servern
+                    AutoRefreshToken = false, // Must be false on the server
+                    AutoConnectRealtime = false, // Must be false on the server
                     SessionHandler = new ServerSessionHandler()
                 }));
 
-            // --- 4. DOMÄNTJÄNSTER (Business Logic) ---
+            // --- 4. DOMAIN SERVICES (Business Logic) ---
             builder.Services.AddScoped<IPlantLibraryService, PlantLibraryService>();
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
 
-            // --- 5. AUTENTISERING & IDENTITET ---
+            // --- 5. AUTHENTICATION & IDENTITY ---
             builder.Services.AddAuthentication("SupabaseAuth")
                 .AddCookie("SupabaseAuth", options =>
                 {
@@ -56,7 +56,7 @@ namespace SeedPlan
 
                     options.Events.OnRedirectToLogin = context =>
                     {
-                        // Blockera API-anrop med 401, tillåt vanliga sidladdningar för WASM-hantering
+                        // Block API requests with 401, allow normal page loads for WASM handling
                         if (context.Request.Path.StartsWithSegments("/api"))
                         {
                             context.Response.StatusCode = 401;
@@ -69,16 +69,26 @@ namespace SeedPlan
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<AuthenticationStateProvider, SupabaseAuthStateProvider>();
 
-            // --- 6. UI & KOMPONENTER ---
+            // --- 6. UI & COMPONENTS ---
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
 
             var app = builder.Build();
 
-            // --- 7. MIDDLEWARE PIPELINE (Ordningen är viktig!) ---
+            // --- 7. MIDDLEWARE PIPELINE (Order is important!) ---
+            if (app.Configuration["MAINTENANCE_MODE"] == "true")
+            {
+                app.Run(async context =>
+                {
+                    context.Response.ContentType = "text/html; charset=utf-8";
+                    await context.Response.SendFileAsync("wwwroot/maintenance.html");
+                });
+                app.Run();
+                return;
+            }
 
-            // Hantera headers från Railway/Proxy först
+            // Handle headers from Railway/Proxy first
             app.UseForwardedHeaders();
 
             if (app.Environment.IsDevelopment())
@@ -93,7 +103,7 @@ namespace SeedPlan
 
             app.UseHttpsRedirection();
 
-            // Konfigurera statiska filer och PWA-manifest
+            // Configure static files and PWA manifest
             var contentTypeProvider = new FileExtensionContentTypeProvider();
             contentTypeProvider.Mappings[".webmanifest"] = "application/manifest+json";
 
@@ -104,11 +114,11 @@ namespace SeedPlan
 
             app.UseAntiforgery();
 
-            // Säkerhet
+            // Security
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Mappa komponenter och render-modes
+            // Map components and render modes
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode()
                 .AddInteractiveWebAssemblyRenderMode()
@@ -119,7 +129,7 @@ namespace SeedPlan
     }
 
     /// <summary>
-    /// Hanterar sessioner på serversidan för Supabase.
+    /// Handles server-side sessions for Supabase.
     /// </summary>
     public class ServerSessionHandler : IGotrueSessionPersistence<Session>
     {
