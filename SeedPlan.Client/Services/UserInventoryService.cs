@@ -148,16 +148,13 @@ namespace SeedPlan.Client.Services
                 
                 return new();
             }
-            var suggestions = await _plantLibrary.GetGeneralSowingSuggestionsAsync(profile.LastFrostDate.Value);
+            var calendar = await _plantLibrary.GetSowingCalendarAsync(profile.LastFrostDate.Value);
             
             var mySeeds = await GetMySeeds();
-
-            var calendar = suggestions.Select(p => new PlantSowingView
-            {
-                Plant = p,
-                OwnedSeeds = mySeeds.Where(s => s.PlantId == p.Id).ToList(),
-                HasSeeds = mySeeds.Any(s => s.PlantId == p.Id)
-            }).ToList();
+            foreach(var item in calendar)
+            {   item.OwnedSeeds = mySeeds.Where(s => s.PlantId == item.Plant.Id).ToList();
+                item.HasSeeds = mySeeds.Any(s => s.PlantId == item.Plant.Id); 
+            }
 
             return calendar;
 
