@@ -1,18 +1,24 @@
 ﻿@page "/profile"
-@using Microsoft.AspNetCore.Authorization
 @using SeedPlan.Shared.Models
+@using System.Text.Json
 @inject IUserProfileService ProfileService
+@inject IUserInventoryService InventoryService
+@inject IUserSowingService SowingService
+@inject NavigationManager Nav
+@inject AuthService Auth
 @inject IJSRuntime JS
 
-<PageTitle>Inställningar - SeedPlan</PageTitle>
+<PageTitle>Profil - SeedPlan</PageTitle>
 
 <div class="profile-container">
     <header class="profile-header">
-        <h1 class="serif-title">Inställningar <Blazicon Svg="MdiIcon.AccountCogOutline" /></h1>
-        <p>Anpassa appen efter din trädgårds förutsättningar.</p>
+        <h1 class="serif-title">Profil <Blazicon Svg="MdiIcon.AccountEditOutline" /></h1>
+        <p>Uppdatera din profil och kontoinställningar.</p>
     </header>
 
     <div class="settings-card">
+        <h3>Profiluppgifter</h3>
+        
         <div class="input-group">
             <label>Namn</label>
             <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
@@ -23,26 +29,86 @@
             <input type="number" min="1" max="8" @bind="userProfile.GrowingZone" />
         </div>
 
+        <hr style="margin: 1.5rem 0;" />
+
+        <h3>Kontouppgifter</h3>
+
         <div class="input-group">
-            <label>Beräknat datum för sista frost</label>
-            <input type="date" @bind="userProfile.LastFrostDate" />
-            <small>Detta datum används för att räkna ut när du ska börja så dina fröer.</small>
+            <label>E‑post</label>
+            <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
+            <div class="inline-action-group">
+                <button class="btn-secondary" @onclick="UpdateEmail">Ändra e-post</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Lösenord</label>
+            <div>
+                <button class="btn-secondary" @onclick="() => showPasswordModal = true">
+                    Ändra lösenord
+                </button>
+            </div>
+
+
+            @* Dold tills exporten fungerar igen *@
+            @* <button class="btn-secondary" @onclick="ExportBackup">Exportera data</button> *@
         </div>
 
         @if (!string.IsNullOrEmpty(statusMessage))
         {
-            <div class="status-alert">@statusMessage</div>
+            <div class="status-alert" style="margin-top: 1rem;">@statusMessage</div>
         }
-
-        <button class="btn-save" @onclick="SaveProfile">
-            <Blazicon Svg="Lucide.Save" /> <span>Spara</span>
-        </button>
     </div>
 </div>
+
+@if (showPasswordModal)
+{
+    <div class="settings-modal-backdrop" @onclick="ClosePasswordModal">
+        <div class="settings-modal" @onclick:stopPropagation="true">
+            <h3>Byt lösenord</h3>
+            
+            <div class="input-group" style="margin-top: 1rem;">
+                <label>Ditt gamla lösenord</label>
+                <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
+            </div>
+
+            <div class="input-group">
+                <label>Nytt lösenord</label>
+                <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
+            </div>
+
+            <div class="input-group">
+                <label>Bekräfta nytt lösenord</label>
+                <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
+                @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                {
+                    <span style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">Lösenorden matchar inte</span>
+                }
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 1.5rem;">
+                <button class="btn-primary" @onclick="UpdatePassword" disabled="@(!IsPasswordFormValid())">Spara lösenord</button>
+                <button class="btn-secondary" @onclick="ClosePasswordModal">Avbryt</button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(passwordStatus))
+            {
+                <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
+            }
+        </div>
+    </div>
+}
 
 @code {
     private UserProfile userProfile = new();
     private string statusMessage = "";
+
+    private bool showPasswordModal = false;
+    private string newEmail = "";
+    private string currentPassword = "";
+    private string newPassword = "";
+    private string confirmPassword = "";
+    private string passwordStatus = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,37 +120,87 @@
         }
         else
         {
-            //Standardvalues if profile is missing (Should not occur)
-            userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
             userProfile.GrowingZone = 1;
         }
     }
 
-    /// <summary>
-    /// Method for saving user changes to profile.
-    /// </summary>
-    /// <returns></returns>
-
     private async Task SaveProfile()
     {
-        if(userProfile.LastFrostDate.HasValue)
-        {
-            userProfile.LastFrostDate = DateTime.SpecifyKind(userProfile.LastFrostDate.Value.Date, DateTimeKind.Utc);
-        }
-
         await ProfileService.UpsertUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";
         StateHasChanged();
 
-
         await Task.Delay(3000);
-
         statusMessage = "";
         StateHasChanged();
-
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void ClosePasswordModal()
     {
+        showPasswordModal = false;
+        passwordStatus = "";
+        currentPassword = "";
+        newPassword = "";
+        confirmPassword = "";
     }
+
+    private bool IsPasswordFormValid()
+    {
+        return !string.IsNullOrWhiteSpace(currentPassword) &&
+               !string.IsNullOrWhiteSpace(newPassword) &&
+               !string.IsNullOrWhiteSpace(confirmPassword) &&
+               newPassword == confirmPassword;
+    }
+
+    private async Task UpdateEmail()
+    {
+        if (string.IsNullOrWhiteSpace(newEmail)) return;
+        var result = await Auth.UpdateEmailAsync(newEmail.Trim());
+        statusMessage = result.IsSuccess ? "E‑post uppdaterad (kolla din mejl)" : result.Errors.First().Message;
+        newEmail = "";
+        StateHasChanged();
+    }
+
+    private async Task UpdatePassword()
+    {
+        if (!IsPasswordFormValid())
+        {
+            passwordStatus = "Verifiera att alla fält är ifyllda och att lösenorden matchar";
+            return;
+        }
+
+        var result = await Auth.UpdatePasswordAsync(currentPassword, newPassword);
+        passwordStatus = result.IsSuccess ? "Lösenordet har uppdaterats ✨" : result.Errors.First().Message;
+        
+        if (result.IsSuccess)
+        {
+            currentPassword = "";
+            newPassword = "";
+            confirmPassword = "";
+            await Task.Delay(2000);
+            ClosePasswordModal();
+        }
+    }
+
+    /* Dold tills den ska användas igen
+    private async Task ExportBackup()
+    {
+        var profile = await ProfileService.GetUserProfile();
+        var seeds = await InventoryService.GetMySeeds();
+        var sowings = await SowingService.GetMySowings();
+
+        var backup = new
+        {
+            exportedAt = DateTime.UtcNow,
+            profile,
+            seeds,
+            sowings
+        };
+
+        var json = JsonSerializer.Serialize(backup, new JsonSerializerOptions { WriteIndented = true });
+        var filename = $"seedplan-backup-{DateTime.UtcNow:yyyyMMdd}.json";
+
+        await JS.InvokeVoidAsync("downloadJson", filename, json);
+    }
+    */
 }
