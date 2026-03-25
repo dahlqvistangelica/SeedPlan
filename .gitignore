@@ -373,3 +373,5 @@ supabase/snippets
 supabase/config.toml
 supabase/migrations
 /.github/copilot-instructions.md
+/SeedPlan/web.config
+/supabase/functions/delete-account/index.ts
