@@ -42,7 +42,7 @@ namespace SeedPlan.Client.Services
                 var targetDate = lastFrost.AddDays(-(s.PlantData.SowingLeadTime * 7));
                 var diff = (targetDate - DateTime.Now).TotalDays;
 
-                return diff <= 7 && diff >= 7;
+                return diff <= 7 && diff >= 0;
             }).ToList();
         }
 
