@@ -130,11 +130,10 @@ namespace SeedPlan.Client.Services
 
                     // Hinner skörden före 15 aug?
                     bool harvestAfterAug = latestHarvestEarly.HasValue &&
-                                           latestHarvestEarly.Value > lastHarvestDeadline;
+                       latestHarvestEarly.Value > lastHarvestDeadline;
 
                     bool inNormalWindow = today >= sowStart && today <= sowEnd;
-                    bool canStillSow = today > sowEnd           // Passerat normalt fönster
-                                        && !harvestAfterAug;         // Men hinner skördas
+                    bool canStillSow = today > sowEnd;
 
                     return new PlantSowingView
                     {
