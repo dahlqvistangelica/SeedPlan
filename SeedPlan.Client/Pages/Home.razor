@@ -132,7 +132,19 @@
             <div class="plant-grid">
                 @foreach (var item in sowingSuggestions)
                 {
-                    <div class="plant-card" @onclick="() => OpenPlantDetail(item.Plant)">
+                    <div class="plant-card @(item.IsShifted ? "shifted" : "")" @onclick="() => OpenPlantDetail(item.Plant)">
+                            ...
+                            @if (item.IsShifted)
+                            {
+                                <span class="shifted-tag">Sent men möjligt</span>
+                            }
+                            @if (item.HarvestDateEarly.HasValue)
+                            {
+                                <span class="harvest-info">
+                                    Skörd ~@item.HarvestDateEarly.Value.ToString("d MMM")
+                                </span>
+                            }
+                        
                         <div class="plant-main">
                             <div class="plant-icon-circle @GetPlantCategory(item.Plant.Category)">
                                 <Blazicon Svg="@GetPlantBlazicon(item.Plant.Category)" />

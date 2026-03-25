@@ -1,5 +1,6 @@
 ﻿using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
+using SeedPlan.Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {
@@ -91,27 +92,68 @@ namespace SeedPlan.Client.Services
         /// sowing within a week of the current date.</returns>
         public async Task<List<Plant>> GetGeneralSowingSuggestionsAsync(DateTime lastFrostDate)
         {
+            var calendar = await GetSowingCalendarAsync(lastFrostDate);
+            return calendar.Select(x => x.Plant).ToList();
+        }
+
+        public async Task<List<PlantSowingView>> GetSowingCalendarAsync(DateTime lastFrostDate)
+        {
             var allPlants = await GetAllPlantsAsync();
             var today = DateTime.Today;
+            var lastHarvestDeadline = new DateTime(today.Year, 8, 15);
 
             return allPlants
                 .Select(plant =>
                 {
-                    var sowFromDate = lastFrostDate.AddDays(-(plant.SowingLeadTime * 7));
-                    var deadlineDate = sowFromDate.AddDays(14);
+                    // --- NORMALT FÖNSTER (din nuvarande logik) ---
+                    var sowStart = lastFrostDate.AddDays(-(plant.SowingLeadTime * 7));
+                    var sowEnd = sowStart.AddDays(14);
 
-                    return new
+                    // --- FÖRSENAD BERÄKNING (ny logik) ---
+                    // Kortaste möjliga förodlingstid
+                    var leadMin = plant.SowingLeadTimeMin ?? (plant.SowingLeadTime - 2);
+                    // Plantering ut: sowing_lead_time - weeks_before_frost = inomhustiden
+                    var indoorWeeks = Math.Max(0, leadMin - plant.WeeksBeforeFrost);
+
+                    // Om man sår idag, när kan man plantera ut och när skördas det?
+                    var latestPlantOut = today.AddDays(indoorWeeks * 7);
+                    var latestHarvestEarly = plant.DevelopDaysMin.HasValue
+                        ? today.AddDays(plant.DevelopDaysMin.Value)
+                        : (DateTime?)null;
+                    var latestHarvestLate = plant.DevelopDaysMax.HasValue
+                        ? today.AddDays(plant.DevelopDaysMax.Value)
+                        : (DateTime?)null;
+
+                    // Känsliga/halvhärdiga: utplantering tidigast vid sista frost
+                    if (plant.HardinessLevel <= 1 && latestPlantOut < lastFrostDate)
+                        latestPlantOut = lastFrostDate;
+
+                    // Hinner skörden före 15 aug?
+                    bool harvestAfterAug = latestHarvestEarly.HasValue &&
+                                           latestHarvestEarly.Value > lastHarvestDeadline;
+
+                    bool inNormalWindow = today >= sowStart && today <= sowEnd;
+                    bool canStillSow = today > sowEnd           // Passerat normalt fönster
+                                        && !harvestAfterAug;         // Men hinner skördas
+
+                    return new PlantSowingView
                     {
                         Plant = plant,
-                        SowFrom = sowFromDate,
-                        Deadline = deadlineDate
+                        IsInNormalWindow = inNormalWindow,
+                        IsShifted = !inNormalWindow && canStillSow,
+                        HarvestAfterAug = harvestAfterAug,
+                        SowDate = inNormalWindow ? sowStart : (canStillSow ? today : null),
+                        PlantOutDate = latestPlantOut,
+                        HarvestDateEarly = latestHarvestEarly,
+                        HarvestDateLate = latestHarvestLate,
                     };
                 })
-                .Where(x => today >= x.SowFrom && today <= x.Deadline)
-                .OrderBy(x => x.SowFrom)
-                .Select(x => x.Plant)
+                .Where(x => x.IsInNormalWindow || x.IsShifted)
+                .OrderBy(x => x.IsShifted)          // Normala fönstret först
+                .ThenBy(x => x.SowDate)
                 .ToList();
         }
+
 
         /// <summary>
         /// Asynchronously adds a new variety to the data store.
