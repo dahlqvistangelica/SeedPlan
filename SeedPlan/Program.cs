@@ -8,6 +8,7 @@ using SeedPlan.Shared.Models;
 using Supabase;
 using Supabase.Gotrue;
 using Supabase.Gotrue.Interfaces;
+using System.Text;
 
 namespace SeedPlan
 {
@@ -117,6 +118,56 @@ namespace SeedPlan
             // Security
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Static SSR for some routes. 
+            app.MapGet("/om-oss", () => Results.Content(
+                GenerateStaticPage("Om SeedPlan", "Vi hjälper odlare..."),
+                "text/html"));
+
+            app.MapGet("/guide-preview", () => Results.Content(
+                GenerateGuidePreview(),
+                "text/html"));
+
+            app.MapGet("/sitemap.xml", async (IPlantLibraryService plantService) =>
+            {
+                var plants = await plantService.GetAllPlantsAsync();
+
+                var xml = new StringBuilder();
+                xml.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                xml.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
+
+                // Startsida
+                xml.AppendLine("<url>");
+                xml.AppendLine($"<loc>https://seedplan.se/</loc>");
+                xml.AppendLine($"<lastmod>{DateTime.UtcNow:yyyy-MM-dd}</lastmod>");
+                xml.AppendLine("<priority>1.0</priority>");
+                xml.AppendLine("</url>");
+
+                // Guide
+                xml.AppendLine("<url>");
+                xml.AppendLine($"<loc>https://seedplan.se/guide</loc>");
+                xml.AppendLine("<priority>0.8</priority>");
+                xml.AppendLine("</url>");
+
+                // Dynamiska växtsidor (om du lägger till dessa)
+                foreach (var plant in plants.Take(100))
+                {
+                    xml.AppendLine("<url>");
+                    xml.AppendLine($"<loc>https://seedplan.se/guide/{SlugifyPlantName(plant.PlantName)}</loc>");
+                    xml.AppendLine("<priority>0.6</priority>");
+                    xml.AppendLine("</url>");
+                }
+
+                xml.AppendLine("</urlset>");
+
+                return Results.Content(xml.ToString(), "application/xml");
+            });
+
+            string SlugifyPlantName(string name) =>
+                name.ToLower()
+                    .Replace("å", "a").Replace("ä", "a").Replace("ö", "o")
+                    .Replace(" ", "-");
+
 
             // Map components and render modes
             app.MapRazorComponents<App>()

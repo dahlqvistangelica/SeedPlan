@@ -1,0 +1,49 @@
+﻿@page "/vaxtguide"
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
+@inject IPlantLibraryService PlantService
+
+<PageTitle>Växtguide - Gratis databas med 200+ växter - SeedPlan</PageTitle>
+<SeoHead Title="Växtguide - 200+ växter med odlingsråd och härdighet"
+         Description="Komplett guide till grönsaker, örter och blommor. Sådatum, härdighet, ljusbehov och mer. Perfekt för svenska odlare."
+         Keywords="växtguide, odlingsråd, härdighet, sådatum, trädgårdstips" />
+
+<div class="preview-page">
+    <h1>Växtguide 🌿</h1>
+    <p>Utforska vår databas med över 200 växter. Logga in för full åtkomst.</p>
+    
+    @* Visa 10-20 växter som exempel *@
+    <div class="plant-preview-grid">
+        @foreach (var plant in plantSample)
+        {
+            <div class="plant-preview-card">
+                <h3>@plant.PlantName</h3>
+                <p>Sås @plant.SowingLeadTime veckor före frost</p>
+                <span class="badge">@GetHardinessText(plant.HardinessLevel)</span>
+            </div>
+        }
+    </div>
+    
+    <div class="cta-login">
+        <h2>Se alla växter och få personliga såråd</h2>
+        <a href="/register" class="btn-primary">Skapa gratis konto</a>
+    </div>
+</div>
+
+@code {
+    private List<Plant> plantSample = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        var allPlants = await PlantService.GetAllPlantsAsync();
+        plantSample = allPlants.Take(20).ToList();
+    }
+    
+    private string GetHardinessText(int level) => level switch
+    {
+        0 => "Känslig",
+        1 => "Halvhärdig",
+        2 => "Härdig",
+        _ => ""
+    };
+}
