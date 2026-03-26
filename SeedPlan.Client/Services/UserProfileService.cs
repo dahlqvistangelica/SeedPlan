@@ -50,6 +50,8 @@ namespace SeedPlan.Client.Services
         /// <returns>A task that represents the asynchronous update operation.</returns>
         public async Task UpdateUserProfile(UserProfile userProfile)
         {
+            await _supabase.InitializeAsync();
+
             var user = _supabase.Auth.CurrentUser;
             if(user == null)
             {
@@ -58,6 +60,19 @@ namespace SeedPlan.Client.Services
 
             userProfile.Id = user.Id;
             userProfile.UpdatedLast = DateTime.UtcNow;
+
+            var existingProfile = await _supabase
+                .From<UserProfile>()
+                .Where(x => x.Id == user.Id)
+                .Get();
+
+            if (existingProfile.Model == null)
+            {
+                await _supabase
+                    .From<UserProfile>()
+                    .Insert(userProfile);
+                return;
+            }
 
             await _supabase
                 .From<UserProfile>()
@@ -76,7 +91,15 @@ namespace SeedPlan.Client.Services
         /// <returns></returns>
         public async Task UpsertUserProfile(UserProfile userProfile)
         {
-            
+            await _supabase.InitializeAsync();
+
+            var user = _supabase.Auth.CurrentUser;
+            if (user == null)
+            {
+                return;
+            }
+
+            userProfile.Id = user.Id;
             userProfile.UpdatedLast = DateTime.UtcNow;
 
             await _supabase
