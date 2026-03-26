@@ -62,7 +62,7 @@
                                     <h3>
                                         @sowing.PlantName
                                         <span class="variety-name">(@(sowing.VarietyName ?? "Okänd sort"))</span>
-                                        <span class="batch-badge">Omgång @sowing.BatchNumber</span>
+                                        <span class="batch-badge"><span class="hide-on-mobile">Omgång</span> @sowing.BatchNumber</span>
                                     </h3>
                                     <p class="sown-date">
                                         <Blazicon Svg="Lucide.Calendar" />
@@ -274,8 +274,8 @@
                 }
 
                 <div class="modal-actions">
-                    <button type="button" class="sp-submit-btn" disabled="@isStatusUpdating" @onclick="SubmitStatusDialog">Spara</button>
-                    <button type="button" class="sp-cancel-btn" disabled="@isStatusUpdating" @onclick="CloseStatusDialog">Avbryt</button>
+                    <button type="button" class="btn-primary" disabled="@isStatusUpdating" @onclick="SubmitStatusDialog">Spara</button>
+                    <button type="button" class="btn-secondary" disabled="@isStatusUpdating" @onclick="CloseStatusDialog">Avbryt</button>
                 </div>
             </div>
         </div>
@@ -305,8 +305,8 @@
                 }
 
                 <div class="modal-actions">
-                    <button type="button" class="sp-submit-btn" disabled="@isStatusUpdating" @onclick="SaveProgressDialogAsync">Spara</button>
-                    <button type="button" class="sp-cancel-btn" disabled="@isStatusUpdating" @onclick="CloseProgressDialog">Avbryt</button>
+                    <button type="button" class="btn-primary" disabled="@isStatusUpdating" @onclick="SaveProgressDialogAsync">Spara</button>
+                    <button type="button" class="btn-secondary" disabled="@isStatusUpdating" @onclick="CloseProgressDialog">Avbryt</button>
                 </div>
             </div>
         </div>

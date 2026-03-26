@@ -102,7 +102,13 @@
                 </div>
                 <div class="info-box">
                     <label>PLANTAVSTÅND</label>
-                    <span>@(Plant.PlantSpacing?.ToString() + " cm" ?? "Okänt")</span>
+                    @if (Plant.PlantSpacing == 0 || Plant.PlantSpacing == null)
+                        {
+                            <span>Okänt.</span>
+                                }
+                        else
+                        { <span>@Plant.PlantSpacing.ToString() cm</span> }
+                    
                 </div>
                 <div class="info-box">
                     <label>UTVECKLINGSTID</label>
@@ -110,7 +116,16 @@
                 </div>
                 <div class="info-box">
                     <label>SÅDJUP</label>
-                    <span>@(Plant.SowingDepth?.ToString() + " cm" ?? "Okänt")</span>
+                    @if (Plant.SowingDepth == 0 || Plant.SowingDepth == null)
+                    {
+                        <span>Okänt.</span>
+                    }
+                    else
+                    {
+
+                        <span>@Plant.SowingDepth.ToString() cm</span>
+                    }
+                    
                 </div>
             </div>
 
@@ -157,7 +172,7 @@
 
     private void ToggleAddForm() => showAddForm = !showAddForm;
 
-    private string GetSowingAdvice(Plant plant) => $"Inga planteringsråd om {plant.PlantName} ännu";
+    private string GetSowingAdvice(Plant plant) => $"Kommande funktion";
 
     private string GetPlantingText(int weeks)
     {

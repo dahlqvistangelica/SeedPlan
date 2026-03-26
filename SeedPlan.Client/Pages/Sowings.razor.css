@@ -80,12 +80,15 @@
     margin: 0;
     font-size: 1.2rem;
     color: #1e293b;
+    font-family: 'Lora', serif;
 }
 
 .variety-name {
     font-weight: 400;
     color: #94a3b8;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    text-wrap:pretty;
 }
 
 .batch-badge {
@@ -215,8 +218,8 @@
 }
 
 .delete-btn:disabled,
-.sp-submit-btn:disabled,
-.sp-cancel-btn:disabled {
+.btn-primary:disabled,
+.btn-secondary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -263,11 +266,18 @@
     margin-top: 0.75rem;
     border-top: 1px solid #eef2f7;
     padding-top: 0.75rem;
+    color: var(--text-muted);
 }
+    .events-section span {
+        font-family: 'Inter', sans-serif;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: var( --text-muted);
+    }
 
 .events-summary {
     cursor: pointer;
-    color: #334155;
+    color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 600;
 }
@@ -387,6 +397,11 @@
 
 /* --- Responsiveness (Mobile) --- */
 @media (max-width: 600px) {
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0px;
+    }
     .hide-on-mobile {
         display: none;
     }
@@ -423,13 +438,16 @@
     }
     .title-area h3{
         font-size: 1.3rem;
+        font-family: 'Lora', serif;
     }
     .title-area .variety-name {
-        font-size: 0.9rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
     }
     .step {
         width: 30px;
         height: 30px;
+        font-size: 1.2rem;
         background: white;
         border: 2px solid #f1f5f9;
         border-radius: 50%;

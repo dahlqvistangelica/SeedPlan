@@ -85,12 +85,15 @@
 /* --- Modal --- */
 .settings-modal-backdrop {
     position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.4);
-    display: grid;
-    place-items: center;
-    z-index: 1000;
-    font-family: inherit;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 
 .settings-modal {
@@ -110,7 +113,7 @@
     color: #0f172a;
     font-size: 1.25rem;
     font-weight: 600;
-    font-family: inherit;
+
 }
 
 .settings-modal p {
@@ -262,4 +265,18 @@ hr {
     border: none;
     border-top: 1px solid #f1f5f9;
     margin: 1.5rem 0;
+}
+
+@media (max-width: 480px){
+    .settings-modal {
+        background: white;
+        padding: 2rem;
+        border-radius: 24px;
+        width: 80%;
+        max-width: 420px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
 }
