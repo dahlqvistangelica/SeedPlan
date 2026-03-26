@@ -607,68 +607,48 @@ Planering och Statistik läggs inte i bottom nav initialt (för att hålla navba
 
 #### Ticket-förslag (GitHub Issues) – Prio 3
 
-**P3-01: DB migration – `batch_number` + `sowing_events` + RLS**
-- Scope:
-  - Lägg till `batch_number int not null default 1` på `sowings`
-  - Skapa `sowing_events` enligt sektion 7.3
-  - Lägg till RLS-policies för `sowing_events`
-- Acceptanskriterier:
-  - Migration kan köras utan fel i tom och befintlig databas
-  - `sowing_events` har RLS med `auth.uid() = user_id`
-  - Existerande såddar påverkas inte negativt
+#### Implementationsstatus (uppdaterad 2026-03-26)
 
-**P3-02: Statusnormalisering och enum-mappning**
-- Scope:
-  - Uppdatera enum/konstanter för nytt flöde (inkl. Skörd, Avslutad, Misslyckad)
-  - Hantera bakåtkompatibilitet för äldre värden (3/4)
-- Acceptanskriterier:
-  - Alla statusvärden kan läsas/skrivas utan cast-fel
-  - Befintliga poster får korrekt status efter migrering
-  - Enhetstester täcker mappningen
+Statusmarkeringar i denna sektion:
+- ✅ klart
+- 🟡 delvis klart
+- 🔨 ej påbörjat/ej klart
 
-**P3-03: Central statusmotor i service-lagret**
-- Scope:
-  - Inför `CanTransition` och `UpdateSowingStatusAsync`
-  - Validera tillåtna övergångar och blockera ogiltiga
-- Acceptanskriterier:
-  - Ogiltiga övergångar returnerar tydligt fel
-  - Giltiga övergångar uppdaterar status korrekt
-  - Tester finns för minst alla grannövergångar + misslyckad-vägen
+Ticketstatus just nu:
+- **P3-01: DB migration – `batch_number` + `sowing_events` + RLS** → ✅ klart
+  - `batch_number` finns i schemaflödet.
+  - `sowing_events` skapas och RLS-policy (`auth.uid() = user_id`) finns i migrationer.
+  - Migrationerna är idempotenta för både tom och befintlig databas.
+- **P3-02: Statusnormalisering och enum-mappning** → ✅ klart
+  - Ny enum och statusmappning används konsekvent i klientkod.
+  - Bakåtkompatibilitet för äldre värden hanteras i migrationen för statusnormalisering.
+  - Enhetstest för mappning/övergångar passerar.
+- **P3-03: Central statusmotor i service-lagret** → ✅ klart
+  - `CanTransition` + `UpdateSowingStatusAsync(request)` används som central väg.
+  - Wrappern `UpdateSowingStatus(id, status)` finns kvar för bakåtkompatibilitet.
+  - Ogiltiga övergångar blockeras och returnerar tydliga fel.
+- **P3-04: Händelseloggning vid statusändring** → ✅ klart
+  - Klient och RPC skickar/stödjer metadata (`seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`).
+  - `sowing_events` + RLS säkrade i migrationskedjan.
+- **P3-05: UI – omgångsnummer i listor och detaljer** → ✅ klart
+  - Omgångsnummer visas konsekvent i Såddar-vyn och i dashboardens såddrelaterade kort.
+  - Nästa omgångsnummer sätts automatiskt vid ny sådd per frö.
+  - Enhetstester verifierar beräkningen av nästa omgångsnummer.
+- **P3-06: UI – nytt statusflöde + dialoger för specialfall** → ✅ klart
+  - Nya steg och specialdialoger finns för `0 -> 1` (antal), `-> 6` (vikt/antal), `-> 99` (orsak).
+  - UI använder inte optimistisk uppdatering och visar tydliga fel vid ogiltig transition/serverfel.
+- **P3-07: Raderingslogik och lageråterföring** → ✅ klart
+  - Radering följer regel: status `< 1` återför frön till lager, status `>= 1` återför inte.
+  - UI visar tydlig information när återföring inte sker ("Fröna återförs inte till lagret eftersom sådden redan grott.").
+  - Minimala enhetstester finns för raderingsregeln.
+- **P3-08: Såddhistorik i detaljvy** → ✅ klart
+  - Historik från `sowing_events` visas i detaljsektion per sådd.
+  - Metadata (`seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`) renderas utan UI-fel när de finns.
+  - Tom historik hanteras med tydligt tomt tillstånd.
+- **P3-09: Integrationstester + release-checklista** → ✅ klart
+  - CI innehåller nu sammanhängande workflowtester för statuskedja, ogiltigt hopp, `x -> 99` och raderingsregel.
+  - Release-checklista med migration, smoke-test och rollback finns dokumenterad.
 
-**P3-04: Händelseloggning vid statusändring**
-- Scope:
-  - Skriv rad i `sowing_events` för varje statusbyte
-  - Stöd för metadata: `seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`
-- Acceptanskriterier:
-  - Varje lyckad statusändring skapar exakt en eventrad
-  - Eventraden innehåller korrekt `user_id`, `sowing_id`, datum och `event_type`
-  - Tester verifierar både standardevent och event med metadata
-
-**P3-05: UI – omgångsnummer i listor och detaljer**
-- Scope:
-  - Visa omgångsnummer konsekvent i Dashboard/Såddar/detalj
-  - Sätt nästa lediga omgångsnummer vid ny sådd
-- Acceptanskriterier:
-  - Två aktiva såddar av samma frö visas med olika omgångsnummer
-  - Sortering och visning är konsekvent mellan vyer
-
-**P3-06: UI – nytt statusflöde + dialoger för specialfall**
-- Scope:
-  - Lägg till UI-steg för Skörd, Avslutad, Misslyckad
-  - Dialoger för groddning (antal), skörd (vikt/antal), misslyckad (orsak)
-- Acceptanskriterier:
-  - Användaren kan gå från Sådd till Avslutad via giltiga steg
-  - Misslyckad kan väljas från alla aktiva steg
-  - Extra fält sparas till händelselogg
-
-**P3-07: Raderingslogik och lageråterföring**
-- Scope:
-  - Implementera regel: status `< 1` återför frö, status `>= 1` återför inte
-  - Visa tydlig information i UI när återföring inte sker
-- Acceptanskriterier:
-  - Lagersaldo ökar korrekt vid radering av status 0
-  - Lagersaldo ändras inte vid radering av status 1+
-  - Automatiserade tester täcker båda vägarna
 
 **P3-08: Såddhistorik i detaljvy**
 - Scope:
@@ -688,190 +668,30 @@ Planering och Statistik läggs inte i bottom nav initialt (för att hålla navba
   - Checklista inkluderar migration, smoke-test, rollback-steg
   - Prio 3 kan verifieras mot Definition of Done
 
+  **Release-checklista (Prio 3)**
+  1. **Förberedelse**
+    - Säkerställ backup/snapshot av databasen.
+    - Verifiera att inga pågående manuella schemaändringar finns i målmiljön.
+  2. **Migrering**
+    - Kör migrationer i ordning till senaste version.
+    - Bekräfta att `sowings.batch_number` finns.
+    - Bekräfta att `sowing_events` finns med index och RLS-policy för `auth.uid() = user_id`.
+    - Bekräfta att funktionen `update_sowing_status_with_event(...)` kan exekveras av `authenticated`.
+  3. **Smoke-test i appen**
+    - Skapa ny sådd och verifiera status `0`.
+    - Kör kedjan `0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7`.
+    - Verifiera att `3 -> 5` blockeras med tydligt fel.
+    - Verifiera att `x -> 99` fungerar från aktiva steg men inte från terminala steg.
+    - Verifiera att specialdialoger triggas för `0 -> 1`, `-> 6`, `-> 99`.
+    - Verifiera att exakt en rad per statusändring skapas i `sowing_events`.
+  4. **Övervakning efter deploy**
+    - Kontrollera klientloggar för statusuppdateringar och RPC-fel.
+    - Kontrollera databasen för oväntade fel i transitions och eventinserts.
+  5. **Rollback-plan**
+    - Vid blockerande fel: stoppa deploy, återställ databas till snapshot och återdeploya senaste stabila version.
+    - Dokumentera incident och vilka migrationssteg som hann tillämpas.
+
 **Föreslagen ordning:** P3-01 → P3-02 → P3-03 → P3-04 → P3-05/P3-06 → P3-07 → P3-08 → P3-09
-
-#### GitHub Issue-mallar (copy-paste) – Prio 3
-
-**Issue 1**
-```md
-Title: P3-01 DB migration: batch_number + sowing_events + RLS
-
-## Bakgrund
-Prio 3 kräver utökad såddhantering med omgångsnummer och händelselogg.
-
-## Scope
-- Lägg till `batch_number int not null default 1` på `sowings`
-- Skapa tabellen `sowing_events` enligt SPEC sektion 7.3
-- Lägg till RLS-policies för `sowing_events` med `auth.uid() = user_id`
-
-## Acceptanskriterier
-- Migration kör utan fel i tom och befintlig databas
-- `sowing_events` har fungerande RLS
-- Existerande såddar påverkas inte negativt
-
-## Definition of Done
-- Migration mergad och verifierad lokalt + i Supabase
-```
-
-**Issue 2**
-```md
-Title: P3-02 Statusnormalisering och enum-mappning
-
-## Bakgrund
-Statusflödet ska stödja Skörd, Avslutad och Misslyckad samt vara bakåtkompatibelt.
-
-## Scope
-- Uppdatera enum/konstanter för nytt statusflöde
-- Hantera äldre statusvärden (inkl. 3/4) via migration/mappning
-
-## Acceptanskriterier
-- Alla statusvärden kan läsas/skrivas utan cast-fel
-- Befintliga poster får korrekt status efter migrering
-- Enhetstester täcker mappningen
-
-## Definition of Done
-- Ny statusmappning används konsekvent i appen
-```
-
-**Issue 3**
-```md
-Title: P3-03 Central statusmotor i service-lagret
-
-## Bakgrund
-Statusövergångar behöver central validering för att undvika inkonsistenta tillstånd.
-
-## Scope
-- Implementera `CanTransition`
-- Implementera `UpdateSowingStatusAsync`
-- Blockera ogiltiga övergångar med tydligt fel
-
-## Acceptanskriterier
-- Ogiltiga övergångar returnerar tydligt fel
-- Giltiga övergångar uppdaterar status korrekt
-- Tester täcker grannövergångar + misslyckad-vägen
-
-## Definition of Done
-- All statusändring går via central statusmotor
-```
-
-**Issue 4**
-```md
-Title: P3-04 Händelseloggning vid statusändring
-
-## Bakgrund
-Varje statusbyte ska kunna följas upp i historik och statistik.
-
-## Scope
-- Skriv en rad i `sowing_events` vid varje lyckad statusändring
-- Stöd metadata: `seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`
-
-## Acceptanskriterier
-- Varje lyckad statusändring skapar exakt en eventrad
-- Event innehåller korrekt `user_id`, `sowing_id`, datum och `event_type`
-- Tester verifierar standardevent + event med metadata
-
-## Definition of Done
-- Händelselogg är komplett för alla statusändringar
-```
-
-**Issue 5**
-```md
-Title: P3-05 UI: omgångsnummer i listor och detaljer
-
-## Bakgrund
-Flera såddar av samma frö/art ska vara tydligt separerade.
-
-## Scope
-- Visa omgångsnummer i relevanta listor/kort/detalj
-- Sätt nästa lediga omgångsnummer vid ny sådd
-
-## Acceptanskriterier
-- Två aktiva såddar av samma frö visas med olika omgångsnummer
-- Sortering/visning är konsekvent mellan vyer
-
-## Definition of Done
-- Omgångsnummer syns och fungerar i hela UI-flödet
-```
-
-**Issue 6**
-```md
-Title: P3-06 UI: nytt statusflöde + dialoger för specialfall
-
-## Bakgrund
-Nya statusar kräver nya användarflöden och extra input i vissa steg.
-
-## Scope
-- Lägg till UI-steg för Skörd, Avslutad, Misslyckad
-- Dialog för groddning (antal), skörd (vikt/antal), misslyckad (orsak)
-
-## Acceptanskriterier
-- Användaren kan gå från Sådd till Avslutad via giltiga steg
-- Misslyckad kan väljas från alla aktiva steg
-- Extra fält sparas till händelselogg
-
-## Definition of Done
-- Statusflödet i UI matchar affärsregler och service-validering
-```
-
-**Issue 7**
-```md
-Title: P3-07 Raderingslogik och lageråterföring
-
-## Bakgrund
-Lagerregler vid radering är kritiska för korrekt frösaldo.
-
-## Scope
-- Implementera regel: status `< 1` återför frö, status `>= 1` återför inte
-- Visa info i UI när återföring inte sker
-
-## Acceptanskriterier
-- Lagersaldo ökar korrekt vid radering av status 0
-- Lagersaldo ändras inte vid radering av status 1+
-- Tester täcker båda raderingsvägarna
-
-## Definition of Done
-- Raderingsflödet följer affärsregler i sektion 12 exakt
-```
-
-**Issue 8**
-```md
-Title: P3-08 Såddhistorik i detaljvy
-
-## Bakgrund
-Användaren behöver kunna se en tydlig historik över händelser per sådd.
-
-## Scope
-- Visa tidslinje/lista från `sowing_events` i sådddetalj
-- Rendera metadata och anteckningar per event
-
-## Acceptanskriterier
-- Historik visas i kronologisk ordning
-- Event utan metadata visas utan UI-fel
-- Event med metadata visar rätt värden
-
-## Definition of Done
-- Sådddetalj innehåller komplett och läsbar historik
-```
-
-**Issue 9**
-```md
-Title: P3-09 Integrationstester + release-checklista
-
-## Bakgrund
-Prio 3 behöver verifieras end-to-end före release.
-
-## Scope
-- Lägg till integrationstest för kedjan: skapad sådd → statusflöde → ev. radering
-- Dokumentera release-checklista och rollback-plan
-
-## Acceptanskriterier
-- CI innehåller test som täcker Prio 3-kedjan
-- Checklista inkluderar migration, smoke-test och rollback
-- Prio 3 verifieras mot Definition of Done
-
-## Definition of Done
-- Teamet kan releasa Prio 3 med låg risk och tydlig återställningsplan
-```
 
 ### Prioritet 4 – Utökat fröinventarie
 - Nya fält: inköpsdatum, inköpsställe, grobarhetsprocent

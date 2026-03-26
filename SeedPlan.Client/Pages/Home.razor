@@ -36,7 +36,7 @@
                                 <Blazicon Svg="Lucide.TriangleAlert" />
                             </div>
                             <div class="notification-content">
-                                <span class="notification-plant">@sowing.PlantName</span>
+                                <span class="notification-plant">@sowing.PlantName - Omgång @sowing.BatchNumber</span>
                                 <span class="notification-message">@warning.message</span>
                             </div>
                             <Blazicon Svg="Lucide.ChevronRight" />
@@ -212,7 +212,7 @@
     private SowingOverview overview = new();
     private List<Sowing> activeSowings = new();
     private List<PlantSowingView> sowingSuggestions = new();
-    private int countGerminated, countRepotted, countAcclimated, countPlantedOut;
+    private int countGerminated, countRepotted, countAcclimated, countPlantedOut, countHarvested;
 
     private bool showDetailModal = false;
     private bool showSowModal = false;
@@ -242,6 +242,7 @@
         try
         {
             isLoading = true;
+
             //Get profile
             userProfile = await ProfileService.GetUserProfile();
             if (userProfile?.LastFrostDate != null)
@@ -253,18 +254,16 @@
             }
             //Get sowings
             var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
-
             allSowingViews = await SowingService.GetMySowingViews();
             await NotificationService.CheckAndNotifyStaleAsync(allSowingViews);
 
-            //Converting to int.
-            activeSowings = allSowings.Where(s => (int)s.Status < 7).ToList();
+            activeSowings = allSowings.Where(s => SowingStatusFlow.IsActive(s.Status)).ToList();
 
-            countGerminated = activeSowings.Count(s => (int)s.Status >= 1 && (int)s.Status <= 2);
-            countRepotted = activeSowings.Count(s => (int)s.Status >= 3 && (int)s.Status <= 4);
-            countAcclimated = activeSowings.Count(s => (int)s.Status == 5);
-            countPlantedOut = activeSowings.Count(s => (int)s.Status == 6);
-
+            countGerminated = activeSowings.Count(s => s.Status is >= 1 and <= 2);
+            countRepotted = activeSowings.Count(s => s.Status == (int)SowingStatus.PottedOn);
+            countAcclimated = activeSowings.Count(s => s.Status == (int)SowingStatus.HardeningOff);
+            countPlantedOut = activeSowings.Count(s => s.Status == (int)SowingStatus.PlantedOut);
+            countHarvested = activeSowings.Count(s => s.Status == (int)SowingStatus.Harvested);
         }
         catch (Exception ex)
         {

@@ -30,6 +30,8 @@ namespace SeedPlan.Shared.Models
         [Column("status_updated_at")]
         public DateTime? StatusUpdatedAt { get; set; }
 
+        [Column("batch_number")]
+        public int BatchNumber { get; set; } = 1;
         // This is used to display the seed name in the interface
         //[Reference(typeof(Seed))]
         //public Seed? Seed { get; set; }

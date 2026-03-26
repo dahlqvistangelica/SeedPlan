@@ -88,6 +88,18 @@
     font-size: 1rem;
 }
 
+.batch-badge {
+    margin-left: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #0f766e;
+    background: #ccfbf1;
+    border: 1px solid #99f6e4;
+    border-radius: 999px;
+    padding: 2px 8px;
+    vertical-align: middle;
+}
+
 .sown-quantity {
     font-weight: 700;
     color: #10b981;
@@ -182,6 +194,18 @@
     transform: scale(1.15);
 }
 
+.step.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.delete-btn:disabled,
+.sp-submit-btn:disabled,
+.sp-cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 /* INFOBOX DESIGN */
 
 .info-box {
@@ -218,6 +242,66 @@
 .warning-box svg {
     min-width: 18px;
     color: #f97316;
+}
+
+.events-section {
+    margin-top: 0.75rem;
+    border-top: 1px solid #eef2f7;
+    padding-top: 0.75rem;
+}
+
+.events-summary {
+    cursor: pointer;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.events-loading,
+.events-empty {
+    margin-top: 0.5rem;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.events-list {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.event-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+}
+
+.event-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.event-type {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 0.82rem;
+}
+
+.event-date {
+    color: #64748b;
+    font-size: 0.78rem;
+}
+
+.event-meta,
+.event-notes {
+    margin-top: 0.25rem;
+    color: #334155;
+    font-size: 0.82rem;
 }
 
 /* --- Grouping and headings --- */
