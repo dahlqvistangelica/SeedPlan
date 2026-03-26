@@ -164,6 +164,50 @@ namespace SeedPlan.Client.Services
             }
         }
 
+        public async Task UpdateSowingProgressAsync(UpdateSowingProgressRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedAccessException("You have to be logged in to edit sowings.");
+            }
+
+            if (request.ActiveSeedlingCount.HasValue && request.ActiveSeedlingCount.Value < 0)
+            {
+                throw new ArgumentException("Aktivt antal plantor kan inte vara negativt.");
+            }
+
+            if (!request.ActiveSeedlingCount.HasValue && string.IsNullOrWhiteSpace(request.Notes))
+            {
+                throw new ArgumentException("Lägg till en anteckning eller ange aktivt antal plantor.");
+            }
+
+            var sowing = await GetOwnedSowingAsync(request.SowingId, userId);
+
+            if (request.ActiveSeedlingCount.HasValue)
+            {
+                sowing.Quantity = request.ActiveSeedlingCount.Value;
+                await _supabase.From<Sowing>().Update(sowing);
+            }
+
+            var progressEvent = new SowingEvent
+            {
+                SowingId = request.SowingId,
+                UserId = userId,
+                EventType = "progress_note",
+                EventDate = request.EventDate?.Date ?? DateTime.Today,
+                SeedlingsCount = request.ActiveSeedlingCount,
+                Notes = request.Notes
+            };
+
+            await _supabase.From<SowingEvent>().Insert(progressEvent);
+        }
+
         private async Task<Sowing> GetOwnedSowingAsync(int sowingId, string userId)
         {
             var response = await _supabase

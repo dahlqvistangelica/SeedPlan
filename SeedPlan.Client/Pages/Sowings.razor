@@ -76,6 +76,9 @@
                             </div>
                             <div class="header-actions">
                                 <span class="status-badge hide-on-mobile">@GetStatusText(sowing.Status)</span>
+                                <button class="note-btn" title="Lägg till anteckning" disabled="@isStatusUpdating" @onclick="() => OpenProgressDialog(sowing)">
+                                    <span aria-hidden="true">✎</span>
+                                </button>
                                 @if (sowing.Status != (int)SowingStatus.Failed && sowing.Status != (int)SowingStatus.Finished)
                                 {
                                     <button class="delete-btn" title="Markera som misslyckad" disabled="@isStatusUpdating" @onclick="() => UpdateStatus(sowing, (int)SowingStatus.Failed)">
@@ -279,6 +282,37 @@
     </div>
 }
 
+@if (showProgressDialog && progressDialogSowing != null)
+{
+    <div class="modal-overlay" @onclick="CloseProgressDialog">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <div class="modal-body">
+                <h3>Anteckning för @progressDialogSowing.PlantName (Omgång @progressDialogSowing.BatchNumber)</h3>
+
+                <div class="input-block">
+                    <label>Aktivt antal plantor</label>
+                    <input type="number" class="sp-input" @bind="progressDialogActiveCount" min="0" />
+                </div>
+
+                <div class="input-block">
+                    <label>Anteckning</label>
+                    <textarea class="sp-textarea" @bind="progressDialogNotes" placeholder="Skriv hur det går, vad som ändrats osv."></textarea>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(progressDialogErrorMessage))
+                {
+                    <p class="error-msg">@progressDialogErrorMessage</p>
+                }
+
+                <div class="modal-actions">
+                    <button type="button" class="sp-submit-btn" disabled="@isStatusUpdating" @onclick="SaveProgressDialogAsync">Spara</button>
+                    <button type="button" class="sp-cancel-btn" disabled="@isStatusUpdating" @onclick="CloseProgressDialog">Avbryt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<SowingView> mySowings = new();
     private string currentGrouping = "none";
@@ -300,6 +334,11 @@
     private string? deleteInfoMessage;
     private readonly Dictionary<int, List<SowingEvent>> sowingEventsBySowingId = new();
     private readonly HashSet<int> loadingEventSowingIds = new();
+    private bool showProgressDialog;
+    private SowingView? progressDialogSowing;
+    private int? progressDialogActiveCount;
+    private string? progressDialogNotes;
+    private string? progressDialogErrorMessage;
 
     private void OpenAddSowing()
     {
@@ -483,6 +522,7 @@
 
             sowing.Status = request.TargetStatus;
             sowing.StatusUpdatedAt = request.EventDate ?? DateTime.Now;
+            await RefreshEventsIfLoadedAsync(sowing.Id);
 
             showStatusDialog = false;
             dialogSowing = null;
@@ -518,6 +558,69 @@
         showStatusDialog = false;
         dialogSowing = null;
         dialogErrorMessage = null;
+    }
+
+    private void OpenProgressDialog(SowingView sowing)
+    {
+        progressDialogSowing = sowing;
+        progressDialogActiveCount = sowing.Quantity;
+        progressDialogNotes = string.Empty;
+        progressDialogErrorMessage = null;
+        showProgressDialog = true;
+    }
+
+    private void CloseProgressDialog()
+    {
+        showProgressDialog = false;
+        progressDialogSowing = null;
+        progressDialogErrorMessage = null;
+    }
+
+    private async Task SaveProgressDialogAsync()
+    {
+        if (progressDialogSowing == null)
+        {
+            return;
+        }
+
+        progressDialogErrorMessage = null;
+        statusErrorMessage = null;
+
+        isStatusUpdating = true;
+        updatingSowingId = progressDialogSowing.Id;
+
+        try
+        {
+            await SowingService.UpdateSowingProgressAsync(new UpdateSowingProgressRequest
+            {
+                SowingId = progressDialogSowing.Id,
+                ActiveSeedlingCount = progressDialogActiveCount,
+                Notes = progressDialogNotes,
+                EventDate = DateTime.Now
+            });
+
+            if (progressDialogActiveCount.HasValue)
+            {
+                progressDialogSowing.Quantity = progressDialogActiveCount.Value;
+            }
+
+            await RefreshEventsIfLoadedAsync(progressDialogSowing.Id);
+            CloseProgressDialog();
+        }
+        catch (ArgumentException ex)
+        {
+            progressDialogErrorMessage = ex.Message;
+        }
+        catch (Exception ex)
+        {
+            progressDialogErrorMessage = "Kunde inte spara anteckning just nu.";
+            Console.WriteLine($"Progress update failed: {ex.Message}");
+        }
+        finally
+        {
+            isStatusUpdating = false;
+            updatingSowingId = null;
+        }
     }
 
     /// <summary>
@@ -566,6 +669,25 @@
         }
     }
 
+    private async Task RefreshEventsIfLoadedAsync(int sowingId)
+    {
+        if (!sowingEventsBySowingId.ContainsKey(sowingId) || loadingEventSowingIds.Contains(sowingId))
+        {
+            return;
+        }
+
+        loadingEventSowingIds.Add(sowingId);
+        try
+        {
+            var events = await SowingService.GetSowingEventsAsync(sowingId);
+            sowingEventsBySowingId[sowingId] = events;
+        }
+        finally
+        {
+            loadingEventSowingIds.Remove(sowingId);
+        }
+    }
+
     private string GetEventTypeText(string? eventType)
     {
         if (string.IsNullOrWhiteSpace(eventType))
@@ -576,6 +698,11 @@
         if (int.TryParse(eventType, out var statusValue))
         {
             return GetStatusText(statusValue);
+        }
+
+        if (string.Equals(eventType, "progress_note", StringComparison.OrdinalIgnoreCase))
+        {
+            return "ANTECKNING";
         }
 
         return eventType;
