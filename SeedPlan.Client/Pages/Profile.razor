@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <button class="btn-save" @onclick="SaveProfile">
+        <button class="btn-save" @onclick="SaveProfile" disabled="@isSavingProfile">
             <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
         </button>
 
@@ -138,6 +138,7 @@
     private string confirmPassword = "";
     private string passwordStatus = "";
     private bool isUpdatingPassword = false;
+    private bool isSavingProfile = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -170,13 +171,32 @@
 
     private async Task SaveProfile()
     {
+        if (isSavingProfile)
+        {
+            return;
+        }
+
+        isSavingProfile = true;
+        statusMessage = "Sparar...";
+
         userProfile.PreferredPlantCategories = userProfile.PreferredPlantCategories
             .Distinct()
             .OrderBy(x => x)
             .ToArray();
 
-        await ProfileService.UpdateUserProfile(userProfile);
-        statusMessage = "Dina inställningar har sparats! ✨";
+        try
+        {
+            await ProfileService.UpsertUserProfile(userProfile);
+            statusMessage = "Dina inställningar har sparats! ✨";
+        }
+        catch
+        {
+            statusMessage = "Kunde inte spara inställningarna just nu.";
+        }
+        finally
+        {
+            isSavingProfile = false;
+        }
 
         await Task.Delay(2500);
         statusMessage = "";
