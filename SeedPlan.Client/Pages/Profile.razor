@@ -19,6 +19,24 @@
             <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
         </div>
 
+        <div class="input-group">
+            <label>Visa såförslag för..</label>
+            <div class="category-options">
+                @foreach (int i in Enum.GetValues(typeof(PlantCategory)))
+                {
+                    <label class="category-option" for="@i">
+                        <input type="checkbox"
+                               id="@i"
+                               name="@i"
+                               value="@i"
+                               checked="@userProfile.PreferredPlantCategories.Contains(i)"
+                               @onchange="(ChangeEventArgs e) => ToggleCategory(i, e.Value)" />
+                        <span>@GetPlantCategoryName(i)</span>
+                    </label>
+                }
+            </div>
+        </div>
+
         <button class="btn-save" @onclick="SaveProfile">
             <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
         </button>
@@ -134,6 +152,19 @@
         }
     }
 
+    private void ToggleCategory(int i, object checkedValue)
+    {
+        bool isChecked = (bool)(checkedValue ?? false);
+        if(isChecked && !userProfile.PreferredPlantCategories.Contains(i))
+        {
+            userProfile.PreferredPlantCategories.Add(i);
+        }
+        else
+        {
+            userProfile.PreferredPlantCategories.Remove(i);
+        }
+    }
+
     private async Task SaveProfile()
     {
         await ProfileService.UpsertUserProfile(userProfile);
@@ -209,5 +240,15 @@
         }
 
         isUpdatingPassword = false;
+    }
+    private string GetPlantCategoryName(int i)
+    {
+        return i switch
+        {
+        0 => "Grönsaker",
+        1 => "Blommor",
+        2 => "Örter",
+        3 => "Frukt"
+        };
     }
 }

@@ -90,10 +90,16 @@
                 </div>
             </div>
         }
+        @if(userProfile?.PreferredPlantCategories?.Any() == false)
+        {
+            <div class="alert alert-info">
+                Välj minst en kategori i inställningarna för att se såförslag.
+            </div>
+        }
 
         @* SOWING WINDOW PASSED *@
         @if (overview?.Past != null && overview.Past.Any())
-        {
+        { 
             <details class="past-section">
                 <summary>Redan passerat (@overview.Past.Count)</summary>
                 <div class="plant-grid mini">
@@ -227,7 +233,7 @@
     protected override async Task OnInitializedAsync() 
     {
         await LoadData();
-        
+
         await NotificationService.SubscribeToPushAsync();
     }
 
@@ -241,7 +247,9 @@
             if (userProfile?.LastFrostDate != null)
             {
                 overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
+                overview.Past = overview.Past.Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category)).ToList();
                 sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
+                sowingSuggestions = sowingSuggestions.Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Plant.Category)).ToList();
             }
             //Get sowings
             var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
