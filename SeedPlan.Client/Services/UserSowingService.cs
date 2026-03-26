@@ -95,8 +95,37 @@ namespace SeedPlan.Client.Services
             {
                 throw new ArgumentException("You must enter a valid number of seeds you sown");
             }
-               
+
             await _supabase.From<Sowing>().Insert(newSowing);
+
+            var sowingId = newSowing.Id;
+            if (sowingId <= 0)
+            {
+                var insertedSowingResponse = await _supabase
+                    .From<Sowing>()
+                    .Where(x => x.UserId == user.Id)
+                    .Where(x => x.SeedId == newSowing.SeedId)
+                    .Where(x => x.BatchNumber == newSowing.BatchNumber)
+                    .Order("id", Constants.Ordering.Descending)
+                    .Limit(1)
+                    .Get();
+
+                sowingId = insertedSowingResponse.Models.FirstOrDefault()?.Id ?? 0;
+            }
+
+            if (sowingId > 0)
+            {
+                var initialEvent = new SowingEvent
+                {
+                    SowingId = sowingId,
+                    UserId = user.Id,
+                    EventType = ((int)SowingStatus.Sown).ToString(),
+                    EventDate = (newSowing.SownDate ?? DateTime.Today).Date,
+                    Notes = string.IsNullOrWhiteSpace(newSowing.Notes) ? null : newSowing.Notes
+                };
+
+                await _supabase.From<SowingEvent>().Insert(initialEvent);
+            }
             
         }
         /// <summary>
@@ -364,7 +393,35 @@ namespace SeedPlan.Client.Services
                 .Order("created_at", Constants.Ordering.Ascending)
                 .Get();
 
-            return response.Models;
+            var events = response.Models;
+
+            var hasInitialSowingStep = events.Any(e => string.Equals(e.EventType, ((int)SowingStatus.Sown).ToString(), StringComparison.Ordinal));
+
+            if (!hasInitialSowingStep)
+            {
+                var sowingResponse = await _supabase
+                    .From<Sowing>()
+                    .Where(x => x.Id == sowingId)
+                    .Where(x => x.UserId == userId)
+                    .Limit(1)
+                    .Get();
+
+                var sowing = sowingResponse.Models.FirstOrDefault();
+                if (sowing != null)
+                {
+                    events.Insert(0, new SowingEvent
+                    {
+                        SowingId = sowing.Id,
+                        UserId = userId,
+                        EventType = ((int)SowingStatus.Sown).ToString(),
+                        EventDate = (sowing.SownDate ?? DateTime.Today).Date,
+                        Notes = string.IsNullOrWhiteSpace(sowing.Notes) ? null : sowing.Notes,
+                        CreatedAt = sowing.StatusUpdatedAt ?? DateTime.Now
+                    });
+                }
+            }
+
+            return events;
         }
 
         public async Task<int> GetNextBatchNumberAsync(int seedId)
