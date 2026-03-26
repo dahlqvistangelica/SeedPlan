@@ -1,25 +1,26 @@
 ﻿using FluentResults;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
-using Supabase.Gotrue;
+using System.Text.RegularExpressions;
 using System.Text.Json;
-using static System.Collections.Specialized.BitVector32;
 
 namespace SeedPlan.Client.Services
 {
     public class AuthService
     {
-        private readonly Supabase.Client _supabase;
-        private readonly SupabaseAuthStateProvider _authStateProvider;
+        private static readonly Regex UppercaseRegex = new("[A-Z]");
+        private static readonly Regex LowercaseRegex = new("[a-z]");
+
+        private readonly IAuthClient _auth;
+        private readonly IAuthStateNotifier _authStateNotifier;
         private readonly NavigationManager _nav;
         private readonly IJSRuntime _js;
 
-        public AuthService(Supabase.Client supabase, AuthenticationStateProvider authStateProvider, NavigationManager nav, IJSRuntime js)
+        public AuthService(IAuthClient auth, IAuthStateNotifier authStateNotifier, NavigationManager nav, IJSRuntime js)
         {
-            _supabase = supabase;
+            _auth = auth;
             _js = js;
-            _authStateProvider = (SupabaseAuthStateProvider)authStateProvider;
+            _authStateNotifier = authStateNotifier;
             _nav = nav;
         }
         /// <summary>
@@ -36,16 +37,16 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                var session = await _supabase.Auth.SignIn(email, password);
+                var session = await _auth.SignIn(email, password);
 
-                if (session?.User == null || string.IsNullOrEmpty(session.AccessToken))
+                if (session == null || !session.HasUser || string.IsNullOrEmpty(session.AccessToken) || string.IsNullOrEmpty(session.SessionJson))
                     return Result.Fail("Inloggning misslyckades.");
 
 
                 if (rememberMe)
                 {
                     await _js.InvokeVoidAsync("localStorage.setItem", "sb_session",
-                        JsonSerializer.Serialize(session));
+                        session.SessionJson);
                     await _js.InvokeVoidAsync("localStorage.setItem", "sb_remember_me", "true");
                     await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
 
@@ -55,12 +56,12 @@ namespace SeedPlan.Client.Services
                 else
                 {
                     await _js.InvokeVoidAsync("sessionStorage.setItem", "sb_session",
-                        JsonSerializer.Serialize(session));
+                        session.SessionJson);
                     await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
                     await _js.InvokeVoidAsync("localStorage.removeItem", "sb_remember_me");
                 }
 
-                _authStateProvider.NotifyUserChanged();
+                _authStateNotifier.NotifyUserChanged();
                 return Result.Ok();
             }
             catch (Exception ex)
@@ -85,19 +86,16 @@ namespace SeedPlan.Client.Services
             try
             {
                 // Saving name directly in Supabase metadata.
-                var options = new SignUpOptions
+                var metadata = new Dictionary<string, object>
                 {
-                    Data = new Dictionary<string, object>
-                    {
-                        { "first_name", firstName },
-                        { "last_name", lastName },
-                        { "full_name", $"{firstName} {lastName}".Trim() }
-                    }
+                    { "first_name", firstName },
+                    { "last_name", lastName },
+                    { "full_name", $"{firstName} {lastName}".Trim() }
                 };
 
-                var response = await _supabase.Auth.SignUp(email, password, options);
+                var success = await _auth.SignUp(email, password, metadata);
 
-                if (response?.User == null)
+                if (!success)
                 {
                     return Result.Fail("Registrering misslyckades.");
                 }
@@ -112,11 +110,11 @@ namespace SeedPlan.Client.Services
 
         public async Task LogoutAsync()
         {
-            await _supabase.Auth.SignOut();
+            await _auth.SignOut();
             await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
             await _js.InvokeVoidAsync("localStorage.removeItem", "sb_remember_me");
             await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
-            _authStateProvider.NotifyUserChanged(); // Update screen instantly.
+            _authStateNotifier.NotifyUserChanged(); // Update screen instantly.
             //Change: Removed 'forceLoad: true'. Soft renderingen without blink.
             _nav.NavigateTo("/");
         }
@@ -142,14 +140,28 @@ namespace SeedPlan.Client.Services
 
         // Add these methods to AuthService
 
-        public async Task<Result> UpdateEmailAsync(string newEmail)
+        public async Task<Result> UpdateEmailAsync(string newEmail, string currentPassword)
         {
             try
             {
-                var attrs = new UserAttributes { Email = newEmail };
-                var response = await _supabase.Auth.Update(attrs);
+                var userEmail = _auth.CurrentUserEmail;
+                if (userEmail == null)
+                {
+                    return Result.Fail("Kunde inte hämta användaruppgifter.");
+                }
 
-                if (response?.Email == null)
+                try
+                {
+                    await _auth.SignIn(userEmail, currentPassword);
+                }
+                catch (Exception)
+                {
+                    return Result.Fail("Nuvarande lösenord är felaktigt.");
+                }
+
+                var success = await _auth.UpdateEmail(newEmail);
+
+                if (!success)
                 {
                     return Result.Fail("Kunde inte uppdatera e-post.");
                 }
@@ -166,9 +178,34 @@ namespace SeedPlan.Client.Services
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(currentPassword))
+                {
+                    return Result.Fail("Nuvarande lösenord måste anges.");
+                }
+
+                if (string.IsNullOrWhiteSpace(newPassword))
+                {
+                    return Result.Fail("Nytt lösenord måste anges.");
+                }
+
+                if (newPassword.Length < 8)
+                {
+                    return Result.Fail("Lösenordet måste vara minst 8 tecken.");
+                }
+
+                if (!UppercaseRegex.IsMatch(newPassword))
+                {
+                    return Result.Fail("Lösenordet måste innehålla minst en stor bokstav.");
+                }
+
+                if (!LowercaseRegex.IsMatch(newPassword))
+                {
+                    return Result.Fail("Lösenordet måste innehålla minst en liten bokstav.");
+                }
+
                 // Get current user
-                var user = _supabase.Auth.CurrentUser;
-                if (user?.Email == null)
+                var userEmail = _auth.CurrentUserEmail;
+                if (userEmail == null)
                 {
                     return Result.Fail("Kunde inte hämta användaruppgifter.");
                 }
@@ -176,18 +213,19 @@ namespace SeedPlan.Client.Services
                 // Verify the old password by trying to sign in again
                 try
                 {
-                    await _supabase.Auth.SignIn(user.Email, currentPassword);
+                    await _auth.SignIn(userEmail, currentPassword);
                 }
                 catch (Exception)
                 {
                     return Result.Fail("Det gamla lösenordet är felaktigt.");
                 }
 
-                // If verification succeeds, update with the new password
-                var attrs = new UserAttributes { Password = newPassword };
-                var response = await _supabase.Auth.Update(attrs);
+                
 
-                if (response == null)
+                // If verification succeeds, update with the new password
+                var success = await _auth.UpdatePassword(newPassword);
+
+                if (!success)
                 {
                     return Result.Fail("Kunde inte uppdatera lösenord.");
                 }

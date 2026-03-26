@@ -12,10 +12,11 @@ namespace SeedPlan.Shared.Models
         [Column("last_frost_date")]
         public DateTime? LastFrostDate { get; set; }
         [Column("growing_zone")]
-
         public int GrowingZone { get; set; }
         [Column("updated_at")]
         public DateTime UpdatedLast { get; set; }
+        [Column("preferred_plant_categories")]
+        public List<int> PreferredPlantCategories { get; set; } = [0, 1, 2, 3];
 
     }
 }

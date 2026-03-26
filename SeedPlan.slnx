@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="SeedPlan.Client.UnitTests/SeedPlan.Client.UnitTests.csproj" Id="686af5e9-4d2c-41f4-b401-d39e8b00bfc5" />
   <Project Path="SeedPlan.Client/SeedPlan.Client.csproj" />
   <Project Path="SeedPlan/SeedPlan.csproj" />
   <Project Path="Shared/Shared.csproj" Id="2222a5a3-cefa-4aeb-817a-1c97a64a8387" />
