@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <div class="settings-card" @onclick="() => NavigateToProfile()">
+        <div class="settings-card" @onclick="() => showZoneModal = true">
             <div class="icon-circle">
                 <Blazicon Svg="Lucide.MapPin" />
             </div>
@@ -79,6 +79,27 @@
         </div>
     </div>
 }
+@if (showZoneModal)
+{
+    <div class="settings-modal-backdrop">
+        <div class="settings-modal">
+            <h3>Uppdatera växtzon</h3>
+            <p class="muted">Ställ in din nuvarande växtzon.</p>
+
+            <input type="number" @bind="userProfile.GrowingZone" />
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="CloseZoneModal">Avbryt</button>
+                <button class="btn-primary" @onclick="SaveGrowingZone">Spara</button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="status-alert">@statusMessage</div>
+            }
+        </div>
+    </div>
+}
 
 @if (showNotificationsModal)
 {
@@ -106,6 +127,7 @@
 @code {
     private UserProfile userProfile = new();
     private bool showFrostModal;
+    private bool showZoneModal;
     private bool showNotificationsModal;
     private bool notificationsEnabled;
     private string statusMessage = "";
@@ -129,18 +151,26 @@
             notificationsEnabled = enabled;
         }
     }
-
+    //FROSTDATE
     private string GetFrostDateText()
         => userProfile.LastFrostDate.HasValue
             ? userProfile.LastFrostDate.Value.ToString("d MMM")
             : "Ej inställt";
 
-    private string GetZoneText()
-        => userProfile.GrowingZone > 0 ? $"Zon {userProfile.GrowingZone}" : "Ej inställt";
 
     private void CloseFrostModal()
     {
         showFrostModal = false;
+        statusMessage = "";
+    }
+    //GROWING ZONE
+
+    private string GetZoneText()
+        => userProfile.GrowingZone > 0 ? $"Zon {userProfile.GrowingZone}" : "Ej inställt";
+
+    private void CloseZoneModal()
+    {
+        showZoneModal = false;
         statusMessage = "";
     }
 
@@ -161,6 +191,22 @@
         statusMessage = "Frostdatum sparat ✨";
         await Task.Delay(1500);
         CloseFrostModal();
+    }
+    private async Task SaveGrowingZone()
+    {
+        if (userProfile.GrowingZone > 0 && userProfile.GrowingZone < 9)
+        {
+            userProfile.GrowingZone = userProfile.GrowingZone;
+        }
+        else
+        {
+            statusMessage = "Växtzon måste vara ett nummer mellan 1-8";
+        }
+
+        await ProfileService.UpsertUserProfile(userProfile);
+        statusMessage = "Växtzon uppdaterad ✨";
+        await Task.Delay(1500);
+        CloseZoneModal();
     }
 
     private async Task SaveNotifications()

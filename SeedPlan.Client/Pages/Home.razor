@@ -212,16 +212,16 @@
     private bool showSowModal = false;
     private Plant? selectedPlant;
     private Plant? selectedPlantForSowing;
-    // Ta bort: private List<SowingView> staleSowings = new();
+    // Remove: private List<SowingView> staleSowings = new();
 
-    // Lägg till denna property istället
+    // Add this property instead
     private IEnumerable<SowingView> staleSowings =>
         allSowingViews.Where(s => SowingHelper.GetStaleWarning(
             s.Status,
             s.StatusUpdatedAt,
             s.SownDate).show);
 
-    // Lägg till denna lista som backing field
+    // Add this list as a backing field
     private List<SowingView> allSowingViews = new();
 
     protected override async Task OnInitializedAsync() 

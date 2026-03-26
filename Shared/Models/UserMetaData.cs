@@ -2,7 +2,7 @@
 
 namespace SeedPlan.Shared.Models
 {
-    // Denna klass matchar exakt hur datat ser ut i Supabase "user_metadata"
+    // This class exactly matches how the data looks in Supabase "user_metadata"
     public class UserMetaData
     {
         [JsonPropertyName("full_name")]

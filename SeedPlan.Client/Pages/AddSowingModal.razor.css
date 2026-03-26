@@ -21,7 +21,7 @@
     box-sizing: border-box;
 }
 
-/* Etiketter i ljusgrå versaler */
+/* Labels in light gray uppercase */
 .input-block {
     margin-bottom: 20px;
     display: flex;
@@ -36,9 +36,9 @@
     letter-spacing: 0.05em;
 }
 
-/* Inputs använder unified system från app.css */
+/* Inputs use the unified system from app.css */
 .sp-input {
-    /* Ärver från app.css input[type] rules */
+    /* Inherits from app.css input[type] rules */
 }
 
 .sp-textarea {
@@ -46,7 +46,7 @@
     resize: none;
 }
 
-/* Button container - knapparna bredvid varandra i mitten */
+/* Button container - buttons next to each other in the center */
 .modal-actions {
     display: flex;
     gap: 12px;
@@ -55,7 +55,7 @@
     margin-top: 24px;
 }
 
-/* Knapp styling - använder unified button system från app.css */
+/* Button styling - uses the unified button system from app.css */
 .sp-submit-btn {
     background: #10b981;
     color: white;

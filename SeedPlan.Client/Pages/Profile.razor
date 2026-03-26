@@ -1,12 +1,7 @@
 ﻿@page "/profile"
 @using SeedPlan.Shared.Models
-@using System.Text.Json
 @inject IUserProfileService ProfileService
-@inject IUserInventoryService InventoryService
-@inject IUserSowingService SowingService
-@inject NavigationManager Nav
 @inject AuthService Auth
-@inject IJSRuntime JS
 
 <PageTitle>Profil - SeedPlan</PageTitle>
 
@@ -18,97 +13,97 @@
 
     <div class="settings-card">
         <h3>Profiluppgifter</h3>
-        
+
         <div class="input-group">
             <label>Namn</label>
             <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
-        </div>
-
-        <div class="input-group">
-            <label>Odlingszon (1-8)</label>
-            <input type="number" min="1" max="8" @bind="userProfile.GrowingZone" />
         </div>
 
         <button class="btn-save" @onclick="SaveProfile">
             <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
         </button>
 
-        <hr />
-
-        <h3>Kontouppgifter</h3>
-
-        <div class="input-group">
-            <label>E‑post</label>
-            <div class="inline-action-group">
-                <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
-                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@string.IsNullOrWhiteSpace(newEmail)">Ändra e-post</button>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label>Lösenord</label>
-            <button class="btn-secondary" @onclick="() => showPasswordModal = true">
-                Ändra lösenord
-            </button>
-        </div>
-
         @if (!string.IsNullOrEmpty(statusMessage))
         {
             <div class="status-alert" style="margin-top: 1rem;">@statusMessage</div>
         }
     </div>
-</div>
 
-@if (showPasswordModal)
-{
-    <div class="settings-modal-backdrop" @onclick="ClosePasswordModal">
-        <div class="settings-modal" @onclick:stopPropagation="true">
-            <h3>Byt lösenord</h3>
-            
-            <div class="input-group" style="margin-top: 1rem;">
-                <label>Ditt gamla lösenord</label>
-                <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
+    <div class="settings-card">
+        <h3>Kontouppgifter</h3>
+
+        <details class="expandable-item">
+            <summary>
+                <div class="summary-copy">
+                    <span>Ändra e-post</span>
+                    <small>Uppdatera din inloggningsadress</small>
+                </div>
+                <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+            </summary>
+
+            <div class="expandable-content">
+                <div class="input-group">
+                    <label>Ny e‑post</label>
+                    <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
+                </div>
+
+                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@string.IsNullOrWhiteSpace(newEmail)">
+                    Spara e‑post
+                </button>
             </div>
+        </details>
 
-            <div class="input-group">
-                <label>Nytt lösenord</label>
-                <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
-            </div>
+        <details class="expandable-item">
+            <summary>
+                <div class="summary-copy">
+                    <span>Ändra lösenord</span>
+                    <small>Välj ett nytt säkert lösenord</small>
+                </div>
+                <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+            </summary>
 
-            <div class="input-group">
-                <label>Bekräfta nytt lösenord</label>
-                <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
-                @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+            <div class="expandable-content">
+                <div class="input-group">
+                    <label>Ditt gamla lösenord</label>
+                    <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
+                </div>
+
+                <div class="input-group">
+                    <label>Nytt lösenord</label>
+                    <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
+                </div>
+
+                <div class="input-group">
+                    <label>Bekräfta nytt lösenord</label>
+                    <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
+                    @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                    {
+                        <span class="warning-text">⚠️ Lösenorden matchar inte</span>
+                    }
+                </div>
+
+                @if (isUpdatingPassword)
                 {
-                    <span style="color: #dc2626; font-size: 0.85rem; margin-top: 4px;">⚠️ Lösenorden matchar inte</span>
+                    <div class="loading-text">⏳ Uppdaterar lösenord...</div>
+                }
+
+                <button class="btn-secondary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">
+                    Spara lösenord
+                </button>
+
+                @if (!string.IsNullOrEmpty(passwordStatus))
+                {
+                    <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
                 }
             </div>
-
-            @if (isUpdatingPassword)
-            {
-                <div style="text-align: center; padding: 1rem; color: #64748b;">
-                    <span>⏳ Uppdaterar lösenord...</span>
-                </div>
-            }
-
-            <div class="modal-actions">
-                <button class="btn-primary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">Spara lösenord</button>
-                <button class="btn-secondary" @onclick="ClosePasswordModal" disabled="@isUpdatingPassword">Avbryt</button>
-            </div>
-
-            @if (!string.IsNullOrEmpty(passwordStatus))
-            {
-                <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
-            }
-        </div>
+        </details>
     </div>
-}
+</div>
 
 @code {
     private UserProfile userProfile = new();
     private string statusMessage = "";
 
-    private bool showPasswordModal = false;
     private string newEmail = "";
     private string currentPassword = "";
     private string newPassword = "";
@@ -138,15 +133,6 @@
         statusMessage = "";
     }
 
-    private void ClosePasswordModal()
-    {
-        showPasswordModal = false;
-        passwordStatus = "";
-        currentPassword = "";
-        newPassword = "";
-        confirmPassword = "";
-    }
-
     private bool CanSubmitPassword()
     {
         return !isUpdatingPassword &&
@@ -159,7 +145,7 @@
     private async Task UpdateEmail()
     {
         if (string.IsNullOrWhiteSpace(newEmail)) return;
-        
+
         var result = await Auth.UpdateEmailAsync(newEmail.Trim());
         statusMessage = result.IsSuccess ? "E‑post uppdaterad (kolla din mejl) ✨" : result.Errors.First().Message;
         newEmail = "";
@@ -176,22 +162,19 @@
         passwordStatus = "";
 
         var result = await Auth.UpdatePasswordAsync(currentPassword, newPassword);
-        
+
         if (result.IsSuccess)
         {
             passwordStatus = "Lösenordet har uppdaterats ✨";
             currentPassword = "";
             newPassword = "";
             confirmPassword = "";
-
-            await Task.Delay(2000);
-            isUpdatingPassword = false;
-            ClosePasswordModal();
         }
         else
         {
             passwordStatus = result.Errors.First().Message;
-            isUpdatingPassword = false;
         }
+
+        isUpdatingPassword = false;
     }
 }

@@ -1,4 +1,4 @@
-﻿/* Inloggningskort och andra vita kort */
+﻿/* Login card and other white cards */
 
 .login-card, .sp-modal-card {
     background: white;
@@ -10,8 +10,8 @@
     width: 100%;
 }
 
-/* Buttons - använder unified styles från app.css */
-/* .btn-primary, .btn-secondary, .sp-save-btn, .sp-cancel-btn definieras i app.css */
+/* Buttons - uses unified styles from app.css */
+/* .btn-primary, .btn-secondary, .sp-save-btn, .sp-cancel-btn are defined in app.css */
 
 .remember-me-group {
     display: flex;

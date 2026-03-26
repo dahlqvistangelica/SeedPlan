@@ -9,7 +9,7 @@ namespace SeedPlan.Shared.Interfaces
         Task AddSeed(Seed seed);
         Task UpdateSeed(Seed seed);
         Task DeleteSeed(int id);
-        Task<List<Seed>> GetSeedsReadyForSowing(); // Använder frostdatum från profilen
+        Task<List<Seed>> GetSeedsReadyForSowing(); // Uses frost date from the profile
         Task<List<PlantSowingView>> GetCurrentSowingCalendar();
 
         Task<IEnumerable<IGrouping<string, SeedView>>> GetMySeedsGrouped();

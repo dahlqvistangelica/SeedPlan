@@ -143,7 +143,7 @@ namespace SeedPlan.Client.Services
             }
         }
 
-        // Metod som anropas manuellt när användaren loggar in eller ut
+        // Method that is called manually when the user logs in or out
         /// <summary>
         /// Notifies the authentication state provider that the current user's authentication state has changed.
         /// </summary>

@@ -1,4 +1,4 @@
-// Försök importera assets-manifest, men fortsätt utan det om det saknas
+// Try importing assets-manifest, but continue without it if missing
 try {
     self.importScripts('./service-worker-assets.js');
 } catch (e) {
@@ -69,7 +69,7 @@ async function onFetch(event) {
 
     const url = new URL(event.request.url);
 
-    // Skippa caching för navigering till specifika sidor
+    // Skip caching for navigation to specific pages
     if (event.request.mode === 'navigate') {
         return fetch(event.request);
     }

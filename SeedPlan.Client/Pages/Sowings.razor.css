@@ -11,7 +11,7 @@
     margin-bottom: 2.5rem;
 }
 
-/* Ny sådd-knappen - använder unified button system från app.css */
+/* New sowing button - uses unified button system from app.css */
 .btn-add-sowing {
     display: flex;
     align-items: center;
@@ -220,7 +220,7 @@
     color: #f97316;
 }
 
-/* --- Gruppering och Rubriker --- */
+/* --- Grouping and headings --- */
 .group-header {
     margin: 2.5rem 0 1rem 0;
     font-size: 1.1rem;
@@ -252,7 +252,7 @@
     max-width: 300px;
 }
 
-/* Själva dropdown-menyn */
+/* The dropdown menu itself */
 .group-select {
     appearance: none;
     -webkit-appearance: none;
@@ -274,7 +274,7 @@
     box-shadow: 0 0 0 3px rgba(74, 103, 74, 0.1);
 }
 
-/* Den egna pil-ikonen */
+/* Custom arrow icon */
 .select-arrow {
     position: absolute;
     right: 12px;
@@ -286,7 +286,7 @@
     color: #7a8e7a;
 }
 
-/* --- Responsivitet (Mobil) --- */
+/* --- Responsiveness (Mobile) --- */
 @media (max-width: 600px) {
     .hide-on-mobile {
         display: none;
@@ -303,12 +303,12 @@
     }
 
     .btn-add-sowing span {
-        display: none; /* Dölj texten "Ny sådd" på små skärmar, visa bara + */
+        display: none; /* Hide the button text on small screens, show only + */
     }
 
     .btn-add-sowing {
         padding: 10px;
-        aspect-ratio: 1/1; /* Gör knappen helt rund/kvadratisk */
+        aspect-ratio: 1/1; /* Makes the button fully round/square */
     }
 
     .group-controls {
@@ -316,7 +316,7 @@
     }
 
     .group-select {
-        flex-grow: 1; /* Gör så att dropdown-menyn tar upp resten av bredden på mobil */
+        flex-grow: 1; /* Makes the dropdown take up the remaining width on mobile */
     }
 
     .sown-date {
@@ -352,7 +352,7 @@
 
 }
 
-/* --- Styling för select-boxen --- */
+/* --- Styling for the select box --- */
 .group-select {
     padding: 0.4rem 0.8rem;
     border-radius: 8px;

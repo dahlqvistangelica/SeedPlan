@@ -1,4 +1,4 @@
-﻿// Avregistrera service worker på localhost (utveckling)
+﻿// Unregister service worker on localhost (development)
 if (window.location.hostname === 'localhost') {
     navigator.serviceWorker.getRegistrations().then(function (regs) {
         regs.forEach(function (reg) {
@@ -20,27 +20,27 @@ if (window.location.hostname === 'localhost') {
         var raw = localStorage.getItem('sb_session')
             || sessionStorage.getItem('sb_session');
 
-        console.log('session-cleanup: hittade session?', raw ? 'JA - ' + raw.length + 'tecken' : 'NEJ');
+        console.log('session-cleanup: found session?', raw ? 'YES - ' + raw.length + 'characters' : 'NO');
 
         if (!raw) return;
 
         var session = JSON.parse(raw);
 
-        // C# serialiserar som PascalCase - kolla båda varianterna
+        // C# serializes as PascalCase - check both variants
         var accessToken = session.AccessToken || session.access_token;
 
-        console.log('session-cleanup: har access token?', accessToken ? 'JA' : 'NEJ');
+        console.log('session-cleanup: has access token?', accessToken ? 'YES' : 'NO');
 
         if (!accessToken) {
             localStorage.removeItem('sb_session');
             sessionStorage.removeItem('sb_session');
-            console.log('session-cleanup: Ingen access token, rensar.');
+            console.log('session-cleanup: No access token, cleaning.');
         } else {
-            console.log('session-cleanup: Session ser giltig ut, behåller den.');
+            console.log('session-cleanup: Session looks valid, keeping it.');
         }
     } catch (e) {
         localStorage.removeItem('sb_session');
         sessionStorage.removeItem('sb_session');
-        console.log('session-cleanup: Ogiltig session rensad:', e);
+        console.log('session-cleanup: Invalid session cleared:', e);
     }
 }());

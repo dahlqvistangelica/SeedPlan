@@ -7,7 +7,7 @@
     margin-top: 1.5rem;
     cursor: pointer;
     transition: background-color 0.2s;
-    user-select: none; /* Hindrar att texten markeras vid snabba klick */
+    user-select: none; /* Prevents text selection on quick clicks */
 }
 
     .plant-group-header:hover {
@@ -21,7 +21,7 @@
 }
 
 .plant-group-header .serif-title {
-    font-size: 1.2rem; /* Mycket mindre än sidans huvudtitel */
+    font-size: 1.2rem; /* Much smaller than the page's main title */
     margin: 0;
     display: inline-block;
 }
@@ -47,19 +47,19 @@
     padding-top: 0.1rem;
 }
 .group-arrow {
-    transition: transform 0.2s ease; /* Gör så att pilen snurrar mjukt */
+    transition: transform 0.2s ease; /* Makes the arrow rotate smoothly */
     color: #64748b;
     width: 20px;
     height: 20px;
 }
 
-    /* När klassen 'expanded' finns, rotera 90 grader */
+    /* When the 'expanded' class is present, rotate 90 degrees */
     .group-arrow.expanded {
         transform: rotate(90deg);
-        color: #10b981; /* Valfritt: Gör pilen grön när den är öppen */
+        color: #10b981; /* Optional: Make the arrow green when it is open */
     }
 
-/* En enkel animation för när listan dyker upp */
+/* A simple animation for when the list appears */
 .fade-in {
     animation: fadeIn 0.2s ease-in-out;
 }
@@ -196,7 +196,7 @@
 .delete-seed-btn {
     background: none;
     border: none;
-    color: #cbd5e1; /* Ljusgrå som standard */
+    color: #cbd5e1; /* Light gray by default */
     cursor: pointer;
     padding: 5px;
     display: flex;
@@ -205,14 +205,14 @@
 }
 
     .delete-seed-btn:hover {
-        color: #ef4444; /* Blir röd vid hover */
+        color: #ef4444; /* Turns red on hover */
     }
 
     .delete-seed-btn i {
         width: 18px;
         height: 18px;
     }
-/* Modal styling för att matcha din design */
+/* Modal styling to match your design */
 
 .input-row {
     display: grid;
@@ -240,11 +240,11 @@
         padding: 2rem 1.5rem;
     }
     .btn-add-seed span {
-        display: none; /* Dölj texten "Ny sådd" på små skärmar, visa bara + */
+        display: none; /* Hide the "New sowing" text on small screens, show only + */
     }
 
     .btn-add-seed {
         padding: 10px;
-        aspect-ratio: 1/1; /* Gör knappen helt rund/kvadratisk */
+        aspect-ratio: 1/1; /* Makes the button perfectly round/square */
     }
 }

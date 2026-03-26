@@ -1,4 +1,4 @@
-﻿/* Den stora gröna knappen */
+﻿/* The large green button */
 .sp-save-btn {
     width: 100%;
     background: #10b981;
@@ -21,7 +21,7 @@
         background: #059669;
     }
 
-/* Avbryt-länken */
+/* Cancel link */
 .sp-cancel-btn {
     background: none;
     border: none;

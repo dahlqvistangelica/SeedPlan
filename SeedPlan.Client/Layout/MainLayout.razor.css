@@ -1,4 +1,4 @@
-/* --- 1. GRUNDSTRUKTUR --- */
+/* --- 1. BASE STRUCTURE --- */
 
 .app-shell {
     display: flex;
@@ -23,12 +23,12 @@
     align-items: center;
     width: 100%;
 }
-/* --- 2. LOGOTYP & BRANDING --- */
+/* --- 2. LOGO & BRANDING --- */
 
 .brand {
-    display: flex; /* Detta lägger ikon och text på samma rad */
-    align-items: center; /* Centrerar dem vertikalt mot varandra */
-    gap: 10px; /* Ger lite luft mellan ikonen och texten */
+    display: flex; /* This places icon and text on the same row */
+    align-items: center; /* Centers them vertically relative to each other */
+    gap: 10px; /* Adds some spacing between the icon and text */
     cursor: pointer;
 }
 
@@ -48,9 +48,9 @@
     font-weight: 700;
     margin: 0;
     color: #1e293b;
-    line-height: 1; /* Förhindrar att texten tar upp extra plats på höjden */
+    line-height: 1; /* Prevents the text from taking extra vertical space */
 }
-/* --- 3. INLOGGNINGSSKÄRM (Fixar Centrerad rutan) --- */ /* Centrerar inloggningsboxen på skärmen */
+/* --- 3. LOGIN SCREEN (fixes centered card) --- */ /* Centers the login card on the screen */
 
 .login-screen {
     flex: 1;
@@ -58,18 +58,18 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
-    background-color: #fdfcf9; /* Krämvit bakgrund */
+    background-color: #fdfcf9; /* Cream-white background */
     min-height: calc(100vh - 70px);
 }
-/* Själva kortet */
+/* The card itself */
 
 .login-card {
     background: white;
-    padding: 2rem; /* Något mindre padding */
+    padding: 2rem; /* Slightly smaller padding */
     border-radius: 24px;
     width: 100%;
     max-width: 400px;
-    /* Se till att den inte "hoppar" för mycket när tangentbordet kommer fram */
+    /* Make sure it does not "jump" too much when the keyboard appears */
     margin-top: -10vh;
 }
 
@@ -117,10 +117,10 @@
 
 ::deep .nav-item {
     display: flex !important;
-    flex-direction: column !important; /* Staplar elementen vertikalt */
-    align-items: center !important; /* Centrerar dem horisontellt */
+    flex-direction: column !important; /* Stacks the elements vertically */
+    align-items: center !important; /* Centers them horizontally */
     justify-content: center;
-    gap: 4px; /* Avstånd mellan ikon och text */
+    gap: 4px; /* Spacing between icon and text */
     text-decoration: none !important;
     color: #888888;
     flex: 1;
@@ -141,7 +141,7 @@
         letter-spacing: 0.05em;
     }
 
-    /* Färg vid aktiv länk */
+    /* Color for active link */
     ::deep .nav-item.active, ::deep a:active {
         text-decoration: none;
         color: #10b981 !important;
@@ -157,7 +157,7 @@
     padding: 2.5rem;
     border-radius: 24px;
     width: 100%;
-    max-width: 800px; /* Lite bredare än login-kortet för att rymma grid */
+    max-width: 800px; /* Slightly wider than the login card to fit the grid */
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     margin-top: -5vh;
 }
@@ -228,9 +228,9 @@
             color: #10b981;
         }
 
-    /* Modifiering för "kommande"-kortet */
+    /* Styling for the "upcoming" card */
     .feature-card.upcoming li strong {
-        color: #8b5cf6; /* En lila färg för att skilja kommande funktioner åt, ändra till #10b981 om du vill ha konsekvent färg */
+        color: #8b5cf6; /* Purple color to distinguish upcoming features, change to #10b981 for consistent color */
     }
 
 .landing-actions {
@@ -272,7 +272,7 @@
     }
 }
 
-/* Responsivitet för mobiler */
+/* Responsiveness for mobile */
 @media (max-width: 768px) {
     .features-grid {
         grid-template-columns: 1fr;

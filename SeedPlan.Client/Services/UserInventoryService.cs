@@ -77,12 +77,12 @@ namespace SeedPlan.Client.Services
             return response.Models;
         }
         /// <summary>
-        /// Retrieves the current user's seeds, grouped by plant name or as 'Övrigt' for seeds without a variety.
+        /// Retrieves the current user's seeds, grouped by plant name or as 'Other' for seeds without a variety.
         /// </summary>
         /// <remarks>Seeds are grouped by plant name unless the variety is unspecified, in which case they
-        /// are grouped under 'Övrigt'. The results are ordered by plant and variety names for easier
+        /// are grouped under 'Other'. The results are ordered by plant and variety names for easier
         /// browsing.</remarks>
-        /// <returns>A collection of groupings, where each group contains seeds associated with a specific plant name or 'Övrigt'
+        /// <returns>A collection of groupings, where each group contains seeds associated with a specific plant name or 'Other'
         /// if the variety is not specified. Returns an empty collection if the user is not authenticated or has no
         /// seeds.</returns>
         public async Task<IEnumerable<IGrouping<string, SeedView>>> GetMySeedsGrouped()
@@ -90,7 +90,7 @@ namespace SeedPlan.Client.Services
             var user = _supabase.Auth.CurrentUser;
             if (user == null) return Enumerable.Empty<IGrouping<string, SeedView>>();
 
-            // Vi hämtar från Vyn istället för tabellen
+            // We fetch from the view instead of the table
             var response = await _supabase
                 .From<SeedView>()
                 .Where(x => x.UserId == user.Id)
@@ -188,8 +188,8 @@ namespace SeedPlan.Client.Services
 
             seed.UserId = user.Id;
 
-            // Genom att köra Update direkt på objektet säkerställer du 
-            // att Supabase använder PrimaryKey (Id) automatiskt.
+            // By running Update directly on the object, you ensure
+            // that Supabase uses PrimaryKey (Id) automatically.
             await _supabase.From<Seed>().Update(seed);
         }
         /// <summary>

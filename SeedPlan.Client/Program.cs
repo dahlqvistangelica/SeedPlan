@@ -77,7 +77,7 @@ namespace SeedPlan.Client
             var supabase = host.Services.GetRequiredService<Supabase.Client>();
             var js = host.Services.GetRequiredService<IJSRuntime>();
 
-            // Flagga för att ignorera SignedOut under initialisering
+            // Flag to ignore SignedOut during initialization
             var isInitializing = true;
 
             supabase.Auth.AddStateChangedListener(async (sender, state) =>
@@ -86,7 +86,7 @@ namespace SeedPlan.Client
 
                 if (state == Supabase.Gotrue.Constants.AuthState.SignedIn)
                 {
-                    // Nu är vi inloggade — sluta ignorera SignedOut
+                    // We are now signed in — stop ignoring SignedOut
                     isInitializing = false;
 
                 }
@@ -128,7 +128,7 @@ namespace SeedPlan.Client
             });
 
             await supabase.InitializeAsync();
-            // Ta bort Task.Delay och isInitializing = false härifrån
+            // Remove Task.Delay and isInitializing = false from here
 
             await host.RunAsync();
         }

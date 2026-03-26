@@ -39,18 +39,18 @@ function getDaysStale(statusUpdatedAt: string | null, sownDate: string): number 
 
 function getWarning(status: number, days: number): string | null {
     switch (status) {
-        case 0: return days > 21 ? `Har inte grott på ${days} dagar — groplats, fukt och ljus rätt?` : null
-        case 1: return days > 14 ? `Har stått på Grodd i ${days} dagar — dags att kolla karaktärsblad?` : null
-        case 2: return days > 21 ? `Har haft karaktärsblad i ${days} dagar — dags att omskola?` : null
+        case 0: return days > 21 ? `Has not germinated for ${days} days — are the growth conditions, moisture, and light correct?` : null
+        case 1: return days > 14 ? `Has been in the Germination stage for ${days} days — check the characteristics sheet?` : null
+        case 2: return days > 21 ? `Has had characteristic leaves for ${days} days — time to repot?` : null
         case 3:
-        case 4: return days > 14 ? `Omskolad för ${days} dagar sedan — dags att börja avhärda?` : null
-        case 5: return days > 14 ? `Avhärdas sedan ${days} dagar — redo att plantera ut?` : null
+        case 4: return days > 14 ? `Repotted ${days} days ago — time to start hardening off?` : null
+        case 5: return days > 14 ? `Has been hardened off for ${days} days — ready to plant out?` : null
         default: return null
     }
 }
 
 Deno.serve(async (req) => {
-    // Hantera CORS preflight
+    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
         return new Response(null, { headers: corsHeaders })
     }
@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
             const subscription = JSON.parse(sub.subscription_json)
 
             const payload = JSON.stringify({
-                title: `🌱 ${staleSowings.length} sådder behöver uppmärksamhet`,
+                title: `🌱 ${staleSowings.length} seedlings need attention`,
                 body: staleSowings
                     .map(s => {
                         const days = getDaysStale(s.status_updated_at, s.sown_date)
@@ -104,9 +104,9 @@ Deno.serve(async (req) => {
             try {
                 await webpush.sendNotification(subscription, payload)
                 notificationsSent++
-                console.log(`Notis skickad till användare ${sub.user_id}`)
+                console.log(`Notification sent to user ${sub.user_id}`)
             } catch (e) {
-                console.error(`Kunde inte skicka notis till ${sub.user_id}:`, e)
+                console.error(`Could not send notification to ${sub.user_id}:`, e)
                 if (e.statusCode === 410) {
                     await supabase
                         .from('push_subscriptions')
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
         )
 
     } catch (error) {
-        console.error('Fel i Edge Function:', error)
+        console.error('Error in Edge Function:', error)
         return new Response(
             JSON.stringify({ error: error.message }),
             { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

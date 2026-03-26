@@ -140,7 +140,7 @@ namespace SeedPlan.Client.Services
             return "Ett oväntat fel uppstod vid inloggningen.";
         }
 
-        // Lägg till dessa metoder i AuthService
+        // Add these methods to AuthService
 
         public async Task<Result> UpdateEmailAsync(string newEmail)
         {
@@ -166,14 +166,14 @@ namespace SeedPlan.Client.Services
         {
             try
             {
-                // Hämta nuvarande användare
+                // Get current user
                 var user = _supabase.Auth.CurrentUser;
                 if (user?.Email == null)
                 {
                     return Result.Fail("Kunde inte hämta användaruppgifter.");
                 }
 
-                // Verifiera det gamla lösenordet genom att försöka logga in igen
+                // Verify the old password by trying to sign in again
                 try
                 {
                     await _supabase.Auth.SignIn(user.Email, currentPassword);
@@ -183,7 +183,7 @@ namespace SeedPlan.Client.Services
                     return Result.Fail("Det gamla lösenordet är felaktigt.");
                 }
 
-                // Om verifieringen lyckas, uppdatera med det nya lösenordet
+                // If verification succeeds, update with the new password
                 var attrs = new UserAttributes { Password = newPassword };
                 var response = await _supabase.Auth.Update(attrs);
 
@@ -201,7 +201,7 @@ namespace SeedPlan.Client.Services
         }
 
         /// <summary>
-        /// Kontoradering kräver service-role (server/Edge Function).
+        /// Account deletion requires service-role (server/Edge Function).
         /// </summary>
         public Task<Result> DeleteAccountAsync()
         {

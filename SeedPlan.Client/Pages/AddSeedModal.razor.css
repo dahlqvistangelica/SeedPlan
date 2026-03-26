@@ -1,4 +1,4 @@
-﻿/* FIXAR ATT FÄLTEN STICKER UT */
+﻿/* FIXES FIELDS OVERFLOWING */
 
 .sp-modal-card, .sp-modal-card * {
     box-sizing: border-box;
@@ -26,7 +26,7 @@
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-/* Gruppering av etikett och inmatning */
+/* Label and input grouping */
 .sp-input-block {
     margin-bottom: 18px;
     display: flex;
@@ -43,9 +43,9 @@
     letter-spacing: 0.05em;
 }
 
-/* Inputs använder unified system från app.css */
+/* Inputs use the unified system from app.css */
 .sp-input, .sp-textarea {
-    /* Ärver från app.css input[type] rules */
+    /* Inherits from app.css input[type] rules */
 }
 
 .sp-textarea {
@@ -53,7 +53,7 @@
     resize: none;
 }
 
-/* GRID-FIX FÖR ATT UNDVIKA KROCKAR */
+/* GRID FIX TO AVOID OVERLAPS */
 .sp-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -75,7 +75,7 @@
     font-weight: 700;
 }
 
-/* SÖK-DROPDOWN STYLING */
+/* SEARCH DROPDOWN STYLING */
 .sp-dropdown {
     position: absolute;
     top: 100%;

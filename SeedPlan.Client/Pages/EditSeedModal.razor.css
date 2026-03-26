@@ -1,4 +1,4 @@
-﻿/* Overlay för att mörka ner bakgrunden */
+﻿/* Overlay to darken the background */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -12,7 +12,7 @@
     z-index: 9999;
 }
 
-/* Själva kortet */
+/* The card itself */
 .modal-card {
     background: white;
     width: 95%;
@@ -24,7 +24,7 @@
     box-sizing: border-box;
 }
 
-/* Rubrik och Stäng-kryss */
+/* Title and close X */
 .modal-header {
     display: flex;
     justify-content: space-between;
@@ -54,7 +54,7 @@
     justify-content: center;
 }
 
-/* Inmatningsblock och Etiketter */
+/* Input block and labels */
 .input-block {
     margin-bottom: 20px;
     display: flex;
@@ -70,14 +70,14 @@
         text-transform: uppercase;
     }
 
-/* Rad med två fält */
+/* Row with two fields */
 .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-/* Inputs och Textarea */
+/* Inputs and Textarea */
 .sp-input, .sp-textarea {
     width: 100%;
     padding: 14px 18px;
@@ -100,10 +100,10 @@
     resize: none;
 }
 
-/* Den mörkgröna knappen */
+/* The dark green button */
 .sp-save-btn {
     width: 100%;
-    background: #059669; /* Samma gröna som "Starta sådd" */
+    background: #059669; /* Same green as the start-sowing button */
     color: white;
     border: none;
     padding: 16px;
@@ -123,7 +123,7 @@
         transform: scale(0.98);
     }
 
-/* Animation för att rutan ska poppa fram mjukt */
+/* Animation for the box to pop in smoothly */
 .fade-in {
     animation: fadeIn 0.3s ease-out;
 }

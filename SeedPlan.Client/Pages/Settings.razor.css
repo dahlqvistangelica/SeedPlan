@@ -1,4 +1,4 @@
-﻿/* --- Grundlayout --- */
+﻿/* --- Base layout --- */
 .settings-overview {
     max-width: 600px;
     margin: 0 auto;
@@ -22,7 +22,7 @@
     font-family: inherit;
 }
 
-/* --- Inställningskort (cards) --- */
+/* --- Settings cards --- */
 .settings-cards {
     display: flex;
     flex-direction: column;
@@ -125,7 +125,7 @@
     margin-bottom: 0.5rem;
 }
 
-/* --- Inputfält --- */
+/* --- Input fields --- */
 .settings-modal input[type="date"],
 .settings-modal input[type="email"],
 .settings-modal input[type="password"],
@@ -179,7 +179,7 @@
     margin-top: 1rem;
 }
 
-/* --- Knappar (Unified styling) --- */
+/* --- Buttons (Unified styling) --- */
 button {
     cursor: pointer;
     font-weight: 600;
@@ -257,7 +257,7 @@ button:disabled {
     text-align: center;
 }
 
-/* --- Avskiljare --- */
+/* --- Divider --- */
 hr {
     border: none;
     border-top: 1px solid #f1f5f9;

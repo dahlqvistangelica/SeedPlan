@@ -32,22 +32,22 @@
     padding-right: 10px;
 }
 
-/* SÖKRUTA */
+/* SEARCH FIELD */
 
 .search-wrapper {
     position: relative;
     margin-bottom: 2rem;
     width: 94%;
 }
-/* Sökikonen */
+/* Search icon */
 .search-icon {
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #cbd5e1; /* Ändrat från color till stroke */
+    color: #cbd5e1; /* Changed from color to stroke */
     width: 18px;
-    height: 18px; /* Lägg till höjd för säkerhets skull */
+    height: 18px; /* Add height to be safe */
 }
 
 .search-input {
@@ -59,7 +59,7 @@
     font-size: 1rem;
     outline: none;
 }
-/* FILTERPANEL (BILD 3) */
+/* FILTER PANEL (IMAGE 3) */
 
 .filter-panel {
     background: white;
@@ -131,7 +131,7 @@
     padding: 0.5rem;
     border-radius: 20px;
 }
-/* VÄXTKORT MED HOVER (BILD 2) */
+/* PLANT CARD WITH HOVER (IMAGE 2) */
 
 .plant-grid {
     display: grid;
@@ -157,7 +157,7 @@
     align-items: flex-start;
     margin-bottom: 15px;
 }
-/* HOVER EFFEKT */
+/* HOVER EFFECT */
 
 .plant-card:hover {
     border-color: #10b981;
@@ -247,22 +247,22 @@
         .feature-icons svg {
             font-size: 1rem;
         }
-    /* Ljusgroende (Sparkles) */
+    /* Light Green (Sparkles) */
     .icon-light {
-        color: #3b82f6 !important; /* Blå */
+        color: #3b82f6 !important; /* Blue */
         font-size: 1.2rem;
     }
-    /* Toppas (Scissors) */
+    /* Topping (Scissors) */
     .icon-topping {
-        color: #a855f7 !important; /* Lila */
+        color: #a855f7 !important; /* Purple */
         font-size: 1.2rem;
     }
-    /* Pilen */
+    /* Arrow */
     .arrow {
-        color: #cbd5e1 !important; /* Ljusgrå (du hade #f1f5f9 som är nästan vit) */
+        color: #cbd5e1 !important; /* Light gray (you had #f1f5f9 which is almost white) */
         font-size: 1.2rem;
     }
-    /* HÄRDIGHET BADGES */
+    /* HARDINESS BADGES */
 
     .hardiness-badge {
         font-size: 0.6rem;

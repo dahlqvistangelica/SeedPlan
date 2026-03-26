@@ -2,7 +2,7 @@
 using Supabase.Postgrest.Models;
 namespace SeedPlan.Shared.Models
 {
-    [Table("seeds")] // Detta mappar klassen till tabellen "seeds" i Supabase
+    [Table("seeds")] // This maps the class to the "seeds" table in Supabase
     public class Seed : BaseModel
     {
         [PrimaryKey("id", false)]
@@ -20,16 +20,16 @@ namespace SeedPlan.Shared.Models
         [Column("quantity")]
         public int Quantity { get; set; }
 
-        [Column("expiry_date")] // Supabase använder ofta snake_case
+        [Column("expiry_date")] // Supabase often uses snake_case
         public DateTime? ExpiryDate { get; set; }
 
         [Column("notes")]
         public string? Notes { get; set; }
 
-        [Column("user_id")] // För att koppla fröet till en specifik användare
+        [Column("user_id")] // To link the seed to a specific user
         public string UserId { get; set; } = string.Empty;
 
-        // Vi döper om dessa så att biblioteket inte autogenererar "!inner"
+        // We rename these so the library does not auto-generate "!inner"
         [Reference(typeof(Plant))]
         public Plant? PlantData { get; set; }
 
