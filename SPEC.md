@@ -88,6 +88,7 @@ Måldesignen i v2 är att kontorelaterade flöden är samlade och tydligt sektio
 ### 3.0 Nuvarande läge (mars 2026)
 - `/settings` används som inställningsöversikt (frostdatum, zon, aviseringar, länkar till profil).
 - `/profile` innehåller profil- och kontouppgifter (namn, e-postbyte, lösenordsbyte).
+- `/profile` innehåller även kategorival (checkboxar) för startsidans såförslag.
 - Frostdatum och odlingszon hanteras som separata kort/modaler i `/settings`.
 - Odlingszon visas inte i kontoinställningar i `/profile`.
 
@@ -253,6 +254,13 @@ Rekommenderat datum = Sista frostdatum + (weeks_before_frost × 7)
   - Endast valda kategorier visas i "Bör sås nu" och "Snart att så".
   - "Redan passerat" följer samma kategorifilter.
   - Om inga kategorier är valda visas tomt tillstånd med uppmaning att välja minst en kategori.
+  - Avbockad kategori ska tas bort ur `preferred_plant_categories` (inte enbart döljas i UI-state).
+  - Dubbletter i `preferred_plant_categories` ska inte förekomma.
+
+**Implementationsnotering (klar):**
+- `preferred_plant_categories` hanteras som Postgres-array (`int[]`) i modellagret.
+- Profil-sparning visar omedelbar status (`Sparar...`) och byter till bekräftelse/fel när svar kommit.
+- Spara-knappen i `/profile` är disabled under pågående sparning för att förhindra dubbelskick.
 
 ---
 
@@ -546,24 +554,335 @@ Planering och Statistik läggs inte i bottom nav initialt (för att hålla navba
 ### Prioritet 2 – Profil & inställningsstruktur
 - ✅ Behåll separata modaler för frostdatum och odlingszon i `/settings` (infört)
 - ✅ Odlingszon borttagen från kontoinställningar i `/profile` (infört)
-- Lägg till kategorival (PlantCategory) för startsidans förslag
+- ✅ Lägg till kategorival (PlantCategory) för startsidans förslag i `/profile` (infört)
 
-### Prioritet 3 – Utökat fröinventarie
-- Nya fält: inköpsdatum, inköpsställe, grobarhetsprocent
-- Varningsindikatorer (gult/rött för utgångsdatum, grått för saldo 0)
-- Taggsystem
-
-### Prioritet 4 – Förbättrade såddrekommendationer
-- Brådskegrader och färgkodning
-- "Snart att så"-sektion på dashboarden
-- Direktsådd-logik för `direct_sowing = true`
-- Planeringssida (`/planning`)
-
-### Prioritet 5 – Utökad såddhantering
+### Prioritet 3 – Utökad såddhantering
 - Omgångsnummer
 - Nytt statusflöde med Skörd/Avslutad/Misslyckad
 - Händelselogg (`sowing_events`)
 - Korrekt återföringslogik vid radering
+
+#### Implementeringsplan (Prio 3)
+
+**Etapp 3.1 – Datamodell & migrationer**
+- Lägg till `batch_number` på `sowings` (default `1`).
+- Skapa tabellen `sowing_events` enligt sektion 7.3.
+- Lägg till RLS för `sowing_events` med `auth.uid() = user_id`.
+- Ta fram datamigrering för statusnormalisering enligt sektion 7.1 (inklusive befintliga värden 3/4).
+- Leverabel: migrationer körbara lokalt + i Supabase utan dataförlust.
+
+**Etapp 3.2 – Backend/Service-lager**
+- Uppdatera statusenum och mappning mellan UI-värden och DB-värden.
+- Inför central metod för statusövergång (`CanTransition` + `UpdateSowingStatusAsync`).
+- Skriv händelselogg automatiskt vid varje statusövergång.
+- Hantera specialfall: groddning (antal), skörd (vikt/antal), misslyckad (orsak).
+- Leverabel: enhetstester för giltiga/ogiltiga övergångar och loggskapande.
+
+**Etapp 3.3 – UI: såddflöde och detaljer**
+- Visa omgångsnummer konsekvent i listor/kort/detaljer.
+- Uppdatera status-UI med nya steg: Skörd, Avslutad, Misslyckad.
+- Lägg till dialogflöden för extra data vid groddning/skörd/misslyckad.
+- Visa händelsehistorik i sådddetalj (datum, event, metadata, anteckning).
+- Leverabel: komplett användarflöde från "Sådd" till "Avslutad/Misslyckad".
+
+**Etapp 3.4 – Raderings- och lagerregler**
+- Implementera raderingslogik enligt affärsregler i sektion 12:
+  - status `< 1` → återför frön till lager
+  - status `>= 1` → återför inte, visa info
+- Säkerställ att händelser i `sowing_events` raderas via cascade.
+- Leverabel: testfall för båda raderingsvägarna + verifierat lagersaldo.
+
+**Etapp 3.5 – Kvalitetssäkring & release**
+- Lägg till integrationstester för hela statuskedjan och återföringsregler.
+- Verifiera bakåtkompatibilitet för befintliga såddar efter migration.
+- Lägg till kort release-checklista (DB migration, smoke-test, rollback-plan).
+- Leverabel: "Definition of Done" uppfylld och redo för produktion.
+
+#### Definition of Done (Prio 3)
+- Omgångsnummer fungerar i skapande, visning och sortering.
+- Statusflödet stödjer Skörd, Avslutad och Misslyckad utan inkonsistenta tillstånd.
+- Varje statusändring ger korrekt rad i `sowing_events`.
+- Raderingslogik följer lagerregler exakt.
+- Tester täcker kritiska flöden och passerar i CI.
+
+#### Ticket-förslag (GitHub Issues) – Prio 3
+
+**P3-01: DB migration – `batch_number` + `sowing_events` + RLS**
+- Scope:
+  - Lägg till `batch_number int not null default 1` på `sowings`
+  - Skapa `sowing_events` enligt sektion 7.3
+  - Lägg till RLS-policies för `sowing_events`
+- Acceptanskriterier:
+  - Migration kan köras utan fel i tom och befintlig databas
+  - `sowing_events` har RLS med `auth.uid() = user_id`
+  - Existerande såddar påverkas inte negativt
+
+**P3-02: Statusnormalisering och enum-mappning**
+- Scope:
+  - Uppdatera enum/konstanter för nytt flöde (inkl. Skörd, Avslutad, Misslyckad)
+  - Hantera bakåtkompatibilitet för äldre värden (3/4)
+- Acceptanskriterier:
+  - Alla statusvärden kan läsas/skrivas utan cast-fel
+  - Befintliga poster får korrekt status efter migrering
+  - Enhetstester täcker mappningen
+
+**P3-03: Central statusmotor i service-lagret**
+- Scope:
+  - Inför `CanTransition` och `UpdateSowingStatusAsync`
+  - Validera tillåtna övergångar och blockera ogiltiga
+- Acceptanskriterier:
+  - Ogiltiga övergångar returnerar tydligt fel
+  - Giltiga övergångar uppdaterar status korrekt
+  - Tester finns för minst alla grannövergångar + misslyckad-vägen
+
+**P3-04: Händelseloggning vid statusändring**
+- Scope:
+  - Skriv rad i `sowing_events` för varje statusbyte
+  - Stöd för metadata: `seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`
+- Acceptanskriterier:
+  - Varje lyckad statusändring skapar exakt en eventrad
+  - Eventraden innehåller korrekt `user_id`, `sowing_id`, datum och `event_type`
+  - Tester verifierar både standardevent och event med metadata
+
+**P3-05: UI – omgångsnummer i listor och detaljer**
+- Scope:
+  - Visa omgångsnummer konsekvent i Dashboard/Såddar/detalj
+  - Sätt nästa lediga omgångsnummer vid ny sådd
+- Acceptanskriterier:
+  - Två aktiva såddar av samma frö visas med olika omgångsnummer
+  - Sortering och visning är konsekvent mellan vyer
+
+**P3-06: UI – nytt statusflöde + dialoger för specialfall**
+- Scope:
+  - Lägg till UI-steg för Skörd, Avslutad, Misslyckad
+  - Dialoger för groddning (antal), skörd (vikt/antal), misslyckad (orsak)
+- Acceptanskriterier:
+  - Användaren kan gå från Sådd till Avslutad via giltiga steg
+  - Misslyckad kan väljas från alla aktiva steg
+  - Extra fält sparas till händelselogg
+
+**P3-07: Raderingslogik och lageråterföring**
+- Scope:
+  - Implementera regel: status `< 1` återför frö, status `>= 1` återför inte
+  - Visa tydlig information i UI när återföring inte sker
+- Acceptanskriterier:
+  - Lagersaldo ökar korrekt vid radering av status 0
+  - Lagersaldo ändras inte vid radering av status 1+
+  - Automatiserade tester täcker båda vägarna
+
+**P3-08: Såddhistorik i detaljvy**
+- Scope:
+  - Visa tidslinje/lista från `sowing_events` i sådddetalj
+  - Rendera metadata och anteckningar per event
+- Acceptanskriterier:
+  - Historik visas i kronologisk ordning
+  - Event utan metadata visas utan UI-fel
+  - Event med metadata visar rätt värden
+
+**P3-09: Integrationstester + release-checklista**
+- Scope:
+  - Lägg till testscenario från skapad sådd → avslutad/misslyckad → ev. radering
+  - Dokumentera release-checklista och rollback
+- Acceptanskriterier:
+  - CI innehåller test som täcker hela Prio 3-kedjan
+  - Checklista inkluderar migration, smoke-test, rollback-steg
+  - Prio 3 kan verifieras mot Definition of Done
+
+**Föreslagen ordning:** P3-01 → P3-02 → P3-03 → P3-04 → P3-05/P3-06 → P3-07 → P3-08 → P3-09
+
+#### GitHub Issue-mallar (copy-paste) – Prio 3
+
+**Issue 1**
+```md
+Title: P3-01 DB migration: batch_number + sowing_events + RLS
+
+## Bakgrund
+Prio 3 kräver utökad såddhantering med omgångsnummer och händelselogg.
+
+## Scope
+- Lägg till `batch_number int not null default 1` på `sowings`
+- Skapa tabellen `sowing_events` enligt SPEC sektion 7.3
+- Lägg till RLS-policies för `sowing_events` med `auth.uid() = user_id`
+
+## Acceptanskriterier
+- Migration kör utan fel i tom och befintlig databas
+- `sowing_events` har fungerande RLS
+- Existerande såddar påverkas inte negativt
+
+## Definition of Done
+- Migration mergad och verifierad lokalt + i Supabase
+```
+
+**Issue 2**
+```md
+Title: P3-02 Statusnormalisering och enum-mappning
+
+## Bakgrund
+Statusflödet ska stödja Skörd, Avslutad och Misslyckad samt vara bakåtkompatibelt.
+
+## Scope
+- Uppdatera enum/konstanter för nytt statusflöde
+- Hantera äldre statusvärden (inkl. 3/4) via migration/mappning
+
+## Acceptanskriterier
+- Alla statusvärden kan läsas/skrivas utan cast-fel
+- Befintliga poster får korrekt status efter migrering
+- Enhetstester täcker mappningen
+
+## Definition of Done
+- Ny statusmappning används konsekvent i appen
+```
+
+**Issue 3**
+```md
+Title: P3-03 Central statusmotor i service-lagret
+
+## Bakgrund
+Statusövergångar behöver central validering för att undvika inkonsistenta tillstånd.
+
+## Scope
+- Implementera `CanTransition`
+- Implementera `UpdateSowingStatusAsync`
+- Blockera ogiltiga övergångar med tydligt fel
+
+## Acceptanskriterier
+- Ogiltiga övergångar returnerar tydligt fel
+- Giltiga övergångar uppdaterar status korrekt
+- Tester täcker grannövergångar + misslyckad-vägen
+
+## Definition of Done
+- All statusändring går via central statusmotor
+```
+
+**Issue 4**
+```md
+Title: P3-04 Händelseloggning vid statusändring
+
+## Bakgrund
+Varje statusbyte ska kunna följas upp i historik och statistik.
+
+## Scope
+- Skriv en rad i `sowing_events` vid varje lyckad statusändring
+- Stöd metadata: `seedlings_count`, `harvest_weight_g`, `harvest_count`, `notes`
+
+## Acceptanskriterier
+- Varje lyckad statusändring skapar exakt en eventrad
+- Event innehåller korrekt `user_id`, `sowing_id`, datum och `event_type`
+- Tester verifierar standardevent + event med metadata
+
+## Definition of Done
+- Händelselogg är komplett för alla statusändringar
+```
+
+**Issue 5**
+```md
+Title: P3-05 UI: omgångsnummer i listor och detaljer
+
+## Bakgrund
+Flera såddar av samma frö/art ska vara tydligt separerade.
+
+## Scope
+- Visa omgångsnummer i relevanta listor/kort/detalj
+- Sätt nästa lediga omgångsnummer vid ny sådd
+
+## Acceptanskriterier
+- Två aktiva såddar av samma frö visas med olika omgångsnummer
+- Sortering/visning är konsekvent mellan vyer
+
+## Definition of Done
+- Omgångsnummer syns och fungerar i hela UI-flödet
+```
+
+**Issue 6**
+```md
+Title: P3-06 UI: nytt statusflöde + dialoger för specialfall
+
+## Bakgrund
+Nya statusar kräver nya användarflöden och extra input i vissa steg.
+
+## Scope
+- Lägg till UI-steg för Skörd, Avslutad, Misslyckad
+- Dialog för groddning (antal), skörd (vikt/antal), misslyckad (orsak)
+
+## Acceptanskriterier
+- Användaren kan gå från Sådd till Avslutad via giltiga steg
+- Misslyckad kan väljas från alla aktiva steg
+- Extra fält sparas till händelselogg
+
+## Definition of Done
+- Statusflödet i UI matchar affärsregler och service-validering
+```
+
+**Issue 7**
+```md
+Title: P3-07 Raderingslogik och lageråterföring
+
+## Bakgrund
+Lagerregler vid radering är kritiska för korrekt frösaldo.
+
+## Scope
+- Implementera regel: status `< 1` återför frö, status `>= 1` återför inte
+- Visa info i UI när återföring inte sker
+
+## Acceptanskriterier
+- Lagersaldo ökar korrekt vid radering av status 0
+- Lagersaldo ändras inte vid radering av status 1+
+- Tester täcker båda raderingsvägarna
+
+## Definition of Done
+- Raderingsflödet följer affärsregler i sektion 12 exakt
+```
+
+**Issue 8**
+```md
+Title: P3-08 Såddhistorik i detaljvy
+
+## Bakgrund
+Användaren behöver kunna se en tydlig historik över händelser per sådd.
+
+## Scope
+- Visa tidslinje/lista från `sowing_events` i sådddetalj
+- Rendera metadata och anteckningar per event
+
+## Acceptanskriterier
+- Historik visas i kronologisk ordning
+- Event utan metadata visas utan UI-fel
+- Event med metadata visar rätt värden
+
+## Definition of Done
+- Sådddetalj innehåller komplett och läsbar historik
+```
+
+**Issue 9**
+```md
+Title: P3-09 Integrationstester + release-checklista
+
+## Bakgrund
+Prio 3 behöver verifieras end-to-end före release.
+
+## Scope
+- Lägg till integrationstest för kedjan: skapad sådd → statusflöde → ev. radering
+- Dokumentera release-checklista och rollback-plan
+
+## Acceptanskriterier
+- CI innehåller test som täcker Prio 3-kedjan
+- Checklista inkluderar migration, smoke-test och rollback
+- Prio 3 verifieras mot Definition of Done
+
+## Definition of Done
+- Teamet kan releasa Prio 3 med låg risk och tydlig återställningsplan
+```
+
+### Prioritet 4 – Utökat fröinventarie
+- Nya fält: inköpsdatum, inköpsställe, grobarhetsprocent
+- Varningsindikatorer (gult/rött för utgångsdatum, grått för saldo 0)
+- Taggsystem
+
+### Prioritet 5 – Förbättrade såddrekommendationer
+- Brådskegrader och färgkodning
+- "Snart att så"-sektion på dashboarden
+- Direktsådd-logik för `direct_sowing = true`
+- Planeringssida (`/planning`)
 
 ### Prioritet 6 – Statistik
 - Statistiksida (`/statistics`)

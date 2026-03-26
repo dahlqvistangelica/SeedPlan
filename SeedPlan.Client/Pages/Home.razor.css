@@ -303,22 +303,7 @@
     color: #e2e8f0;
     width: 20px;
 }
-/* Dashboard responsiveness */
 
-@media (max-width: 768px) {
-    .plant-grid {
-        grid-template-columns: 1fr;
-    }
-    .mini-badge {
-        display: none;
-    }
-    .plant-grid.mini {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 15px 0;
-    }
-}
 /* --- ALREADY PASSED (ACCORDION) --- */
 
 .past-section {
@@ -478,6 +463,24 @@
     font-size: 0.8rem;
     color: #c2410c;
 }
+/* Dashboard responsiveness */
+
+@media (max-width: 768px) {
+    .plant-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mini-badge {
+        display: none;
+    }
+
+    .plant-grid.mini {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px 0;
+    }
+}
 
 @media (max-width: 480px) {
     .dashboard-container {
@@ -510,6 +513,12 @@
         padding: 2px 5px;
         min-width: 20px;
         text-align: center;
+    }
+    .plant-grid.mini {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px 0;
     }
 
 }

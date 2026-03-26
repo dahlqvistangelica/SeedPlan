@@ -58,7 +58,16 @@
                             }
                         </h2>
                     </div>
-                    <span class="seed-count">@group.Count() sorter</span>
+                    
+                        @if(@group.Count() > 1)
+                        {
+                        <span class="seed-count">
+                            @group.Count() sorter </span> }
+                        else
+                        {
+                        <span class="seed-count">@group.Count() sort </span>
+                        }
+                    
                 </div>
                 @if (isExpanded)
                 {

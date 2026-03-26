@@ -4,7 +4,6 @@
     margin: 0 auto;
     padding: 2rem 1rem;
     color: #4b5563;
-    font-family: inherit;
 }
 
 .settings-header {
@@ -12,14 +11,14 @@
 }
 
 .settings-header h1 {
-    font-family: inherit;
+
     margin-bottom: 0.5rem;
 }
 
 .settings-header p {
     color: #64748b;
     font-size: 1rem;
-    font-family: inherit;
+
 }
 
 /* --- Settings cards --- */
@@ -56,6 +55,7 @@
     place-items: center;
     color: #10b981;
     flex-shrink: 0;
+    font-size: 1.3rem;
 }
 
 .card-text {
