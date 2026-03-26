@@ -14,9 +14,9 @@ README:n speglar nu riktningen i [SPEC.md](SPEC.md) (v2.0, mars 2026).
 
 - ✅ Basflöden finns: auth, dashboard, fröinventarie, såddhantering, växtguide, PWA-stöd.
 - ✅ Push-infrastruktur för orörda såddar finns (inklusive Edge Function för manuell trigger).
-- 🟡 Kontoinställningar pågår: e-post/lösenord finns, men validering och UX-justeringar återstår.
+- ✅ Kontoinställningar pågår: e-post/lösenord finns, men validering och UX-justeringar återstår.
 - 🟡 Notiser i UI är delvis klara: global toggle finns, men utökad konfiguration saknas.
-- 🔨 Nästa större steg: settings-omstrukturering (frostdatum+zon ihop) och kategori-filter för startsidans förslag.
+- ✅ Nästa större steg: settings-omstrukturering (frostdatum+zon ihop) och kategori-filter för startsidans förslag.
 - 🔨 Framtida fas: kontoradering och JSON-backup/export.
 
 ## Funktioner i appen (idag)
