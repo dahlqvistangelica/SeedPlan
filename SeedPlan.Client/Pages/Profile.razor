@@ -152,22 +152,37 @@
         }
     }
 
-    private void ToggleCategory(int i, object checkedValue)
+    private void ToggleCategory(int i, object? checkedValue)
     {
-        bool isChecked = (bool)(checkedValue ?? false);
-        if(isChecked && !userProfile.PreferredPlantCategories.Contains(i))
+        var isChecked = checkedValue switch
         {
-            userProfile.PreferredPlantCategories.Add(i);
+            bool boolValue => boolValue,
+            string stringValue when bool.TryParse(stringValue, out var parsed) => parsed,
+            _ => false
+        };
+
+        var updatedCategories = userProfile.PreferredPlantCategories?.ToHashSet() ?? [];
+
+        if (isChecked)
+        {
+            updatedCategories.Add(i);
         }
         else
         {
-            userProfile.PreferredPlantCategories.Remove(i);
+            updatedCategories.Remove(i);
         }
+
+        userProfile.PreferredPlantCategories = updatedCategories.OrderBy(x => x).ToList();
     }
 
     private async Task SaveProfile()
     {
-        await ProfileService.UpsertUserProfile(userProfile);
+        userProfile.PreferredPlantCategories = userProfile.PreferredPlantCategories
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+
+        await ProfileService.UpdateUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";
 
         await Task.Delay(2500);
