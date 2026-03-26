@@ -12,7 +12,7 @@
                 @* 1. CHOOSE SEED *@
                 <div class="input-block">
                         <label>VÄLJ FRÖ</label>
-                        <select @bind="newSowing.SeedId" class="sp-input">
+                    <select @bind="newSowing.SeedId" @bind:after="OnSeedChangedAsync" class="sp-input">
                             @if (InitialPlant != null)
                             {
                                 <option value="0">Välj vilken sort av @InitialPlant.PlantName du sår..</option>
@@ -34,6 +34,10 @@
                                 </optgroup>
                             }
                         </select>
+                    </div>
+                    <div class="input-block">
+                        <label>OMGÅNG</label>
+                        <input type="text" class="sp-input" value="@(nextBatchNumber > 0 ? $"Omgång {nextBatchNumber}" : "Välj frö först")" readonly />
                     </div>
                 @* 2. NUMBER OF SEEDS SOWN *@
                 <div class="input-block">
@@ -81,6 +85,7 @@
     private List<SeedView> availableSeeds = new();
     private Sowing newSowing = new() { SownDate = DateTime.Now }; 
     private string errorMessage = "";
+    private int nextBatchNumber;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -89,6 +94,7 @@
             _wasVisible = true;
             newSowing = new() { SownDate = DateTime.Now };
             errorMessage = "";
+            nextBatchNumber = 0;
 
             var groupedSeeds = await SeedService.GetMySeedsGrouped();
 
@@ -99,6 +105,7 @@
                 if(availableSeeds.Count == 1)
                 {
                     newSowing.SeedId = availableSeeds.First().Id;
+                    nextBatchNumber = await SowingService.GetNextBatchNumberAsync(newSowing.SeedId);
                 }
                 else
                 {
@@ -115,6 +122,17 @@
             _wasVisible = false;
         }
         await Task.Delay(50);
+    }
+
+    private async Task OnSeedChangedAsync()
+    {
+        if (newSowing.SeedId <= 0)
+        {
+            nextBatchNumber = 0;
+            return;
+        }
+
+        nextBatchNumber = await SowingService.GetNextBatchNumberAsync(newSowing.SeedId);
     }
 
     private async Task HandleSave()
@@ -158,6 +176,7 @@
             }
 
             newSowing.UserId = _supabase.Auth.CurrentUser?.Id;
+            newSowing.BatchNumber = nextBatchNumber > 0 ? nextBatchNumber : 1;
             await SowingService.AddSowing(newSowing); // Save sowing
             await OnSaved.InvokeAsync();
             await Close();

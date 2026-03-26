@@ -5,13 +5,14 @@
         Sown = 0,
         Germinated = 1,
         TrueLeaves = 2,
-        PottedOn1 = 3,
-        PottedOn2 = 4,
-        HardeningOff = 5,
-        PlantedOut = 6,
-        Harvested = 7,
+        PottedOn = 3,
+        HardeningOff = 4,
+        PlantedOut = 5,
+        Harvested = 6,
+        Finished = 7,
         Failed = 99
     }
+
     public enum PlantCategory
     {
         Vegetable = 0,

@@ -39,12 +39,12 @@ function getDaysStale(statusUpdatedAt: string | null, sownDate: string): number 
 
 function getWarning(status: number, days: number): string | null {
     switch (status) {
-        case 0: return days > 21 ? `Has not germinated for ${days} days — are the growth conditions, moisture, and light correct?` : null
+        case 0: return days > 10 ? `Has not germinated for ${days} days — are the growth conditions, moisture, and light correct?` : null
         case 1: return days > 14 ? `Has been in the Germination stage for ${days} days — check the characteristics sheet?` : null
         case 2: return days > 21 ? `Has had characteristic leaves for ${days} days — time to repot?` : null
-        case 3:
-        case 4: return days > 14 ? `Repotted ${days} days ago — time to start hardening off?` : null
-        case 5: return days > 14 ? `Has been hardened off for ${days} days — ready to plant out?` : null
+        case 3: return days > 14 ? `Repotted ${days} days ago — time to start hardening off?` : null
+        case 4: return days > 14 ? `Hardening off for ${days} days — ready to plant out?` : null
+        case 5: return days > 45 ? `Planted out for ${days} days — time to register harvest?` : null
         default: return null
     }
 }
@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
         const { data: sowings, error: sowingsError } = await supabase
             .from('v_user_sowings')
             .select('id, user_id, plant_name, status, status_updated_at, sown_date')
-            .lt('status', 6)
+            .lte('status', 6)
 
         if (sowingsError) throw sowingsError
 

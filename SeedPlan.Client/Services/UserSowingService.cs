@@ -1,15 +1,17 @@
-﻿using SeedPlan.Shared.Interfaces;
+﻿using SeedPlan.Shared.Helpers;
+using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
-using Supabase.Postgrest;
 using SeedPlan.Shared.Models.ViewModels;
+using Supabase.Postgrest;
 using static Supabase.Postgrest.Constants;
 
 namespace SeedPlan.Client.Services
 {
-    public class UserSowingService: IUserSowingService
+    public class UserSowingService : IUserSowingService
     {
         private readonly Supabase.Client _supabase;
         private readonly IUserProfileService _profileService;
+
         public UserSowingService(Supabase.Client supabase, IUserProfileService profileService)
         {
             _supabase = supabase;
@@ -93,8 +95,37 @@ namespace SeedPlan.Client.Services
             {
                 throw new ArgumentException("You must enter a valid number of seeds you sown");
             }
-               
+
             await _supabase.From<Sowing>().Insert(newSowing);
+
+            var sowingId = newSowing.Id;
+            if (sowingId <= 0)
+            {
+                var insertedSowingResponse = await _supabase
+                    .From<Sowing>()
+                    .Where(x => x.UserId == user.Id)
+                    .Where(x => x.SeedId == newSowing.SeedId)
+                    .Where(x => x.BatchNumber == newSowing.BatchNumber)
+                    .Order("id", Constants.Ordering.Descending)
+                    .Limit(1)
+                    .Get();
+
+                sowingId = insertedSowingResponse.Models.FirstOrDefault()?.Id ?? 0;
+            }
+
+            if (sowingId > 0)
+            {
+                var initialEvent = new SowingEvent
+                {
+                    SowingId = sowingId,
+                    UserId = user.Id,
+                    EventType = ((int)SowingStatus.Sown).ToString(),
+                    EventDate = (newSowing.SownDate ?? DateTime.Today).Date,
+                    Notes = string.IsNullOrWhiteSpace(newSowing.Notes) ? null : newSowing.Notes
+                };
+
+                await _supabase.From<SowingEvent>().Insert(initialEvent);
+            }
             
         }
         /// <summary>
@@ -105,45 +136,210 @@ namespace SeedPlan.Client.Services
         /// <param name="id">The unique identifier of the sowing record to update.</param>
         /// <param name="status">The new status value to assign to the sowing record.</param>
         /// <returns>A task that represents the asynchronous update operation.</returns>
+        /// 
         public async Task UpdateSowingStatus(int id, int status)
         {
             var user = _supabase.Auth.CurrentUser;
             if (user == null) return;
 
-            await _supabase
-                .From<Sowing>()
-                .Where(x => x.Id == id)
-                .Where(x => x.UserId == user.Id)
-                .Set(x => x.Status, status)
-                .Set(x => x.StatusUpdatedAt, DateTime.Now)
-                .Update();
+            await UpdateSowingStatusAsync(new UpdateSowingStatusRequest
+            {
+                SowingId = id,
+                TargetStatus = status,
+                EventDate = DateTime.Now,
+            });
         }
+        public async Task UpdateSowingStatusAsync(UpdateSowingStatusRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedAccessException("You have to be logged in to edit sowings.");
+            }
+
+            var sowing = await GetOwnedSowingAsync(request.SowingId, userId);
+
+            if (!SowingStatusFlow.CanTransition(sowing.Status, request.TargetStatus))
+            {
+                throw new InvalidOperationException($"Invalid status transition: {sowing.Status} -> {request.TargetStatus}.");
+            }
+
+            ValidateRequestForTargetStatus(request);
+            request.EventDate ??= DateTime.Now;
+
+            try
+            {
+                await _supabase.Rpc("update_sowing_status_with_event", new
+                {
+                    p_sowing_id = request.SowingId,
+                    p_target_status = request.TargetStatus,
+                    p_event_date = request.EventDate?.Date,
+                    p_seedlings_count = request.SeedlingCount,
+                    p_harvest_weight_g = request.HarvestWeightG,
+                    p_harvest_count = request.HarvestCount,
+                    p_notes = request.Notes
+                });
+            }
+            catch (Exception ex) when (
+                ex.Message.Contains("transition", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("invalid", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Invalid status transition.", ex);
+            }
+        }
+
+        public async Task UpdateSowingProgressAsync(UpdateSowingProgressRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedAccessException("You have to be logged in to edit sowings.");
+            }
+
+            if (request.ActiveSeedlingCount.HasValue && request.ActiveSeedlingCount.Value < 0)
+            {
+                throw new ArgumentException("Aktivt antal plantor kan inte vara negativt.");
+            }
+
+            if (!request.ActiveSeedlingCount.HasValue && string.IsNullOrWhiteSpace(request.Notes))
+            {
+                throw new ArgumentException("Lägg till en anteckning eller ange aktivt antal plantor.");
+            }
+
+            var sowing = await GetOwnedSowingAsync(request.SowingId, userId);
+
+            if (request.ActiveSeedlingCount.HasValue)
+            {
+                sowing.Quantity = request.ActiveSeedlingCount.Value;
+                await _supabase.From<Sowing>().Update(sowing);
+            }
+
+            var progressEvent = new SowingEvent
+            {
+                SowingId = request.SowingId,
+                UserId = userId,
+                EventType = "progress_note",
+                EventDate = request.EventDate?.Date ?? DateTime.Today,
+                SeedlingsCount = request.ActiveSeedlingCount,
+                Notes = request.Notes
+            };
+
+            await _supabase.From<SowingEvent>().Insert(progressEvent);
+        }
+
+        private async Task<Sowing> GetOwnedSowingAsync(int sowingId, string userId)
+        {
+            var response = await _supabase
+                .From<Sowing>()
+                .Where(x => x.Id == sowingId)
+                .Where(x => x.UserId == userId)
+                .Limit(1)
+                .Get();
+
+            var sowing = response.Models.FirstOrDefault();
+            if (sowing == null)
+            {
+                throw new KeyNotFoundException("Sowing not found.");
+            }
+
+            return sowing;
+        }
+
+        private static void ValidateRequestForTargetStatus(UpdateSowingStatusRequest request)
+        {
+            if (request.TargetStatus == (int)SowingStatus.Germinated &&
+                (!request.SeedlingCount.HasValue || request.SeedlingCount.Value <= 0))
+            {
+                throw new ArgumentException("Seedling count is required when moving to Germinated.");
+            }
+
+            if (request.TargetStatus == (int)SowingStatus.Harvested)
+            {
+                var hasWeight = request.HarvestWeightG.HasValue && request.HarvestWeightG.Value > 0;
+                var hasCount = request.HarvestCount.HasValue && request.HarvestCount.Value > 0;
+
+                if (!hasWeight && !hasCount)
+                {
+                    throw new ArgumentException("Harvest weight or harvest count is required when moving to Harvested.");
+                }
+            }
+
+            // Notes are optional for Failed status according to current product spec.
+        }
+
         /// <summary>
         /// Deletes the sowing record with the specified identifier for the currently authenticated user.
         /// </summary>
-        /// <remarks>If there is no authenticated user, the method does not perform any operation. Only
-        /// sowing records belonging to the current user are affected.</remarks>
+        /// <remarks>
+        /// If there is no authenticated user, the method does not perform any operation.
+        /// Only sowing records belonging to the current user are affected.
+        /// </remarks>
         /// <param name="id">The unique identifier of the sowing record to delete.</param>
         /// <returns>A task that represents the asynchronous delete operation.</returns>
         public async Task DeleteSowing(int id)
         {
-            var user = _supabase.Auth.CurrentUser;
-            if (user == null) return;
+            await DeleteSowingWithResult(id);
+        }
+
+        public async Task<DeleteSowingResult> DeleteSowingWithResult(int id)
+        {
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedAccessException("You have to be logged in to delete sowings.");
+            }
+
+            var sowing = await GetOwnedSowingAsync(id, userId);
+            var result = new DeleteSowingResult();
+
+            if (SowingDeletionRules.ShouldReturnSeedsToInventory(sowing.Status))
+            {
+                var seedResponse = await _supabase
+                    .From<Seed>()
+                    .Where(x => x.Id == sowing.SeedId)
+                    .Where(x => x.UserId == userId)
+                    .Limit(1)
+                    .Get();
+
+                var seed = seedResponse.Models.FirstOrDefault();
+                if (seed == null)
+                {
+                    throw new KeyNotFoundException("Related seed not found for sowing deletion.");
+                }
+
+                seed.Quantity += sowing.Quantity;
+                await _supabase.From<Seed>().Update(seed);
+
+                result.SeedsReturnedToInventory = true;
+                result.ReturnedQuantity = sowing.Quantity;
+            }
 
             await _supabase
                 .From<Sowing>()
                 .Where(x => x.Id == id)
-                .Where(x => x.UserId == user.Id)
+                .Where(x => x.UserId == userId)
                 .Delete();
-            
+
+            return result;
         }
+
         /// <summary>
         /// Asynchronously retrieves the number of active sowing records for the currently authenticated user.
         /// </summary>
-        /// <remarks>A sowing is considered active if its status is less than 7. This method requires a
-        /// user to be authenticated; otherwise, it returns 0.</remarks>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the count of active sowing
-        /// records for the current user. Returns 0 if no user is authenticated or if there are no active sowings.</returns>
+        /// <returns>
+        /// A task that represents the asynchronous operation.
+        /// The task result contains the count of active sowing records for the current user.
+        /// </returns>
         public async Task<int> GetActiveSowingCount()
         {
             var user = _supabase.Auth.CurrentUser;
@@ -152,17 +348,19 @@ namespace SeedPlan.Client.Services
             var response = await _supabase
                 .From<Sowing>()
                 .Where(x => x.UserId == user.Id)
-                .Where(x => x.Status < 7)
+                .Where(x => x.Status <= (int)SowingStatus.Harvested)
                 .Get();
+
             return response.Models.Count;
         }
+
         /// <summary>
-        /// Retrieves a list of sowings for the current user that have germinated but have not yet been planted out.
+        /// Retrieves sowings for the current user that are in active growth stages and may need attention.
         /// </summary>
-        /// <remarks>Only sowings with a status between 1 and 5 (inclusive) are included. The method
-        /// requires the user to be authenticated; otherwise, no results are returned.</remarks>
-        /// <returns>A list of sowings with a status indicating they require attention. Returns an empty list if the user is not
-        /// authenticated or if no such sowings exist.</returns>
+        /// <returns>
+        /// A list of sowings in active stages.
+        /// Returns an empty list if the user is not authenticated or if no sowings are found.
+        /// </returns>
         public async Task<List<Sowing>> GetSowingsNeedingAttention()
         {
             var user = _supabase.Auth.CurrentUser;
@@ -172,11 +370,76 @@ namespace SeedPlan.Client.Services
                 .From<Sowing>()
                 .Select("*, seeds(*, plants(*))")
                 .Where(x => x.UserId == user.Id)
-                .Where(x => x.Status > 0)
-                .Where(x => x.Status < 6)
+                .Where(x => x.Status > (int)SowingStatus.Sown)
+                .Where(x => x.Status <= (int)SowingStatus.Harvested)
                 .Get();
 
             return response.Models;
+        }
+
+        public async Task<List<SowingEvent>> GetSowingEventsAsync(int sowingId)
+        {
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return new List<SowingEvent>();
+            }
+
+            var response = await _supabase
+                .From<SowingEvent>()
+                .Where(x => x.SowingId == sowingId)
+                .Where(x => x.UserId == userId)
+                .Order("event_date", Constants.Ordering.Ascending)
+                .Order("created_at", Constants.Ordering.Ascending)
+                .Get();
+
+            var events = response.Models;
+
+            var hasInitialSowingStep = events.Any(e => string.Equals(e.EventType, ((int)SowingStatus.Sown).ToString(), StringComparison.Ordinal));
+
+            if (!hasInitialSowingStep)
+            {
+                var sowingResponse = await _supabase
+                    .From<Sowing>()
+                    .Where(x => x.Id == sowingId)
+                    .Where(x => x.UserId == userId)
+                    .Limit(1)
+                    .Get();
+
+                var sowing = sowingResponse.Models.FirstOrDefault();
+                if (sowing != null)
+                {
+                    events.Insert(0, new SowingEvent
+                    {
+                        SowingId = sowing.Id,
+                        UserId = userId,
+                        EventType = ((int)SowingStatus.Sown).ToString(),
+                        EventDate = (sowing.SownDate ?? DateTime.Today).Date,
+                        Notes = string.IsNullOrWhiteSpace(sowing.Notes) ? null : sowing.Notes,
+                        CreatedAt = sowing.StatusUpdatedAt ?? DateTime.Now
+                    });
+                }
+            }
+
+            return events;
+        }
+
+        public async Task<int> GetNextBatchNumberAsync(int seedId)
+        {
+            var userId = _supabase.Auth.CurrentUser?.Id;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return 1;
+            }
+
+            var response = await _supabase
+                .From<Sowing>()
+                .Select("batch_number")
+                .Where(x => x.SeedId == seedId)
+                .Where(x => x.UserId == userId)
+                .Get();
+
+            return SowingBatchNumberHelper.GetNextBatchNumber(response.Models.Select(x => x.BatchNumber));
         }
     }
 }

@@ -51,5 +51,8 @@ namespace SeedPlan.Shared.Models.ViewModels
         public bool? RequiresTopping { get; set; }
         [Column("status_updated_at")]
         public DateTime? StatusUpdatedAt { get; set; }
+
+        [Column("batch_number")]
+        public int BatchNumber { get; set; }
     }
 }
