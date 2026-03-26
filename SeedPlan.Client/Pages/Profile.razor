@@ -161,18 +161,11 @@
             _ => false
         };
 
-        var updatedCategories = userProfile.PreferredPlantCategories?.ToHashSet() ?? [];
+        var currentCategories = userProfile.PreferredPlantCategories ?? [];
 
-        if (isChecked)
-        {
-            updatedCategories.Add(i);
-        }
-        else
-        {
-            updatedCategories.Remove(i);
-        }
-
-        userProfile.PreferredPlantCategories = updatedCategories.OrderBy(x => x).ToList();
+        userProfile.PreferredPlantCategories = isChecked
+            ? currentCategories.Append(i).Distinct().OrderBy(x => x).ToArray()
+            : currentCategories.Where(x => x != i).Distinct().OrderBy(x => x).ToArray();
     }
 
     private async Task SaveProfile()
@@ -180,7 +173,7 @@
         userProfile.PreferredPlantCategories = userProfile.PreferredPlantCategories
             .Distinct()
             .OrderBy(x => x)
-            .ToList();
+            .ToArray();
 
         await ProfileService.UpdateUserProfile(userProfile);
         statusMessage = "Dina inställningar har sparats! ✨";

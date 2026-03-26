@@ -16,7 +16,7 @@ namespace SeedPlan.Shared.Models
         [Column("updated_at")]
         public DateTime UpdatedLast { get; set; }
         [Column("preferred_plant_categories")]
-        public List<int> PreferredPlantCategories { get; set; } = [0, 1, 2, 3];
+        public int[] PreferredPlantCategories { get; set; } = [];
 
     }
 }
