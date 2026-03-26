@@ -45,18 +45,35 @@ Nuvarande app har både en **Inställningsöversikt** (`/settings`) och en **Pro
 Måldesignen i v2 är att kontorelaterade flöden är samlade och tydligt sektionerade på inställningsflödet.
 
 #### Ändra e-postadress
-- **Status:** 🟡 delvis klart
+- **Status:** ✅ klart
 - ✅ UI och service för ny e-post finns
 - ✅ Supabase-flöde med bekräftelsemejl används
-- 🔨 Bekräftelse med nuvarande lösenord saknas i UI-flödet
-- 🔨 Statustext ska förtydligas till: *"Ett bekräftelsemejl har skickats till [ny adress]."*
+- ✅ Bekräftelse med nuvarande lösenord krävs i UI-flödet
+- ✅ Statustext förtydligad: *"Ett bekräftelsemejl har skickats till [ny adress]."*
+
+#### Teknisk notering (auth)
+- AuthService använder en intern auth-abstraktion (`IAuthClient`) i stället för direkt mockning av Supabase-klienten.
+- Syfte: göra enhetstester stabila utan att ändra användarflöden i appen.
+- Unit-testtäckningen är utökad för auth-flöden, inklusive negativa vägar för e-post/lösenordsuppdatering (fel nuvarande lösenord och misslyckad update), samt login edge-case när sessionspayload saknas.
 
 #### Ändra lösenord
-- **Status:** 🟡 delvis klart
+- **Status:** ✅ klart
 - ✅ Flöde finns med nuvarande lösenord + nytt lösenord + bekräftelse
 - ✅ Felmeddelanden visas på svenska
 - ✅ Bekräftelse visas vid lyckad ändring
-- 🔨 Validering ska vara konsekvent med krav: minst 8 tecken och matchande lösenord
+- ✅ Validering är konsekvent och implementerad i både UI och service:
+  - minst 8 tecken
+  - minst en stor bokstav
+  - minst en liten bokstav
+  - matchande bekräftelselösenord i UI
+
+**Acceptanskriterier (Given/When/Then)**
+- **Given** att användaren är inloggad och anger korrekt nuvarande lösenord, **When** nytt lösenord uppfyller alla krav och bekräftelsen matchar, **Then** lösenordet uppdateras och lyckad status visas.
+- **Given** att nytt lösenord är kortare än 8 tecken, **When** användaren försöker spara, **Then** uppdatering blockeras och felmeddelande om minsta längd visas.
+- **Given** att nytt lösenord saknar stor bokstav, **When** användaren försöker spara, **Then** uppdatering blockeras och felmeddelande om stor bokstav visas.
+- **Given** att nytt lösenord saknar liten bokstav, **When** användaren försöker spara, **Then** uppdatering blockeras och felmeddelande om liten bokstav visas.
+- **Given** att bekräftelselösenord inte matchar, **When** användaren försöker spara, **Then** UI blockerar skick och visar varning om att lösenorden inte matchar.
+- **Given** att nuvarande lösenord är felaktigt, **When** användaren försöker spara ett giltigt nytt lösenord, **Then** uppdatering avvisas med felmeddelande om felaktigt nuvarande lösenord.
 
 #### Radera konto
 - Flyttad till framtida fas (se sektion 14).
@@ -71,7 +88,8 @@ Måldesignen i v2 är att kontorelaterade flöden är samlade och tydligt sektio
 ### 3.0 Nuvarande läge (mars 2026)
 - `/settings` används som inställningsöversikt (frostdatum, zon, aviseringar, länkar till profil).
 - `/profile` innehåller profil- och kontouppgifter (namn, e-postbyte, lösenordsbyte).
-- Målstrukturen nedan beskriver v2-målet och kräver omstrukturering av befintlig UI.
+- Frostdatum och odlingszon hanteras som separata kort/modaler i `/settings`.
+- Odlingszon visas inte i kontoinställningar i `/profile`.
 
 ### Befintliga fält (ändras ej)
 - Namn
@@ -85,7 +103,8 @@ Måldesignen i v2 är att kontorelaterade flöden är samlade och tydligt sektio
 ```
 Inställningsflöde
 ├── Översikt                     (`/settings`)
-│   ├── Frostdatum & zon         (samma knapp och samma modal)
+│   ├── Frostdatum               (egen knapp + egen modal)
+│   ├── Odlingszon/Plats         (egen knapp + egen modal)
 │   ├── Aviseringar
 │   └── Profil (länk till `/profile`)
 └── Profil & Konto               (`/profile`)
@@ -521,12 +540,12 @@ Planering och Statistik läggs inte i bottom nav initialt (för att hålla navba
 ## 13. Byggas i denna prioritetsordning
 
 ### Prioritet 1 – Kontofunktioner (låg risk, hög nytta)
-- 🟡 Ändra lösenord (grundflöde finns, kravvalidering färdigställs)
-- 🟡 Ändra e-postadress (grundflöde finns, lösenordsbekräftelse + tydlig statustext kvar)
+- ✅ Ändra lösenord (klart: kravvalidering + tydliga felmeddelanden)
+- ✅ Ändra e-postadress (klart: lösenordsbekräftelse + tydlig statustext)
 
 ### Prioritet 2 – Profil & inställningsstruktur
-- Slå ihop frostdatum och odlingszon till samma knapp/modal i `/settings`
-- Ta bort odlingszon från kontoinställningar i `/profile`
+- ✅ Behåll separata modaler för frostdatum och odlingszon i `/settings` (infört)
+- ✅ Odlingszon borttagen från kontoinställningar i `/profile` (infört)
 - Lägg till kategorival (PlantCategory) för startsidans förslag
 
 ### Prioritet 3 – Utökat fröinventarie

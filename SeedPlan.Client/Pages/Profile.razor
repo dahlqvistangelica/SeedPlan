@@ -47,7 +47,12 @@
                     <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
                 </div>
 
-                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@string.IsNullOrWhiteSpace(newEmail)">
+                <div class="input-group">
+                    <label>Nuvarande lösenord</label>
+                    <input type="password" @bind="currentEmailPassword" placeholder="Ange ditt nuvarande lösenord" />
+                </div>
+
+                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@(!CanSubmitEmail())">
                     Spara e‑post
                 </button>
             </div>
@@ -71,6 +76,10 @@
                 <div class="input-group">
                     <label>Nytt lösenord</label>
                     <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
+                    @if (!string.IsNullOrWhiteSpace(newPassword) && !MeetsPasswordComplexity(newPassword))
+                    {
+                        <span class="warning-text">⚠️ Minst 8 tecken och minst en stor + en liten bokstav krävs</span>
+                    }
                 </div>
 
                 <div class="input-group">
@@ -105,6 +114,7 @@
     private string statusMessage = "";
 
     private string newEmail = "";
+    private string currentEmailPassword = "";
     private string currentPassword = "";
     private string newPassword = "";
     private string confirmPassword = "";
@@ -133,22 +143,45 @@
         statusMessage = "";
     }
 
+    private bool CanSubmitEmail()
+    {
+        return !string.IsNullOrWhiteSpace(newEmail) &&
+               !string.IsNullOrWhiteSpace(currentEmailPassword);
+    }
+
     private bool CanSubmitPassword()
     {
         return !isUpdatingPassword &&
                !string.IsNullOrWhiteSpace(currentPassword) &&
                !string.IsNullOrWhiteSpace(newPassword) &&
+               MeetsPasswordComplexity(newPassword) &&
                !string.IsNullOrWhiteSpace(confirmPassword) &&
                newPassword == confirmPassword;
     }
 
+    private bool MeetsPasswordComplexity(string password)
+    {
+        return password.Length >= 8 &&
+               password.Any(char.IsUpper) &&
+               password.Any(char.IsLower);
+    }
+
     private async Task UpdateEmail()
     {
-        if (string.IsNullOrWhiteSpace(newEmail)) return;
+        if (!CanSubmitEmail()) return;
 
-        var result = await Auth.UpdateEmailAsync(newEmail.Trim());
-        statusMessage = result.IsSuccess ? "E‑post uppdaterad (kolla din mejl) ✨" : result.Errors.First().Message;
-        newEmail = "";
+        var requestedEmail = newEmail.Trim();
+        var result = await Auth.UpdateEmailAsync(requestedEmail, currentEmailPassword);
+
+        statusMessage = result.IsSuccess
+            ? $"Ett bekräftelsemejl har skickats till {requestedEmail}."
+            : result.Errors.First().Message;
+
+        if (result.IsSuccess)
+        {
+            newEmail = "";
+            currentEmailPassword = "";
+        }
 
         await Task.Delay(2500);
         statusMessage = "";

@@ -5,8 +5,6 @@ using Microsoft.JSInterop;
 using SeedPlan.Client.Services;
 using SeedPlan.Shared.Interfaces;
 using Supabase;
-using Supabase.Gotrue;
-using Supabase.Gotrue.Interfaces;
 using System.Text.Json;
 
 namespace SeedPlan.Client
@@ -67,6 +65,9 @@ namespace SeedPlan.Client
                 sp.GetRequiredService<SupabaseAuthStateProvider>());
 
             // C: Register our new login engine
+            builder.Services.AddScoped<IAuthClient, SupabaseAuthClient>();
+            builder.Services.AddScoped<IAuthStateNotifier>(sp =>
+                sp.GetRequiredService<SupabaseAuthStateProvider>());
             builder.Services.AddScoped<AuthService>();
 
             // Register notificationservice.

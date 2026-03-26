@@ -7,7 +7,7 @@ using Supabase.Gotrue;
 
 namespace SeedPlan.Client.Services
 {
-    public class SupabaseAuthStateProvider : AuthenticationStateProvider
+    public class SupabaseAuthStateProvider : AuthenticationStateProvider, IAuthStateNotifier
     {
         private readonly Supabase.Client _supabase;
         private readonly IUserProfileService _profileService;
