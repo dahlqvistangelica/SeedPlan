@@ -13,6 +13,14 @@
                 <h1 class="app-title">SeedPlan</h1>
             </div>
             <div class="header-actions">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <nav class="header-nav">
+                            <a href="/om-oss" class="header-link">Om SeedPlan</a>
+                            <a href="/guide-preview" class="header-link">Växtguide</a>
+                        </nav>
+                    </NotAuthorized>
+                </AuthorizeView>
                 <LoginDisplay />
             </div>
         </div>
@@ -50,7 +58,7 @@
                 </nav>
             </Authorized>
             <NotAuthorized>
-                @if (IsRegisterPage)
+                @if (IsRegisterPage || IsPublicPage)
                 {
                     <div class="page-body">
                         @Body
@@ -67,30 +75,33 @@
                                     <h2>Välkommen till SeedPlan 🌱</h2>
                                     <p>Planera rätt sådd i rätt tid, håll koll på dina fröer och följ varje odling steg för steg.</p>
                                 </div>
-                                
-                                <div class="features-grid">
-                                    <div class="feature-card current">
-                                        <h3>🌟 Just nu i appen</h3>
-                                        <ul>
-                                            <li><strong>Personliga såförslag:</strong> Få rekommendationer baserat på ditt frostdatum.</li>
-                                            <li><strong>Fröinventarie:</strong> Se lagersaldo, utgångsdatum och vad du har hemma.</li>
-                                            <li><strong>Aktiva sådder:</strong> Följ utvecklingen från sådd till utplantering.</li>
-                                            <li><strong>Växtguide:</strong> Hitta odlingsråd, härdighet och sådata för varje art.</li>
-                                            <li><strong>Påminnelser:</strong> Få notiser när en sådd varit inaktiv för länge.</li>
-                                            <li><strong>Mobilvänlig app:</strong> Installera SeedPlan som PWA på hemskärmen.</li>
-                                            
-                                        </ul>
+
+                                @* IMAGE CAROUSEL *@
+                                <div class="image-carousel-container">
+                                    <div class="carousel-track">
+                                        @foreach (var (image, index) in screenshots.Select((img, i) => (img, i)))
+                                        {
+                                            <div class="carousel-slide @(currentImageSlide == index ? "active" : "")">
+                                                <img src="@image" alt="SeedPlan screenshot @(index + 1)" class="carousel-image" />
+                                            </div>
+                                        }
                                     </div>
 
-                                    <div class="feature-card upcoming">
-                                        <h3>🚀 På gång</h3>
-                                        <ul>
-                                            <li><strong>Bättre startsida:</strong> Välj vilka växttyper du vill få förslag på.</li>
-                                            <li><strong>Rikare frökort:</strong> Fler detaljer som inköpsdatum och inköpsställe.</li>
-                                            <li><strong>Bättre såddhantering:</strong>Möjlighet att ändra pågående sådder.</li>
-                                            <li><strong>Tydligare sårekommendationer:</strong> Mer vägledning för vad som bör sås nu och snart.</li>
-                                            <li><strong>Mer odlingsinsikter:</strong> Statistik som hjälper dig följa resultat över säsongen.</li>
-                                        </ul>
+                                    <button class="carousel-btn prev" @onclick="PreviousImageSlide">
+                                        <Blazicon Svg="Lucide.ChevronLeft" />
+                                    </button>
+                                    <button class="carousel-btn next" @onclick="NextImageSlide">
+                                        <Blazicon Svg="Lucide.ChevronRight" />
+                                    </button>
+
+                                    <div class="carousel-dots">
+                                        @for (int i = 0; i < screenshots.Count; i++)
+                                        {
+                                            var slideIndex = i;
+                                            <button class="dot @(currentImageSlide == slideIndex ? "active" : "")" 
+                                                    @onclick="() => currentImageSlide = slideIndex">
+                                            </button>
+                                        }
                                     </div>
                                 </div>
 
@@ -108,7 +119,7 @@
                                 </button>
                                 <div class="login-icon"><Blazicon Svg="Lucide.Lock" /></div>
                                 <h2>Fortsätt med din odlingsplan</h2>
-                                <p>Logga in för att se dina såförslag, fröer och aktiva sådder.</p>
+                                <p>Logga in för att se dina såförslag, fröer och aktiva sädder.</p>
                                 <LoginForm />
                             </div>
                         }
@@ -121,11 +132,20 @@
 
 @code {
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
+    private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
+    private bool IsLoggedIn => Nav.Uri.Contains("authenticated=true");
     private bool showLoginForm = false;
+    private int currentImageSlide = 0;
+    
+    private List<string> screenshots = new()
+    {
+        "/images/screenshot-1.jpg",
+        "/images/screenshot-2.jpg",
+        "/images/screenshot-3.jpg"
+    };
 
     protected override void OnInitialized()
     {
-
         Nav.LocationChanged += HandleLocationChanged;
     }
 
@@ -134,9 +154,14 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void NextImageSlide()
     {
-        
+        currentImageSlide = (currentImageSlide + 1) % screenshots.Count;
+    }
+
+    private void PreviousImageSlide()
+    {
+        currentImageSlide = (currentImageSlide - 1 + screenshots.Count) % screenshots.Count;
     }
 
     public void Dispose()

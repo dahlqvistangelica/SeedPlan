@@ -119,14 +119,7 @@ namespace SeedPlan
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Static SSR for some routes. 
-            app.MapGet("/om-oss", () => Results.Content(
-                GenerateStaticPage("Om SeedPlan", "Vi hjälper odlare..."),
-                "text/html"));
-
-            app.MapGet("/guide-preview", () => Results.Content(
-                GenerateGuidePreview(),
-                "text/html"));
+            // Sitemap
 
             app.MapGet("/sitemap.xml", async (IPlantLibraryService plantService) =>
             {
