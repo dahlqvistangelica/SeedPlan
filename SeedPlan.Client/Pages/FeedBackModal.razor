@@ -1,0 +1,147 @@
+﻿@using SeedPlan.Client.Services
+@inject IJSRuntime JS
+@inject FeedbackModalService FeedbackService
+@implements IDisposable
+
+@if (FeedbackService.IsVisible)
+{
+    @* Här inne ligger din modal... *@
+    <div class="sp-modal-overlay" @onclick="Close">
+        <div class="sp-modal-card fade-in" @onclick:stopPropagation>
+            <header class="sp-modal-header">
+                <h2>Feedback <span><Blazicon Svg="Lucide.MessageSquare" /></span></h2>
+            </header>
+
+            <div class="sp-modal-body">
+                <div class="sp-form-content">
+                    
+                    @* FEEDBACK TYPE *@
+                    <div class="sp-input-block">
+                        <label>FEEDBACKTYP</label>
+                        <select @bind="feedback.FeedbackType" class="sp-input">
+                            <option value="">-- Välj typ --</option>
+                            <option value="bug">🐛 Funktions Bug/Fel</option>
+                            <option value="infoBug">🐛 Info Bug/Fel</option>
+                            <option value="feature">💡 Feature Request</option>
+                            <option value="improvement">🎯 Förbättring</option>
+                            <option value="question">❓ Fråga</option>
+                            <option value="praise">😊 Komplimang</option>
+                            <option value="other">🔧 Annat</option>
+                        </select>
+                    </div>
+
+                    @* SUBJECT *@
+                    <div class="sp-input-block">
+                        <label>ÄMNE</label>
+                        <input type="text" @bind="feedback.Subject" @bind:event="oninput"
+                               placeholder="T.ex. Karusellen snurrar för snabbt" class="sp-input" />
+                    </div>
+
+                    @* CATEGORY *@
+                    <div class="sp-input-block">
+                        <label>KATEGORI</label>
+                        <select @bind="feedback.Category" class="sp-input">
+                            <option value="">-- Välj kategori --</option>
+                            <option value="design">Design & Användarupplevelse</option>
+                            <option value="performance">Prestanda</option>
+                            <option value="seedLibrary">Växtguide</option>
+                            <option value="sowingCalendar">Såkalender</option>
+                            <option value="seedInventory">Fröinventarie</option>
+                            <option value="sowingTracking">Sådd-spårning</option>
+                            <option value="mobile">Mobil/PWA</option>
+                            <option value="other">Övrigt</option>
+                        </select>
+                    </div>
+
+                    @* MESSAGE *@
+                    <div class="sp-input-block">
+                        <label>MEDDELANDE</label>
+                        <textarea @bind="feedback.Message" class="sp-textarea" 
+                                  placeholder="Beskriv din feedback här... Vad fungerar inte? Vad skulle kunna förbättras? Vilken information är fel?" 
+                                  rows="5"></textarea>
+                    </div>
+
+                    @* OPTIONAL CONTACT *@
+                    <div class="sp-input-block">
+                        <label>EMAIL (frivilligt)</label>
+                        <input type="email" @bind="feedback.Email" @bind:event="oninput"
+                               placeholder="din@email.com" class="sp-input" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p class="error-msg" style="color: #ef4444; text-align: center;">@errorMessage</p>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <p class="success-msg" style="color: #10b981; text-align: center;">@successMessage</p>
+                    }
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn-primary" @onclick="Submit" style="flex: 1;">Skicka</button>
+                        <button type="button" class="btn-secondary" @onclick="Close" style="flex: 1;">Avbryt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; } = false;
+    [Parameter] public EventCallback OnClose { get; set; }
+    
+    private FeedbackModel feedback = new();
+    private string errorMessage = "";
+    private string successMessage = "";
+
+    protected override void OnInitialized()
+    {
+        FeedbackService.OnVisibilityChanged += StateHasChangedHandler;
+    }
+
+    private void StateHasChangedHandler(object? sender, EventArgs e)
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private async Task Submit()
+    {
+        try
+        {
+            errorMessage = "";
+            successMessage = "";
+
+            if (string.IsNullOrWhiteSpace(feedback.FeedbackType)) { errorMessage = "Du måste välja en feedbacktyp."; return; }
+            if (string.IsNullOrWhiteSpace(feedback.Subject)) { errorMessage = "Du måste fylla i ett ämne."; return; }
+            if (string.IsNullOrWhiteSpace(feedback.Message)) { errorMessage = "Du måste skriva ett meddelande."; return; }
+
+            await FeedbackService.SendFeedback(feedback);
+            
+            successMessage = "✓ Tack för din feedback! Vi uppskattar ditt bidrag.";
+            await Task.Delay(2000);
+            
+            feedback = new();
+            await OnClose.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ett fel uppstod: {ex.Message}";
+        }
+    }
+
+    private async Task Close()
+    {
+        feedback = new();
+        errorMessage = "";
+        successMessage = "";
+        await OnClose.InvokeAsync();
+    }
+
+    public void Dispose()
+    {
+        FeedbackService.OnVisibilityChanged -= StateHasChangedHandler;
+        FeedbackService.Close();
+    }
+}

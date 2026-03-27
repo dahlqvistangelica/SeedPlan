@@ -87,6 +87,21 @@
     transition: all 0.2s ease;
 }
 
+.feedback-icon-btn {
+    background: var(--secondary-light);
+    color: var(--primary);
+    border: none;
+    font-size: 1.2rem;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+
 .logout-icon-btn:hover {
     background: #fecaca;
     color: #991b1b;

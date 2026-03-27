@@ -51,6 +51,7 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
+            builder.Services.AddScoped<FeedbackModalService>(); 
 
             // 3. Blazor's built-in security
             builder.Services.AddAuthorizationCore();
