@@ -71,9 +71,8 @@
                         {
                             <div class="landing-content fade-in">
                                 <div class="landing-header">
-                                    <div class="logo-circle-large"><Blazicon Svg="MdiIcon.LeafCircleOutline" /></div>
                                     <h2>Välkommen till SeedPlan 🌱</h2>
-                                    <p>Planera rätt sådd i rätt tid, håll koll på dina fröer och följ varje odling steg för steg.</p>
+                                    <p>Planera rätt sådd i rätt tid, håll koll på dina fröer och följ varje sådd steg för steg.</p>
                                 </div>
 
                                 @* IMAGE CAROUSEL *@
@@ -99,7 +98,7 @@
                                         {
                                             var slideIndex = i;
                                             <button class="dot @(currentImageSlide == slideIndex ? "active" : "")" 
-                                                    @onclick="() => currentImageSlide = slideIndex">
+                                                    @onclick="() => SelectSlide(slideIndex)">
                                             </button>
                                         }
                                     </div>
@@ -133,15 +132,18 @@
 @code {
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
     private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
-    private bool IsLoggedIn => Nav.Uri.Contains("authenticated=true");
     private bool showLoginForm = false;
     private int currentImageSlide = 0;
+    private CancellationTokenSource autoplayTokenSource;
+    private const int AutoplayIntervalMs = 5000; // 5 sekunder mellan slides
     
     private List<string> screenshots = new()
     {
-        "/images/screenshot-1.jpg",
-        "/images/screenshot-2.jpg",
-        "/images/screenshot-3.jpg"
+        "/images/screenshot-1.png",
+        "/images/screenshot-2.png",
+        "/images/screenshot-3.png",
+        "/images/screenshot-4.png",
+        "/images/screenshot-5.png"
     };
 
     protected override void OnInitialized()
@@ -149,23 +151,80 @@
         Nav.LocationChanged += HandleLocationChanged;
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StartAutoplay();
+        }
+    }
+
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
     {
         StateHasChanged();
     }
 
+    private void StartAutoplay()
+    {
+        autoplayTokenSource?.Cancel();
+        autoplayTokenSource = new CancellationTokenSource();
+        _ = AutoplayLoop(autoplayTokenSource.Token);
+    }
+
+    private async Task AutoplayLoop(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(AutoplayIntervalMs, cancellationToken);
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    NextImageSlide();
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
+    }
+
     private void NextImageSlide()
     {
         currentImageSlide = (currentImageSlide + 1) % screenshots.Count;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
     }
 
     private void PreviousImageSlide()
     {
         currentImageSlide = (currentImageSlide - 1 + screenshots.Count) % screenshots.Count;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
+    }
+
+    private void SelectSlide(int index)
+    {
+        currentImageSlide = index;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
+    }
+
+    private void RestartAutoplay()
+    {
+        StartAutoplay();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        autoplayTokenSource?.Cancel();
+        autoplayTokenSource?.Dispose();
+        Nav.LocationChanged -= HandleLocationChanged;
     }
 
     public void Dispose()
     {
+        autoplayTokenSource?.Cancel();
+        autoplayTokenSource?.Dispose();
         Nav.LocationChanged -= HandleLocationChanged;
     }
 }

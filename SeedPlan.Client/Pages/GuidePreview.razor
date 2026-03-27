@@ -20,7 +20,7 @@
     <div class="plant-grid">
         @foreach (var plant in plantSample)
         {
-            <div class="plant-card">
+            <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
                 <div class="card-top">
                     <div class="plant-icon-circle @GetPlantCategory(plant.Category)">
                         <Blazicon Svg="@GetPlantBlazicon(plant.Category)" />
@@ -61,9 +61,14 @@
     </div>
 </div>
 
+<PlantDetailModal IsVisible="showDetailModal" Plant="selectedPlant" OnClose="() => showDetailModal = false" />
+
 @code {
     private List<Plant> plantSample = new();
-    
+    private Plant? selectedPlant;
+    private bool showDetailModal = false;
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+
     protected override async Task OnInitializedAsync()
     {
         var allPlants = await PlantService.GetAllPlantsAsync();

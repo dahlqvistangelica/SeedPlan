@@ -23,19 +23,19 @@
     align-items: center;
     width: 100%;
 }
+
 /* --- 2. LOGO & BRANDING --- */
 
 .brand {
-    display: flex; /* This places icon and text on the same row */
-    align-items: center; /* Centers them vertically relative to each other */
-    gap: 10px; /* Adds some spacing between the icon and text */
+    display: flex;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
 }
 
 .logo-circle {
     color: #10b981;
     background: white;
-    padding: 0px;
     border-radius: 50px;
     display: flex;
     align-items: center;
@@ -48,28 +48,51 @@
     font-weight: 700;
     margin: 0;
     color: #1e293b;
-    line-height: 1; /* Prevents the text from taking extra vertical space */
+    line-height: 1;
 }
-/* --- 3. LOGIN SCREEN (fixes centered card) --- */ /* Centers the login card on the screen */
+
+.header-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.header-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.header-link:hover {
+    color: #10b981;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* --- 3. LOGIN SCREEN --- */
 
 .login-screen {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    background-color: #fdfcf9; /* Cream-white background */
+    padding: 1rem 2rem;
+    background-color: #fdfcf9;
     min-height: calc(100vh - 70px);
 }
-/* The card itself */
 
 .login-card {
     background: white;
-    padding: 2rem; /* Slightly smaller padding */
+    padding: 2rem;
     border-radius: 24px;
     width: 100%;
     max-width: 400px;
-    /* Make sure it does not "jump" too much when the keyboard appears */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     margin-top: -10vh;
 }
 
@@ -90,74 +113,38 @@
     margin-bottom: 0.5rem;
     font-weight: 800;
     color: #1e293b;
+    text-align: center;
 }
 
 .login-card p {
     color: #64748b;
     margin-bottom: 2rem;
     font-size: 0.95rem;
+    text-align: center;
 }
-/* --- 3. BOTTENMENY --- */
 
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 75px;
-    background: #f8f9fa;
+.btn-back {
+    background: none;
+    border: none;
+    color: #10b981;
     display: flex;
-    justify-content: space-evenly;
     align-items: center;
-    border-top: 1px solid #eeeeee;
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
-    text-decoration: none;
+    gap: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
-::deep .nav-item {
-    display: flex !important;
-    flex-direction: column !important; /* Stacks the elements vertically */
-    align-items: center !important; /* Centers them horizontally */
-    justify-content: center;
-    gap: 4px; /* Spacing between icon and text */
-    text-decoration: none !important;
-    color: #888888;
-    flex: 1;
-    height: 100%;
+/* --- 4. LANDING PAGE --- */
 
-}
-
-    ::deep .nav-item {
-        font-size: 2.1rem;
-        display: block;
-        font-weight: 400;
-    }
-
-    ::deep .nav-item span {
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Color for active link */
-    ::deep .nav-item.active, ::deep a:active {
-        text-decoration: none;
-        color: #10b981 !important;
-    }
-
-::deep a, ::deep a:visited, ::deep a:hover, {
-    text-decoration: none !important;
-    color: #888888;
-}
-/* --- LANDING PAGE STYLING --- */
 .landing-content {
     background: white;
     padding: 2.5rem;
     border-radius: 24px;
     width: 100%;
-    max-width: 800px; /* Slightly wider than the login card to fit the grid */
+    max-width: 900px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     margin-top: -5vh;
 }
@@ -187,75 +174,199 @@
     font-size: 1rem;
 }
 
-.features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+/* --- 5. IMAGE CAROUSEL --- */
+
+.image-carousel-container {
+    position: relative;
     margin-bottom: 2rem;
-}
-
-.feature-card {
-    background: #f8fafc;
-    border: 1px solid #f1f5f9;
     border-radius: 16px;
-    padding: 1.5rem;
+    overflow: hidden;
+    background: #f8fafc;
 }
 
-    .feature-card h3 {
-        font-size: 1.1rem;
-        color: #0f172a;
-        margin-top: 0;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+.carousel-track {
+    position: relative;
+    width: 100%;
+    height: 50vh;
+    background: #f0fdf4;
+}
 
-    .feature-card ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+.carousel-slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .feature-card li {
-        font-size: 0.9rem;
-        color: #334155;
-        margin-bottom: 0.8rem;
-        line-height: 1.4;
-    }
+.carousel-slide.active {
+    opacity: 1;
+    z-index: 10;
+}
 
-        .feature-card li strong {
-            color: #10b981;
-        }
+.carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 16px;
+}
 
-    /* Styling for the "upcoming" card */
-    .feature-card.upcoming li strong {
-        color: #8b5cf6; /* Purple color to distinguish upcoming features, change to #10b981 for consistent color */
-    }
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 1.5rem;
+    z-index: 20;
+    transition: all 0.2s ease;
+}
+
+.carousel-btn:hover {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.carousel-btn.prev {
+    left: 12px;
+}
+
+.carousel-btn.next {
+    right: 12px;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 20;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* --- 6. LANDING ACTIONS --- */
 
 .landing-actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 300px;
-    margin: 0 auto;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-.btn-back {
-    background: none;
+.sp-save-btn {
+    background: #10b981;
+    color: white;
     border: none;
-    color: #10b981;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    padding: 12px 32px;
+    border-radius: 14px;
     font-weight: 600;
     cursor: pointer;
-    padding: 0;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+    transition: all 0.2s ease;
 }
 
-/* Enkel in-tonings animation */
+.sp-save-btn:hover {
+    background: #059669;
+}
+
+.sp-cancel-btn {
+    background: white;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 12px 32px;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-cancel-btn:hover {
+    background: #f8fafc;
+}
+
+/* --- 7. BOTTOM MENU --- */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    border-top: 1px solid #eeeeee;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+::deep .nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none !important;
+    color: #888888;
+    flex: 1;
+    height: 100%;
+}
+
+    ::deep .nav-item {
+        font-size: 2.1rem;
+        display: block;
+        font-weight: 400;
+    }
+
+    ::deep .nav-item span {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    ::deep .nav-item.active, ::deep a:active {
+        text-decoration: none;
+        color: #10b981 !important;
+    }
+
+/* --- 8. ANIMATIONS --- */
+
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
@@ -265,21 +376,18 @@
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* Responsiveness for mobile */
-@media (max-width: 768px) {
-    .features-grid {
-        grid-template-columns: 1fr;
-    }
+.page-body {
+    flex: 1;
+    padding: 1.5rem;
+    padding-bottom: 100px;
+}
 
-    .landing-content {
-        padding: 1.5rem;
-        margin-top: 0;
-    }
+.main-container {
+    flex: 1;
 }
