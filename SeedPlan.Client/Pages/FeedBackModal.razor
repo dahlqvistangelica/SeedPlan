@@ -6,10 +6,10 @@
 @if (FeedbackService.IsVisible)
 {
     @* Här inne ligger din modal... *@
-    <div class="sp-modal-overlay" @onclick="Close">
-        <div class="sp-modal-card fade-in" @onclick:stopPropagation>
-            <header class="sp-modal-header">
-                <h2>Feedback <span><Blazicon Svg="Lucide.MessageSquare" /></span></h2>
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <header class="modal-header">
+                <h2>Feedback <span><Blazicon Svg="Lucide.MessageCircleQuestionMark" /></span></h2>
             </header>
 
             <div class="sp-modal-body">
@@ -34,7 +34,7 @@
                     <div class="sp-input-block">
                         <label>ÄMNE</label>
                         <input type="text" @bind="feedback.Subject" @bind:event="oninput"
-                               placeholder="T.ex. Karusellen snurrar för snabbt" class="sp-input" />
+                               placeholder="T.ex. Planteringsavstånd på gurka saknas" class="sp-input" />
                     </div>
 
                     @* CATEGORY *@
@@ -89,9 +89,8 @@
 }
 
 @code {
-    [Parameter] public bool IsVisible { get; set; } = false;
     [Parameter] public EventCallback OnClose { get; set; }
-    
+
     private FeedbackModel feedback = new();
     private string errorMessage = "";
     private string successMessage = "";
@@ -118,10 +117,10 @@
             if (string.IsNullOrWhiteSpace(feedback.Message)) { errorMessage = "Du måste skriva ett meddelande."; return; }
 
             await FeedbackService.SendFeedback(feedback);
-            
+
             successMessage = "✓ Tack för din feedback! Vi uppskattar ditt bidrag.";
             await Task.Delay(2000);
-            
+
             feedback = new();
             await OnClose.InvokeAsync();
         }
@@ -136,7 +135,9 @@
         feedback = new();
         errorMessage = "";
         successMessage = "";
+        FeedbackService.Close();
         await OnClose.InvokeAsync();
+
     }
 
     public void Dispose()

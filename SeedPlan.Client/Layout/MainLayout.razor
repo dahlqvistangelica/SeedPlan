@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject FeedbackModalService FeedbackService
 @implements IDisposable
 
 <div class="app-shell">
@@ -125,9 +126,12 @@
                     </div>
                 }
             </NotAuthorized>
+
         </AuthorizeView>
     </main>
 </div>
+
+<FeedBackModal @rendermode="InteractiveAuto" />
 
 @code {
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
@@ -136,7 +140,7 @@
     private int currentImageSlide = 0;
     private CancellationTokenSource autoplayTokenSource;
     private const int AutoplayIntervalMs = 5000; // 5 sekunder mellan slides
-    
+
     private List<string> screenshots = new()
     {
         "/images/screenshot-1.png",
@@ -149,8 +153,8 @@
     protected override void OnInitialized()
     {
         Nav.LocationChanged += HandleLocationChanged;
-    }
 
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -214,12 +218,13 @@
         StartAutoplay();
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        autoplayTokenSource?.Cancel();
-        autoplayTokenSource?.Dispose();
-        Nav.LocationChanged -= HandleLocationChanged;
-    }
+    // public async ValueTask DisposeAsync()
+    // {
+    //     autoplayTokenSource?.Cancel();
+    //     autoplayTokenSource?.Dispose();
+    //     Nav.LocationChanged -= HandleLocationChanged;
+    //     FeedbackService.OnVisibilityChanged -= HandleFeedbackVisibilityChanged;
+    // }
 
     public void Dispose()
     {
