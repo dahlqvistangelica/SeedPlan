@@ -93,25 +93,43 @@ async function onFetch(event) {
 }
 // PUSH NOTIFICATIONS
 self.addEventListener('push', event => {
-    console.log('Push mottaget', event);
-
     let data = { title: 'SeedPlan', body: 'Du har en påminnelse', url: '/sowings' };
+
     if (event.data) {
         try {
+            // Expection Deno Edge-function to provide number, ex. data.badgeCount = 3
             data = event.data.json();
         } catch (e) {
             data.body = event.data.text();
         }
     }
 
+    // 1. Prep showing of push-notification
+    const showNotificationPromise = self.registration.showNotification(data.title, {
+        body: data.body,
+        icon: '/icon-512.png',
+        badge: '/icon-512.png', // Icon in android status line.
+        vibrate: [200, 100, 200],
+        data: { url: data.url || '/sowings' }
+    });
+
+    // 2. Prep update of app badge on homescreen.
+    let updateBadgePromise = Promise.resolve(); // Create an epmty promise as default.
+
+    if ('setAppBadge' in navigator) {
+        // Check if edgefunction provided missed sowings.
+        const count = data.badgeCount || 0;
+
+        if (count > 0) {
+            updateBadgePromise = navigator.setAppBadge(count); // Enter a red number in badge.
+        } else {
+            updateBadgePromise = navigator.clearAppBadge(); // Remove badge if 0.
+        }
+    }
+
+    // 3.Service worker takes coffe break until both promises are done.
     event.waitUntil(
-        self.registration.showNotification(data.title, {
-            body: data.body,
-            icon: '/icon-512.png',
-            badge: '/icon-512.png',
-            vibrate: [200, 100, 200],
-            data: { url: data.url || '/sowings' }
-        })
+        Promise.all([showNotificationPromise, updateBadgePromise])
     );
 });
 
@@ -119,10 +137,12 @@ self.addEventListener('push', event => {
 // Open app on clicked notification
 self.addEventListener('notificationclick', event => {
     event.notification.close();
+    const targetUrl = event.notification.data.url || '/';
     event.waitUntil(
-        clients.matchAll({ type: 'window' }).then(clientList => {
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
             for (const client of clientList) {
                 if (client.url && 'focus' in client) {
+                    client.navigate(targetUrl);
                     return client.focus();
                 }
             }

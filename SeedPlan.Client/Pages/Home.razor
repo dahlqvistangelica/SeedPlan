@@ -235,7 +235,7 @@
     protected override async Task OnInitializedAsync() 
     {
         await LoadData();
-
+        await ClearAppBadge();
         await NotificationService.SubscribeToPushAsync();
     }
 
@@ -278,6 +278,20 @@
             await Task.Delay(200);
         }
     }
+
+    private async Task ClearAppBadge()
+    {
+        try
+        {
+            // Rensar den röda cirkeln helt
+            await JS.InvokeVoidAsync("appBadging.clearBadge");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Kunde inte rensa badge: {ex.Message}");
+        }
+    }
+
 
     // HELPMETHODS
     private string GetFrostText(int weeks) => weeks <= 0 ? "planteras ut efter frost" : $"planteras ut {weeks} v. före frost";

@@ -116,6 +116,7 @@
             if (string.IsNullOrWhiteSpace(feedback.Subject)) { errorMessage = "Du måste fylla i ett ämne."; return; }
             if (string.IsNullOrWhiteSpace(feedback.Message)) { errorMessage = "Du måste skriva ett meddelande."; return; }
 
+            Console.WriteLine(feedback.ToString());
             await FeedbackService.SendFeedback(feedback);
 
             successMessage = "✓ Tack för din feedback! Vi uppskattar ditt bidrag.";
