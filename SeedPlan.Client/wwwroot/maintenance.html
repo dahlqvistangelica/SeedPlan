@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SeedPlan | Tillfälligt underhåll</title>
+    <meta http-equiv="refresh" content="10;url=https://seedplan.app" />
+    <title>SeedPlan | Vi har flyttat</title>
     <style>
         :root {
             color-scheme: light;
@@ -42,9 +43,7 @@
             background: var(--card);
             border-radius: 18px;
             padding: clamp(24px, 4vw, 40px);
-            box-shadow:
-                0 8px 30px rgba(0, 0, 0, 0.08),
-                0 0 0 1px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
             text-align: center;
         }
 
@@ -84,36 +83,30 @@
             font-size: 1rem;
         }
 
-        .meta {
-            margin-top: 24px;
-            display: grid;
-            gap: 12px;
-            text-align: left;
-            background: #fafafa;
-            border: 1px solid #ededed;
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
             border-radius: 12px;
-            padding: 14px 16px;
-        }
-
-        .row {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            font-size: 0.95rem;
-        }
-
-        .label {
-            color: var(--muted);
-        }
-
-        .value {
-            color: var(--text);
             font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 28px;
+            transition: background 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 12px var(--ring);
         }
+
+            .btn:hover {
+                background: #226645;
+            }
+
+            .btn:active {
+                transform: scale(0.98);
+            }
 
         .footer {
-            margin-top: 22px;
+            margin-top: 32px;
             font-size: 0.9rem;
             color: var(--muted);
         }
@@ -122,9 +115,11 @@
             0% {
                 box-shadow: 0 0 0 0 var(--ring);
             }
+
             70% {
                 box-shadow: 0 0 0 10px rgba(47, 133, 90, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(47, 133, 90, 0);
             }
@@ -133,62 +128,29 @@
         @media (max-width: 480px) {
             .card {
                 border-radius: 14px;
-                padding: 22px 18px;
-            }
-
-            .meta {
-                padding: 12px;
+                padding: 32px 18px;
             }
         }
     </style>
 </head>
 <body>
-    <main class="card" role="main" aria-labelledby="maintenance-title">
+    <main class="card" role="main" aria-labelledby="moved-title">
         <div class="badge">
             <span class="dot" aria-hidden="true"></span>
-            Planerat underhåll
+            Ny adress
         </div>
 
-        <h1 id="maintenance-title">SeedPlan är tillfälligt nere</h1>
+        <h1 id="moved-title">SeedPlan har flyttat!</h1>
         <p>
-            Vi uppdaterar just nu tjänsten för att förbättra stabilitet och prestanda.
-            Tack för ditt tålamod — vi är snart tillbaka.
+            Vi har uppdaterat tjänsten och finns numera på <strong>seedplan.app</strong>.<br>
+            All din data och ditt konto finns kvar där. Vi är bara lite bättre nu än innan!
         </p>
 
-        <section class="meta" aria-label="Underhållsinformation">
-            <div class="row">
-                <span class="label">Status</span>
-                <span class="value">Pågående</span>
-            </div>
-            <div class="row">
-                <span class="label">Påverkan</span>
-                <span class="value">Webbappen är tillfälligt otillgänglig</span>
-            </div>
-            <div class="row">
-                <span class="label">Uppdaterad</span>
-                <span class="value" id="last-updated">Nu</span>
-            </div>
-        </section>
+        <a href="https://seedplan.app" class="btn">Gå till seedplan.app</a>
 
         <div class="footer">
-            Vid frågor, kontakta teamet bakom SeedPlan.
+            Du dirigeras om automatiskt om några sekunder...
         </div>
     </main>
-
-    <script>
-        const now = new Date();
-        const formatter = new Intl.DateTimeFormat("sv-SE", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-        const updatedEl = document.getElementById("last-updated");
-        if (updatedEl) {
-            updatedEl.textContent = formatter.format(now);
-        }
-    </script>
 </body>
 </html>
