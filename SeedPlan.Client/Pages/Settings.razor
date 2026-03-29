@@ -55,6 +55,16 @@
                 <div class="value">Redigera din profil</div>
             </div>
         </div>
+
+        <div class="settings-card" @onclick="() => showInfoModal = true">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.CircleQuestionMark" />
+            </div>
+            <div class="card-text">
+                <div class="title">Info</div>
+                <div class="value">Viktig info om appen.</div>
+            </div>
+        </div>
     </div>
 
     <div class="version-text">SeedPlan v.1.3.0</div>
@@ -126,10 +136,13 @@
     </div>
 }
 
+<InfoModal @bind-IsVisible="showInfoModal" />
+
 @code {
     private UserProfile userProfile = new();
     private bool showFrostModal;
     private bool showZoneModal;
+    private bool showInfoModal;
     private bool showNotificationsModal;
     private bool notificationsEnabled;
     private string statusMessage = "";
