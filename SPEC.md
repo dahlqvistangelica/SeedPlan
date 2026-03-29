@@ -91,29 +91,35 @@ Måldesignen i v2 är att kontorelaterade flöden är samlade och tydligt sektio
 - `/profile` innehåller även kategorival (checkboxar) för startsidans såförslag.
 - Frostdatum och odlingszon hanteras som separata kort/modaler i `/settings`.
 - Odlingszon visas inte i kontoinställningar i `/profile`.
+- Fältet **Ort** finns ännu inte i UI eller modell.
 
 ### Befintliga fält (ändras ej)
 - Namn
 - Sista frostdatum
 - Odlingszon (1–8)
 
-### Nya fält
+### Nya fält (planerat)
 - **Ort** (fritext, t.ex. "Göteborg") – används endast som visningsinformation, påverkar inga beräkningar
 
-### Sidans nya struktur
+### Struktur
+
+Nuvarande struktur:
 ```
 Inställningsflöde
-├── Översikt                     (`/settings`)
-│   ├── Frostdatum               (egen knapp + egen modal)
-│   ├── Odlingszon/Plats         (egen knapp + egen modal)
+├── Översikt (`/settings`)
+│   ├── Frostdatum (egen modal)
+│   ├── Odlingszon (egen modal)
 │   ├── Aviseringar
-│   └── Profil (länk till `/profile`)
-└── Profil & Konto               (`/profile`)
-├── Trädgårdsinställningar     (namn + ort)
-├── Kontoinställningar         (ändra e-post, ändra lösenord)
-├── Notiser                    (ny sektion – se sektion 8)
-└── Farozon                    (flyttad till framtida fas)
+│   ├── Profil (länk till `/profile`)
+│   └── Info
+└── Profil (`/profile`)
+  ├── Profiluppgifter (namn + kategorival)
+  └── Kontouppgifter (ändra e-post, ändra lösenord)
 ```
+
+Målstruktur (kommande iteration):
+- Lägg till fältet `Ort` under profiluppgifter.
+- Flytta/sektionera notisinställningar tydligare när `notification_settings` införs.
 
 ---
 
@@ -387,7 +393,9 @@ CREATE TABLE notification_settings (
 
 ---
 
-## 9. Statistik & Analys – ny funktion
+## 9. Statistik & Analys – planerad funktion
+
+Status (mars 2026): 🔨 ingen dedikerad sida ännu (`/statistics` saknas).
 
 ### 9.1 Ny navigationssektion (`/statistics`)
 Ny flik i bottom navigation ersätter eller läggs till bredvid befintliga.
@@ -527,7 +535,7 @@ Ny sida (nås från dashboard eller direkt):
 └── 📊 Statistik      /statistics – Groningsprocent, säsongsöversikt
 ```
 
-Planering och Statistik läggs inte i bottom nav initialt (för att hålla navbaren ren) utan nås via knappar från dashboard.
+Status (mars 2026): 🔨 dessa sidor är planerade men inte implementerade ännu.
 
 ---
 
@@ -555,6 +563,7 @@ Planering och Statistik läggs inte i bottom nav initialt (för att hålla navba
 - ✅ Behåll separata modaler för frostdatum och odlingszon i `/settings` (infört)
 - ✅ Odlingszon borttagen från kontoinställningar i `/profile` (infört)
 - ✅ Lägg till kategorival (PlantCategory) för startsidans förslag i `/profile` (infört)
+- 🔨 Lägg till fältet `Ort` i profilflödet
 
 ### Prioritet 3 – Utökad såddhantering
 ✅ Slutstatus: färdigställd (P3-01 till P3-09).
@@ -566,7 +575,6 @@ Levererat i korthet:
 - Raderingsregler enligt lagerpolicy (`status < 1` återför, `status >= 1` återför inte).
 - Såddhistorik i detaljvy med tomt tillstånd och metadata-rendering.
 - Workflowtester + releasechecklista för migrering, smoke-test och rollback.
-
 
 ### Prioritet 4 – Utökat fröinventarie
 - Nya fält: inköpsdatum, inköpsställe, grobarhetsprocent
