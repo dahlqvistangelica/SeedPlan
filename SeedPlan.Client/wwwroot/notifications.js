@@ -114,3 +114,16 @@ window.unsubscribeFromPush = async function () {
     }
 
 };
+
+window.appBadging = {
+    setBadge: function (count) {
+        if ('setAppBadge' in navigator) {
+            navigator.setAppBadge(count);
+        }
+    },
+    clearBadge: function () {
+        if ('clearAppBadge' in navigator) {
+            navigator.clearAppBadge();
+        }
+    }
+};

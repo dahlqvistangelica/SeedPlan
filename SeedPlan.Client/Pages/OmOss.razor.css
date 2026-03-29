@@ -1,0 +1,77 @@
+.content-page {
+    padding: 2rem 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.content-page h1 {
+    font-family: 'Lora', serif;
+    font-size: 2.2rem;
+    font-style: italic;
+    color: #333;
+    margin-bottom: 2rem;
+}
+
+article {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid #f1f5f9;
+}
+
+article h2 {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+article h3 {
+    font-size: 1.1rem;
+    color: #334155;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+article p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+article ul {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+article li {
+    color: #64748b;
+    line-height: 1.8;
+    padding: 0.75rem 0;
+    padding-left: 2rem;
+    position: relative;
+}
+
+article li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+article a {
+    color: #10b981;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+article a:hover {
+    color: #059669;
+    text-decoration: underline;
+}

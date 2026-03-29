@@ -5,7 +5,9 @@
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<PageTitle>Inställningar - SeedPlan</PageTitle>
+<SeoHead Title="Inställningar - SeedPlan"
+         Description="Hantera dina inställningar i SeedPlan, inklusive frostdatum, plats, aviseringar och profil."
+         Keywords="inställningar, frostdatum, aviseringar, profil, seedplan" />
 
 <div class="settings-overview">
     <header class="settings-header">
@@ -55,7 +57,7 @@
         </div>
     </div>
 
-    <div class="version-text"></div>
+    <div class="version-text">SeedPlan v.1.3.0</div>
 </div>
 
 @if (showFrostModal)

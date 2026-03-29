@@ -29,6 +29,17 @@
 .user-display-name {
     font-size: 0.9rem;
     color: #64748b;
+    /* Lägg till detta för hantering av för långa namn */
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+}
+
+/* Lägg märke till att jag även sätter max-width på mobilen */
+@media (max-width: 768px) {
+    .user-display-name {
+        max-width: 75px; /* Ändra detta värde tills det ser bra ut i din header */
+    }
 }
 
 .avatar {
@@ -86,6 +97,21 @@
     cursor: pointer;
     transition: all 0.2s ease;
 }
+
+.feedback-icon-btn {
+    background: var(--secondary-light);
+    color: var(--primary);
+    border: none;
+    font-size: 1.2rem;
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
 
 .logout-icon-btn:hover {
     background: #fecaca;

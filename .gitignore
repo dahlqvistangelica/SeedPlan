@@ -376,3 +376,4 @@ supabase/migrations
 /SeedPlan/web.config
 /supabase/functions/delete-account/index.ts
 /docs/images/icon-512.png
+/docs/images

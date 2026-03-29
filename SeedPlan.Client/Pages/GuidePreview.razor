@@ -1,0 +1,111 @@
+﻿@page "/guide-preview"
+@using Microsoft.AspNetCore.Authorization
+@using Blazicons
+@attribute [AllowAnonymous]
+@inject IPlantLibraryService PlantService
+
+<PageTitle>Växtguide - Gratis databas med 200+ växter - SeedPlan</PageTitle>
+<SeoHead Title="Växtguide - 200+ växter med odlingsråd och härdighet"
+         Description="Komplett guide till grönsaker, örter och blommor. Sådatum, härdighet, ljusbehov och mer. Perfekt för svenska odlare."
+         Keywords="växtguide, odlingsråd, härdighet, sådatum, trädgårdstips" />
+
+<div class="guide-container">
+    <header class="guide-header">
+        <h1 class="serif-title">Växtguide</h1>
+    </header>
+
+    <p class="preview-intro">Utforska vår databas med över 150+ växter. Dessa är enbart ett av alla de växter som finns. Logga in för full åtkomst till filter och personliga såråd.</p>
+
+    @* PLANTGRID *@
+    <div class="plant-grid">
+        @foreach (var plant in plantSample)
+        {
+            <div class="plant-card" @onclick="() => OpenPlantDetail(plant)">
+                <div class="card-top">
+                    <div class="plant-icon-circle @GetPlantCategory(plant.Category)">
+                        <Blazicon Svg="@GetPlantBlazicon(plant.Category)" />
+                    </div>
+                    <span class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
+                        @GetHardinessText(plant.HardinessLevel)
+                    </span>
+                </div>
+                
+                <div class="card-body">
+                    <h3 class="plant-name">@plant.PlantName</h3>
+                    <p class="sowing-info">Sås @plant.SowingLeadTime v. före frost</p>
+                </div>
+
+                <div class="card-footer">
+                    <div class="feature-icons">
+                        @if (plant.IsLightGerminating)
+                        {
+                            <div class="icon-light">
+                                <Blazicon Svg="Lucide.Sparkles" />
+                            </div>
+                        }
+                        @if (plant.RequiresTopping)
+                        {
+                            <div class="icon-topping">
+                                <Blazicon Svg="Lucide.Scissors" />
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    
+    <div class="cta-login">
+        <h2>Se alla växter och få personliga såråd</h2>
+        <a href="/register" class="btn-primary">Skapa gratis konto</a>
+    </div>
+</div>
+
+<PlantDetailModal IsVisible="showDetailModal" Plant="selectedPlant" OnClose="() => showDetailModal = false" />
+
+@code {
+    private List<Plant> plantSample = new();
+    private Plant? selectedPlant;
+    private bool showDetailModal = false;
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var allPlants = await PlantService.GetAllPlantsAsync();
+        plantSample = allPlants.Take(12).ToList();
+    }
+    
+    private string GetHardinessText(int level) => level switch
+    {
+        0 => "KÄNSLIG",
+        1 => "HALVHÄRDIG",
+        2 => "HÄRDIG",
+        _ => ""
+    };
+
+    private string GetHardinessClass(int level) => level switch
+    {
+        0 => "sensitive",
+        1 => "half-hardy",
+        2 => "hardy",
+        _ => ""
+    };
+
+    private string GetPlantCategory(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => "vegetable",
+        PlantCategory.Flower => "flower",
+        PlantCategory.Herb => "herb",
+        PlantCategory.Fruit => "fruit",
+        _ => ""
+    };
+
+    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => Lucide.Carrot,
+        PlantCategory.Flower => Lucide.Flower,
+        PlantCategory.Herb => MdiIcon.Clover,
+        PlantCategory.Fruit => Lucide.Apple,
+        _ => Lucide.Leaf
+    };
+}

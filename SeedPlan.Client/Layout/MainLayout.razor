@@ -1,7 +1,9 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Nav
+@inject FeedbackModalService FeedbackService
 @implements IDisposable
 
 <div class="app-shell">
@@ -9,10 +11,18 @@
     <header class="main-header">
         <div class="header-content">
             <div class="brand" @onclick='() => Nav.NavigateTo("/")'>
-                <div class="logo-circle"><Blazicon Svg="MdiIcon.LeafCircleOutline" /></div>
+                <div class="logo-circle"><img src="small-logo.png"></div>
                 <h1 class="app-title">SeedPlan</h1>
             </div>
             <div class="header-actions">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <nav class="header-nav">
+                            <a href="/om-oss" class="header-link">Om SeedPlan</a>
+                            <a href="/guide-preview" class="header-link">Växtguide</a>
+                        </nav>
+                    </NotAuthorized>
+                </AuthorizeView>
                 <LoginDisplay />
             </div>
         </div>
@@ -50,7 +60,7 @@
                 </nav>
             </Authorized>
             <NotAuthorized>
-                @if (IsRegisterPage)
+                @if (IsRegisterPage || IsPublicPage)
                 {
                     <div class="page-body">
                         @Body
@@ -61,44 +71,113 @@
                     <div class="login-screen">
                         @if (!showLoginForm)
                         {
-                            <div class="landing-content fade-in">
-                                <div class="landing-header">
-                                    <div class="logo-circle-large"><Blazicon Svg="MdiIcon.LeafCircleOutline" /></div>
-                                    <h2>Välkommen till SeedPlan 🌱</h2>
-                                    <p>Planera rätt sådd i rätt tid, håll koll på dina fröer och följ varje odling steg för steg.</p>
-                                </div>
-                                
-                                <div class="features-grid">
-                                    <div class="feature-card current">
-                                        <h3>🌟 Just nu i appen</h3>
-                                        <ul>
-                                            <li><strong>Personliga såförslag:</strong> Få rekommendationer baserat på ditt frostdatum.</li>
-                                            <li><strong>Fröinventarie:</strong> Se lagersaldo, utgångsdatum och vad du har hemma.</li>
-                                            <li><strong>Aktiva sådder:</strong> Följ utvecklingen från sådd till utplantering.</li>
-                                            <li><strong>Växtguide:</strong> Hitta odlingsråd, härdighet och sådata för varje art.</li>
-                                            <li><strong>Påminnelser:</strong> Få notiser när en sådd varit inaktiv för länge.</li>
-                                            <li><strong>Mobilvänlig app:</strong> Installera SeedPlan som PWA på hemskärmen.</li>
-                                            
-                                        </ul>
-                                    </div>
+                            <div class="landing-page">
+                                @* --- HERO SEKTION --- *@
+                                <section class="hero-section">
+                                    <div class="hero-content fade-in">
+                                        <h1 class="hero-title">Planera och spåra din odling med SeedPlan</h1>
+                                        <p class="hero-subtitle">
+                                            Din ultimata digitala trädgårdspartner. Ha full koll på dina fröer,
+                                            när de ska sås och hur de utvecklas, allt på ett och samma ställe.
+                                        </p>
 
-                                    <div class="feature-card upcoming">
-                                        <h3>🚀 På gång</h3>
-                                        <ul>
-                                            <li><strong>Bättre startsida:</strong> Välj vilka växttyper du vill få förslag på.</li>
-                                            <li><strong>Rikare frökort:</strong> Fler detaljer som inköpsdatum och inköpsställe.</li>
-                                            <li><strong>Bättre såddhantering:</strong>Möjlighet att ändra pågående sådder.</li>
-                                            <li><strong>Tydligare sårekommendationer:</strong> Mer vägledning för vad som bör sås nu och snart.</li>
-                                            <li><strong>Mer odlingsinsikter:</strong> Statistik som hjälper dig följa resultat över säsongen.</li>
-                                        </ul>
-                                    </div>
-                                </div>
+                                        <div class="hero-actions">
+                                            <button class="btn-primary btn-large" style="border: 1px solid #e2e8f0; border-radius: 14px;" @onclick='() => Nav.NavigateTo("/register")'>Skapa konto</button>
+                                            <button class="btn-secondary btn-large" @onclick="() => showLoginForm = true">Logga in</button>
+                                        </div>
 
-                                <div class="landing-actions">
-                                    <button class="sp-save-btn" @onclick="() => showLoginForm = true">Logga in</button>
-                                    <button class="sp-cancel-btn" style="border: 1px solid #e2e8f0; border-radius: 14px;" @onclick='() => Nav.NavigateTo("/register")'>Skapa konto</button>
-                                </div>
+                                    </div>
+                                </section>
+
+                                @* --- FUNKTIONER (FOCUS SECTIONS) --- *@
+                                <section class="features-focus-section">
+                                    <div class="container">
+                                        <div class="features-header">
+                                            <h2>Allt du behöver för en lyckad skörd</h2>
+                                            <p>Upptäck verktygen som gör odlandet enklare, roligare och mer framgångsrikt.</p>
+                                        </div>
+
+                                        @* Funktionsblock 1 - Växtguide *@
+                                        <div class="feature-item">
+                                            <div class="feature-image-wrapper">
+                                                <img src="/images/screenshot-4.png"
+                                                     alt="Mockup av SeedPlans detaljerade Växtguide med Tomat-profil och skötselråd"
+                                                     class="feature-image" />
+                                            </div>
+                                            <div class="feature-text-wrapper">
+                                                <span class="feature-tag tag-knowledge">KUNSKAP</span>
+                                                <h3>Din digitala botaniker</h3>
+                                                <p>Få tillgång till detaljerad information om hundratals växter. Vi har samlat allt du behöver veta om optimala jordförhållanden, solljusbehov, rekommenderade plantavstånd och specifika skötselråd för varje gröda. Bli en expert på dina egna växter.</p>
+                                                <ul class="feature-list">
+                                                    <li>🌱 Omfattande växtdatabas</li>
+                                                    <li>☀️ Specifika skötselråd</li>
+                                                    <li>📐 Plantavstånd och djup</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        @* Funktionsblock 2 - Såkalender *@
+                                        <div class="feature-item feature-reverse">
+                                            <div class="feature-image-wrapper">
+                                                <img src="/images/mockup1.png"
+                                                     alt="Mockup av SeedPlans Såkalender för APRIL med färgkodade så-datum"
+                                                     class="feature-image" />
+                                            </div>
+                                            <div class="feature-text-wrapper">
+                                                <span class="feature-tag tag-timing">TIMING</span>
+                                                <h3>Missa aldrig en sådd</h3>
+                                                <p>Vår intelligenta såkalender anpassar sig efter ditt klimat. Få en tydlig och automatiserad överblick över när det är dags att förodla inomhus, skola om dina plantor och slutligen plantera ut dem. Timing är allt för en stor skörd.</p>
+                                                <ul class="feature-list">
+                                                    <li>📅 Automatiserat sår-schema</li>
+                                                    <li>🌍 Klimatanpassade datum</li>
+                                                    <li>🔔 Påminnelser i rätt tid</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        @* Funktionsblock 3 - Fröinventarie *@
+                                        <div class="feature-item">
+                                            <div class="feature-image-wrapper">
+                                                <img src="/images/screenshot-2.png"
+                                                     alt="Mockup av SeedPlans Fröinventarie med lista över fröpåsar"
+                                                     class="feature-image" />
+                                            </div>
+                                            <div class="feature-text-wrapper">
+                                                <span class="feature-tag tag-order">ORDNING</span>
+                                                <h3>Full koll på frölagret</h3>
+                                                <p>Sluta köpa dubbletter. Med fröinventarien har du alltid ditt digitala frölager i fickan. Inventera snabbt, se exakt hur många fröer du har kvar, kontrollera hållbarhetsdatum och notera var du har lagrat dem.</p>
+                                                <ul class="feature-list">
+                                                    <li>📦 Digitalt frölager</li>
+                                                    <li>📉 Spåra antal</li>
+                                                    <li>⌛ Koll på bäst-före-datum</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                        @* Funktionsblock 4 - Sådd-spårning *@
+                                        <div class="feature-item feature-reverse">
+                                            <div class="feature-image-wrapper">
+                                                <img src="/images/mockup2.png"
+                                                     alt="Mockup av SeedPlans Sådd-spårning med tidslinjevy"
+                                                     class="feature-image" />
+                                            </div>
+                                            <div class="feature-text-wrapper">
+                                                <span class="feature-tag tag-control">KONTROLL</span>
+                                                <h3>Följ resan från frö till skörd</h3>
+                                                <p>Logga varje viktigt steg i dina växters liv. Dokumentera när du sådde, när det första skottet dök upp (groning), när du omplanterade och när du äntligen fick skörda. Lär dig av dina tidigare säsonger för att optimera framtida odlingar.</p>
+                                                <ul class="feature-list">
+                                                    <li>📈 Logga groningsdatum</li>
+                                                    <li>🌱 Spåra omplanteringar</li>
+                                                    <li>📊 Historik och statistik</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </section>
                             </div>
+
+
                         }
                         else
                         {
@@ -108,25 +187,68 @@
                                 </button>
                                 <div class="login-icon"><Blazicon Svg="Lucide.Lock" /></div>
                                 <h2>Fortsätt med din odlingsplan</h2>
-                                <p>Logga in för att se dina såförslag, fröer och aktiva sådder.</p>
+                                <p>Logga in för att se dina såförslag, fröer och aktiva sädder.</p>
                                 <LoginForm />
                             </div>
                         }
                     </div>
                 }
             </NotAuthorized>
+
         </AuthorizeView>
     </main>
 </div>
 
+
+<FeedBackModal @rendermode="InteractiveAuto" />
+
 @code {
+    private const string CurrentAppVersion = "1.3.0";
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
+    private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
     private bool showLoginForm = false;
+    private int currentImageSlide = 0;
+    private CancellationTokenSource autoplayTokenSource;
+    private const int AutoplayIntervalMs = 5000; // 5 sekunder mellan slides
 
-    protected override void OnInitialized()
+    private List<string> screenshots = new()
     {
+        "/images/screenshot-1.png",
+        "/images/screenshot-2.png",
+        "/images/screenshot-3.png",
+        "/images/screenshot-4.png",
+        "/images/screenshot-5.png"
+    };
 
+    protected override async Task OnInitializedAsync()
+    {
         Nav.LocationChanged += HandleLocationChanged;
+        try
+        {
+            var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
+            var onlineSettings = await Http.GetFromJsonAsync<VersionCheckModel>(noCacheUrl);
+
+            if(onlineSettings != null && !string.IsNullOrEmpty(onlineSettings.AppVersion))
+            {
+                if(onlineSettings.AppVersion != CurrentAppVersion)
+                {
+                    Console.WriteLine("Ny version upptäckt! Laddar om...");
+                    Nav.NavigateTo(Nav.Uri, forceLoad: true);
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Kunde inte kolla version: {ex.Message}");
+        }
+
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StartAutoplay();
+        }
     }
 
     private void HandleLocationChanged(object? sender, LocationChangedEventArgs e)
@@ -134,13 +256,68 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private void StartAutoplay()
     {
-        
+        autoplayTokenSource?.Cancel();
+        autoplayTokenSource = new CancellationTokenSource();
+        _ = AutoplayLoop(autoplayTokenSource.Token);
     }
+
+    private async Task AutoplayLoop(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                await Task.Delay(AutoplayIntervalMs, cancellationToken);
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    NextImageSlide();
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+        }
+    }
+
+    private void NextImageSlide()
+    {
+        currentImageSlide = (currentImageSlide + 1) % screenshots.Count;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
+    }
+
+    private void PreviousImageSlide()
+    {
+        currentImageSlide = (currentImageSlide - 1 + screenshots.Count) % screenshots.Count;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
+    }
+
+    private void SelectSlide(int index)
+    {
+        currentImageSlide = index;
+        RestartAutoplay(); // Restart timer vid användarinteraktion
+    }
+
+    private void RestartAutoplay()
+    {
+        StartAutoplay();
+    }
+
+    // public async ValueTask DisposeAsync()
+    // {
+    //     autoplayTokenSource?.Cancel();
+    //     autoplayTokenSource?.Dispose();
+    //     Nav.LocationChanged -= HandleLocationChanged;
+    //     FeedbackService.OnVisibilityChanged -= HandleFeedbackVisibilityChanged;
+    // }
 
     public void Dispose()
     {
+        autoplayTokenSource?.Cancel();
+        autoplayTokenSource?.Dispose();
         Nav.LocationChanged -= HandleLocationChanged;
     }
 }

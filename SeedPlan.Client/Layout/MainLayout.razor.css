@@ -23,24 +23,27 @@
     align-items: center;
     width: 100%;
 }
+
 /* --- 2. LOGO & BRANDING --- */
 
 .brand {
-    display: flex; /* This places icon and text on the same row */
-    align-items: center; /* Centers them vertically relative to each other */
-    gap: 10px; /* Adds some spacing between the icon and text */
+    display: flex;
+    align-items: center;
+    gap: 10px;
     cursor: pointer;
 }
 
 .logo-circle {
     color: #10b981;
     background: white;
-    padding: 0px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3rem;
+}
+.logo-circle img{
+    width: 60px;
 }
 
 .app-title {
@@ -48,28 +51,51 @@
     font-weight: 700;
     margin: 0;
     color: #1e293b;
-    line-height: 1; /* Prevents the text from taking extra vertical space */
+    line-height: 1;
 }
-/* --- 3. LOGIN SCREEN (fixes centered card) --- */ /* Centers the login card on the screen */
+
+.header-nav {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.header-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.header-link:hover {
+    color: #10b981;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+/* --- 3. LOGIN SCREEN --- */
 
 .login-screen {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    background-color: #fdfcf9; /* Cream-white background */
+    padding: 1rem 2rem;
+    background-color: #fdfcf9;
     min-height: calc(100vh - 70px);
 }
-/* The card itself */
 
 .login-card {
     background: white;
-    padding: 2rem; /* Slightly smaller padding */
+    padding: 2rem;
     border-radius: 24px;
     width: 100%;
     max-width: 400px;
-    /* Make sure it does not "jump" too much when the keyboard appears */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     margin-top: -10vh;
 }
 
@@ -90,155 +116,14 @@
     margin-bottom: 0.5rem;
     font-weight: 800;
     color: #1e293b;
+    text-align: center;
 }
 
 .login-card p {
     color: #64748b;
     margin-bottom: 2rem;
     font-size: 0.95rem;
-}
-/* --- 3. BOTTENMENY --- */
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 75px;
-    background: #f8f9fa;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    border-top: 1px solid #eeeeee;
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
-    text-decoration: none;
-}
-
-::deep .nav-item {
-    display: flex !important;
-    flex-direction: column !important; /* Stacks the elements vertically */
-    align-items: center !important; /* Centers them horizontally */
-    justify-content: center;
-    gap: 4px; /* Spacing between icon and text */
-    text-decoration: none !important;
-    color: #888888;
-    flex: 1;
-    height: 100%;
-
-}
-
-    ::deep .nav-item {
-        font-size: 2.1rem;
-        display: block;
-        font-weight: 400;
-    }
-
-    ::deep .nav-item span {
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Color for active link */
-    ::deep .nav-item.active, ::deep a:active {
-        text-decoration: none;
-        color: #10b981 !important;
-    }
-
-::deep a, ::deep a:visited, ::deep a:hover, {
-    text-decoration: none !important;
-    color: #888888;
-}
-/* --- LANDING PAGE STYLING --- */
-.landing-content {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 24px;
-    width: 100%;
-    max-width: 800px; /* Slightly wider than the login card to fit the grid */
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    margin-top: -5vh;
-}
-
-.landing-header {
     text-align: center;
-    margin-bottom: 2rem;
-}
-
-.logo-circle-large {
-    color: #10b981;
-    font-size: 4rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    justify-content: center;
-}
-
-.landing-header h2 {
-    font-family: 'Lora', serif;
-    font-size: 2rem;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-}
-
-.landing-header p {
-    color: #64748b;
-    font-size: 1rem;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.feature-card {
-    background: #f8fafc;
-    border: 1px solid #f1f5f9;
-    border-radius: 16px;
-    padding: 1.5rem;
-}
-
-    .feature-card h3 {
-        font-size: 1.1rem;
-        color: #0f172a;
-        margin-top: 0;
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .feature-card ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .feature-card li {
-        font-size: 0.9rem;
-        color: #334155;
-        margin-bottom: 0.8rem;
-        line-height: 1.4;
-    }
-
-        .feature-card li strong {
-            color: #10b981;
-        }
-
-    /* Styling for the "upcoming" card */
-    .feature-card.upcoming li strong {
-        color: #8b5cf6; /* Purple color to distinguish upcoming features, change to #10b981 for consistent color */
-    }
-
-.landing-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 300px;
-    margin: 0 auto;
 }
 
 .btn-back {
@@ -255,7 +140,274 @@
     font-size: 0.9rem;
 }
 
-/* Enkel in-tonings animation */
+/* --- 4. LANDING PAGE --- */
+
+/* --- Överikgripande Layout (oförändrad) --- */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    color: #1f2937;
+    background-color: #ffffff;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+
+}
+
+/* --- Hero Sektion (oförändrad) --- */
+.hero-section {
+    width: 100%;
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    padding: 8rem 1.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: #166534;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #4b5563;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+}
+
+.btn-large {
+    padding: 0.8rem 2.5rem;
+    font-size: 1.15rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .btn-large:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+/* --- NY STYLING FÖR FUNKTIONER (FOCUS) --- */
+.features-focus-section {
+    width: 100%;
+    padding: 6rem 0;
+}
+
+.features-header {
+    text-align: center;
+    margin-bottom: 6rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .features-header h2 {
+        font-size: 3rem;
+        color: #111827;
+        margin-bottom: 1rem;
+        font-weight: 800;
+    }
+
+    .features-header p {
+        font-size: 1.2rem;
+        color: #6b7280;
+        line-height: 1.6;
+    }
+
+/* Det växlande funktionsblocket */
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 4rem; /* Utrymme mellan bild och text */
+    margin-bottom: 8rem; /* Utrymme mellan olika funktioner */
+}
+
+    /* Klass för att vända ordningen (Text Vänster, Bild Höger) */
+    .feature-item.feature-reverse {
+        flex-direction: row-reverse;
+    }
+
+/* Bild-behållare (tar upp ~55% av bredden) */
+.feature-image-wrapper {
+    flex: 1.2;
+    display: flex;
+    justify-content: center;
+}
+
+.feature-image {
+    width: 100%;
+    max-width: 650px; /* Maxbredd för att inte bli *för* stor på jätteskärmar */
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e5e7eb;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover .feature-image {
+    transform: scale(1.02); /* Liten interaktivitet vid hover */
+}
+
+/* Text-behållare (tar upp ~45% av bredden) */
+.feature-text-wrapper {
+    flex: 1;
+    max-width: 500px;
+}
+
+/* Styling för taggar (badges) */
+.feature-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 99px;
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+}
+
+/* Olika färger för olika taggar */
+.tag-knowledge {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.tag-timing {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.tag-order {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.tag-control {
+    background-color: #fce7f3;
+    color: #9d174d;
+}
+
+.feature-text-wrapper h3 {
+    font-size: 2.25rem;
+    color: #1f2937;
+    margin-bottom: 1.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.feature-text-wrapper p {
+    color: #4b5563;
+    line-height: 1.7;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* En liten lista under beskrivningen för extra tydlighet */
+.feature-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+    .feature-list li {
+        font-size: 1rem;
+        color: #374151;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+/* --- Responsiv design för mobiler --- */
+@media (max-width: 992px) {
+    /* Minska gap och textstorlek för mellanskärmar (surfplattor) */
+    .feature-item {
+        gap: 2rem;
+        margin-bottom: 6rem;
+    }
+
+    .feature-text-wrapper h3 {
+        font-size: 1.75rem;
+    }
+
+    .hero-title {
+        font-size: 2.75rem;
+    }
+}
+
+
+
+/* --- 7. BOTTOM MENU --- */
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75px;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    border-top: 1px solid #eeeeee;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+::deep .nav-item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none !important;
+    color: #888888;
+    flex: 1;
+    height: 100%;
+}
+
+    ::deep .nav-item {
+        font-size: 2.1rem;
+        display: block;
+        font-weight: 400;
+    }
+
+    ::deep .nav-item span {
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    ::deep .nav-item.active, ::deep a:active {
+        text-decoration: none;
+        color: #10b981 !important;
+    }
+
+/* --- 8. ANIMATIONS --- */
+
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }
@@ -265,21 +417,101 @@
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* Responsiveness for mobile */
+.page-body {
+    flex: 1;
+    padding: 1.5rem;
+    padding-bottom: 100px;
+}
+
+.main-container {
+    flex: 1;
+}
+
 @media (max-width: 768px) {
-    .features-grid {
-        grid-template-columns: 1fr;
+    .page-body {
+        flex: 1;
+        padding:0.5rem;
+        padding-bottom: 100px;
     }
 
-    .landing-content {
-        padding: 1.5rem;
-        margin-top: 0;
+    .login-screen
+    {
+        padding: 1rem 1rem;
     }
-}
+    .header-nav{
+        gap: 0.5rem;
+    }
+    .header-actions{
+        gap: 0.5rem;
+    }
+    .header-actions a{
+        font-size: 0.8rem;
+    }
+    .main-header{
+        padding: 0.75rem 0.2rem;
+    }
+
+    /* Tvinga bild och text att staplas vertikalt på mobilen */
+    .feature-item, .feature-item.feature-reverse {
+        flex-direction: column;
+        gap: 2rem;
+        text-align: center;
+        margin-bottom: 5rem;
+    }
+
+    .feature-image-wrapper {
+        width: 100%;
+    }
+
+    .feature-text-wrapper {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .feature-list {
+        align-items: center;
+    }
+    /* Centrera listan på mobilen */
+
+    .hero-section {
+        padding: 5rem 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+        .hero-actions {
+            flex-direction: column;
+        }
+
+        .features-header {
+            margin-bottom: 4rem;
+        }
+
+            .features-header h2 {
+                font-size: 1.25rem;
+            }
+
+
+            .features-header p {
+                font-size: 1rem;
+                color: #6b7280;
+                line-height: 1.6;
+            }
+            .feature-text-wrapper h3{
+                font-size: 1.4rem;
+            }
+            .feature-text-wrapper p{
+                font-size: 1rem;
+            }
+  }

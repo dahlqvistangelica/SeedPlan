@@ -1,0 +1,31 @@
+﻿@inject NavigationManager Nav
+
+<PageTitle>@Title</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="@Description" />
+    <meta name="keywords" content="@Keywords" />
+    
+    @* Open Graph *@
+    <meta property="og:title" content="@Title">
+    <meta property="og:description" content="@Description">
+    <meta property="og:url" content="@Nav.Uri">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="@($"{Nav.BaseUri}og-image.png")">
+    
+    @* Twitter Card *@
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@Title">
+    <meta name="twitter:description" content="@Description">
+    
+    @* Canonical *@
+    <link rel="canonical" href="@Nav.Uri">
+</HeadContent>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Såkalender & Fröhantering - SeedPlan";
+
+    [Parameter] public string Description { get; set; } = "SeedPlan hjälper dig planera din trädgård med smart såkalender baserad på ditt frostdatum. Håll koll dina fröer och sådder enkelt.";
+
+    [Parameter] public string Keywords { get; set; } = "såkalender, trädgårdsplanering, fröer, odling, plantera, sådatum, frökoll, fröinventering, fröapp, såplanering, försådd";
+}

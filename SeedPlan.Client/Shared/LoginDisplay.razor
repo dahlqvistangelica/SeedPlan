@@ -1,17 +1,20 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using SeedPlan.Client.Pages
 @using SeedPlan.Client.Services
 @inject AuthService Auth
+@inject FeedbackModalService FeedbackModalService
 
 <AuthorizeView>
     <Authorized>
         <div class="user-header-widget">
-            @* Read name direkt from memory. If name doesn't exsist use e-mail start. *@
             <span class="user-display-name">
                 @(context.User.FindFirst("full_name")?.Value ??
                   context.User.Identity?.Name?.Split('@')[0] ?? "Odlare")
             </span>
-            
-            <button class="logout-icon-btn" @onclick="HandleLogout" title="Logga ut">
+            <button type="button" class="feedback-icon-btn" @onclick="() => FeedbackModalService.Open()" title="Ge Feedback">
+                <Blazicon Svg="Lucide.MessageCircleWarning" />
+            </button>
+            <button type="button" class="logout-icon-btn" @onclick="HandleLogout" title="Logga ut">
                 <Blazicon Svg="Lucide.LogOut" />
             </button>
         </div>
@@ -21,7 +24,6 @@
 @code {
     private async Task HandleLogout()
     {
-        // AuthService now handles signing out, clearing of memory and page reload.
         await Auth.LogoutAsync();
     }
 }
