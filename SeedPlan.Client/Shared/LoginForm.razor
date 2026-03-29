@@ -17,7 +17,6 @@
         <label for="rememberMe">Kom ihåg mig</label>
     </div>
 
-
     @if (!string.IsNullOrEmpty(errorMessage))
     {
         <p class="error-text" style="color: red;">@errorMessage</p>
@@ -34,13 +33,14 @@
     private string password = "";
     private string errorMessage = "";
     private bool rememberMe = false;
+    private bool isLoadingDemo = false;
 
     private async Task HandleLogin()
     {
         errorMessage = ""; // Clear old errormsgs.
-        
+
         var result = await Auth.LoginAsync(email, password, rememberMe);
-        
+
         if (result.IsSuccess)
         {
             Nav.NavigateTo("/");
@@ -50,6 +50,8 @@
             errorMessage = result.Errors.First().Message;
         }
     }
+
+
 
     private void NavigateToRegister()
     {

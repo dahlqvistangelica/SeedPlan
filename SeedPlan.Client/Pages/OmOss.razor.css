@@ -75,3 +75,42 @@ article a:hover {
     color: #059669;
     text-decoration: underline;
 }
+
+/* Add layout for the icon and header text */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin: 0; /* Restores spacing since the section-header handles it */
+}
+
+/* Updated square icon styling */
+.star-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: lightyellow;
+    color: #eab308; /* Darkened slightly so it's visible on light yellow */
+    font-size: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.rocket-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--secondary-light);
+    color: var(--primary);
+    font-size: 1.5rem;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    flex-shrink: 0;
+}

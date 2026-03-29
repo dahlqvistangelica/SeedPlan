@@ -1,0 +1,84 @@
+﻿@inject IJSRuntime JS
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="detail-card fade-in" @onclick:stopPropagation>
+            <header class="detail-header">
+                <div class="title-with-plus">
+                    <div class="plant-icon-circle">
+                        <Blazicon Svg="Lucide.CircleQuestionMark" />
+                    </div>
+                    <h2 class="serif-title">Om SeedPlan & Odling</h2>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="expand-btn" @onclick="Close" aria-label="Stäng">
+                        <Blazicon Svg="Lucide.X" />
+                    </button>
+                </div>
+            </header>
+
+            <div class="info-grid">
+                @* Section 1: Background and purpose *@
+                <div class="growing-advice">
+                    <label>HOBBYPROJEKT UNDER UTVECKLING</label>
+                    <div class="growing-advice-text">
+                        SeedPlan är utvecklad av en hobbyodlare och är fortfarande under uppbyggnad.
+                        Eftersom naturen är föränderlig och databasen fylls på efter hand, kan det förekomma
+                        felaktigheter eller saknas information för vissa sorter. Se därför appen som en
+                        inspirerande guide snarare än ett definitivt facit för din sådd.
+                    </div>
+                </div>
+
+                @* Section 2: Important notes*@
+                <div class="growing-advice">
+                    <label>LITA PÅ DINA EGNA FÖRUTSÄTTNINGAR</label>
+                    <div class="growing-advice-text">
+                        Varje trädgård och odlingszon är unik. De råd som ges här är generella och kan inte
+                        ersätta de specifika instruktioner som finns på dina fröpåsar eller hos ditt inköpsställe.
+                        Dubbelkolla alltid mot dessa källor i första hand för att ge dina växter bästa möjliga start.
+                    </div>
+                </div>
+
+                @* Section 3: Disclaimer *@
+                <div class="growing-advice">
+                    <label>ANSVAR & RESULTAT</label>
+                    <div class="growing-advice-text">
+                        Då odling påverkas av allt från väderlek till jordkvalitet, kan SeedPlan inte ta ansvar
+                        för slutresultatet i din odling. Eventuella misslyckanden i trädgården, utebliven skörd
+                        eller andra förluster vid användning av appens data sker på användarens eget ansvar.
+                    </div>
+                </div>
+
+
+                <div class="growing-advice">
+                    <label>KONTAKT</label>
+                    <div class="growing-advice-text">
+                        Utvecklare: Angelica Dahlqvist<br />
+                        Mail: <a href="mailto: info@SeedPlan.app">info@seedplan.app</a>
+                    </div>
+                </div>
+            </div>
+            
+            @* En liten avslutande fotnot för extra tydlighet *@
+            <footer style="padding: 15px; font-style: italic; font-size: 0.8rem; opacity: 0.8;">
+                Genom att använda SeedPlan godkänner du att all tillämpning av data sker på egen risk.
+            </footer>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsVisibleChanged { get; set; }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+}
