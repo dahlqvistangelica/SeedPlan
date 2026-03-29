@@ -260,6 +260,14 @@ button:disabled {
     text-align: center;
 }
 
+.muted {
+   font-size: 0.85rem; 
+   margin-top: 15px; 
+   background: #f8fafc; 
+   padding: 10px; 
+   border-radius: 8px;
+}
+
 /* --- Divider --- */
 hr {
     border: none;

@@ -80,7 +80,15 @@ window.subscribeToPush = async function () {
             reg = await navigator.serviceWorker.register('/service-worker.js');
             console.log('Service worker registrerad');
         }
-        await navigator.serviceWorker.ready;
+
+        if (reg.installing) {
+            await new Promise(resolve => { reg.installing.addEventListener('statechange', e => { if (e.target.state == 'activated') resolve(); }); });
+        }
+        else if (reg.waiting) {
+            await new Promise(resole => { reg.waiting.addEventListener('statechange', e => { if (e.target.state == 'activated') resolve(); }); });
+        }
+
+        reg = await navigator.serviceWorker.ready;
 
         let subscription = await reg.pushManager.getSubscription();
         if (subscription) {

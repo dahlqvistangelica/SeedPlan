@@ -39,19 +39,42 @@ namespace SeedPlan.Client.Services
             var subscriptionJson = await _js.InvokeAsync<string?>("subscribeToPush");
             if (string.IsNullOrEmpty(subscriptionJson)) return;
 
-
+            var session = await _supabase.Auth.RetrieveSessionAsync();
             //Save prenumeration in Supabase.
-            var user = _supabase.Auth.CurrentUser;
-            if (user == null) return;
+            var user = session?.User?? _supabase.Auth.CurrentUser;
 
-            await _supabase.From<PushSubscription>().Upsert(new PushSubscription
+            if (user == null) {
+                Console.WriteLine("C# kunde inte hitta inloggad användare i NotificationService");
+                return; }
+            try
             {
-                UserId = user.Id,
-                SubscriptionJson = subscriptionJson,
-                UpdatedAt = DateTime.Now
-            });
-
-            Console.WriteLine("Push-prenumeration sparad i Supabase"); 
+                var existingSub = await _supabase.From<PushSubscription>().Where(x => x.UserId == user.Id).Single();
+                if(existingSub != null)
+                {
+                    existingSub.SubscriptionJson = subscriptionJson;
+                    existingSub.UpdatedAt = DateTime.UtcNow;
+                    await _supabase.From<PushSubscription>().Update(existingSub);
+                    Console.WriteLine("Befintlig push-prenumeration uppdaterad");
+                    
+                }
+                else
+                {
+                    var newSub = new PushSubscription
+                    {
+                        UserId = user.Id,
+                        SubscriptionJson = subscriptionJson,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    await _supabase.From<PushSubscription>().Insert(newSub);
+                    Console.WriteLine("Ny pushprenumeration sparades i Supabase.");
+                }
+                var options = new Supabase.Postgrest.QueryOptions { OnConflict = "user_id" };
+                
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Kunde inte spara prenumerationen i Supabase: {ex.Message}");
+            }
         }
         public async Task CheckAndNotifyStaleAsync(List<SowingView> sowings)
         {
