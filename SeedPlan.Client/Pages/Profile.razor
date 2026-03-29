@@ -2,6 +2,7 @@
 @using SeedPlan.Shared.Models
 @inject IUserProfileService ProfileService
 @inject AuthService Auth
+@inject IAuthClient AuthClient
 
 <SeoHead Title="Profil - SeedPlan"
          Description="Hantera din profil i SeedPlan och uppdatera dina kontoinställningar för en bättre odlingsupplevelse."
@@ -51,88 +52,97 @@
 
     <div class="settings-card">
         <h3>Kontouppgifter</h3>
-
-        <details class="expandable-item">
-            <summary>
-                <div class="summary-copy">
-                    <span>Ändra e-post</span>
-                    <small>Uppdatera din inloggningsadress</small>
-                </div>
-                <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
-            </summary>
-
-            <div class="expandable-content">
-                <div class="input-group">
-                    <label>Ny e‑post</label>
-                    <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
-                </div>
-
-                <div class="input-group">
-                    <label>Nuvarande lösenord</label>
-                    <input type="password" @bind="currentEmailPassword" placeholder="Ange ditt nuvarande lösenord" />
-                </div>
-
-                <button class="btn-secondary" @onclick="UpdateEmail" disabled="@(!CanSubmitEmail())">
-                    Spara e‑post
-                </button>
+        @if (IsDemoUser)
+        {
+            <div class="alert alert-info">
+                <strong>Demo-läge:</strong> Kontoinställningar (som att byta lösenord och email) är inaktiverade för gästkontot. Du kan dock fortfarande ändra din profil (t.ex. namn och dina preferenser för såförslag)!
             </div>
-        </details>
+        }
+        else
+        {
 
-        <details class="expandable-item">
-            <summary>
-                <div class="summary-copy">
-                    <span>Ändra lösenord</span>
-                    <small>Välj ett nytt säkert lösenord</small>
+            <details class="expandable-item">
+                <summary>
+                    <div class="summary-copy">
+                        <span>Ändra e-post</span>
+                        <small>Uppdatera din inloggningsadress</small>
+                    </div>
+                    <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+                </summary>
+
+                <div class="expandable-content">
+                    <div class="input-group">
+                        <label>Ny e‑post</label>
+                        <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nuvarande lösenord</label>
+                        <input type="password" @bind="currentEmailPassword" placeholder="Ange ditt nuvarande lösenord" />
+                    </div>
+
+                    <button class="btn-secondary" @onclick="UpdateEmail" disabled="@(!CanSubmitEmail())">
+                        Spara e‑post
+                    </button>
                 </div>
-                <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
-            </summary>
+            </details>
 
-            <div class="expandable-content">
-                <div class="input-group">
-                    <label>Ditt gamla lösenord</label>
-                    <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
-                </div>
+            <details class="expandable-item">
+                <summary>
+                    <div class="summary-copy">
+                        <span>Ändra lösenord</span>
+                        <small>Välj ett nytt säkert lösenord</small>
+                    </div>
+                    <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+                </summary>
 
-                <div class="input-group">
-                    <label>Nytt lösenord</label>
-                    <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
-                    @if (!string.IsNullOrWhiteSpace(newPassword) && !MeetsPasswordComplexity(newPassword))
+                <div class="expandable-content">
+                    <div class="input-group">
+                        <label>Ditt gamla lösenord</label>
+                        <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Nytt lösenord</label>
+                        <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
+                        @if (!string.IsNullOrWhiteSpace(newPassword) && !MeetsPasswordComplexity(newPassword))
+                        {
+                            <span class="warning-text">⚠️ Minst 8 tecken och minst en stor + en liten bokstav krävs</span>
+                        }
+                    </div>
+
+                    <div class="input-group">
+                        <label>Bekräfta nytt lösenord</label>
+                        <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
+                        @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                        {
+                            <span class="warning-text">⚠️ Lösenorden matchar inte</span>
+                        }
+                    </div>
+
+                    @if (isUpdatingPassword)
                     {
-                        <span class="warning-text">⚠️ Minst 8 tecken och minst en stor + en liten bokstav krävs</span>
+                        <div class="loading-text">⏳ Uppdaterar lösenord...</div>
+                    }
+
+                    <button class="btn-secondary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">
+                        Spara lösenord
+                    </button>
+
+                    @if (!string.IsNullOrEmpty(passwordStatus))
+                    {
+                        <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
                     }
                 </div>
-
-                <div class="input-group">
-                    <label>Bekräfta nytt lösenord</label>
-                    <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
-                    @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
-                    {
-                        <span class="warning-text">⚠️ Lösenorden matchar inte</span>
-                    }
-                </div>
-
-                @if (isUpdatingPassword)
-                {
-                    <div class="loading-text">⏳ Uppdaterar lösenord...</div>
-                }
-
-                <button class="btn-secondary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">
-                    Spara lösenord
-                </button>
-
-                @if (!string.IsNullOrEmpty(passwordStatus))
-                {
-                    <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
-                }
-            </div>
-        </details>
+            </details>
+        }
     </div>
 </div>
 
 @code {
     private UserProfile userProfile = new();
     private string statusMessage = "";
-
+    private bool IsDemoUser => AuthClient.CurrentUserEmail?.ToLower() == "demo@seedplan.app";
     private string newEmail = "";
     private string currentEmailPassword = "";
     private string currentPassword = "";

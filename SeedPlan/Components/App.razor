@@ -2,23 +2,33 @@
 <html lang="sv">
 <head>
     <meta charset="utf-8" />
+    <title>SeedPlan | Din smarta såkalender & fröinventerare</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="SeedPlan hjälper dig planera din trädgård med smart såkalender baserad på ditt frostdatum. Håll koll dina fröer och sådder enkelt.">
     <meta name="keywords" content="såkalender, trädgårdsplanering, fröer, odling, plantera, sådatum, frökoll, fröinventering, fröapp, såplanering, försådd">
     <base href="/" />
+    <link rel="preload" href="_framework/blazor.web.js" as="script" />
+    <link rel="preload" href="_framework/dotnet.native.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
+    <link rel="preload" href="_framework/System.Private.CoreLib.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
+
+    <link rel="preload" href="images/mockup2.webp" as="image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <script src="notifications.js?v=4" defer></script>
+    <script src="session-cleanup.js?v=4" defer></script>
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="components.css" /> 
     <link rel="stylesheet" href="SeedPlan.styles.css" /> 
     <link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet" />
     <link rel="manifest" href="manifest.webmanifest">
-    <script src="session-cleanup.js?v=4"></script>
-    <script src="notifications.js?v=4"></script>
     <script type="application/ld+json">
         {
         "context": "https://schema.org",
         "type": "WebApplication",
         "name": "SeedPlan",
-        "url": "https://seedplan.runasp.net",
+        "url": "https://seedplan.app",
         "logo": "https://seedplan.se/icon-512.png",
         "description": "Smart trädgårdsapp för såddplanering",
         "applicationCategory": "LifestyleApplication",

@@ -234,9 +234,28 @@
 
     protected override async Task OnInitializedAsync() 
     {
-        await LoadData();
-        await ClearAppBadge();
-        await NotificationService.SubscribeToPushAsync();
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            await LoadData();
+            await ClearAppBadge();
+            var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
+            if (userEmail != "demo@seedplan.app")
+            {
+                await NotificationService.SubscribeToPushAsync();
+            }
+            else
+            {
+                Console.WriteLine("Push-notiser är inaktiverade för Demo-kontot");
+            }
+        }
+        else
+        {
+            isLoading = false;
+            Console.WriteLine("Visar landningssida - ingen data anropas.");
+        }
     }
 
     private async Task LoadData()

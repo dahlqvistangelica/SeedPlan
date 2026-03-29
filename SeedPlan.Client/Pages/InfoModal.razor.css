@@ -1,0 +1,171 @@
+﻿body {
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.detail-card {
+    background: white;
+    width: 95%;
+    max-width: 550px;
+    border-radius: 30px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.fade-in {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Pressar ut elementen till kanterna */
+    margin-bottom: 25px;
+}
+
+.title-with-plus {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.plant-icon-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    background: #f0f9ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0ea5e9;
+    flex-shrink: 0;
+}
+
+.serif-title {
+    margin: 0;
+    line-height: 1.2;
+    font-family: 'Lora', serif;
+    font-size: 1.5rem;
+    color: #0f172a;
+}
+
+.info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.growing-advice {
+    margin: 0;
+}
+
+.growing-advice label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    padding-left: 5px;
+}
+
+.growing-advice-text {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.growing-advice-text a {
+    color: #0ea5e9;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.growing-advice-text a:hover {
+    color: #0284c7;
+    text-decoration: underline;
+}
+
+.modal-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.expand-btn {
+    background: #f1f5f9; 
+    color: #64748b;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.expand-btn:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+/* Mobilanpassning: minska padding och anpassa utrymme på små skärmar */
+@media (max-width: 480px) {
+    .detail-card {
+        padding: 20px;
+    }
+
+    .growing-advice-text {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .serif-title {
+        font-size: 1.3rem;
+    }
+    
+    .plant-icon-circle {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .detail-header {
+        align-items: flex-start;
+    }
+}

@@ -55,9 +55,19 @@
                 <div class="value">Redigera din profil</div>
             </div>
         </div>
+
+        <div class="settings-card" @onclick="() => showInfoModal = true">
+            <div class="icon-circle">
+                <Blazicon Svg="Lucide.CircleQuestionMark" />
+            </div>
+            <div class="card-text">
+                <div class="title">Info</div>
+                <div class="value">Viktig info om appen.</div>
+            </div>
+        </div>
     </div>
 
-    <div class="version-text">SeedPlan v.1.3.0</div>
+    <div class="version-text">SeedPlan v.1.3.1</div>
 </div>
 
 @if (showFrostModal)
@@ -113,6 +123,10 @@
                 <span>Aktivera påminnelser</span>
             </label>
 
+            <p class="muted">
+                <strong>Viktigt för iPhone-användare:</strong> För att kunna ta emot aviseringar på iOS måste du först spara SeedPlan på din hemskärm (välj Dela-ikonen och sedan "Lägg till på hemskärmen"), samt öppna appen därifrån.
+            </p>
+
             <div class="modal-actions">
                 <button class="btn-secondary" @onclick="CloseNotificationsModal">Avbryt</button>
                 <button class="btn-primary" @onclick="SaveNotifications">Spara</button>
@@ -126,10 +140,13 @@
     </div>
 }
 
+<InfoModal @bind-IsVisible="showInfoModal" />
+
 @code {
     private UserProfile userProfile = new();
     private bool showFrostModal;
     private bool showZoneModal;
+    private bool showInfoModal;
     private bool showNotificationsModal;
     private bool notificationsEnabled;
     private string statusMessage = "";
