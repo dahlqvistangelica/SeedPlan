@@ -705,3 +705,47 @@
 }
 
 
+/* ==========================================================================
+   RESPONSIVITET MOBIL - LISTVYN (Sowings.razor)
+   ========================================================================== */
+@media (max-width: 600px) {
+    .sowings-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .sowings-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .group-controls {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .control-select {
+        flex-grow: 1; /* Gör att dropdown-menyn tar upp resten av bredden */
+    }
+
+    .btn-add-sowing span {
+        display: none; /* Dölj texten "Ny sådd", visa bara ikonen */
+    }
+
+    .btn-add-sowing {
+        padding: 10px;
+        aspect-ratio: 1/1; /* Gör knappen perfekt fyrkantig/rund */
+        justify-content: center;
+    }
+
+    .sowing-grid {
+        /* Tvingar fram 1 kolumn på väldigt små skärmar istället för att försöka klämma in 2 */
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .compact-titles .plant-name {
+        font-size: 1.1rem;
+    }
+}

@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
+
 /* ==========================================================================
-   CSS VARIABLES (Design System)
+   1. CSS VARIABLES (Design System)
    ========================================================================== */
 :root {
     --primary: #10b981;
@@ -17,234 +18,8 @@
     --secondary-light: #ecfdf5;
 }
 
-/* =========================================================================
-   BUTTON SYSTEM (Unified)
-   ========================================================================== */
-
-/* Base button styles */
-button {
-    font-family: 'Inter', sans-serif;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Primary button (green) */
-.btn-primary {
-    background: var(--primary);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-}
-
-.btn-primary:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-/* Secondary button (light gray) */
-.btn-secondary {
-    background: #f1f5f9;
-    color: #334155;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: #e2e8f0;
-}
-
-/* Save button alias */
-.btn-save {
-    background: var(--primary);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.btn-save:hover:not(:disabled) {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-}
-
-/* Danger button */
-.btn-danger {
-    background: #dc2626;
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.btn-danger:hover:not(:disabled) {
-    background: #b91c1c;
-    transform: translateY(-1px);
-}
-
-/* Full width variant */
-.btn-full {
-    width: 100%;
-}
-
-/* Legacy aliases (for backward compatibility) */
-.sp-save-btn {
-    background: var(--primary);
-    color: white;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.sp-save-btn:hover:not(:disabled) {
-    background: var(--primary-hover);
-    transform: translateY(-1px);
-}
-
-.sp-cancel-btn {
-    background: #f1f5f9;
-    color: #334155;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.sp-cancel-btn:hover:not(:disabled) {
-    background: #e2e8f0;
-}
-
-/* =========================================================================
-   INPUT & FORM SYSTEM (Unified - Based on AddSeedModal styling)
-   ========================================================================== */
-
-/* Base input styles */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="date"],
-input[type="number"],
-input[type="search"],
-select,
-textarea {
-    font-family: 'Inter', sans-serif;   
-    width: 100%;
-    padding: 14px 20px;
-    border: 1px solid #f1f5f9;
-    background-color: #f8fafc;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    color: #334155;
-    outline: none;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
-}
-
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="date"]:focus,
-input[type="number"]:focus,
-input[type="search"]:focus,
-select:focus,
-textarea:focus {
-    border-color: #10b981;
-    background-color: white;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-}
-
-textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-/* Select/Dropdown styling */
-select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    background-size: 20px;
-    padding-right: 40px;
-    cursor: pointer;
-}
-
-/* Dropdown list styling (for search/autocomplete dropdowns) */
-.dropdown,
-.sp-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid #f1f5f9;
-    border-radius: 12px;
-    z-index: 100;
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 4px;
-}
-
-.dropdown-item,
-.sp-dropdown-item {
-    padding: 10px 14px;
-    cursor: pointer;
-    border-bottom: 1px solid #f8fafc;
-    font-size: 0.9rem;
-    color: #334155;
-    transition: all 0.15s ease;
-}
-
-.dropdown-item:hover,
-.sp-dropdown-item:hover {
-    background: #f0fdf4;
-    color: #10b981;
-    padding-left: 18px;
-}
-
-.dropdown-item:last-child,
-.sp-dropdown-item:last-child {
-    border-bottom: none;
-}
-
-/* Input group */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 1.25rem;
-}
-
-.input-group label {
-    font-weight: 600;
-    color: #334155;
-    font-size: 0.9rem;
-}
-
 /* ==========================================================================
-   BASE / GLOBAL STYLES
+   2. BASE / GLOBAL STYLES
    ========================================================================== */
 body {
     background-color: var(--bg-main);
@@ -255,6 +30,10 @@ body {
 
 h1:focus {
     outline: none;
+}
+
+p, label, span, input {
+    font-family: 'Inter', sans-serif;
 }
 
 .app-shell {
@@ -269,16 +48,12 @@ h1:focus {
     padding-bottom: 100px;
 }
 
-p, label, span, input {
-    font-family: 'Inter', sans-serif;
-}
-/* Typography & Containers */
-
+/* Typography & Headers */
 .header-top {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items:center;
+    align-items: center;
     margin-bottom: 2rem;
     width: 100%;
     gap: 0.5rem;
@@ -290,7 +65,6 @@ p, label, span, input {
         font-size: 2.2rem;
         font-style: italic;
         color: #333;
-        
     }
 
 .section-title {
@@ -307,58 +81,265 @@ p, label, span, input {
     font-size: 2.2rem;
     color: #1e293b;
     margin: 0;
+    line-height: 1.2;
 }
 
 /* ==========================================================================
-   BUTTONS AND FORMS
+   3. BUTTON SYSTEM (Unified)
    ========================================================================== */
-    
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+button {
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-    .input-group label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--text-muted);
+    button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 
-    .input-group input {
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-    }
-
-.custom-input {
-    width: 100%;
-    padding: 14px 16px;
+.btn-primary, .btn-save, .sp-save-btn {
+    background: var(--primary);
+    color: white;
+    padding: 12px 20px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
-    background: white;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+    .btn-primary:hover:not(:disabled),
+    .btn-save:hover:not(:disabled),
+    .sp-save-btn:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active:not(:disabled),
+    .btn-save:active:not(:disabled),
+    .sp-save-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+.btn-secondary, .sp-cancel-btn {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+    .btn-secondary:hover:not(:disabled),
+    .sp-cancel-btn:hover:not(:disabled) {
+        background: #e2e8f0;
+    }
+
+.btn-danger {
+    background: #dc2626;
+    color: white;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+    .btn-danger:hover:not(:disabled) {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+
+.btn-full {
+    width: 100%;
+}
+
+/* ==========================================================================
+   4. INPUT & FORM SYSTEM
+   ========================================================================== */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="number"],
+input[type="search"],
+select,
+textarea,
+.sp-input,
+.form-input {
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: #334155;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
     box-sizing: border-box;
 }
 
-    .custom-input:focus {
-        border-color: var(--primary);
+    input:focus, select:focus, textarea:focus, .sp-input:focus, .form-input:focus {
+        border-color: #10b981;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+textarea, .sp-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+    .sp-textarea:focus {
+        border-color: #10b981;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    padding-right: 40px;
+    cursor: pointer;
+}
+
+/* Layout for forms */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+}
+
+    .input-group label {
+        font-weight: 600;
+        color: #334155;
+        font-size: 0.9rem;
+    }
+
+.input-block {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .input-block label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        color: #94a3b8;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 5px 0;
+}
+
+/* Dropdowns */
+.dropdown, .sp-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #f1f5f9;
+    border-radius: 12px;
+    z-index: 100;
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.dropdown-item, .sp-dropdown-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 0.9rem;
+    color: #334155;
+    transition: all 0.15s ease;
+}
+
+    .dropdown-item:hover, .sp-dropdown-item:hover {
+        background: #f0fdf4;
+        color: #10b981;
+        padding-left: 18px;
+    }
+
+    .dropdown-item:last-child, .sp-dropdown-item:last-child {
+        border-bottom: none;
     }
 
 /* ==========================================================================
-   PLANT CARDS
+   5. PLANT CATEGORIES, ICONS & BADGES
    ========================================================================== */
+.plant-icon-circle {
+    width: 48px;
+    height: 48px;
+    font-size: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
 
+.fruit {
+    color: crimson;
+    background: #fff2f2;
+}
+
+.vegetable {
+    color: #10b981;
+    background: #f0fdf4;
+}
+
+.herb {
+    color: #ca8a04;
+    background: #fefce8;
+}
+
+.flower {
+    color: #a855f7;
+    background: #faf5ff;
+}
+
+/* Hardiness badges */
 .frost-info {
     font-size: 0.7rem;
     font-weight: 600;
     color: var(--text-muted);
 }
-
-/* Hardiness badges */
 
 .sensitive {
     background: #fee2e2;
@@ -378,72 +359,28 @@ p, label, span, input {
     border: 1px #22c55e dashed;
 }
 
-/* Footer & feature icons */
-
-
-
 /* ==========================================================================
-   MODAL AND SEARCH
+   6. GLOBAL UTILITIES & ANIMATIONS
    ========================================================================== */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
+.fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
 }
 
-.modal-card {
-    background: #f8fafc;
-    border-radius: 28px;
-    padding: 24px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
-}
-
-.suggestion-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 5px;
-    border: 1px solid #eee;
-    border-radius: var(--radius-md);
-    max-height: 200px;
-    overflow-y: auto;
-    background: white;
-}
-
-.suggestion-item {
-    background: white;
-    margin: 8px 0;
-    padding: 12px;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    border: 1px solid transparent;
-}
-
-    .suggestion-item:hover {
-        border-color: var(--primary);
-        background: #f0fdf4;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
     }
 
-/* ==========================================================================
-   RESPONSIVENESS & ERROR HANDLING
-   ========================================================================== */
-@media (max-width: 768px) {
-    .plant-grid {
-        grid-template-columns: 1fr;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
+/* ==========================================================================
+   7. RESPONSIVENESS & ERROR HANDLING
+   ========================================================================== */
 .blazor-error-boundary {
     background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeGxpbmxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgb3ZlcmZsb3c9ImhpZGRlbiI+PGRlZnM+PGNsaXBQYXRoIGlkPSJjbGlwMCI+PHJlY3QgeD0iMjM1IiB5PSI1MSIgd2lkdGg9IjU2IiBoZWlnaHQ9IjQ5Ii8+PC9jbGlwUGF0aD48L2RlZnM+PGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTIzNSAtNTEpIj48cGF0aCBkPSJNMjYzLjUwNiA1MUMyNjQuNzE3IDUxIDI2NS44MTMgNTEuNDgzNyAyNjYuNjA2IDUyLjI2NThMMjY3LjA1MiA1Mi43OTg3IDI2Ny41MzkgNTMuNjI4MyAyOTAuMTg1IDkyLjE4MzEgMjkwLjU0NSA9Mi43OTUgMjkwLjY1NiA5Mi45OTZDMjkwLjg3NyA5My41MTMgMjkxIDk0LjA4MTUgMjkxIDk0LjY3ODIgMjkxIDk3LjA2NTEgMjg5LjAzOCA5OSAyODYuNjE3IDk5TDI0MC4zODMgOTlDMjM3Ljk2MyA5OSAyMzYgOTcuMDY1MSAyMzYgOTQuNjc4MiAyMzYgOTQuMzc5OSAyMzYuMDMxIDk0LjA4ODYgMjM2LjA4OSA5My44MDcyTDIzNi4zMzggOTMuMDE2MiAyMzYuODU4IDkyLjEzMTQgMjU5LjQ3MyA1My42Mjk0IDI1OS45NjEgNTIuNzk4NSAyNjAuNDA3IDUyLjI2NThDMjYxLjIgNTEuNDgzNyAyNjIuMjk2IDUxIDI2My41MDYgNTFaTTI2My41ODYgNjYuMDE4M0MyNjAuNzM3IDY2LjAxODMgMjU5LjMxMyA2Ny4xMjQ1IDI1OS4zMTMgNjkuMzM3IDI1OS4zMTMgNjkuNjEwMiAyNTkuMzMyIDY5Ljg2MDggMjU5LjM3MSA3MC4wODg3TDI2MS43OTUgODQuMDE2MSAyNjUuMzggODQuMDE2MSAyNjcuODIxIDY5Ljc0NzVDMjY3Ljg2IDY5LjczMDkgMjY3Ljg3OSA2OS41ODc3IDI2Ny44NzkgNjkuMzE3OSAyNjcuODI5IDY3LjExODIgMjY2LjQ0OCA2Ni4wMTgzIDI2My41ODYgNjYuMDE4M1pNMjYzLjU3NiA4Ni4wNTQ3QzI2MS4wNDkgODYuMDU0NyAyNTkuNzg2IDg3LjMwMDUgMjU5Ljc4NiA4OS43OTIxIDI1OS43ODYgOTIuMjgzNyAyNjEuMDQ5IDkzLjUyOTUgMjYzLjU3NiA9My41Mjk1IDI2Ni4xMTYgOTMuNTI5NSAyNjcuMzg3IDkyLjI4MzcgMjY3LjM4NyA4OS43OTIxIDI2Ny4zODcgODcuMzAwNSAyNjYuMTE2IDg2LjA1NDcgMjYzLjU3NiA4Ni4wNTQ3WiIgZmlsbD0iI0ZGRTUwMCIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9nPjwvc3ZnPg==) no-repeat 1rem/1.8rem, #b32121;
     padding: 1rem 1rem 1rem 3.7rem;
@@ -454,26 +391,27 @@ p, label, span, input {
         content: "An error has occurred.";
     }
 
-/* MOBILE-ONLY FIX */
 @media (max-width: 768px) {
     .page-body {
         padding-bottom: 100px;
     }
+
     .serif-title {
-        font-size: 1.8rem; /* Make the title smaller only on mobile */
+        font-size: 1.8rem;
     }
+
     .header-top h1 {
         font-size: 1.8rem;
     }
+
+    .plant-grid {
+        grid-template-columns: 1fr;
+    }
 }
-
-/* --- At the bottom of your file --- */
-
 
 @media (max-width: 480px) {
     .page-body {
-        padding: 1rem 0rem; /* Even smaller side padding on small mobile screens */
+        padding: 1rem 0rem;
         padding-bottom: 100px;
     }
-    .
 }

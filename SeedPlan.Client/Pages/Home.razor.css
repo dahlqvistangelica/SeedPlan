@@ -138,7 +138,7 @@
 
     .plant-card:hover {
         transform: translateY(-2px);
-        border: 1px solid #10b981;
+        border: 1px solid #e2e8f0;
     }
     .plan-icon-cicle:hover{
         background: #10b981;
