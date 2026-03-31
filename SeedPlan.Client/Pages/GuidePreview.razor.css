@@ -47,52 +47,6 @@
 }
 
 /* PLANT ICON CIRCLES */
-.plant-icon-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    font-size: 1.5rem;
-}
-
-.vegetable {
-    background: #f0fdf4;
-    color: #10b981;
-}
-.plant-card:hover .plant-icon-circle.vegetable {
-    color: #f0fdf4;
-    background: #10b981;
-}
-
-.herb {
-    background: #fefce8;
-    color: #ca8a04;
-}
-.plant-card:hover .plant-icon-circle.herb {
-    color: #fefce8;
-    background: #ca8a04;
-}
-
-.flower {
-    background: #faf5ff;
-    color: #a855f7;
-}
-.plant-card:hover .plant-icon-circle.flower {
-    color: #faf5ff;
-    background: #a855f7;
-}
-
-.fruit {
-    color: crimson;
-    background: #fff2f2;
-}
-.plant-card:hover .plant-icon-circle.fruit {
-    color: #fff2f2;
-    background: crimson;
-}
 
 /* CARD BODY */
 .card-body {
@@ -148,20 +102,6 @@
     border-radius: 8px;
 }
 
-.sensitive {
-    background: #fee2e2;
-    color: #ef4444;
-}
-
-.half-hardy {
-    background: #fff7ed;
-    color: #f97316;
-}
-
-.hardy {
-    background: #f0fdf4;
-    color: #22c55e;
-}
 
 /* CTA SECTION */
 .cta-login {

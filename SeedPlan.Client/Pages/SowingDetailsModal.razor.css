@@ -364,50 +364,6 @@
     margin-bottom: 1.5rem;
 }
 
-.input-row {
-    display: flex;
-    gap: 1rem;
-}
-
-    .input-row .input-block {
-        flex: 1;
-    }
-
-.input-block label {
-    display: block;
-    color: #0f766e;
-    font-size: 0.75rem;
-    font-weight: 800;
-    margin-bottom: 0.4rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-family: 'Inter', sans-serif;
-}
-
-.form-input, .sp-textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    font-size: 1rem;
-    color: #1e293b;
-    background: white;
-    font-family: 'Inter', sans-serif;
-    transition: border-color 0.2s;
-    box-sizing: border-box;
-}
-
-    .form-input:focus, .sp-textarea:focus {
-        outline: none;
-        border-color: #10b981;
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-.sp-textarea {
-    min-height: 80px;
-    resize: vertical;
-}
-
 .save-btn-large {
     width: 100%;
     background-color: #10b981; /* Den stora gröna knappen */
@@ -433,12 +389,6 @@
         opacity: 0.8;
     }
 
-.error-msg {
-    color: #ef4444;
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin: 0;
-}
 
 /* ==========================================================================
    RESPONSIVITET MOBIL - DETALJKORTET (SowingDetailsModal.razor)

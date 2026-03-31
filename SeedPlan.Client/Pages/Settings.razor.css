@@ -128,30 +128,6 @@
     margin-bottom: 0.5rem;
 }
 
-/* --- Input fields --- */
-.settings-modal input[type="date"],
-.settings-modal input[type="email"],
-.settings-modal input[type="password"],
-.settings-modal input[type="text"],
-.settings-modal input[type="number"] {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid #e2e8f0;
-    background-color: #f8fafc;
-    border-radius: 12px;
-    font-size: 1rem;
-    color: #0f172a;
-    outline: none;
-    box-sizing: border-box;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.settings-modal input:focus {
-    border-color: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    background-color: #ffffff;
-}
 
 /* --- Toggle Checkbox --- */
 .toggle-row {
@@ -180,71 +156,6 @@
     gap: 8px;
     justify-content: flex-end;
     margin-top: 1rem;
-}
-
-/* --- Buttons (Unified styling) --- */
-button {
-    cursor: pointer;
-    font-weight: 600;
-    border-radius: 12px;
-    padding: 12px 20px;
-    transition: all 0.2s ease;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 0.95rem;
-    font-family: inherit;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-primary {
-    background-color: #059669;
-    color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background-color: #047857;
-    transform: translateY(-1px);
-}
-
-.btn-secondary {
-    background-color: #f1f5f9;
-    color: #334155;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background-color: #e2e8f0;
-}
-
-.btn-save {
-    background-color: #059669;
-    color: white;
-}
-
-.btn-save:hover:not(:disabled) {
-    background-color: #047857;
-    transform: translateY(-1px);
-}
-
-.btn-danger {
-    background-color: #dc2626;
-    color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-    background-color: #b91c1c;
-    transform: translateY(-1px);
-}
-
-.btn-danger:disabled {
-    background-color: #fecaca;
-    cursor: not-allowed;
 }
 
 /* --- Status Alerts --- */

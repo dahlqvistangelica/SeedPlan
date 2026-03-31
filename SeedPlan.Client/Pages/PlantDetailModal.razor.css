@@ -1,17 +1,4 @@
-﻿.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.detail-card {
+﻿.detail-card {
     background: white;
     width: 95%;
     max-width: 550px;
@@ -142,19 +129,6 @@
         padding-left: 10px;
     }
 
-.input-block {
-    padding: 10px;
-}
-
-    .input-block label {
-        display: block;
-        font-size: 0.65rem;
-        font-weight: 800;
-        color: #065f46;
-        margin-bottom: 0px;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-    }
 
 .text-link {
     background: none;
@@ -181,15 +155,6 @@
     animation: slideDown 0.3s ease-out;
 }
 
-.form-input {
-    background: white;
-    border: 1px solid #dcfce7;
-    padding: 10px 15px;
-    border-radius: 10px;
-    width: 100%;
-    margin-top: 5px;
-    box-sizing: border-box;
-}
 
 .save-btn-large {
     background: #10b981;
@@ -202,22 +167,6 @@
     cursor: pointer;
     margin-top: 15px;
 }
-
-.close-x {
-    background: #f1f5f9;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 1.2rem;
-    color: #64748b;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-    .close-x:hover {
-        background: #e2e8f0;
-    }
 
 .text-link {
     background: none;
@@ -378,38 +327,6 @@
         width: 14px;
         height: 14px;
     }
-
-.plant-icon-circle {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-    background: #f8f8f8;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #10b981;
-}
-
-.fruit {
-    color: crimson;
-    background: #fff2f2;
-}
-
-.vegetable {
-    background: #f0fdf4;
-    color: #10b981;
-}
-
-.herb {
-    background: #fefce8;
-    color: #ca8a04;
-}
-
-.flower {
-    background: #faf5ff;
-    color: #a855f7;
-}
 
 .modal-actions {
     display: inline-flex;

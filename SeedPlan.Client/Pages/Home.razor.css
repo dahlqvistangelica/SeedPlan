@@ -140,10 +140,7 @@
         border: 1px solid #e2e8f0;
     }
 
-.plant-icon-circle:hover {
-    background: #10b981;
-    color: #f8f8f8;
-}
+
 
 .plant-main {
     display: flex;
