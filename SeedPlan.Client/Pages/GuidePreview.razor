@@ -69,10 +69,22 @@
     private bool showDetailModal = false;
     private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var allPlants = await PlantService.GetAllPlantsAsync();
-        plantSample = allPlants.Take(12).ToList();
+        // Här skulle du kunna lägga in ett par "fejk"-växter (skeletons)
+        // i plantSample om du vill att Google ska se något direkt,
+        // men att låta det vara tomt fungerar också.
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var allPlants = await PlantService.GetAllPlantsAsync();
+            plantSample = allPlants.Take(12).ToList();
+        
+            StateHasChanged(); // Rita om sidan med de 12 växterna
+        }
     }
     
     private string GetHardinessText(int level) => level switch

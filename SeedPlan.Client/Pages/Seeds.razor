@@ -20,7 +20,7 @@
 
     @if (isLoading)
     {
-        <div class="loading">Hämtar din frösamling...</div>
+        <LoadingSpinner Text="Laddar dina fröer..." />
     }
     else if (!groupedSeeds.Any())
     {
@@ -126,15 +126,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        try {
-            await RefreshSeeds();
-        } finally {
-            isLoading = false;
-        }
+        isLoading = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if(firstRender)
+        {
+            try
+            {
+                await RefreshSeeds();
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
 
     }
     /// <summary>

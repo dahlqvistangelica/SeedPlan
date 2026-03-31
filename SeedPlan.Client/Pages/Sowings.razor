@@ -35,7 +35,7 @@
 
     @if (isLoading)
     {
-        <div class="loading">Hämtar dina sådder...</div>
+        <LoadingSpinner Text="Hämtar dina sådder..." />
     }
     else if (!mySowings.Any())
     {
@@ -349,8 +349,24 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadSowings();
+        isLoading = true;
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                await LoadSowings();
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+
+    }  
 
     private async Task LoadSowings()
     {

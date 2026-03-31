@@ -45,6 +45,22 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
+            // 4. THE NEW AUTH ARCHITECTURE (Kopierat från Client)
+            builder.Services.AddScoped<SupabaseAuthStateProvider>();
+
+            builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+                sp.GetRequiredService<SupabaseAuthStateProvider>());
+
+            builder.Services.AddScoped<IAuthClient, SupabaseAuthClient>();
+
+            builder.Services.AddScoped<IAuthStateNotifier>(sp =>
+                sp.GetRequiredService<SupabaseAuthStateProvider>());
+
+            builder.Services.AddScoped<AuthService>();
+
+            // Du behöver säkert dessa två också på servern om du använder prerendering:
+            builder.Services.AddScoped<FeedbackModalService>();
+            builder.Services.AddScoped<NotificationService>();
 
             // --- 5. AUTHENTICATION & IDENTITY ---
             builder.Services.AddAuthentication("SupabaseAuth")
@@ -69,7 +85,11 @@ namespace SeedPlan
             builder.Services.AddAuthorization();
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<AuthenticationStateProvider, SupabaseAuthStateProvider>();
-
+            builder.Services.AddScoped(sp =>
+            {
+                var navigationManager = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
+                return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
+            });
             // --- 6. UI & COMPONENTS ---
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()

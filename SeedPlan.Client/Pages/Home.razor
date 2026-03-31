@@ -51,7 +51,7 @@
 
     @if (isLoading)
     {
-        <div class="loading-spinner">Laddar din trädgård...</div>
+        <LoadingSpinner Text="Laddar inställningar..." />
     }
     else
     {
@@ -234,27 +234,34 @@
 
     protected override async Task OnInitializedAsync() 
     {
-        var authState = await AuthProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        isLoading = true;
+    }
 
-        if (user.Identity is not null && user.Identity.IsAuthenticated)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
         {
-            await LoadData();
-            await ClearAppBadge();
-            var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
-            if (userEmail != "demo@seedplan.app")
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if(user.Identity is not null && user.Identity.IsAuthenticated)
             {
-                await NotificationService.SubscribeToPushAsync();
+                await LoadData();
+                await ClearAppBadge();
+
+                var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
+                if(userEmail != "demo@seedplan.app")
+                {
+                    await NotificationService.SubscribeToPushAsync();
+                }
+
             }
             else
             {
-                Console.WriteLine("Push-notiser är inaktiverade för Demo-kontot");
+                isLoading = false;
             }
-        }
-        else
-        {
-            isLoading = false;
-            Console.WriteLine("Visar landningssida - ingen data anropas.");
+
+            StateHasChanged();
         }
     }
 

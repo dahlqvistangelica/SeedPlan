@@ -213,48 +213,36 @@
     private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
     private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
     private bool showLoginForm = false;
-    private int currentImageSlide = 0;
     private bool isLoadingDemo = false;
-    private CancellationTokenSource autoplayTokenSource;
-    private const int AutoplayIntervalMs = 5000; // 5 sekunder mellan slides
-
-    private List<string> screenshots = new()
-    {
-        "/images/screenshot-1.png",
-        "/images/screenshot-2.png",
-        "/images/screenshot-3.png",
-        "/images/screenshot-4.png",
-        "/images/screenshot-5.png"
-    };
 
     protected override async Task OnInitializedAsync()
     {
         Nav.LocationChanged += HandleLocationChanged;
-        try
-        {
-            var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
-            var onlineSettings = await Http.GetFromJsonAsync<VersionCheckModel>(noCacheUrl);
-
-            if(onlineSettings != null && !string.IsNullOrEmpty(onlineSettings.AppVersion))
-            {
-                if(onlineSettings.AppVersion != CurrentAppVersion)
-                {
-                    Console.WriteLine("Ny version upptäckt! Laddar om...");
-                    Nav.NavigateTo(Nav.Uri, forceLoad: true);
-                }
-            }
-        }
-        catch(Exception ex)
-        {
-            Console.WriteLine($"Kunde inte kolla version: {ex.Message}");
-        }
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            StartAutoplay();
+            try
+            {
+                var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
+                var onlineSettings = await Http.GetFromJsonAsync<VersionCheckModel>(noCacheUrl);
+                if(onlineSettings != null && !string.IsNullOrEmpty(onlineSettings.AppVersion))
+                {
+                    if(onlineSettings.AppVersion != CurrentAppVersion)
+                    {
+                        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Kunde inte kolla version: {ex.Message}");
+            }
+
+            StateHasChanged();
+
         }
     }
 
@@ -263,12 +251,6 @@
         StateHasChanged();
     }
 
-    private void StartAutoplay()
-    {
-        autoplayTokenSource?.Cancel();
-        autoplayTokenSource = new CancellationTokenSource();
-        _ = AutoplayLoop(autoplayTokenSource.Token);
-    }
 
     private async Task LoginAsGuest()
     {
@@ -285,62 +267,9 @@
             isLoadingDemo = false;
         }
     }
-
-    private async Task AutoplayLoop(CancellationToken cancellationToken)
-    {
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                await Task.Delay(AutoplayIntervalMs, cancellationToken);
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    NextImageSlide();
-                    await InvokeAsync(StateHasChanged);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-        }
-    }
-
-    private void NextImageSlide()
-    {
-        currentImageSlide = (currentImageSlide + 1) % screenshots.Count;
-        RestartAutoplay(); // Restart timer vid användarinteraktion
-    }
-
-    private void PreviousImageSlide()
-    {
-        currentImageSlide = (currentImageSlide - 1 + screenshots.Count) % screenshots.Count;
-        RestartAutoplay(); // Restart timer vid användarinteraktion
-    }
-
-    private void SelectSlide(int index)
-    {
-        currentImageSlide = index;
-        RestartAutoplay(); // Restart timer vid användarinteraktion
-    }
-
-    private void RestartAutoplay()
-    {
-        StartAutoplay();
-    }
-
-    // public async ValueTask DisposeAsync()
-    // {
-    //     autoplayTokenSource?.Cancel();
-    //     autoplayTokenSource?.Dispose();
-    //     Nav.LocationChanged -= HandleLocationChanged;
-    //     FeedbackService.OnVisibilityChanged -= HandleFeedbackVisibilityChanged;
-    // }
-
     public void Dispose()
     {
-        autoplayTokenSource?.Cancel();
-        autoplayTokenSource?.Dispose();
+
         Nav.LocationChanged -= HandleLocationChanged;
     }
 }

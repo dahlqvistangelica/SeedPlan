@@ -9,67 +9,73 @@
          Description="Hantera dina inställningar i SeedPlan, inklusive frostdatum, plats, aviseringar och profil."
          Keywords="inställningar, frostdatum, aviseringar, profil, seedplan" />
 
-<div class="settings-overview">
-    <header class="settings-header">
-        <h1 class="serif-title">Inställningar</h1>
-        <p>Översikt av dina inställningar och kontofunktioner.</p>
-    </header>
+@if (isLoading)
+{
+    <LoadingSpinner Text="Laddar inställningar..." />
+}
+else
+{
+    <div class="settings-overview">
+        <header class="settings-header">
+            <h1 class="serif-title">Inställningar</h1>
+            <p>Översikt av dina inställningar och kontofunktioner.</p>
+        </header>
 
-    <div class="settings-cards">
-        <div class="settings-card" @onclick="() => showFrostModal = true">
-            <div class="icon-circle">
-                <Blazicon Svg="Lucide.Calendar" />
+        <div class="settings-cards">
+            <div class="settings-card" @onclick="() => showFrostModal = true">
+                <div class="icon-circle">
+                    <Blazicon Svg="Lucide.Calendar" />
+                </div>
+                <div class="card-text">
+                    <div class="title">Frostdatum</div>
+                    <div class="value">@GetFrostDateText()</div>
+                </div>
             </div>
-            <div class="card-text">
-                <div class="title">Frostdatum</div>
-                <div class="value">@GetFrostDateText()</div>
+
+            <div class="settings-card" @onclick="() => showZoneModal = true">
+                <div class="icon-circle">
+                    <Blazicon Svg="Lucide.MapPin" />
+                </div>
+                <div class="card-text">
+                    <div class="title">Plats</div>
+                    <div class="value">@GetZoneText()</div>
+                </div>
+            </div>
+
+            <div class="settings-card" @onclick="() => showNotificationsModal = true">
+                <div class="icon-circle">
+                    <Blazicon Svg="Lucide.Bell" />
+                </div>
+                <div class="card-text">
+                    <div class="title">Aviseringar</div>
+                    <div class="value">@((notificationsEnabled ? "Påslagna" : "Avstängda"))</div>
+                </div>
+            </div>
+
+            <div class="settings-card" @onclick="() => NavigateToProfile()">
+                <div class="icon-circle">
+                    <Blazicon Svg="Lucide.User" />
+                </div>
+                <div class="card-text">
+                    <div class="title">Profil</div>
+                    <div class="value">Redigera din profil</div>
+                </div>
+            </div>
+
+            <div class="settings-card" @onclick="() => showInfoModal = true">
+                <div class="icon-circle">
+                    <Blazicon Svg="Lucide.CircleQuestionMark" />
+                </div>
+                <div class="card-text">
+                    <div class="title">Info</div>
+                    <div class="value">Viktig info om appen.</div>
+                </div>
             </div>
         </div>
 
-        <div class="settings-card" @onclick="() => showZoneModal = true">
-            <div class="icon-circle">
-                <Blazicon Svg="Lucide.MapPin" />
-            </div>
-            <div class="card-text">
-                <div class="title">Plats</div>
-                <div class="value">@GetZoneText()</div>
-            </div>
-        </div>
-
-        <div class="settings-card" @onclick="() => showNotificationsModal = true">
-            <div class="icon-circle">
-                <Blazicon Svg="Lucide.Bell" />
-            </div>
-            <div class="card-text">
-                <div class="title">Aviseringar</div>
-                <div class="value">@((notificationsEnabled ? "Påslagna" : "Avstängda"))</div>
-            </div>
-        </div>
-
-        <div class="settings-card" @onclick="() => NavigateToProfile()">
-            <div class="icon-circle">
-                <Blazicon Svg="Lucide.User" />
-            </div>
-            <div class="card-text">
-                <div class="title">Profil</div>
-                <div class="value">Redigera din profil</div>
-            </div>
-        </div>
-
-        <div class="settings-card" @onclick="() => showInfoModal = true">
-            <div class="icon-circle">
-                <Blazicon Svg="Lucide.CircleQuestionMark" />
-            </div>
-            <div class="card-text">
-                <div class="title">Info</div>
-                <div class="value">Viktig info om appen.</div>
-            </div>
-        </div>
+        <div class="version-text">SeedPlan v.1.3.1</div>
     </div>
-
-    <div class="version-text">SeedPlan v.1.3.1</div>
-</div>
-
+}
 @if (showFrostModal)
 {
     <div class="settings-modal-backdrop">
@@ -143,6 +149,7 @@
 <InfoModal @bind-IsVisible="showInfoModal" />
 
 @code {
+    private bool isLoading = true;
     private UserProfile userProfile = new();
     private bool showFrostModal;
     private bool showZoneModal;
@@ -153,23 +160,39 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var profile = await ProfileService.GetUserProfile();
-        if (profile != null)
-        {
-            userProfile = profile;
-        }
-        else
-        {
-            userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
-            userProfile.GrowingZone = 1;
-        }
-
-        var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
-        if (bool.TryParse(stored, out var enabled))
-        {
-            notificationsEnabled = enabled;
-        }
+        isLoading = true;
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                var profile = await ProfileService.GetUserProfile();
+                if (profile != null)
+                {
+                    userProfile = profile;
+                }
+                else
+                {
+                    userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
+                    userProfile.GrowingZone = 1;
+                }
+
+                var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
+                if (bool.TryParse(stored, out var enabled))
+                {
+                    notificationsEnabled = enabled;
+                }
+                
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }  
     //FROSTDATE
     private string GetFrostDateText()
         => userProfile.LastFrostDate.HasValue

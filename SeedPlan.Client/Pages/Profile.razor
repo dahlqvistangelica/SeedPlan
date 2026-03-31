@@ -7,140 +7,146 @@
 <SeoHead Title="Profil - SeedPlan"
          Description="Hantera din profil i SeedPlan och uppdatera dina kontoinställningar för en bättre odlingsupplevelse."
          Keywords="profil, konto, inställningar, odling, seedplan" />
+@if (isLoading)
+{
+    <LoadingSpinner Text="Laddar inställningar..." />
+}
+else
+{
+    <div class="profile-container">
+        <header class="profile-header">
+            <h1 class="serif-title">Profil <Blazicon Svg="MdiIcon.AccountEditOutline" /></h1>
+            <p>Uppdatera din profil och kontoinställningar.</p>
+        </header>
 
-<div class="profile-container">
-    <header class="profile-header">
-        <h1 class="serif-title">Profil <Blazicon Svg="MdiIcon.AccountEditOutline" /></h1>
-        <p>Uppdatera din profil och kontoinställningar.</p>
-    </header>
+        <div class="settings-card">
+            <h3>Profiluppgifter</h3>
 
-    <div class="settings-card">
-        <h3>Profiluppgifter</h3>
-
-        <div class="input-group">
-            <label>Namn</label>
-            <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
-        </div>
-
-        <div class="input-group">
-            <label>Visa såförslag för..</label>
-            <div class="category-options">
-                @foreach (int i in Enum.GetValues(typeof(PlantCategory)))
-                {
-                    <label class="category-option" for="@i">
-                        <input type="checkbox"
-                               id="@i"
-                               name="@i"
-                               value="@i"
-                               checked="@userProfile.PreferredPlantCategories.Contains(i)"
-                               @onchange="(ChangeEventArgs e) => ToggleCategory(i, e.Value)" />
-                        <span>@GetPlantCategoryName(i)</span>
-                    </label>
-                }
+            <div class="input-group">
+                <label>Namn</label>
+                <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
             </div>
-        </div>
 
-        <button class="btn-save" @onclick="SaveProfile" disabled="@isSavingProfile">
-            <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
-        </button>
-
-        @if (!string.IsNullOrEmpty(statusMessage))
-        {
-            <div class="status-alert" style="margin-top: 1rem;">@statusMessage</div>
-        }
-    </div>
-
-    <div class="settings-card">
-        <h3>Kontouppgifter</h3>
-        @if (IsDemoUser)
-        {
-            <div class="alert alert-info">
-                <strong>Demo-läge:</strong> Kontoinställningar (som att byta lösenord och email) är inaktiverade för gästkontot. Du kan dock fortfarande ändra din profil (t.ex. namn och dina preferenser för såförslag)!
-            </div>
-        }
-        else
-        {
-
-            <details class="expandable-item">
-                <summary>
-                    <div class="summary-copy">
-                        <span>Ändra e-post</span>
-                        <small>Uppdatera din inloggningsadress</small>
-                    </div>
-                    <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
-                </summary>
-
-                <div class="expandable-content">
-                    <div class="input-group">
-                        <label>Ny e‑post</label>
-                        <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Nuvarande lösenord</label>
-                        <input type="password" @bind="currentEmailPassword" placeholder="Ange ditt nuvarande lösenord" />
-                    </div>
-
-                    <button class="btn-secondary" @onclick="UpdateEmail" disabled="@(!CanSubmitEmail())">
-                        Spara e‑post
-                    </button>
-                </div>
-            </details>
-
-            <details class="expandable-item">
-                <summary>
-                    <div class="summary-copy">
-                        <span>Ändra lösenord</span>
-                        <small>Välj ett nytt säkert lösenord</small>
-                    </div>
-                    <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
-                </summary>
-
-                <div class="expandable-content">
-                    <div class="input-group">
-                        <label>Ditt gamla lösenord</label>
-                        <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Nytt lösenord</label>
-                        <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
-                        @if (!string.IsNullOrWhiteSpace(newPassword) && !MeetsPasswordComplexity(newPassword))
-                        {
-                            <span class="warning-text">⚠️ Minst 8 tecken och minst en stor + en liten bokstav krävs</span>
-                        }
-                    </div>
-
-                    <div class="input-group">
-                        <label>Bekräfta nytt lösenord</label>
-                        <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
-                        @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
-                        {
-                            <span class="warning-text">⚠️ Lösenorden matchar inte</span>
-                        }
-                    </div>
-
-                    @if (isUpdatingPassword)
+            <div class="input-group">
+                <label>Visa såförslag för..</label>
+                <div class="category-options">
+                    @foreach (int i in Enum.GetValues(typeof(PlantCategory)))
                     {
-                        <div class="loading-text">⏳ Uppdaterar lösenord...</div>
-                    }
-
-                    <button class="btn-secondary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">
-                        Spara lösenord
-                    </button>
-
-                    @if (!string.IsNullOrEmpty(passwordStatus))
-                    {
-                        <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
+                        <label class="category-option" for="@i">
+                            <input type="checkbox"
+                            id="@i"
+                            name="@i"
+                            value="@i"
+                            checked="@userProfile.PreferredPlantCategories.Contains(i)"
+                            @onchange="(ChangeEventArgs e) => ToggleCategory(i, e.Value)" />
+                            <span>@GetPlantCategoryName(i)</span>
+                        </label>
                     }
                 </div>
-            </details>
-        }
-    </div>
-</div>
+            </div>
 
+            <button class="btn-save" @onclick="SaveProfile" disabled="@isSavingProfile">
+                <Blazicon Svg="Lucide.Save" /> <span>Spara profil</span>
+            </button>
+
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="status-alert" style="margin-top: 1rem;">@statusMessage</div>
+            }
+        </div>
+
+        <div class="settings-card">
+            <h3>Kontouppgifter</h3>
+            @if (IsDemoUser)
+            {
+                <div class="alert alert-info">
+                    <strong>Demo-läge:</strong> Kontoinställningar (som att byta lösenord och email) är inaktiverade för gästkontot. Du kan dock fortfarande ändra din profil (t.ex. namn och dina preferenser för såförslag)!
+                </div>
+            }
+            else
+            {
+
+                <details class="expandable-item">
+                    <summary>
+                        <div class="summary-copy">
+                            <span>Ändra e-post</span>
+                            <small>Uppdatera din inloggningsadress</small>
+                        </div>
+                        <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+                    </summary>
+
+                    <div class="expandable-content">
+                        <div class="input-group">
+                            <label>Ny e‑post</label>
+                            <input type="email" @bind="newEmail" placeholder="ny@epost.se" />
+                        </div>
+
+                        <div class="input-group">
+                            <label>Nuvarande lösenord</label>
+                            <input type="password" @bind="currentEmailPassword" placeholder="Ange ditt nuvarande lösenord" />
+                        </div>
+
+                        <button class="btn-secondary" @onclick="UpdateEmail" disabled="@(!CanSubmitEmail())">
+                            Spara e‑post
+                        </button>
+                    </div>
+                </details>
+
+                <details class="expandable-item">
+                    <summary>
+                        <div class="summary-copy">
+                            <span>Ändra lösenord</span>
+                            <small>Välj ett nytt säkert lösenord</small>
+                        </div>
+                        <Blazicon class="chevron-icon" Svg="Lucide.ChevronDown" />
+                    </summary>
+
+                    <div class="expandable-content">
+                        <div class="input-group">
+                            <label>Ditt gamla lösenord</label>
+                            <input type="password" @bind="currentPassword" placeholder="Ange ditt nuvarande lösenord" />
+                        </div>
+
+                        <div class="input-group">
+                            <label>Nytt lösenord</label>
+                            <input type="password" @bind="newPassword" placeholder="Ange ett nytt lösenord" />
+                            @if (!string.IsNullOrWhiteSpace(newPassword) && !MeetsPasswordComplexity(newPassword))
+                            {
+                                <span class="warning-text">⚠️ Minst 8 tecken och minst en stor + en liten bokstav krävs</span>
+                            }
+                        </div>
+
+                        <div class="input-group">
+                            <label>Bekräfta nytt lösenord</label>
+                            <input type="password" @bind="confirmPassword" placeholder="Upprepa det nya lösenordet" />
+                            @if (!string.IsNullOrEmpty(confirmPassword) && newPassword != confirmPassword)
+                            {
+                                <span class="warning-text">⚠️ Lösenorden matchar inte</span>
+                            }
+                        </div>
+
+                        @if (isUpdatingPassword)
+                        {
+                            <div class="loading-text">⏳ Uppdaterar lösenord...</div>
+                        }
+
+                        <button class="btn-secondary" @onclick="UpdatePassword" disabled="@(!CanSubmitPassword())">
+                            Spara lösenord
+                        </button>
+
+                        @if (!string.IsNullOrEmpty(passwordStatus))
+                        {
+                            <div class="status-alert" style="margin-top: 1rem;">@passwordStatus</div>
+                        }
+                    </div>
+                </details>
+            }
+        </div>
+    </div>
+}
 @code {
     private UserProfile userProfile = new();
+    private bool isLoading = true;
     private string statusMessage = "";
     private bool IsDemoUser => AuthClient.CurrentUserEmail?.ToLower() == "demo@seedplan.app";
     private string newEmail = "";
@@ -154,16 +160,31 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var profile = await ProfileService.GetUserProfile();
-        if (profile != null)
-        {
-            userProfile = profile;
-        }
-        else
-        {
-            userProfile.GrowingZone = 1;
-        }
+        isLoading = true;
     }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                var profile = await ProfileService.GetUserProfile();
+                if(profile != null)
+                {
+                    userProfile = profile;
+                }
+                else
+                {
+                    userProfile.GrowingZone = 1;
+                }
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }  
 
     private void ToggleCategory(int i, object? checkedValue)
     {
