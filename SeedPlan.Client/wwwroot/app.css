@@ -79,7 +79,7 @@ p, label, span, input {
     font-family: 'Lora', serif;
     font-style: italic;
     font-size: 2.2rem;
-    color: #1e293b;
+    color: var(--text-dark);
     margin: 0;
     line-height: 1.2;
 }
@@ -105,7 +105,7 @@ button {
 
 .btn-primary, .btn-save, .sp-save-btn {
     background: var(--primary);
-    color: white;
+    color: var(--white);
     padding: 12px 20px;
     border-radius: var(--radius-md);
     font-weight: 600;
@@ -136,12 +136,12 @@ button {
 
     .btn-secondary:hover:not(:disabled),
     .sp-cancel-btn:hover:not(:disabled) {
-        background: #e2e8f0;
+        background: var(--border-color);
     }
 
 .btn-danger {
     background: #dc2626;
-    color: white;
+    color: var(--white);
     padding: 12px 20px;
     border-radius: var(--radius-md);
     font-weight: 600;
@@ -184,8 +184,8 @@ textarea,
 }
 
     input:focus, select:focus, textarea:focus, .sp-input:focus, .form-input:focus {
-        border-color: #10b981;
-        background-color: white;
+        border-color: var(--primary);
+        background-color: var(--white);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
 
@@ -206,8 +206,8 @@ textarea, .sp-textarea {
 }
 
     .sp-textarea:focus {
-        border-color: #10b981;
-        background-color: white;
+        border-color: var(--primary);
+        background-color: var(--white);
         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
     }
 
@@ -270,7 +270,7 @@ select {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--white);
     border: 1px solid #f1f5f9;
     border-radius: 12px;
     z-index: 100;
@@ -291,7 +291,7 @@ select {
 
     .dropdown-item:hover, .sp-dropdown-item:hover {
         background: #f0fdf4;
-        color: #10b981;
+        color: var(--primary);
         padding-left: 18px;
     }
 
@@ -302,6 +302,14 @@ select {
 /* ==========================================================================
    5. PLANT CATEGORIES, ICONS & BADGES
    ========================================================================== */
+
+/* Card grid */
+.plant-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
 .plant-icon-circle {
     width: 48px;
     height: 48px;
@@ -320,7 +328,7 @@ select {
 }
 
 .vegetable {
-    color: #10b981;
+    color: var(--primary);
     background: #f0fdf4;
 }
 
@@ -382,9 +390,9 @@ select {
    7. RESPONSIVENESS & ERROR HANDLING
    ========================================================================== */
 .blazor-error-boundary {
-    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeGxpbmxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgb3ZlcmZsb3c9ImhpZGRlbiI+PGRlZnM+PGNsaXBQYXRoIGlkPSJjbGlwMCI+PHJlY3QgeD0iMjM1IiB5PSI1MSIgd2lkdGg9IjU2IiBoZWlnaHQ9IjQ5Ii8+PC9jbGlwUGF0aD48L2RlZnM+PGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTIzNSAtNTEpIj48cGF0aCBkPSJNMjYzLjUwNiA1MUMyNjQuNzE3IDUxIDI2NS44MTMgNTEuNDgzNyAyNjYuNjA2IDUyLjI2NThMMjY3LjA1MiA1Mi43OTg3IDI2Ny41MzkgNTMuNjI4MyAyOTAuMTg1IDkyLjE4MzEgMjkwLjU0NSA9Mi43OTUgMjkwLjY1NiA5Mi45OTZDMjkwLjg3NyA5My41MTMgMjkxIDk0LjA4MTUgMjkxIDk0LjY3ODIgMjkxIDk3LjA2NTEgMjg5LjAzOCA5OSAyODYuNjE3IDk5TDI0MC4zODMgOTlDMjM3Ljk2MyA5OSAyMzYgOTcuMDY1MSAyMzYgOTQuNjc4MiAyMzYgOTQuMzc5OSAyMzYuMDMxIDk0LjA4ODYgMjM2LjA4OSA5My44MDcyTDIzNi4zMzggOTMuMDE2MiAyMzYuODU4IDkyLjEzMTQgMjU5LjQ3MyA1My42Mjk0IDI1OS45NjEgNTIuNzk4NSAyNjAuNDA3IDUyLjI2NThDMjYxLjIgNTEuNDgzNyAyNjIuMjk2IDUxIDI2My41MDYgNTFaTTI2My41ODYgNjYuMDE4M0MyNjAuNzM3IDY2LjAxODMgMjU5LjMxMyA2Ny4xMjQ1IDI1OS4zMTMgNjkuMzM3IDI1OS4zMTMgNjkuNjEwMiAyNTkuMzMyIDY5Ljg2MDggMjU5LjM3MSA3MC4wODg3TDI2MS43OTUgODQuMDE2MSAyNjUuMzggODQuMDE2MSAyNjcuODIxIDY5Ljc0NzVDMjY3Ljg2IDY5LjczMDkgMjY3Ljg3OSA2OS41ODc3IDI2Ny44NzkgNjkuMzE3OSAyNjcuODI5IDY3LjExODIgMjY2LjQ0OCA2Ni4wMTgzIDI2My41ODYgNjYuMDE4M1pNMjYzLjU3NiA4Ni4wNTQ3QzI2MS4wNDkgODYuMDU0NyAyNTkuNzg2IDg3LjMwMDUgMjU5Ljc4NiA4OS43OTIxIDI1OS43ODYgOTIuMjgzNyAyNjEuMDQ5IDkzLjUyOTUgMjYzLjU3NiA9My41Mjk1IDI2Ni4xMTYgOTMuNTI5NSAyNjcuMzg3IDkyLjI4MzcgMjY3LjM4NyA4OS43OTIxIDI2Ny4zODcgODcuMzAwNSAyNjYuMTE2IDg2LjA1NDcgMjYzLjU3NiA4Ni4wNTQ3WiIgZmlsbD0iI0ZGRTUwMCIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9nPjwvc3ZnPg==) no-repeat 1rem/1.8rem, #b32121;
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeGxpbmxucz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgb3ZlcmZsb3c9ImhpZGRlbiI+PGRlZnM+PGNsaXBQYXRoIGlkPSJjbGlwMCI+PHJlY3QgeD0iMjM1IiB5PSI1MSIgd2lkdGg9IjU2IiBoZWlnaHQ9IjQ5Ii8+PC9jbGlwUGF0aD48L2RlZnM+PGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoLTIzNSAtNTEpIj48cGF0aCBkPSJNMjYzLjUwNiA1MUMyNjQuNzE3IDUxIDI2NS44MTMgNTEuNDgzNyAyNjYuNjA2IDUyLjI2NThMMjY3LjA1MiA1Mi43OTg3IDI2Ny41MzkgNTMuNjI4MyAyOTAuMTg1IDkyLjE4MzEgMjkwLjU0NSA9Mi43OTUgMjkwLjY1NiA5Mi45OTZDMjkwLjg3NyA5My41MTMgMjkxIDk0LjA4MTUgMjkxIDk0LjY3ODIgMjkxIDk3LjA2NTEgMjg5LjAzOCA5OSAyODYuNjE3IDk5TDI0MC4zODMgOTlDMjM3Ljk2MyA5OSAyMzYgOTcuMDY1MSAyMzYgOTQuNjc4MiAyMzYgOTQuMzc5OSAyMzYuMDMxIDk0LjA4ODYgMjM2LjA4OSA5My44MDcyTDIzNi4zMzggOTMuMDE2MiAyMzYuODU4IDkyLjEzMTQgMjU5LjQ3MyA1My42Mjk0IDI1OS45NjEgNTIuNzk4NSAyNjAuNDA3IDUyLjI2NThDMjYxLjIgNTEuNDgzNyAyNjIiLjk1IDE1IiAvPjwvc3ZnPg==) no-repeat 1rem/1.8rem, #b32121;
     padding: 1rem 1rem 1rem 3.7rem;
-    color: white;
+    color: var(--white);
 }
 
     .blazor-error-boundary::after {

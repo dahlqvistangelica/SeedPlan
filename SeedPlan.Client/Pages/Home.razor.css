@@ -1,12 +1,11 @@
 ﻿/* Dashboard container */
-
 .dashboard-container {
     padding: 2rem 1.5rem;
     max-width: 1000px;
     margin: 0 auto;
 }
-/* DATE BADGE */
 
+/* DATE BADGE */
 .date-badge {
     display: flex;
     align-items: center;
@@ -19,24 +18,25 @@
     color: #64748b;
     border: 1px solid #f1f5f9;
 }
+
     .date-badge span {
         font-size: 0.85rem;
     }
-/* --- STATISTICS SECTION --- */
 
+/* --- STATISTICS SECTION --- */
 .sowing-stats-section {
     margin-bottom: 2.5rem;
 }
-/* Container that lays cards in a row */
 
+/* Container that lays cards in a row */
 .stats-mini-grid {
     display: flex;
     flex-wrap: wrap; /* Makes cards wrap to the next row on mobile */
     gap: 12px;
     margin-top: 10px;
 }
-/* Small stats card */
 
+/* Small stats card */
 .mini-stat-card {
     display: flex;
     align-items: center;
@@ -49,8 +49,8 @@
     flex: 1; /* Makes cards try to take equal space */
     min-width: 140px; /* Prevents them from becoming too narrow */
 }
-/* Icon box */
 
+/* Icon box */
 .mini-icon {
     width: 36px;
     min-width: 36px;
@@ -61,7 +61,6 @@
     justify-content: center;
     font-size: 1.8rem;
 }
-
 
     /* Color themes for your icons */
     .mini-icon.blue {
@@ -83,8 +82,8 @@
         background: #faf5ff;
         color: #a855f7;
     }
-/* Text info in the card */
 
+/* Text info in the card */
 .mini-info {
     display: flex;
     flex-direction: column;
@@ -105,23 +104,23 @@
     color: #1e293b;
     line-height: 1.2;
 }
-/* Responsiveness for smaller screens */
 
+/* Responsiveness for smaller screens */
 @media (max-width: 480px) {
     .stats-mini-grid {
         display: grid;
         grid-template-columns: 1fr 1fr; /* Two columns on mobile */
     }
 }
-/* Card grid */
 
+/* Card grid */
 .plant-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
 }
-/* The plant card itself */
 
+/* The plant card itself */
 .plant-card {
     background: white;
     border-radius: 20px;
@@ -140,49 +139,19 @@
         transform: translateY(-2px);
         border: 1px solid #e2e8f0;
     }
-    .plan-icon-cicle:hover{
-        background: #10b981;
-        color: #f8f8f8;
-    }
+
+.plant-icon-circle:hover {
+    background: #10b981;
+    color: #f8f8f8;
+}
 
 .plant-main {
     display: flex;
     gap: 1rem;
     position: relative;
 }
+
 /* Elements inside the card */
-
-.plant-icon-circle {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-    background: #f8f8f8;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #10b981;
-}
-
-.fruit {
-    color: crimson;
-    background: #fff2f2;
-}
-
-.vegetable {
-    background: #f0fdf4;
-    color: #10b981;
-}
-
-.herb {
-    background: #fefce8;
-    color: #ca8a04;
-}
-
-.flower {
-    background: #faf5ff;
-    color: #a855f7;
-}
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;
@@ -202,6 +171,7 @@
     text-decoration: line-through;
     text-transform: uppercase;
 }
+
 .plant-core-info {
     flex: 1;
 }
@@ -212,6 +182,7 @@
     gap: 0.8rem;
     margin-bottom: 2px;
 }
+
 .shifted-tag {
     display: inline-flex;
     align-items: center;
@@ -236,7 +207,6 @@
 .icon-calendar {
     font-size: 1rem;
     color: #1e293b; /* Dark gray/blue icon stroke color */
-    
 }
 
 /* Hardiness badges */
@@ -247,6 +217,7 @@
 .full-text {
     display: inline;
 }
+
 .hardiness-badge {
     position: absolute;
     top: 0;
@@ -255,11 +226,10 @@
     font-weight: 600;
     padding: 4px 8px;
     border-radius: 8px;
-    text-transform:uppercase;
-    
+    text-transform: uppercase;
 }
-/* Footer and icons */
 
+/* Footer and icons */
 .plant-footer {
     border-top: 1px solid #f8fafc;
     padding-left: 0.5rem;
@@ -305,7 +275,6 @@
 }
 
 /* --- ALREADY PASSED (ACCORDION) --- */
-
 .past-section {
     margin-bottom: 2rem;
     border-bottom: 1px solid #f1f5f9;
@@ -339,8 +308,8 @@
     .past-section summary:hover {
         color: #64748b;
     }
-/* Grid for the small cards inside */
 
+/* Grid for the small cards inside */
 .plant-grid.mini {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -382,8 +351,8 @@
     text-transform: uppercase;
     font-weight: 800;
 }
-/* SOW NOW */
 
+/* SOW NOW */
 .btn-sow-now {
     background: #10b981;
     border-radius: 6px;
@@ -463,8 +432,8 @@
     font-size: 0.8rem;
     color: #c2410c;
 }
-/* Dashboard responsiveness */
 
+/* Dashboard responsiveness */
 @media (max-width: 768px) {
     .plant-grid {
         grid-template-columns: 1fr;
@@ -487,38 +456,33 @@
         padding: 1rem 0.6rem; /* Even smaller side padding on small mobile screens */
         padding-bottom: 100px;
     }
+
     .plant-card {
         padding: 0.7rem;
     }
+
     .plant-main {
         gap: 8px;
     }
 
-    .mini-badge{
-        display:none;
-    }
     .date-badge {
-        display:none;
+        display: none;
     }
+
     .full-text {
         display: none; /* Hide "Hardy" etc. on mobile */
     }
+
     .short-text {
         display: inline; /* Show K, HH, H instead */
         font-weight: 800;
         letter-spacing: 0;
     }
+
     /* Make the badge itself even tighter on mobile */
     .hardiness-badge {
         padding: 2px 5px;
         min-width: 20px;
         text-align: center;
     }
-    .plant-grid.mini {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        padding: 15px 0;
-    }
-
 }
