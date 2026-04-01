@@ -1,20 +1,4 @@
-﻿body {
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2000;
-}
-
-.detail-card {
+﻿.detail-card {
     background: white;
     width: 95%;
     max-width: 550px;
@@ -24,21 +8,6 @@
     position: relative;
     max-height: 90vh;
     overflow-y: auto;
-}
-
-.fade-in {
-    animation: fadeIn 0.2s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95) translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
 }
 
 .detail-header {
@@ -52,27 +21,6 @@
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-.plant-icon-circle {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-    background: #f0f9ff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #0ea5e9;
-    flex-shrink: 0;
-}
-
-.serif-title {
-    margin: 0;
-    line-height: 1.2;
-    font-family: 'Lora', serif;
-    font-size: 1.5rem;
-    color: #0f172a;
 }
 
 .info-grid {

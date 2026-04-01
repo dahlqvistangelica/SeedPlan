@@ -1,4 +1,8 @@
-﻿.sowings-container {
+﻿/* ==========================================================================
+   SIDANS LAYOUT OCH HEADER
+   ========================================================================== */
+
+.sowings-container {
     max-width: 900px;
     margin: 0 auto;
     padding: 2rem 1.5rem;
@@ -11,62 +15,77 @@
     margin-bottom: 2.5rem;
 }
 
-/* New sowing button - uses unified button system from app.css */
+/* Container för dropdown och knapp */
+.group-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* KNAPP: Ny sådd */
 .btn-add-sowing {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-    gap: 6px;
+    gap: 8px;
     background-color: #10b981;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 16px;
     border-radius: 12px;
     cursor: pointer;
-    font-weight: 500;
-    transition: transform 0.1s active, background-color 0.2s;
+    font-weight: 600;
+    transition: all 0.2s ease;
     white-space: nowrap;
     font-size: 1.2rem;
 }
-.btn-add-sowing span {
-    font-size: 0.9rem;
+
+    .btn-add-sowing span {
+        font-size: 0.95rem;
+    }
+
+    .btn-add-sowing:hover {
+        background-color: #059669;
+        transform: translateY(-1px);
+    }
+
+
+
+.sowing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2rem;
 }
 
-.btn-add-sowing:hover {
-    background-color: #047857;
-    transform: translateY(-1px);
-}
-
-.btn-add-sowing:active {
-    transform: translateY(0);
-}
-
-
-.sowing-card {
+/* Korten med gamla runda formerna och skuggorna */
+.sowing-card-compact {
     background: white;
-    border-radius: 24px;
-    padding: 2rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-    border: 1px solid #f1f5f9;
-    margin-bottom: 1.5rem;
-}
-
-.card-header {
+    border-radius: 24px; /* Från de gamla korten */
+    padding: 1.25rem;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.5rem;
-}
-
-.header-main {
-    display: flex;
+    flex-direction: column;
     gap: 1rem;
-    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Från de gamla korten */
+    border: 1px solid #f1f5f9;
 }
 
-.icon-box {
-    background: #f8fafc;
-    color: #3b82f6;
+    .sowing-card-compact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        border-color: #e2e8f0;
+    }
+
+.compact-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Grundstilen för ikonen (utan färg) */
+.compact-icon {
     width: 44px;
     height: 44px;
     border-radius: 12px;
@@ -74,58 +93,132 @@
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
+    flex-shrink: 0;
 }
 
-.title-area h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #1e293b;
-    font-family: 'Lora', serif;
+/* FÄRGER PER STATUS (Ikon-bakgrund och ikon-färg) */
+.status-icon-0 {
+    background: #f3f4f6;
+    color: #6b7280;
 }
-
-.variety-name {
-    font-weight: 400;
-    color: #94a3b8;
-    font-size: 0.9rem;
-    font-family: 'Inter', sans-serif;
-    text-wrap:pretty;
-}
-
-.batch-badge {
-    margin-left: 0.5rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #0f766e;
-    background: #ccfbf1;
-    border: 1px solid #99f6e4;
-    border-radius: 999px;
-    padding: 2px 8px;
-    vertical-align: middle;
-}
-
-.sown-quantity {
-    font-weight: 700;
+/* 0: Sådd - Grå */
+.status-icon-1 {
+    background: #ecfdf5;
     color: #10b981;
-    margin-left: 8px;
-    font-size: 0.85rem;
+}
+/* 1: Grodd - Grön */
+.status-icon-2 {
+    background: #dcfce7;
+    color: #22c55e;
+}
+/* 2: Karaktärsblad - Ljusgrön */
+.status-icon-3 {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+/* 3: Omskolning - Blå (som gamla!) */
+.status-icon-4 {
+    background: #fffbeb;
+    color: #f59e0b;
+}
+/* 4: Avhärdning - Gul/Orange */
+.status-icon-5 {
+    background: #fdf4ff;
+    color: #d946ef;
+}
+/* 5: Utplanterad - Rosa/Lila */
+.status-icon-6 {
+    background: #fef2f2;
+    color: #ef4444;
+}
+/* 6: Skördad - Röd */
+.status-icon-7 {
+    background: #f8fafc;
+    color: #0f766e;
+}
+/* 7: Avslutad - Mörkgrön/Teal */
+.status-icon-99 {
+    background: #fee2e2;
+    color: #dc2626;
+}
+/* 99: Misslyckad - Skarp Röd */
+
+/* Om du vill matcha lilla punkten i footern med samma färg: */
+.status-bg-0 {
+    background: #6b7280;
 }
 
-.sown-date {
+.status-bg-1 {
+    background: #10b981;
+}
+
+.status-bg-2 {
+    background: #22c55e;
+}
+
+.status-bg-3 {
+    background: #3b82f6;
+}
+
+.status-bg-4 {
+    background: #f59e0b;
+}
+
+.status-bg-5 {
+    background: #d946ef;
+}
+
+.status-bg-6 {
+    background: #ef4444;
+}
+
+.status-bg-7 {
+    background: #0f766e;
+}
+
+.status-bg-99 {
+    background: #dc2626;
+}
+
+.compact-titles {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    color: #64748b;
-    font-size: 0.85rem;
-    margin-top: 4px;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.header-actions {
+    /* Gamla typsnittet 'Lora' för växtnamnet */
+    .compact-titles .plant-name {
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: #1e293b;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Gamla typsnittet 'Inter' för sortnamnet */
+    .compact-titles .variety-name {
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+.compact-footer {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.8rem;
 }
 
-.status-badge {
+/* Återskapat utseende från .status-badge */
+.compact-status {
     background: #f1f5f9;
     color: #64748b;
     font-size: 0.65rem;
@@ -133,281 +226,49 @@
     padding: 4px 10px;
     border-radius: 8px;
     letter-spacing: 0.05em;
-}
-
-.delete-btn {
-    background: none;
-    border: none;
-    color: #cbd5e1;
-    cursor: pointer;
-    padding: 5px;
-    font-size: 1.1rem;
-    transition: color 0.2s ease;
-}
-
-.delete-btn:hover {
-    color: #ef4444;
-}
-
-.note-btn {
-    background: none;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    padding: 5px;
-    font-size: 1rem;
-    line-height: 1;
-    transition: color 0.2s ease;
-}
-
-.note-btn:hover {
-    color: #0f766e;
-}
-
-/* PROGRESS LINJE DESIGN */
-
-.progress-container {
-    position: relative;
-    padding: 1rem 0;
-}
-
-.progress-line {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #f1f5f9;
-    transform: translateY(-50%);
-    z-index: 1;
-}
-
-.progress-steps {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    justify-content: space-between;
-}
-
-.step {
-    width: 40px;
-    height: 40px;
-    background: white;
-    border: 2px solid #f1f5f9;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #cbd5e1;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 1.5rem;
-}
-
-.step.active {
-    background: #10b981;
-    border-color: #10b981;
-    color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-    transform: scale(1.15);
-}
-
-.step.disabled {
-    opacity: 0.5;
-    pointer-events: none;
-}
-
-.delete-btn:disabled,
-.btn-primary:disabled,
-.btn-secondary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* INFOBOX DESIGN */
-
-.info-box {
-    background: #eff6ff;
-    border-radius: 16px;
-    padding: 1rem 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #1d4ed8;
-}
-
-.info-box i {
-    width: 18px;
-}
-
-.info-box span {
-    font-size: 0.9rem;
-}
-
-.warning-box {
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
-    border-radius: 12px;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #c2410c;
-    font-size: 0.85rem;
-    margin-top: 8px;
-}
-
-.warning-box svg {
-    min-width: 18px;
-    color: #f97316;
-}
-
-.events-section {
-    margin-top: 0.75rem;
-    border-top: 1px solid #eef2f7;
-    padding-top: 0.75rem;
-    color: var(--text-muted);
-}
-    .events-section span {
-        font-family: 'Inter', sans-serif;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        color: var( --text-muted);
-    }
-
-.events-summary {
-    cursor: pointer;
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    font-weight: 600;
-}
-
-.events-loading,
-.events-empty {
-    margin-top: 0.5rem;
-    color: #64748b;
-    font-size: 0.85rem;
-}
-
-.events-list {
-    list-style: none;
-    margin: 0.75rem 0 0;
-    padding: 0;
-    display: grid;
-    gap: 0.65rem;
-}
-
-.event-item {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 0.55rem 0.7rem;
-}
-
-.event-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.event-type {
-    font-weight: 700;
-    color: #0f172a;
-    font-size: 0.82rem;
-}
-
-.event-date {
-    color: #64748b;
-    font-size: 0.78rem;
-}
-
-.event-meta,
-.event-notes {
-    margin-top: 0.25rem;
-    color: #334155;
-    font-size: 0.82rem;
-}
-
-/* --- Grouping and headings --- */
-.group-header {
-    margin: 2.5rem 0 1rem 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #3d5a44;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 2px solid #e8f0e9;
-    padding-bottom: 0.3rem;
-}
-
-.group-controls {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 6px;
 }
 
-.sowing-list .group-header:first-of-type {
-    margin-top: 1rem;
+/* Om du vill ha kvar färgpricken inuti badgen */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981; /* Grön som från gamla progressbaren */
 }
 
-.hide-on-desktop {
-    display: none;
+.compact-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.control-select {
-    position: relative;
-    flex-grow: 1;
-    max-width: 300px;
+/* Gamla orangea/röda varningsfärgen */
+.alert-indicator {
+    color: #f97316;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
 }
 
-/* The dropdown menu itself */
-.group-select {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 100%;
-    padding: 10px 40px 10px 16px;
-    background-color: #f9fbf9;
-    border: 1px solid #d1d9d1;
-    border-radius: 12px;
-    font-size: 0.95rem;
-    color: #334d33;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+/* Gamla enkla stilen för datum */
+.compact-meta .sown-date {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 400;
+    background: transparent;
+    padding: 0;
 }
 
-.group-select:focus {
-    outline: none;
-    border-color: #4a674a;
-    box-shadow: 0 0 0 3px rgba(74, 103, 74, 0.1);
-}
-
-/* Custom arrow icon */
-.select-arrow {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-    width: 18px !important;
-    height: 18px !important;
-    color: #7a8e7a;
-}
-
-/* --- Responsiveness (Mobile) --- */
+/* ==========================================================================
+   RESPONSIVITET MOBIL - LISTVYN (Sowings.razor)
+   ========================================================================== */
 @media (max-width: 600px) {
-    .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 0px;
-    }
-    .hide-on-mobile {
-        display: none;
-    }
-    
-    .show-on-mobile {
-        display: contents;
+    .sowings-container {
+        padding: 1rem 0.5rem;
     }
 
     .sowings-header {
@@ -416,72 +277,33 @@
         gap: 1rem;
     }
 
+    .group-controls {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+    }
+
+    .control-select {
+        flex-grow: 1; /* Gör att dropdown-menyn tar upp resten av bredden */
+    }
+
     .btn-add-sowing span {
-        display: none; /* Hide the button text on small screens, show only + */
+        display: none; /* Dölj texten "Ny sådd", visa bara ikonen */
     }
 
     .btn-add-sowing {
         padding: 10px;
-        aspect-ratio: 1/1; /* Makes the button fully round/square */
-    }
-
-    .group-controls {
-        gap: 8px;
-    }
-
-    .group-select {
-        flex-grow: 1; /* Makes the dropdown take up the remaining width on mobile */
-    }
-
-    .sown-date {
-        font-size: 0.85rem;
-    }
-    .title-area h3{
-        font-size: 1.3rem;
-        font-family: 'Lora', serif;
-    }
-    .title-area .variety-name {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-    }
-    .step {
-        width: 30px;
-        height: 30px;
-        font-size: 1.2rem;
-        background: white;
-        border: 2px solid #f1f5f9;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
+        aspect-ratio: 1/1; /* Gör knappen perfekt fyrkantig/rund */
         justify-content: center;
-        color: #cbd5e1;
-        cursor: pointer;
-        transition: all 0.2s ease;
     }
 
-    .sowings-container {
-        margin: 0 auto;
-        padding: 2rem 0.5rem;
-    }
-    .sowing-card{
-        padding: 1.5rem;
+    .sowing-grid {
+        /* Tvingar fram 1 kolumn på väldigt små skärmar istället för att försöka klämma in 2 */
+        grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
-}
-
-/* --- Styling for the select box --- */
-.group-select {
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
-    border: 1px solid #ccd5ae;
-    background-color: white;
-    font-size: 0.9rem;
-    color: #444;
-    outline: none;
-    cursor: pointer;
-}
-
-.group-select:focus {
-    border-color: #a3b18a;
-    box-shadow: 0 0 0 2px rgba(163, 177, 138, 0.2);
+    .compact-titles .plant-name {
+        font-size: 1.1rem;
+    }
 }

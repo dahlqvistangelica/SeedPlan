@@ -35,7 +35,7 @@
 
 .seed-count {
     font-size: 0.8rem;
-    color: #64748b;
+    color: var(--text-muted);
     background: #f1f5f9;
     padding: 3px 10px;
     border-radius: 20px;
@@ -46,9 +46,10 @@
 .group-content {
     padding-top: 0.1rem;
 }
+
 .group-arrow {
     transition: transform 0.2s ease; /* Makes the arrow rotate smoothly */
-    color: #64748b;
+    color: var(--text-muted);
     width: 20px;
     height: 20px;
 }
@@ -56,25 +57,8 @@
     /* When the 'expanded' class is present, rotate 90 degrees */
     .group-arrow.expanded {
         transform: rotate(90deg);
-        color: #10b981; /* Optional: Make the arrow green when it is open */
+        color: var(--primary); /* Optional: Make the arrow green when it is open */
     }
-
-/* A simple animation for when the list appears */
-.fade-in {
-    animation: fadeIn 0.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 .seeds-container {
     max-width: 800px;
@@ -97,7 +81,7 @@
 
 .seed-card {
     margin: 0.5rem 0;
-    background: white;
+    background: var(--white);
     padding: 1.2rem;
     border-radius: 20px;
     display: flex;
@@ -119,7 +103,7 @@
 }
 
 .plant-type {
-    color: #10b981;
+    color: var(--primary);
     font-weight: 600;
     font-size: 0.85rem;
     margin: 2px 0;
@@ -144,7 +128,7 @@
 
 .qty {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--text-muted);
     font-weight: 600;
 }
 
@@ -153,8 +137,8 @@
     align-items: center;
     justify-content: space-evenly;
     gap: 6px;
-    background-color: #10b981;
-    color: white;
+    background-color: var(--primary);
+    color: var(--white);
     border: none;
     padding: 8px 12px;
     border-radius: 12px;
@@ -169,7 +153,7 @@
 }
 
     .btn-add-seed:hover {
-        background-color: #047857;
+        background-color: var(--primary-hover);
     }
 
 .qty-badge {
@@ -179,7 +163,7 @@
     background: #f0fdf4;
     padding: 6px 12px;
     border-radius: 12px;
-    color: #10b981;
+    color: var(--primary);
 }
 
 .sow-icon {
@@ -212,26 +196,7 @@
         width: 18px;
         height: 18px;
     }
-/* Modal styling to match your design */
 
-.input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 15px;
-}
-
-.sp-save-btn {
-    width: 100%;
-    background: #10b981;
-    color: white;
-    border: none;
-    padding: 15px;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-}
 @media(max-width: 600px)
 {
     .seeds-container {

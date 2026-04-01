@@ -7,7 +7,7 @@
 }
 
 .main-header {
-    background: white;
+    background: var(--white);
     padding: 0.75rem 1.5rem;
     border-bottom: 1px solid #f0f0f0;
     position: sticky;
@@ -34,8 +34,8 @@
 }
 
 .logo-circle {
-    color: #10b981;
-    background: white;
+    color: var(--primary);
+    background: var(--white);
     border-radius: 50px;
     display: flex;
     align-items: center;
@@ -50,7 +50,7 @@
     font-size: 1.3rem;
     font-weight: 700;
     margin: 0;
-    color: #1e293b;
+    color: var(--text-dark);
     line-height: 1;
 }
 
@@ -60,7 +60,7 @@
 }
 
 .header-link {
-    color: #64748b;
+    color: var(--text-muted);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -68,7 +68,7 @@
 }
 
 .header-link:hover {
-    color: #10b981;
+    color: var(--primary);
 }
 
 .header-actions {
@@ -85,18 +85,8 @@
     align-items: center;
     justify-content: center;
     padding: 1rem 2rem;
-    background-color: #fdfcf9;
+    background-color: var(--bg-main);
     min-height: calc(100vh - 70px);
-}
-
-.login-card {
-    background: white;
-    padding: 2rem;
-    border-radius: 24px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    margin-top: -10vh;
 }
 
 .login-icon {
@@ -104,7 +94,7 @@
     height: 64px;
     background: #f0fdf4;
     font-size: 2rem;
-    color: #10b981;
+    color: var(--primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -115,12 +105,12 @@
 .login-card h2 {
     margin-bottom: 0.5rem;
     font-weight: 800;
-    color: #1e293b;
+    color: var(--text-dark);
     text-align: center;
 }
 
 .login-card p {
-    color: #64748b;
+    color: var(--text-muted);
     margin-bottom: 2rem;
     font-size: 0.95rem;
     text-align: center;
@@ -142,14 +132,14 @@
 
 /* --- 4. LANDING PAGE --- */
 
-/* --- Överikgripande Layout (oförändrad) --- */
+/* --- Overall Layout (unchanged) --- */
 .landing-page {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     color: #1f2937;
-    background-color: #ffffff;
+    background-color: var(--white);
 }
 
 .container {
@@ -159,7 +149,7 @@
 
 }
 
-/* --- Hero Sektion (oförändrad) --- */
+/* --- Hero Section (unchanged) --- */
 .hero-section {
     width: 100%;
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -208,7 +198,7 @@
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-/* --- NY STYLING FÖR FUNKTIONER (FOCUS) --- */
+/* --- NEW STYLING FOR FEATURES (FOCUS) --- */
 .features-focus-section {
     width: 100%;
     padding: 6rem 0;
@@ -235,20 +225,20 @@
         line-height: 1.6;
     }
 
-/* Det växlande funktionsblocket */
+/* The alternating feature block */
 .feature-item {
     display: flex;
     align-items: center;
-    gap: 4rem; /* Utrymme mellan bild och text */
-    margin-bottom: 8rem; /* Utrymme mellan olika funktioner */
+    gap: 4rem; /* Gap between image and text */
+    margin-bottom: 8rem; /* Gap between different features */
 }
 
-    /* Klass för att vända ordningen (Text Vänster, Bild Höger) */
+    /* Class to reverse the order (Text Left, Image Right) */
     .feature-item.feature-reverse {
         flex-direction: row-reverse;
     }
 
-/* Bild-behållare (tar upp ~55% av bredden) */
+/* Image container (takes up ~55% of the width) */
 .feature-image-wrapper {
     flex: 1.2;
     display: flex;
@@ -257,25 +247,25 @@
 
 .feature-image {
     width: 100%;
-    max-width: 650px; /* Maxbredd för att inte bli *för* stor på jätteskärmar */
+    max-width: 650px; /* Max width so it isn't overly huge on large screens */
     height: auto;
     border-radius: 12px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-color);
     transition: transform 0.3s ease;
 }
 
 .feature-item:hover .feature-image {
-    transform: scale(1.02); /* Liten interaktivitet vid hover */
+    transform: scale(1.02); /* Little interactivity on hover */
 }
 
-/* Text-behållare (tar upp ~45% av bredden) */
+/* Text container (takes up ~45% of the width) */
 .feature-text-wrapper {
     flex: 1;
     max-width: 500px;
 }
 
-/* Styling för taggar (badges) */
+/* Styling for tags (badges) */
 .feature-tag {
     display: inline-block;
     padding: 0.25rem 0.75rem;
@@ -286,7 +276,7 @@
     letter-spacing: 0.05em;
 }
 
-/* Olika färger för olika taggar */
+/* Different colors for different tags */
 .tag-knowledge {
     background-color: #dcfce7;
     color: #166534;
@@ -322,7 +312,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* En liten lista under beskrivningen för extra tydlighet */
+/* A small list under the description for extra clarity */
 .feature-list {
     list-style: none;
     padding: 0;
@@ -340,9 +330,9 @@
         gap: 0.5rem;
     }
 
-/* --- Responsiv design för mobiler --- */
+/* --- Responsive design for mobile --- */
 @media (max-width: 992px) {
-    /* Minska gap och textstorlek för mellanskärmar (surfplattor) */
+    /* Reduce gap and text size for medium screens (tablets) */
     .feature-item {
         gap: 2rem;
         margin-bottom: 6rem;
@@ -403,7 +393,7 @@
 
     ::deep .nav-item.active, ::deep a:active {
         text-decoration: none;
-        color: #10b981 !important;
+        color: var(--primary) !important;
     }
 
 /* --- 8. ANIMATIONS --- */
