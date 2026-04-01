@@ -1,6 +1,55 @@
 ﻿/* ==========================================================================
-   LISTVYN (Sowings.razor)
+   SIDANS LAYOUT OCH HEADER
    ========================================================================== */
+
+.sowings-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.sowings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+/* Container för dropdown och knapp */
+.group-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* KNAPP: Ny sådd */
+.btn-add-sowing {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 8px;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    font-size: 1.2rem;
+}
+
+    .btn-add-sowing span {
+        font-size: 0.95rem;
+    }
+
+    .btn-add-sowing:hover {
+        background-color: #059669;
+        transform: translateY(-1px);
+    }
+
+
 
 .sowing-grid {
     display: grid;
