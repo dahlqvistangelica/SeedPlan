@@ -3,6 +3,7 @@
 @inject IUserProfileService ProfileService
 @inject AuthService Auth
 @inject IAuthClient AuthClient
+@inject HttpClient Http
 
 <SeoHead Title="Profil - SeedPlan"
          Description="Hantera din profil i SeedPlan och uppdatera dina kontoinställningar för en bättre odlingsupplevelse."
@@ -25,6 +26,17 @@ else
             <div class="input-group">
                 <label>Namn</label>
                 <input type="text" @bind="userProfile.FullName" placeholder="Ditt namn" />
+            </div>
+
+            <div class="input-block">
+                <label>Din ort (För vädervarningar)</label>
+                <input type="text" @bind="userProfile.City" placeholder="T.ex. Örebro" autocomplete="off" />
+                @if (userProfile.Latitude.HasValue)
+                {
+                    <span style="font-size: 0.75rem; color: #10b981; margin-top: 4px;">
+                        <Blazicon Svg="Lucide.MapPin" /> @userProfile.City (@Math.Round(userProfile.Latitude.Value, 2), @Math.Round(userProfile.Longitude.Value, 2))
+                    </span>
+                }
             </div>
 
             <div class="input-group">
@@ -219,8 +231,13 @@ else
 
         try
         {
+            if (!string.IsNullOrWhiteSpace(userProfile.City))
+            {
+                await FetchCoordinatesForCity(userProfile.City);
+            }
+            
             await ProfileService.UpsertUserProfile(userProfile);
-            statusMessage = "Dina inställningar har sparats! ✨";
+            statusMessage = "Dina inställningar har sparats!";
         }
         catch
         {
@@ -301,6 +318,33 @@ else
         }
 
         isUpdatingPassword = false;
+    }
+
+    private async Task FetchCoordinatesForCity(string cityName)
+    {
+        try
+        {
+            string url=$"https://geocoding-api.open-meteo.com/v1/search?name{Uri.EscapeDataString(cityName)}&count=1&language=sv&format=json";
+
+            var response = await Http.GetFromJsonAsync<OpenMeteoGeocodingResponse>(url);
+
+            if(response?.Results != null && response.Results.Count > 0)
+            {
+                var firstResult = response.Results[0];
+
+                userProfile.Latitude = firstResult.Latitude;
+                userProfile.Longitude = firstResult.Longitude;
+                userProfile.City = firstResult.Name;
+            }
+            else
+            {
+                Console.WriteLine("Kunde inte hitta koordinater för staden.");
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Ett fel uppstod vid geocoding: {ex.Message}");
+        }
     }
     private string GetPlantCategoryName(int i)
     {

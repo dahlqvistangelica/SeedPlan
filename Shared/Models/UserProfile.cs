@@ -18,5 +18,14 @@ namespace SeedPlan.Shared.Models
         [Column("preferred_plant_categories")]
         public int[] PreferredPlantCategories { get; set; } = [];
 
+        // -- WEATHER WARNING FIELDS --
+
+        [Column("city")]
+        public string? City { get; set; }
+        [Column("latitude")]
+        public double? Latitude { get; set; }
+        [Column("longitude")]
+        public double? Longitude { get; set; }
+
     }
 }
