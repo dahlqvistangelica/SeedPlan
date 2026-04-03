@@ -1,0 +1,353 @@
+﻿@page "/planner"
+@inject IUserProfileService ProfileService
+@inject IUserInventoryService Inventory
+@inject IPlantLibraryService PlantLibrary
+@using SeedPlan.Shared.Models
+
+
+@if (isLoading)
+{
+    <LoadingSpinner Text="Laddar inställningar..." />
+}
+else
+{
+    <div class="planner-container">
+        <div class="header-top" style="display: flex; justify-content: space-between; align-items: center;">
+            <h1 class="serif-title">Odlingsplanerare</h1>
+        
+            @* Spara-funktion högst upp *@
+            <div style="display: flex; gap: 10px;">
+                <input type="text" class="form-input" placeholder="Namn, t.ex. Pallkrage 1" @bind="myArea.Name" />
+                <button class="btn-primary" @onclick="SavePlan">Spara</button>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="input-row" style="margin-bottom: 20px;">
+                <div class="input-block">
+                    <label>Bredd (cm)</label>
+                    <input type="number" class="form-input" @bind="myArea.WidthCm" min="10" />
+                </div>
+                <div class="input-block">
+                    <label>Längd (cm)</label>
+                    <input type="number" class="form-input" @bind="myArea.LengthCm" min="10" />
+                </div>
+            </div>
+            @* --- SÖK EFTER VÄXTER --- *@
+            <div class="input-block" style="position: relative; margin-bottom: 20px;">
+                <label>Sök i växtbiblioteket (om du saknar frö)</label>
+                <input type="text"
+                       class="form-input"
+                       placeholder="T.ex. Tomat, Chili..."
+                       @bind="searchQuery"
+                       @bind:event="oninput"
+                       @onkeyup="HandleSearch" />
+
+                @* Dropdown med sökresultat *@
+                @if (searchResults.Any())
+                {
+                    <div class="dropdown">
+                        @foreach (var plant in searchResults)
+                        {
+                            <div class="dropdown-item" @onclick="() => AddPlantToPlanner(plant)">
+                                <strong>@plant.PlantName</strong>
+                                <span style="color: #94a3b8; font-size: 0.8rem; margin-left: 5px;">(@plant.PlantSpacing cm avstånd)</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+            <div class="input-block">
+                <label>Välj antal växter att placera ut</label>
+                <div style="max-height: 200px; overflow-y: auto; padding-right: 10px;">
+                    @foreach (var plant in availablePlants)
+                    {
+                        <div class="quantity-row">
+                            <span>
+                                <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: @GetColor(plant.Id); margin-right: 5px;"></span>
+                                <strong>@plant.PlantName</strong> (@plant.PlantSpacing cm)
+                            </span>
+                            <input type="number" class="form-input" style="width: 80px; padding: 4px;" min="0"
+                                   value="@GetQuantity(plant.Id)"
+                                   @onchange="@(e => UpdateQuantity(plant.Id, e.Value))" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button class="btn-secondary" @onclick="PlaceSelectedPlants">
+                    <Blazicon Svg="Lucide.LayoutGrid" /> Placera ut valda
+                </button>
+                <button class="btn-secondary" style="color: #ef4444;" @onclick="ClearArea">
+                    <Blazicon Svg="Lucide.Trash2" /> Rensa lådan
+                </button>
+            </div>
+        </div>
+
+        <div class="garden-bed-wrapper">
+            <div class="garden-bed"
+                 style="width: @(myArea.WidthCm* Scale)px; height: @(myArea.LengthCm* Scale)px;"
+                 @onpointermove="HandlePointerMove"
+                 @onpointerup="HandlePointerUp"
+                 @onpointerleave="HandlePointerUp">
+            
+                @foreach (var crop in myArea.Crops)
+                {
+                    int spacing = crop.Plant.PlantSpacing ?? 10;
+                    double diameterPx = spacing * Scale;
+                    double leftPx = (crop.CenterX * Scale) - (diameterPx / 2);
+                    double topPx = (crop.CenterY * Scale) - (diameterPx / 2);
+                
+                    // Hämta de två första bokstäverna
+                    string initials = crop.Plant.PlantName.Length > 1
+                                      ? crop.Plant.PlantName.Substring(0, 2)
+                                      : crop.Plant.PlantName;
+
+                    <div class="crop-circle @(draggedCrop == crop ? "is-dragging" : "")"
+                         @onpointerdown="(e) => HandlePointerDown(crop, e)"
+                         @onpointerdown:stopPropagation="true"
+                         style="width: @(diameterPx)px; height: @(diameterPx)px; left: @(leftPx)px; top: @(topPx)px; background-color: @GetColor(crop.Plant.Id);"
+                         title="@crop.Plant.PlantName">
+                        <span class="crop-name">@initials</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+@code {
+    private int Scale = 3;
+    private bool isLoading = true;
+    private CultivationArea myArea = new CultivationArea { Name = "",WidthCm = 80, LengthCm = 120 };
+    private List<Plant> availablePlants = new();
+    private HashSet<int> selectedPlantIds = new(); 
+    private Dictionary<int, int> plantQuantities = new();
+    private string[] plantColors = new[] { "#fca5a5", "#fcd34d", "#86efac", "#93c5fd", "#c4b5fd", "#f9a8d4", "#fdba74", "#5eead4", "#bbf7d0" };
+
+    private PlantedCrop? draggedCrop;
+    private double startMouseX, startMouseY, initialCropX, initialCropY;
+
+    // COLORS AND QUANTITY 
+    private string GetColor(int plantId) => plantColors[plantId % plantColors.Length];
+
+    private int GetQuantity(int plantId) => plantQuantities.ContainsKey(plantId) ? plantQuantities[plantId] : 0;
+
+    private void UpdateQuantity(int plantId, object? value)
+    {
+        if (int.TryParse(value?.ToString(), out int qty))
+        {
+            if (qty <= 0) plantQuantities.Remove(plantId);
+            else plantQuantities[plantId] = qty;
+        }
+    }
+
+    private void HandlePointerDown(PlantedCrop crop, PointerEventArgs e)
+    {
+        // 1. När användaren trycker ner musen/fingret på en växt
+        draggedCrop = crop;
+        startMouseX = e.ClientX;
+        startMouseY = e.ClientY;
+        initialCropX = crop.CenterX;
+        initialCropY = crop.CenterY;
+    }
+
+    private void HandlePointerMove(PointerEventArgs e)
+    {
+        // 2. Om vi drar i en växt, uppdatera positionen i realtid!
+        if (draggedCrop == null) return;
+
+        // Räkna ut hur många pixlar musen/fingret har rört sig
+        double deltaX = e.ClientX - startMouseX;
+        double deltaY = e.ClientY - startMouseY;
+
+        // Omvandla pixlarna till centimeter och uppdatera växten
+        draggedCrop.CenterX = initialCropX + (deltaX / Scale);
+        draggedCrop.CenterY = initialCropY + (deltaY / Scale);
+    }
+
+    private void HandlePointerUp(PointerEventArgs e)
+    {
+        // 3. När användaren släpper musen/fingret
+        draggedCrop = null;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var profile = await ProfileService.GetUserProfile();
+                if (profile != null)
+                {
+                    var seedslist = await Inventory.GetMySeeds();
+                    var allPlants = await PlantLibrary.GetAllPlantsAsync();
+                    var userPlantIds = seedslist.Select(seed => seed.PlantId).ToHashSet();
+                    availablePlants = allPlants.Where(plant => userPlantIds.Contains(plant.Id)).ToList();
+                    if (availablePlants.Count <= 0)
+                    {
+                        availablePlants = allPlants.Take(10).ToList();
+                    }
+                }
+                
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void TogglePlantSelection(int plantId, object? isChecked)
+    {
+        if ((bool)(isChecked ?? false))
+            selectedPlantIds.Add(plantId);
+        else
+            selectedPlantIds.Remove(plantId);
+    }
+
+    // --- AUTO-FYLL MED BLOCKS-LOGIK ---
+    private void AutoFillArea()
+    {
+        myArea.Crops.Clear();
+        if (!selectedPlantIds.Any()) return;
+
+        // Dela upp lådans längd i lika många sektioner som valda växter
+        double sectionLength = (double)myArea.LengthCm / selectedPlantIds.Count;
+        int currentSectionIndex = 0;
+
+        foreach (var plantId in selectedPlantIds)
+        {
+            var plant = availablePlants.First(p => p.Id == plantId);
+            int spacing = plant.PlantSpacing ?? 10;
+
+            // Var börjar och slutar denna växts sektion?
+            double startY = currentSectionIndex * sectionLength;
+            double endY = startY + sectionLength;
+
+            // Hur många rader och kolumner får plats i just denna sektion?
+            int cols = myArea.WidthCm / spacing;
+            int rows = (int)(sectionLength / spacing);
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    myArea.Crops.Add(new PlantedCrop
+                    {
+                        Plant = plant,
+                        // X = Kolumn * avstånd + marginal
+                        CenterX = (c * spacing) + (spacing / 2.0),
+                        // Y = Sektionens start + Rad * avstånd + marginal
+                        CenterY = startY + (r * spacing) + (spacing / 2.0)
+                    });
+                }
+            }
+            currentSectionIndex++;
+        }
+    }
+
+    private void PlaceSelectedPlants()
+    {
+        myArea.Crops.Clear();
+        
+        double currentX = 0;
+        double currentY = 0;
+        double currentRowHeight = 0;
+
+        foreach (var kvp in plantQuantities)
+        {
+            var plant = availablePlants.First(p => p.Id == kvp.Key);
+            int spacing = plant.PlantSpacing ?? 10;
+            int amount = kvp.Value;
+
+            for (int i = 0; i < amount; i++)
+            {
+                // Om växten hamnar utanför lådans högra kant, hoppa ner en rad!
+                if (currentX + spacing > myArea.WidthCm && currentX > 0)
+                {
+                    currentX = 0;
+                    currentY += currentRowHeight;
+                    currentRowHeight = 0;
+                }
+
+                myArea.Crops.Add(new PlantedCrop
+                {
+                    Plant = plant,
+                    CenterX = currentX + (spacing / 2.0),
+                    CenterY = currentY + (spacing / 2.0)
+                });
+
+                currentX += spacing;
+                if (spacing > currentRowHeight) currentRowHeight = spacing; // Håll koll på radens högsta växt
+            }
+        }
+    }
+
+    private void ClearArea() => myArea.Crops.Clear();
+
+    private void HandleDrop(DragEventArgs e)
+    {
+        if (draggedCrop == null) return;
+
+        // Uppdatera koordinaterna (pixlar till centimeter)
+        draggedCrop.CenterX = e.OffsetX / (double)Scale;
+        draggedCrop.CenterY = e.OffsetY / (double)Scale;
+
+        draggedCrop = null;
+    }
+    // Variabler för sökningen
+    private string searchQuery = string.Empty;
+    private List<Plant> searchResults = new();
+
+    // Hanterar sökningen när användaren skriver
+    private async Task HandleSearch(KeyboardEventArgs e)
+    {
+        // Sök bara om de skrivit mer än 2 bokstäver för att spara på databasanrop
+        if (searchQuery.Length > 2)
+        {
+            searchResults = await PlantLibrary.SearchPlantsAsync(searchQuery);
+        }
+        else
+        {
+            searchResults.Clear();
+        }
+    }
+
+    // När användaren klickar på ett sökresultat
+    private void AddPlantToPlanner(Plant plant)
+    {
+        // 1. Kolla om växten redan finns i listan (för att undvika dubbletter)
+        if (!availablePlants.Any(p => p.Id == plant.Id))
+        {
+            availablePlants.Add(plant); // Lägg till i listan som visas
+        }
+
+        // 2. Kryssa för växten automatiskt så den är redo för autofyll
+        selectedPlantIds.Add(plant.Id);
+
+        // 3. Städa upp: Töm sökfältet och stäng dropdown-menyn
+        searchQuery = string.Empty;
+        searchResults.Clear();
+    }
+
+    private async Task SavePlan()
+    {
+        if (string.IsNullOrWhiteSpace(myArea.Name))
+        {
+            // Tips: Visa ett felmeddelande eller en röd text att namnet saknas!
+            Console.WriteLine("Namn saknas!");
+            return;
+        }
+
+        // Här anropar du din databas! (Se nästa steg nedan)
+        Console.WriteLine($"Sparar planeringen {myArea.Name} med {myArea.Crops.Count} plantor...");
+    }
+}
