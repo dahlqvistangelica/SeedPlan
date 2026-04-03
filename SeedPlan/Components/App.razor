@@ -13,8 +13,10 @@
 
     <link rel="preload" href="images/mockup2.webp" as="image" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=...&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=...&display=swap" rel="stylesheet"></noscript>
 
     <script src="notifications.js?v=4" defer></script>
     <script src="session-cleanup.js?v=4" defer></script>
@@ -58,7 +60,7 @@
 </head>
 <body>
     <div id="blazor-splash" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8fafc; font-family: sans-serif; text-align: center; padding: 20px;">
-        <img src="small-logo.png" alt="SeedPlan Logotyp" width="100" height="100" style="margin-bottom: 20px;" />
+        <img src="small-logo.webp" alt="SeedPlan Logotyp" width="100" height="100" style="margin-bottom: 20px;" fetchpriority="high" loading="eager">
         <h1 style="color: #2c5e3b; margin: 0; font-size: 2rem;">SeedPlan</h1>
         <p style="color: #64748b; margin-top: 10px;">Laddar din digitala trädgård...</p>
         <div style="margin-top: 24px; width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #2c5e3b; border-radius: 50%; animation: sp-spin 1s linear infinite;"></div>

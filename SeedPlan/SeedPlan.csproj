@@ -7,6 +7,7 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
 	  <BlazorWebAssemblyEnableLinking>true</BlazorWebAssemblyEnableLinking>
 	  <BlazorEnableCompression>true</BlazorEnableCompression>
+	  <RunAOTCompilation>false</RunAOTCompilation>
   </PropertyGroup>
 
   <ItemGroup>
