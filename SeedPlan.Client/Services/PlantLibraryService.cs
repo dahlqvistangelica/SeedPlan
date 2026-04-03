@@ -227,5 +227,19 @@ namespace SeedPlan.Client.Services
 
             return overview;
         }
+
+        //ADMIN METHODS
+
+        /// <summary>
+        /// Uppdaterar en befintlig växt i databasen.
+        /// </summary>
+        public async Task<Plant> UpdatePlantAsync(Plant plant)
+        {
+            var response = await _supabase
+                .From<Plant>()
+                .Update(plant);
+
+            return response.Models.FirstOrDefault() ?? plant;
+        }
     }
 }

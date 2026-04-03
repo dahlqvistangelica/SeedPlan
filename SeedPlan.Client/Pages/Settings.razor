@@ -73,6 +73,20 @@ else
             </div>
         </div>
 
+        @* --- ADMIN-MENY --- *@
+        @if (userProfile != null && userProfile.IsAdmin)
+        {
+            <div class="settings-card" @onclick='() => Nav.NavigateTo("/admin/plants")'>
+                <div class="icon-circle" style="background: #fefce8; color: #ca8a04;">
+                    <Blazicon Svg="Lucide.Database" /> @* Byt ut ikonen om du vill! *@
+                </div>
+                <div class="card-text">
+                    <span class="title">Hantera växtbibliotek (Admin)</span>
+                    <span class="value">Redigera arter, förodlingstider och kategorier</span>
+                </div>
+            </div>
+        }
+
         <div class="version-text">SeedPlan v.1.4.0</div>
     </div>
 }

@@ -27,5 +27,8 @@ namespace SeedPlan.Shared.Models
         [Column("longitude")]
         public double? Longitude { get; set; }
 
+        [Column("is_admin")]
+        public bool IsAdmin { get; set; } = false;
+
     }
 }

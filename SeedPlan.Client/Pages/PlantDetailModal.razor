@@ -116,14 +116,14 @@
                 </div>
                 <div class="info-box">
                     <label>SÅDJUP</label>
-                    @if (Plant.SowingDepth == 0 || Plant.SowingDepth == null)
+                    @if (Plant.SowingDepth == null)
                     {
                         <span>Okänt.</span>
                     }
                     else
                     {
 
-                        <span>@Plant.SowingDepth.ToString() cm</span>
+                        <span>@((Plant.SowingDepth / 10 ).ToString()) cm</span>
                     }
                     
                 </div>

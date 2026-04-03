@@ -13,5 +13,6 @@ namespace SeedPlan.Shared.Interfaces
         Task<List<Variety>> GetAllVarietiesAsync();
         Task<Variety> AddVarietyAsync(Variety variety);
         Task<SowingOverview> GetSowingOverviewAsync(DateTime lastFrost);
+        Task<Plant> UpdatePlantAsync(Plant plant);
     }
 }

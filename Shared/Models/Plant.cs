@@ -1,5 +1,7 @@
 ﻿using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace SeedPlan.Shared.Models
 {
@@ -34,6 +36,7 @@ namespace SeedPlan.Shared.Models
         public bool DirectSowing { get; set; } = false;
 
         [Column("category")]
+        [JsonConverter(typeof(StringEnumConverter))]
         public PlantCategory Category { get; set; } = PlantCategory.Flower;
 
         // --- NULLABLE VALUES BELOW. ---

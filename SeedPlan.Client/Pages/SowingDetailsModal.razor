@@ -394,7 +394,7 @@
             await LoadEvents();
             await OnUpdateNeeded.InvokeAsync();
         }
-        // Fånga specifika fel från backend
+        // Catch specifik errors from backend.
         catch (InvalidOperationException ex)
         {
             inlineErrorMessage = $"Ogiltig statusövergång: {ex.Message}";
@@ -414,7 +414,7 @@
             StateHasChanged();
         }
     }
-    // --- LOGIK FÖR ANTECKNINGAR (FLYTTAT FRÅN PARENT) ---
+    // --- Logic for notes. ---
 
     private void ActivateEditNotesMode()
     {
@@ -441,7 +441,7 @@
 
         try
         {
-            // Samma anrop till SowingService som din gamla kod
+            // Same call to Sowingservice
             await SowingService.UpdateSowingProgressAsync(new UpdateSowingProgressRequest
             {
                 SowingId = Sowing.Id,
@@ -450,24 +450,24 @@
                 EventDate = DateTime.Now
             });
 
-            // Uppdatera gränssnittet precis som förut
+            // Update UI
             if (editActiveCount.HasValue)
             {
                 Sowing.Quantity = editActiveCount.Value;
             }
             
-            isEditingNotes = false; // Stänger formuläret inuti modalen
-            await LoadEvents();     // Laddar om historiken
-            await OnUpdateNeeded.InvokeAsync(); // Säger till Sowings.razor att uppdatera listan i bakgrunden
+            isEditingNotes = false; // Close form inside modal
+            await LoadEvents();     // Load history
+            await OnUpdateNeeded.InvokeAsync(); // Tells sowings.razor to update list. 
         }
         catch (ArgumentException ex)
         {
-            // Fångar specifika fel (t.ex. valideringsfel från backend) precis som din gamla metod!
+            //Catch specific errors from backend. 
             inlineErrorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            // Fångar generella krascher
+            // Catch generall crashes. 
             inlineErrorMessage = "Kunde inte spara anteckningen just nu.";
             Console.WriteLine($"Progress update failed: {ex.Message}");
         }
@@ -477,7 +477,7 @@
         }
     }
 
-    // --- DELETE LOGIK ---
+    // --- DELETE LOGIC ---
 
     private async Task HandleDelete()
     {
