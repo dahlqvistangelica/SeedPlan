@@ -324,7 +324,7 @@ else
     {
         try
         {
-            string url=$"https://geocoding-api.open-meteo.com/v1/search?name{Uri.EscapeDataString(cityName)}&count=1&language=sv&format=json";
+            string url=$"https://geocoding-api.open-meteo.com/v1/search?name={Uri.EscapeDataString(cityName)}&count=1&language=sv&format=json";
 
             var response = await Http.GetFromJsonAsync<OpenMeteoGeocodingResponse>(url);
 
