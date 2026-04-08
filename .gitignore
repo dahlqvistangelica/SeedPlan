@@ -377,3 +377,5 @@ supabase/migrations
 /supabase/functions/delete-account/index.ts
 /docs/images/icon-512.png
 /docs/images
+/SeedPlan.Client/Layout/BottomNav - Copy.razor
+/SeedPlan.Client/Layout/BottomNav - Copy.razor.css
