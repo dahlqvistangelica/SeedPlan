@@ -33,18 +33,7 @@
     cursor: pointer;
 }
 
-.logo-circle {
-    color: var(--primary);
-    background: var(--white);
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-}
-.logo-circle img{
-    width: 60px;
-}
+
 
 .app-title {
     font-size: 1.3rem;
