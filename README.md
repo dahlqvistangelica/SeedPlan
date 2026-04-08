@@ -2,45 +2,45 @@
 
 SeedPlan är en PWA för att hantera fröinventering, planera sådder utifrån sista frostdatum och följa såddars utveckling. Appen är byggd med Blazor WebAssembly och Supabase, med svensk UI och mobil-först-design.
 
-README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SPEC.md) (mars 2026).
+README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SPEC.md) (april 2026).
 
 ## Nuvarande fokus
 
-- Finslipa settings- och profilflödet (UX och tydligare gruppering av inställningar).
+- Finslipa settings- och profilflödet, främst notiser och tydligare sektionering.
 - Utöka rekommendationer på startsidan med bättre prioritering och fler filter.
-- Fortsätta bygga ut fröinventarie och statistik i prioriterad ordning.
+- Bygga ut fröinventarie, statistik och planering i prioriterad ordning.
 
 ## Status just nu
 
-- ✅ Basflöden finns: auth, dashboard, fröinventarie, såddhantering, växtguide, PWA-stöd.
-- ✅ Kontofunktioner för e-post/lösenord är implementerade (inklusive validering och felhantering).
-- ✅ Såddhantering är utökad med batchnummer, fler statusar och händelselogik.
-- ✅ Push-infrastruktur för orörda såddar finns (inklusive Edge Function för manuell trigger).
+- ✅ Basflöden finns: auth, dashboard, fröinventarie, såddhantering, växtguide, dahlior/knölar och PWA-stöd.
+- ✅ Kontofunktioner för e-post/lösenord är implementerade, inklusive validering och felhantering.
+- ✅ Såddhantering är utökad med batchnummer, statusflöde, händelselogik och raderingsregler.
+- ✅ Push-infrastruktur för orörda sådder finns, inklusive Edge Function för manuell trigger.
 - 🟡 Notiser i UI är delvis klara: global toggle finns, men utökad konfiguration saknas.
-- 🔨 Framtida fas: kontoradering, JSON-backup/export, planering och statistik som egna sidor.
+- 🔨 Framtida fas: planering, statistik, import/export och konto-/datahantering.
 
 ## Funktioner i appen (idag)
 
-- Dashboard med rekommenderade arter att så, aktiva såddar och varningar.
+- Dashboard med rekommenderade arter att så, aktiva sådder och varningar.
 - Fröinventarie med lagerhantering och koppling till växtdatabas.
-- Såddhantering med statusflöde, batchnummer och översikter.
+- Såddhantering med statusflöde, batchnummer, historik och misslyckade såddar.
 - Växtguide baserad på `plants`-data.
-- Supabase Auth (e-post/lösenord) och profilsida.
-- Kategorival i profil för vilka växttyper som ska visas i såförslag.
-- Push-notiser för orörda såddar (grundinfrastruktur + Edge Function finns).
+- Dahliabibliotek och eget knölager via separata sidor.
+- Supabase Auth (e-post/lösenord) och profilsida med ort och kategorival.
+- Push-notiser för orörda sådder (grundinfrastruktur + Edge Function finns).
 - PWA-stöd: installerbar app, responsiv mobilvy och grundläggande offline-stöd.
 
 ## Viktiga produktbeslut (v2)
 
-- Kontoinställningar i `/profile` fokuserar på profil, e-post och lösenord.
+- Kontoinställningar i `/profile` fokuserar på profil, ort, e-post och lösenord.
 - Odlingszon hanteras i `/settings`.
 - Frostdatum och odlingszon hanteras i separata kort/modaler i `/settings`.
-- Startsidans förslag ska kunna filtreras av användaren per växtkategori (`PlantCategory`):
+- Startsidans förslag filtreras av användaren per växtkategori (`PlantCategory`):
 	- `Vegetable`
 	- `Flower`
 	- `Herb`
 	- `Fruit`
-- Radera konto och exportera data är flyttat till framtida fas (ingår ej i v2).
+- Radera konto, exportera data och import av backup är flyttat till framtida fas (ingår ej i v2).
 
 ## Teknisk stack
 
@@ -53,9 +53,9 @@ README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SP
 
 1. Utökat fröinventarie
 2. Förbättrade såddrekommendationer
-3. Statistik och planering som egna sidor
-4. Notiser (utökad konfiguration)
-5. Konto och datahantering i framtida fas (radera konto/export)
+3. Statistik
+4. Notiser
+5. Konto- och datahantering
 
 ## Ingår ej i v2 (framtida fas)
 
@@ -68,6 +68,8 @@ README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SP
 - Export till PDF/CSV
 - Delning av data mellan användare
 - Väderprognos-integration
+- Planeringssida som egen komplett vy
+- Statistik som egen komplett vy
 
 ## Bilder
 
