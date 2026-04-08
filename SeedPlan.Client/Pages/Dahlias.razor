@@ -265,6 +265,7 @@
     {
         _searchCts?.Cancel();
         _searchCts?.Dispose();
+        searchText = "";
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -289,6 +290,7 @@
         searchText = "";
         activeSizes.Clear();
         activeTypes.Clear();
+        activeColors.Clear();
         minHeight = null;
         maxHeight = null;
         await JS.InvokeVoidAsync("localStorage.removeItem", StorageKey);
