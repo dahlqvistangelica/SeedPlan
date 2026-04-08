@@ -4,13 +4,13 @@ using SeedPlan.Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {
-    public class UserInventoryService: IUserInventoryService
+    public class UserInventoryService : IUserInventoryService
     {
         private readonly Supabase.Client _supabase;
         private readonly IPlantLibraryService _plantLibrary;
         private readonly IUserProfileService _profileService;
 
-        public UserInventoryService(Supabase.Client supabase,IPlantLibraryService plantLibrary, IUserProfileService profileService)
+        public UserInventoryService(Supabase.Client supabase, IPlantLibraryService plantLibrary, IUserProfileService profileService)
         {
             _supabase = supabase;
             _plantLibrary = plantLibrary;
@@ -136,11 +136,11 @@ namespace SeedPlan.Client.Services
         public async Task<List<PlantSowingView>> GetCurrentSowingCalendar()
         {
             var session = _supabase.Auth.CurrentSession;
-            if(session == null)
+            if (session == null)
             {
                 session = await _supabase.Auth.RetrieveSessionAsync();
             }
-            if(session?.User == null)
+            if (session?.User == null)
             {
                 return new List<PlantSowingView>();
             }
@@ -150,12 +150,12 @@ namespace SeedPlan.Client.Services
 
             if (profile == null)
             {
-                
+
                 return new();
             }
             if (profile?.LastFrostDate == null)
             {
-                
+
                 return new();
             }
             var calendar = await _plantLibrary.GetSowingCalendarAsync(profile.LastFrostDate.Value);
@@ -163,7 +163,7 @@ namespace SeedPlan.Client.Services
             var response = await _supabase.From<SeedView>().Where(x => x.UserId == session.User.Id).Get();
 
             var mySeeds = response.Models;
-            foreach(var item in calendar)
+            foreach (var item in calendar)
             {
                 item.OwnedSeeds = mySeeds
             .Where(s => s.PlantId == item.Plant.Id)
@@ -193,7 +193,7 @@ namespace SeedPlan.Client.Services
         public async Task UpdateSeed(Seed seed)
         {
             var user = _supabase.Auth.CurrentUser;
-            if(user == null)
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("Du måste vara inloggad för att uppdatera frö");
             }

@@ -55,7 +55,7 @@ namespace SeedPlan.Client.Services
 
         public async Task<bool> UpdatePassword(string newPassword)
         {
-            if(CurrentUserEmail?.ToLower() == "demo@seedplan.app")
+            if (CurrentUserEmail?.ToLower() == "demo@seedplan.app")
             {
                 return false;
             }

@@ -20,7 +20,7 @@ namespace SeedPlan.Client.Services
         public async Task AddUserDahliaAsync(UserDahlia newUserDahlia)
         {
             var user = _supabase.Auth.CurrentUser;
-            if(user !=null)
+            if (user != null)
             {
                 newUserDahlia.UserId = user.Id;
                 await _supabase.From<UserDahlia>().Insert(newUserDahlia);
@@ -45,13 +45,13 @@ namespace SeedPlan.Client.Services
         public async Task<List<UserDahlia>> GetUserDahliasAsync()
         {
             var user = _supabase.Auth.CurrentUser;
-            if(user ==null)
+            if (user == null)
             {
                 var session = await _supabase.Auth.RetrieveSessionAsync();
                 user = session?.User;
             }
 
-            if(user == null)
+            if (user == null)
             {
                 return new List<UserDahlia>();
             }
@@ -66,7 +66,7 @@ namespace SeedPlan.Client.Services
         public async Task UpdateUserDahliaAsync(UserDahlia userDahlia)
         {
             var user = _supabase.Auth.CurrentUser;
-            if(user == null)
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("Du måste vara inloggad för att uppdatera dahlia");
             }
@@ -75,6 +75,6 @@ namespace SeedPlan.Client.Services
             await _supabase.From<UserDahlia>().Update(userDahlia);
         }
 
-        
+
     }
 }

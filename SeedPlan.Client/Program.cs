@@ -1,6 +1,5 @@
 using Cropper.Blazor.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using SeedPlan.Client.Services;
@@ -21,11 +20,11 @@ namespace SeedPlan.Client
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             }.GetStreamAsync("appsettings.json"));
 
-            if(builder.HostEnvironment.IsDevelopment())
+            if (builder.HostEnvironment.IsDevelopment())
             {
                 var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
                 var response = await http.GetAsync("appsettings.Development.json");
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     builder.Configuration.AddJsonStream(await response.Content.ReadAsStreamAsync());
                 }
@@ -56,7 +55,7 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<IDahliaService, DahliaService>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.AddScoped<FeedbackModalService>(); 
+            builder.Services.AddScoped<FeedbackModalService>();
 
             // 3. Blazor's built-in security
             builder.Services.AddAuthorizationCore();
@@ -89,7 +88,7 @@ namespace SeedPlan.Client
 
             supabase.Auth.AddStateChangedListener(async (sender, state) =>
             {
-      
+
 
                 if (state == Supabase.Gotrue.Constants.AuthState.SignedIn)
                 {

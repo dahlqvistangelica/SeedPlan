@@ -3,7 +3,6 @@ using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
 using SeedPlan.Shared.Models.ViewModels;
 using Supabase.Postgrest;
-using static Supabase.Postgrest.Constants;
 
 namespace SeedPlan.Client.Services
 {
@@ -30,7 +29,7 @@ namespace SeedPlan.Client.Services
             var user = _supabase.Auth.CurrentUser;
             if (user == null) return new List<Sowing>();
 
-            
+
             var response = await _supabase
         .From<Sowing>()
         .Select("*")
@@ -54,7 +53,7 @@ namespace SeedPlan.Client.Services
 
             try
             {
-                
+
                 var response = await _supabase
                     .From<SowingView>()
                     .Where(x => x.UserId == user.Id)
@@ -80,18 +79,18 @@ namespace SeedPlan.Client.Services
         public async Task AddSowing(Sowing newSowing)
         {
             var user = _supabase.Auth.CurrentUser;
-            if(user == null)
+            if (user == null)
             {
                 throw new UnauthorizedAccessException("You have to be loggen in to add a sowing");
             }
 
-                newSowing.UserId = user.Id;
+            newSowing.UserId = user.Id;
 
-            if(!newSowing.SownDate.HasValue)
+            if (!newSowing.SownDate.HasValue)
             {
                 throw new ArgumentException("A valid sowingdate must be set.");
             }
-            if(newSowing.Quantity <= 0)
+            if (newSowing.Quantity <= 0)
             {
                 throw new ArgumentException("You must enter a valid number of seeds you sown");
             }
@@ -126,7 +125,7 @@ namespace SeedPlan.Client.Services
 
                 await _supabase.From<SowingEvent>().Insert(initialEvent);
             }
-            
+
         }
         /// <summary>
         /// Updates the status of a sowing record for the currently authenticated user.

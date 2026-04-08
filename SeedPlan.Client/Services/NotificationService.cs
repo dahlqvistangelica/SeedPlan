@@ -1,8 +1,5 @@
 ﻿using Microsoft.JSInterop;
-using SeedPlan.Shared.Helpers;
 using SeedPlan.Shared.Models;
-using SeedPlan.Shared.Models.ViewModels;
-using Supabase.Gotrue;
 
 namespace SeedPlan.Client.Services
 {
@@ -41,21 +38,23 @@ namespace SeedPlan.Client.Services
 
             var session = await _supabase.Auth.RetrieveSessionAsync();
             //Save prenumeration in Supabase.
-            var user = session?.User?? _supabase.Auth.CurrentUser;
+            var user = session?.User ?? _supabase.Auth.CurrentUser;
 
-            if (user == null) {
+            if (user == null)
+            {
                 Console.WriteLine("C# kunde inte hitta inloggad användare i NotificationService");
-                return; }
+                return;
+            }
             try
             {
                 var existingSub = await _supabase.From<PushSubscription>().Where(x => x.UserId == user.Id).Single();
-                if(existingSub != null)
+                if (existingSub != null)
                 {
                     existingSub.SubscriptionJson = subscriptionJson;
                     existingSub.UpdatedAt = DateTime.UtcNow;
                     await _supabase.From<PushSubscription>().Update(existingSub);
                     Console.WriteLine("Befintlig push-prenumeration uppdaterad");
-                    
+
                 }
                 else
                 {
@@ -69,16 +68,16 @@ namespace SeedPlan.Client.Services
                     Console.WriteLine("Ny pushprenumeration sparades i Supabase.");
                 }
                 var options = new Supabase.Postgrest.QueryOptions { OnConflict = "user_id" };
-                
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Kunde inte spara prenumerationen i Supabase: {ex.Message}");
             }
         }
-    
-    
-        
-    
+
+
+
+
     }
 }

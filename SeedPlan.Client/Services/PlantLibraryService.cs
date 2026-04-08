@@ -4,7 +4,7 @@ using SeedPlan.Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {
-    public class PlantLibraryService: IPlantLibraryService
+    public class PlantLibraryService : IPlantLibraryService
     {
         private readonly Supabase.Client _supabase;
         private readonly IUserProfileService _profileService;
@@ -123,7 +123,7 @@ namespace SeedPlan.Client.Services
 
                     DateTime calculatedPlantOutDate = actualSowDate.AddDays(indoorWeeks * 7);
 
-                    if(plant.HardinessLevel <= 1 && calculatedPlantOutDate < lastFrostDate)
+                    if (plant.HardinessLevel <= 1 && calculatedPlantOutDate < lastFrostDate)
                     {
                         calculatedPlantOutDate = lastFrostDate;
                     }

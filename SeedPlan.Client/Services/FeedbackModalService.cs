@@ -1,8 +1,5 @@
 ﻿using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-using Supabase.Realtime.PostgresChanges;
-using System;
-using System.Threading.Tasks;
 
 namespace SeedPlan.Client.Services
 {

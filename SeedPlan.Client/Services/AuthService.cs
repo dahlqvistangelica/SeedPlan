@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Text.RegularExpressions;
-using System.Text.Json;
 
 namespace SeedPlan.Client.Services
 {
@@ -119,7 +118,7 @@ namespace SeedPlan.Client.Services
             _nav.NavigateTo("/");
         }
 
-      
+
         /// <summary>
         /// Translates Supabase error messages into user-friendly Swedish descriptions.
         /// </summary>
@@ -220,7 +219,7 @@ namespace SeedPlan.Client.Services
                     return Result.Fail("Det gamla lösenordet är felaktigt.");
                 }
 
-                
+
 
                 // If verification succeeds, update with the new password
                 var success = await _auth.UpdatePassword(newPassword);
