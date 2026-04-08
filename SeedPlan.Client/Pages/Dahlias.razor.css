@@ -204,3 +204,10 @@ label .accordion-title {
 		transform: translateY(0);
 	}
 }
+@media (max-width: 600px) {
+	.dahlia-container {
+		max-width: 100%;
+		margin: 0 auto;
+		padding: 2rem 0.3rem;
+	}
+}

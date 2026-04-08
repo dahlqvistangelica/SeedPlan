@@ -9,9 +9,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: 2px solid #f1f5f9;
-    margin-top: 1.5rem;
+    margin-top: 0.2rem;
     cursor: pointer;
     transition: background-color 0.2s;
     user-select: none; /* Prevents text selection on quick clicks */
@@ -107,11 +107,10 @@
         font-size: 0.9rem;
     }
 
-@media(max-width: 600px) {
+@media (max-width: 600px) {
     .tubers-container {
         max-width: 100%;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 2rem 0.3rem;
     }
-
 }

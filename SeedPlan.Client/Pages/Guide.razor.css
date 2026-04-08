@@ -131,3 +131,9 @@
     padding: 0.5rem;
     border-radius: 20px;
 }
+@media (max-width: 600px) {
+    .guide-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 2rem 0.3rem;
+    }
