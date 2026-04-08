@@ -19,14 +19,12 @@
     }
 
 
-
 .plant-main {
     display: flex;
     gap: 1rem;
     position: relative;
 }
 
-/* Elements inside the card */
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;

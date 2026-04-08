@@ -95,8 +95,6 @@
     cursor: pointer;
 }
 
-
-
     .chip.active {
         background: #10b981;
         color: white;
