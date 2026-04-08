@@ -77,29 +77,8 @@
                         @foreach (var seed in group)
                         {
                             
-                            <div class="seed-card" @onclick="() => OpenEditSeed(seed)">
-                                <div class="seed-info">
-                                    <h3>@(string.IsNullOrEmpty(seed.VarietyName) ? seed.Name : seed.VarietyName)</h3>
-
-                                    @if (seed.ExpiryDate.HasValue)
-                                    {
-                                        <span class="expiry-tag @(seed.ExpiryDate < DateTime.Now ? "expired" : "")">
-                                            Utgångsdatum: @seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
-                                        </span>
-                                    }
-                                </div>
-                                <div class="seed-actions">
-                                    <div class="qty-badge" onclick="Open">
-                                        <Blazicon Svg="MdiIcon.SeedOutline" />
-                                        <span class="qty">@seed.Quantity st</span>
-                                    </div>
-                                    <div class="arrow-icon"><Blazicon Svg="Lucide.ChevronRight" /></div>
-                                    @* DELEBUTTON *@
-                                    <button class="delete-seed-btn" @onclick="() => HandleDelete(seed)" @onclick:stopPropagation="true">
-                                        <Blazicon Svg="Lucide.Trash2" />
-                                    </button>
-                                </div>
-                            </div>
+                            <SeedCard Seed="seed" OnDelete="() => HandleDelete(seed)" OnClick="() => OpenEditSeed(seed)"/>
+                            
                         }
                     </div>
                     }
@@ -179,6 +158,21 @@
         isLoading = false;
         StateHasChanged();
     }
+
+    /// <summary>
+    /// Persists the updated seed information to the database and refreshes the current view.
+    /// </summary>
+    /// <returns>A task representing the asynchronous save operation.</returns>
+    private async Task SaveQuantity()
+    {
+        if(selectedSeed != null)
+        {
+            await SeedService.UpdateSeed(selectedSeed);
+            await RefreshSeeds();
+            showEditModal = false;
+        }
+    }
+
     /// <summary>
     /// Prepares a seed for editing by mapping the view model to a seed entity and opening the edit modal.
     /// </summary>
@@ -198,28 +192,18 @@
         };
         showEditModal = true;
     }
-    /// <summary>
-    /// Persists the updated seed information to the database and refreshes the current view.
-    /// </summary>
-    /// <returns>A task representing the asynchronous save operation.</returns>
-    private async Task SaveQuantity()
-    {
-        if(selectedSeed != null)
-        {
-            await SeedService.UpdateSeed(selectedSeed);
-            await RefreshSeeds();
-            showEditModal = false;
-        }
-    }
+
+
     /// <summary>
     /// Displays a confirmation dialog and deletes the specified seed if the user confirms.
     /// </summary>
     /// <param name="seed">The seed view model to be deleted.</param>
     /// <returns>A task representing the asynchronous delete operation.</returns>
+
     private async Task HandleDelete(SeedView seed)
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {seed.VarietyName ?? seed.Name} ?");
-        if(confirmed)
+        if (confirmed)
         {
             await SeedService.DeleteSeed(seed.Id);
             await RefreshSeeds();

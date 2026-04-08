@@ -1,0 +1,84 @@
+﻿@using SeedPlan.Shared.Models
+@inject IUserDahliaService UserDahliaService
+@inject Supabase.Client Supabase
+@inject IJSRuntime JS
+@using SixLabors.ImageSharp
+@using SixLabors.ImageSharp.Processing
+
+@if(IsVisible && UserDahlia != null)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <header class="modal-header">
+                <h2 class="serif-title">Redigera @UserDahlia.Variety.Name</h2>
+                @*TODO! Lägg in stjärmarkering här.*@
+                <button class="close-x" @onclick="Close">x</button>
+            </header>
+
+            <div class="modal-body">
+                <ImageCropperUploader TItem="UserDahlia"
+                                      Item="UserDahlia"
+                                      BucketName="dahlia-images" />
+
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Antal</label>
+                        <input type="number" @bind="UserDahlia.HaveQty" class="sp-input"/>
+                    </div>
+                    <div class="input-block">
+                        <label>Förlorade i förvaring</label>
+                        <input type="number" @bind="UserDahlia.LostInStorage" class="sp-input"/>
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Plats</label>
+                        <input type="text" @bind="UserDahlia.Location" class="sp-input"/>
+                    </div>
+                    <div class="input-block">
+                        <label>Inköpsställe</label>
+                        <input type="text" @bind="UserDahlia.Source" class="sp-input" />
+                    </div>
+                </div>
+                <div class="input-block">
+                    <label>Anteckningar</label>
+                    <textarea @bind="UserDahlia.Notes" class="sp-textarea" placeholder="Favorit, virus?"></textarea>
+                </div>
+                <button class="sp-save-btn" @onclick="HandleSave">Spara ändringar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public UserDahlia? UserDahlia { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+    private bool isUploadingImage = false;
+    private bool hasAcceptedImageTerms = false;
+    private bool hasCheckedTerms = false;
+    private string errorMessage = "";
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Delay(50);
+    }
+
+
+    private async Task HandleSave()
+    {
+        if(UserDahlia != null)
+        {
+            await UserDahliaService.UpdateUserDahliaAsync(UserDahlia);
+            await OnSaved.InvokeAsync();
+            await Close();
+        }
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+
+    
+
+}

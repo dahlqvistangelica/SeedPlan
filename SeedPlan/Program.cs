@@ -1,3 +1,4 @@
+using Cropper.Blazor.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.StaticFiles;
@@ -94,6 +95,8 @@ namespace SeedPlan
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
+
+            builder.Services.AddCropper();
 
             var app = builder.Build();
 

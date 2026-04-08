@@ -1,0 +1,135 @@
+﻿/* DahliaCard.razor.css */
+
+.sp-dahlia-card {
+    background: white;
+    border-radius: 16px; /* Mjuka hörn */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.05); /* Soft, stor skugga */
+    overflow: hidden; /* För att toppen ska följa hörnradien */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    /* Hover-effekt för att visa att det går att klicka på kortet */
+/*    .sp-dahlia-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }*/
+
+/* TOPPEN: Bakgrund med cirkel */
+.sp-card-top {
+    height: 180px; /* Ungefärlig höjd för att rymma cirkeln */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* För radera-knappen */
+}
+
+/* Den lilla radera-knappen i hörnet */
+.sp-delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 10px;
+    background: white; /* Stylas som ett litet märke */
+}
+
+/* Wrapper som centrerar cirkeln */
+.sp-image-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    /* Skapar den tjocka vita kanten från bilden */
+    border: 4px solid white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Själva dahlia-bilden (om den finns) */
+.sp-dahlia-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ser till att bilden fyller cirkeln utan att bli utdragen */
+}
+
+/* Placeholder-cirkeln (om bilden saknas) */
+.sp-default-circle {
+    width: 100%;
+    height: 100%;
+}
+
+/* BOTTEN: All information */
+.sp-card-bottom {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+    /* Text-styling */
+    .sp-card-bottom .serif-title {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #1e293b; /* Mörkgrå */
+    }
+
+.type-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #94a3b8; /* Ljusgrå */
+    text-transform: capitalize;
+}
+
+/* Detalj-listan (Bloom, Height, etc.) */
+.detail-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Tätt spacing */
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Ikon-styling */
+.detail-icon {
+   font-size: 1.3rem;
+    display: flex;
+    justify-content: center;
+    color: #cbd5e1; /* Ljusare grå */
+}
+
+/* Text-styling för detaljerna */
+.detail-text {
+    font-size: 0.95rem;
+    color: #64748b;
+}
+
+    .detail-text span {
+        font-weight: 600;
+        color: #94a3b8;
+        margin-right: 5px;
+    }
+
+/* Skilljelinjen */
+.card-divider {
+    border: 0;
+    border-top: 1px solid #f1f5f9;
+    margin: 0;
+}
+
+/* Anteckningar-styling */
+.notes-text {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    font-style: italic;
+    line-height: 1.4;
+}

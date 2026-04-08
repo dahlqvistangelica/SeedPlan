@@ -120,156 +120,6 @@
     gap: 1rem;
 }
 
-/* The plant card itself */
-.plant-card {
-    background: white;
-    border-radius: 20px;
-    padding: 1.3rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    border: 1px solid #f0f0f0;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 0.7rem;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-    .plant-card:hover {
-        transform: translateY(-2px);
-        border: 1px solid #e2e8f0;
-    }
-
-
-
-.plant-main {
-    display: flex;
-    gap: 1rem;
-    position: relative;
-}
-
-/* Elements inside the card */
-.plant-name {
-    font-weight: 700;
-    font-size: 1.1rem;
-    font-style: italic;
-    font-family: 'Lora', serif;
-}
-
-.seed-status-tag {
-    display: inline-block;
-    font-size: 0.7rem;
-    background: #f1f5f9;
-    padding: 3px 8px;
-    border-radius: 6px;
-    color: #64748b;
-    font-weight: 600;
-    margin-left: 0.5rem;
-    text-decoration: line-through;
-    text-transform: uppercase;
-}
-
-.plant-core-info {
-    flex: 1;
-}
-
-.plant-title-row {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 2px;
-}
-
-.shifted-tag {
-    display: inline-flex;
-    align-items: center;
-    background-color: #fef3c7; /* Very light orange/amber yellow */
-    color: #a16207; /* Dark amber/orange text */
-    padding: 4px 7px; /* Padding around text */
-    border-radius: 999px; /* Very rounded corners (pill shape) */
-    font-size: 0.7rem; /* Slightly smaller than main text */
-    font-weight: 500; /* Medium weight */
-}
-
-/* --- Harvest row --- */
-.harvest-info {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Spacing between icon and text */
-    color: #4b5563; /* Medium gray text color */
-    font-size: 0.7rem; /* Standard size */
-}
-
-/* Style for the calendar icon (in harvest-info) */
-.icon-calendar {
-    font-size: 1rem;
-    color: #1e293b; /* Dark gray/blue icon stroke color */
-}
-
-/* Hardiness badges */
-.short-text {
-    display: none; /* Hide K, HH, H on desktop */
-}
-
-.full-text {
-    display: inline;
-}
-
-.hardiness-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 8px;
-    text-transform: uppercase;
-}
-
-/* Footer and icons */
-.plant-footer {
-    border-top: 1px solid #f8fafc;
-    padding-left: 0.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.footer-icons {
-    padding-top: 0.5rem;
-    display: flex;
-    gap: 8px;
-}
-
-.feature-icon {
-    width: 20px;
-    height: 20px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.2rem 0.2rem;
-}
-
-    .feature-icon i {
-        width: 12px;
-        height: 12px;
-    }
-
-    .feature-icon.light {
-        background: #eff6ff;
-        color: #3b82f6;
-    }
-
-    .feature-icon.topping {
-        background: #faf5ff;
-        color: #a855f7;
-    }
-
-.arrow {
-    color: #e2e8f0;
-    width: 20px;
-}
 
 /* --- ALREADY PASSED (ACCORDION) --- */
 .past-section {
@@ -306,7 +156,7 @@
         color: #64748b;
     }
 
-/* Grid for the small cards inside */
+/* Grid for the small cards inside passed section */
 .plant-grid.mini {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -347,34 +197,6 @@
     color: #94a3b8;
     text-transform: uppercase;
     font-weight: 800;
-}
-
-/* SOW NOW */
-.btn-sow-now {
-    background: #10b981;
-    border-radius: 6px;
-    color: white;
-    font-size: 0.75rem;
-    padding: 0;
-    font-weight: 600;
-    border: 1px solid #10b981;
-    text-transform: uppercase;
-    padding: 3px 8px;
-}
-
-    .btn-sow-now:active {
-        transform: scale(0.95);
-    }
-
-.no-seeds-tag {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 0.7rem;
-    color: #94a3b8;
-    background: #f1f5f9;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-weight: 600;
 }
 
 /* --- NOTIFICATIONS! --- */

@@ -139,66 +139,7 @@
             <div class="plant-grid">
                 @foreach (var item in sowingSuggestions)
                 {
-                    <div class="plant-card @(item.IsShifted ? "shifted" : "")" @onclick="() => OpenPlantDetail(item.Plant)">
-
-                        <div class="plant-main">
-                            <div class="plant-icon-circle @GetPlantCategory(item.Plant.Category)">
-                                <Blazicon Svg="@GetPlantBlazicon(item.Plant.Category)" />
-                            </div>
-                            <div class="plant-core-info">
-                                <div class="plant-title-row">
-                                    <span class="plant-name">@item.Plant.PlantName</span>
-                                    @if (item.HasSeeds)
-                                    {
-                                        <button class="btn-sow-now" @onclick:stopPropagation="true" @onclick="() => StartSowing(item.Plant)">
-                                            Så nu
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                       
-                                        <span class="seed-status-tag">Frö</span>
-                                        
-                                    }
-                                </div>
-                                
-                                @if (item.IsShifted)
-                                {
-                                    <span class="shifted-tag">Sent men möjligt</span>
-                                }
-                                @if (item.HarvestDateEarly.HasValue)
-                                {
-                                    <span class="harvest-info">
-                                        <Blazicon Svg="Lucide.Calendar" class="icon-calendar"/>
-                                        Skörd ~@item.HarvestDateEarly.Value.ToString("d MMM")
-                                    </span>
-                                }
-                            </div>
-                            @* HARDINESSBADGE *@
-                            <div class="hardiness-badge @GetHardinessClass(item.Plant.HardinessLevel)">
-                                <span class="full-text">@GetHardinessText(item.Plant.HardinessLevel)</span>
-                                <span class="short-text">@GetShortHardinessText(item.Plant.HardinessLevel)</span>
-                            </div>
-                        </div>
-                        <div class="plant-footer">
-                            <div class="footer-icons">
-                                @if (item.Plant.IsLightGerminating)
-                                {
-                                    <div class="feature-icon light" title="Ljusgroende">
-                                    <Blazicon Svg="Lucide.Sparkles"/>
-                                    </div>
-                                }
-                                @if (item.Plant.RequiresTopping)
-                                {
-                                    <div class="feature-icon topping" title="Ska toppas">
-                                       <Blazicon Svg="Lucide.Scissors"/>
-                                    </div>
-                                }
-                                
-                            </div>
-                            <Blazicon Svg="Lucide.ChevronRight" />
-                        </div>
-                    </div>
+                    <SowingSuggestionCard item="item" OnClick="() => OpenPlantDetail(item.Plant)" StartSowing="() => StartSowing(item.Plant)" />
                 }
             </div>
         }
@@ -283,7 +224,6 @@
             //Get sowings
             var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
             allSowingViews = await SowingService.GetMySowingViews();
-            await NotificationService.CheckAndNotifyStaleAsync(allSowingViews);
 
             activeSowings = allSowings.Where(s => SowingStatusFlow.IsActive(s.Status)).ToList();
 
@@ -320,19 +260,7 @@
 
 
     // HELPMETHODS
-    private string GetFrostText(int weeks) => weeks <= 0 ? "planteras ut efter frost" : $"planteras ut {weeks} v. före frost";
-    private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
-    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
-    private string GetShortHardinessText(int level) => level switch { 0 => "K", 1 => "HH", 2 => "H", _ => "" };
-    private string GetPlantCategory(PlantCategory category) => category switch { PlantCategory.Vegetable => "vegetable", PlantCategory.Flower => "flower", PlantCategory.Herb => "herb", PlantCategory.Fruit => "fruit" };
-    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
-    {
-        PlantCategory.Vegetable => Lucide.Carrot,
-        PlantCategory.Flower => Lucide.Flower,
-        PlantCategory.Herb => MdiIcon.Clover,
-        PlantCategory.Fruit => Lucide.Apple
-
-    };
+   
 
     private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true;  }
     private void StartSowing(Plant plant) { selectedPlantForSowing = plant; showSowModal = true; }

@@ -97,7 +97,13 @@ button {
     justify-content: center;
     gap: 8px;
 }
-
+.hidden-input {
+    display: none !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+}
     button:disabled {
         opacity: 0.5;
         cursor: not-allowed;

@@ -1,0 +1,111 @@
+﻿
+.seed-card {
+    margin: 0.5rem 0;
+    background: var(--white);
+    padding: 1.2rem;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.2s;
+}
+
+    .seed-card:active {
+        transform: scale(0.98);
+    }
+
+.seed-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.plant-type {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 2px 0;
+}
+
+.expiry-tag {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+    .expiry-tag.expired {
+        color: #ef4444;
+        font-weight: 700;
+    }
+
+.seed-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #cbd5e1;
+}
+
+.qty {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.qty-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0fdf4;
+    padding: 6px 12px;
+    border-radius: 12px;
+    color: var(--primary);
+}
+
+.sow-icon {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+}
+
+.arrow-icon {
+    color: #cbd5e1;
+    width: 20px;
+}
+
+.delete-seed-btn {
+    background: none;
+    border: none;
+    color: #cbd5e1; /* Light gray by default */
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+}
+
+    .delete-seed-btn:hover {
+        color: #ef4444; /* Turns red on hover */
+    }
+
+    .delete-seed-btn i {
+        width: 18px;
+        height: 18px;
+    }
+
+@media(max-width: 600px)
+{
+    .seeds-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+    }
+    .btn-add-seed span {
+        display: none; /* Hide the "New sowing" text on small screens, show only + */
+    }
+
+    .btn-add-seed {
+        padding: 10px;
+        aspect-ratio: 1/1; /* Makes the button perfectly round/square */
+    }
+}

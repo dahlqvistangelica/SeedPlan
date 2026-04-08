@@ -1,0 +1,98 @@
+﻿@inject IJSRuntime JS
+
+@if (sowing != null)
+{
+    <div class="sowing-card-compact fade-in" @onclick="HandleOnClick">
+
+        @* TOPPEN AV KORTET (Ikon och titlar) *@
+        <div class="compact-header">
+            <div class="compact-icon status-icon-@(sowing.Status)">
+                <Blazicon Svg="@GetStatusIcon(sowing.Status)" />
+            </div>
+            <div class="compact-titles">
+                    <div class="plant-titles"><span class="plant-name">@sowing.PlantName</span>
+                <span class="variety-name">(@(string.IsNullOrWhiteSpace(sowing.VarietyName) ? "Okänd sort" : sowing.VarietyName))</span>
+                </div>
+                <div class="badge">
+                    @if (sowing.BatchNumber > 1)
+                    {
+                        <span class="batch-badge"><Blazicon Svg="Lucide.Repeat" /> @sowing.BatchNumber</span>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* BOTTEN AV KORTET (Status, varningar och datum) *@
+        <div class="compact-footer">
+            <div class="compact-status">
+                <span class="status-dot"></span>
+                @GetStatusText(sowing.Status)
+            </div>
+
+            <div class="compact-meta">
+                @{
+                    var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate);
+                }
+                @if (warning.show || (sowing.Status == 2 && sowing.RequiresTopping == true))
+                {
+                    <span class="alert-indicator" title="@warning.message" alt="@warning.message">
+                        <Blazicon Svg="Lucide.TriangleAlert"/>
+                    </span>
+                }
+                <span class="sown-date"><Blazicon Svg="Lucide.Calendar"></Blazicon> @sowing.SownDate.ToString("dd MMM")</span>
+            </div>
+        </div>
+
+    </div>
+}
+@code {
+    [Parameter] public SowingView sowing { get; set; } = new();
+    [Parameter] public EventCallback<SowingView> OnClick { get; set; }
+
+    public async Task HandleOnClick()
+    {
+        if(OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(sowing);
+        }
+    }
+
+    /// <summary>
+    /// Converts a numerical status code into its corresponding localized display text.
+    /// </summary>
+    /// <param name="status">The status code representing the plant's growth stage.</param>
+    /// <returns>A string representation of the growth stage (e.g., Sowing, Sprout, True Leaves).</returns>
+    private string GetStatusText(int status) => status switch
+    {
+        0 => "SÅDD",
+        1 => "GRODD",
+        2 => "KARAKTÄRSBLAD",
+        3 => "OMSKOLNING",
+        4 => "AVHÄRDNING",
+        5 => "UTPLANTERAD",
+        6 => "SKÖRDAD",
+        7 => "AVSLUTAD",
+        99 => "MISSLYCKAD",
+        _ => "OKÄND"
+    };
+
+    /// <summary>
+    /// Retrieves the appropriate icon for a given status to be used in the UI.
+    /// </summary>
+    /// <param name="status">The status code for which to find an icon.</param>
+    /// <returns>An SvgIcon representing the specific growth phase.</returns>
+
+    private SvgIcon GetStatusIcon(int status) => status switch
+    {
+        0 => MdiIcon.SeedOutline,
+        1 => Lucide.Sprout,
+        2 => Lucide.Leaf,
+        3 => MdiIcon.Shovel,
+        4 => MdiIcon.SunThermometerOutline,
+        5 => MdiIcon.BeeFlower,
+        6 => Lucide.Apple,
+        7 => Lucide.Check,
+        99 => Lucide.TriangleAlert,
+        _ => Lucide.Sprout
+    };
+}

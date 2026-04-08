@@ -349,53 +349,6 @@
 
 
 
-/* --- 7. BOTTOM MENU --- */
-
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 75px;
-    background: #f8f9fa;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    border-top: 1px solid #eeeeee;
-    z-index: 1000;
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-::deep .nav-item {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center;
-    gap: 4px;
-    text-decoration: none !important;
-    color: #888888;
-    flex: 1;
-    height: 100%;
-}
-
-    ::deep .nav-item {
-        font-size: 2.1rem;
-        display: block;
-        font-weight: 400;
-    }
-
-    ::deep .nav-item span {
-        font-size: 0.6rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    ::deep .nav-item.active, ::deep a:active {
-        text-decoration: none;
-        color: var(--primary) !important;
-    }
-
 /* --- 8. ANIMATIONS --- */
 
 .fade-in {

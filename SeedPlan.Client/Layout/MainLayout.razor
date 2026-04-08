@@ -42,28 +42,7 @@
                 </div>
                 
                 @* BOTTOMMENU *@
-                <nav class="bottom-nav">
-                    <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
-                        <Blazicon Svg="Lucide.Sun" />
-                        <span>ÖVERSIKT</span>
-                    </NavLink>
-                    <NavLink class="nav-item" href="seeds">
-                        <Blazicon Svg="MdiIcon.SeedOutline" />
-                        <span>FRÖER</span>
-                    </NavLink>
-                    <NavLink class="nav-item" href="sowings">
-                        <Blazicon Svg="MdiIcon.Sprout" />
-                        <span>SÅDDER</span>
-                    </NavLink>
-                    <NavLink class="nav-item" href="guide">
-                        <Blazicon Svg="MdiIcon.InformationSlabCircleOutline" />
-                        <span>GUIDE</span>
-                    </NavLink>
-                    <NavLink class="nav-item" href="settings">
-                        <Blazicon Svg="Lucide.Settings" />
-                        <span>INSTÄLLN.</span>
-                    </NavLink>
-                </nav>
+                <BottomNav />
             </Authorized>
             <NotAuthorized>
                 @if (IsRegisterPage || IsPublicPage)
@@ -71,6 +50,8 @@
                     <div class="page-body">
                         @Body
                     </div>
+
+
                 }
                 else
                 {

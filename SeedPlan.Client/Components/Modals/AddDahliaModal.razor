@@ -1,0 +1,203 @@
+﻿@inject IUserDahliaService UserDahliaService
+@inject Supabase.Client Supabase
+@inject IDahliaService DahliaService
+@inject IJSRuntime JS
+@using Cropper.Blazor.Components
+@using Cropper.Blazor.Exceptions
+@using Cropper.Blazor.Models
+
+@if (IsVisible)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <header class="modal-header">
+                <h2>Lägg till dahlia</h2>
+            </header>
+
+            <div class="modal-body">
+                <div class="input-block">
+                    <label>NAMN</label>
+                    @if (selectedDahlia == null)
+                    {
+                        <input type="text" @bind="searchText" @bind:event="oninput"
+                               placeholder="T.ex. Lindas baby" class="sp-input" />
+                        
+                        @if (!string.IsNullOrEmpty(searchText))
+                        {
+                            <div class="sp-dropdown">
+                                @foreach (var result in GetSearchResults())
+                                {
+                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(result)">
+                                        <span>@result.DisplayName</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="readonly-box">
+                            <span>@selectedDahlia.Name</span>
+                            <span class="sp-change-link" @onclick="ChangePlant">Byt</span>
+                        </div>
+                        <div class="info-grid">
+                            <div class="info-box">
+                                <label>FÄRG</label>
+                                <span>@selectedDahlia.Color</span>
+                            </div>
+                            <div class="info-box">
+                                <label>TYP</label>
+                                <span>@selectedDahlia.GetTypeName();</span>
+                            </div>
+                            <div class="info-box">
+                                <label>HÖJD</label>
+                                <span>@selectedDahlia.Height cm</span>
+                            </div>
+                            <div class="info-box">
+                                <label>BLOMSTORLEK</label>
+                                <span>@selectedDahlia.GetSize();</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <ImageCropperUploader TItem="UserDahlia"
+                                      Item="newDahlia"
+                                      BucketName="dahlia-images" />
+
+                <div class="sp-grid-2">
+                    <div class="input-block">
+                        <label>ANTAL</label>
+                        <div class="qty-wrapper">
+                            <input type="number" @bind="newDahlia.HaveQty" />
+                            <span class="unit-tag"> st</span>
+                        </div>
+                    </div> <div class="sp-input-block">
+                    <label>INKÖPSSTÄLLE</label>
+                    <input type="text" @bind="newDahlia.Source"/>
+                </div>
+            </div>
+
+            <div class="sp-grid-2">
+                <div class="input-block">
+                    <label>PLATS</label>
+                    <input type="text" @bind="newDahlia.Location"placeholder="I förrådet, köksfönstret etc." />
+                </div>
+                <div class="input-block">
+                    <label>STJÄRNOR</label>
+                    <input type="number" @bind="newDahlia.LikeLevel" min="0" max="5" />
+                </div>
+            </div>
+
+            <div class="input-block">
+                <label>ANTECKNINGAR</label>
+                <textarea @bind="newDahlia.Notes" placeholder="Nybeställd, favorit, virus?"></textarea>
+            </div>
+                
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="error-msg" style="color: red; text-align:center;">@errorMessage</p>
+            }
+                
+            <button type="button" class="sp-save-btn" @onclick="Save">Spara dahlia</button>
+            <button type="button" class="sp-cancel-btn" @onclick="Close">Avbryt</button>
+        </div>
+    </div>
+</div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+
+    private string searchText = "";
+    private bool isDahliaSelected = false;
+    private List<Dahlia> allDahlias = new();
+    private Dahlia? selectedDahlia;
+    private UserDahlia newDahlia = new UserDahlia();
+    private string errorMessage = "";
+    private bool isUploadingImage = false;
+    private bool hasAcceptedImageTerms = false;
+    private bool hasCheckedTerms = false;
+
+   
+    protected override async Task OnParametersSetAsync()
+    {
+        await Task.Delay(50);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        allDahlias = await DahliaService.GetAllDahliasAsync();
+       
+    }
+
+    private IEnumerable<SearchResult> GetSearchResults()
+    {
+        if (string.IsNullOrWhiteSpace(searchText)) return Enumerable.Empty<SearchResult>();
+        var term = searchText.ToLower();
+        return allDahlias.Where(d => d.Name.ToLower().Contains(term))
+                         .Select(d => new SearchResult { Dahlia = d, DisplayName = d.Name })
+                         .Take(5);
+    }
+
+    private void SelectResult(SearchResult res)
+    {
+        selectedDahlia = res.Dahlia;
+        newDahlia.VarietyId = res.Dahlia.Id;
+        newDahlia.Variety = res.Dahlia;
+        searchText = "";
+        isDahliaSelected = true;
+    }
+
+    private void ChangePlant()
+    {
+        selectedDahlia = null;
+        newDahlia.Id = 0;
+        newDahlia.VarietyId = ""; 
+        newDahlia.Variety = null;
+        isDahliaSelected = false;
+    }
+
+    public class SearchResult
+    {
+        public Dahlia? Dahlia { get; set; }
+        public string DisplayName { get; set; } = "";
+    }
+
+    private void Close() => OnClose.InvokeAsync();
+
+    private async Task Save()
+    {
+        try
+        {
+            errorMessage = "";
+            if (selectedDahlia == null)
+            {
+                await JS.InvokeVoidAsync("alert", "Du måste välja en sort i listan först.");
+                return;
+            }
+            if (newDahlia.HaveQty <= 0)
+            {
+                await JS.InvokeVoidAsync("alert", "Antal knölar kan inte vara under 0.");
+                return;
+            }
+
+            await UserDahliaService.AddUserDahliaAsync(newDahlia);
+
+            newDahlia = new UserDahlia();
+            selectedDahlia = null;
+            searchText = "";
+            isDahliaSelected = false;
+
+            await OnSaved.InvokeAsync();
+            Close();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+   
+}

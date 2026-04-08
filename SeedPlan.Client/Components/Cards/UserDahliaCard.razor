@@ -1,0 +1,194 @@
+﻿@inject IJSRuntime JS
+
+@if (Dahlia != null)
+{
+    <div class="fk-card" @onclick="HandleCardClick">
+        
+        <div class="fk-image-section">
+            
+                @if (!string.IsNullOrEmpty(Dahlia.PhotoUrl))
+                {
+                <div class="fk-image-circle">
+                    <img src="@Dahlia.PhotoUrl" class="sp-dahlia-image" alt="@Dahlia.Variety.Name" /></div>
+                }
+                else if (!string.IsNullOrEmpty(Dahlia.Variety.PhotoUrls))
+                {
+                <div class="fk-image-circle">
+                <img src="@displayImageUrl" class="sp-dahlia-image" alt="@Dahlia.Variety.Name" /></div>
+                }
+                else
+                {
+                <div class="fk-image-circle" style="background: @GetDahliaColorCode(Dahlia.Variety.Color, false);"></div>
+                }
+            
+        </div>
+
+        
+        <div class="fk-content-section">
+            
+            <div class="fk-header">
+                <div class="fk-title-group">
+                    <h3 class="fk-title">@Dahlia.Variety.Name</h3>
+                    
+                    <p class="fk-subtitle">
+                        @Dahlia.HaveQty st &bull;
+                        @if(Dahlia.LikeLevel > 0)
+                        {
+                            @for (int i = 0; i <= Dahlia.LikeLevel; i++)
+                            {
+                                <Blazicon Svg="Lucide.Star" />                    
+                            }
+                        }
+                    </p>
+                </div>
+
+                
+                <span class="fk-badge" style="background: @GetDahliaColorCode(Dahlia.Variety.Color, false); color: @GetDahliaColorCode(Dahlia.Variety.Color, true);">
+                    @Dahlia.Variety.GetTypeName()
+                </span>
+            </div>
+
+            <div class="fk-bottom-row">
+                @* Små fyrkantiga ikoner (som sol/sax i FröKoll) för Bloom och Height *@
+                <div class="fk-icons-group">
+                    <div class="fk-icon-box" title="Blomstorlek: @Dahlia.Variety.GetSize()">
+                        <Blazicon Svg="Lucide.Flower2" />
+                        <span class="fk-icon-text">@Dahlia.Variety.GetSize()</span>
+                    </div>
+                    <div class="fk-icon-box" title="Höjd: @(Dahlia.Variety.Height?.ToString() ?? "?") cm">
+                        <Blazicon Svg="Lucide.Ruler" />
+                        <span class="fk-icon-text">@(Dahlia.Variety.Height?.ToString() ?? "?") cm</span>
+                    </div>
+
+                </div>
+
+                @* Pilen och raderaknappen till höger *@
+                <div class="fk-actions-group">
+                    <button class="fk-delete-btn" @onclick:stopPropagation="true" @onclick="() => HandleDelete(Dahlia)" title="Ta bort">
+                        <Blazicon Svg="Lucide.Trash2" />
+                    </button>
+                    <div class="fk-chevron">
+                        <Blazicon Svg="Lucide.ChevronRight" />
+                    </div>
+                </div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Dahlia.Notes))
+            {
+                <div class="fk-notes-box" title="Anteckningar: @Dahlia.Notes.ToString()">
+                    <span class="fk-notes-icon"><Blazicon Svg="Lucide.PencilLine" /></span>
+                    <span class="fk-notes-text">@Dahlia.Notes</span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public UserDahlia Dahlia { get; set; } = new();
+    [Parameter] public EventCallback<UserDahlia> OnDelete { get; set; }
+    [Parameter] public EventCallback<UserDahlia> OnClick { get; set; }
+    private string displayImageUrl = "/images/placeholder.webp";
+
+    private void GetImage()
+    {
+        if (!string.IsNullOrWhiteSpace(Dahlia.Variety.PhotoUrls))
+        {
+            var urls = Dahlia.Variety.PhotoUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (urls.Any())
+            {
+                var randomIndex = Random.Shared.Next(urls.Length);
+                displayImageUrl = urls[randomIndex].Trim();
+            }
+        }
+        else
+        {
+            displayImageUrl = "/images/placeholder.webp";
+        }
+    }
+
+    // Färgkodning som ger en ljus bakgrund och en mörk textfärg (perfekt för FröKoll-etiketter)
+
+    private string GetDahliaColorCode(string? colorName, bool isText = false)
+    {
+        if (string.IsNullOrWhiteSpace(colorName))
+            return isText ? "#475569" : "#e2e8f0";
+
+        var parts = colorName.Split(',').Select(p => p.Trim().ToLower()).ToList();
+        var validColors = parts.Where(p => p != "tvåfärgad" && p != "flerfärgad").ToList();
+
+        // UPPDATERAD ORDBOK: (Bakgrundens riktiga färg, Textens färg)
+        (string Bg, string Txt) GetColorPair(string c)
+        {
+            return c switch
+            {
+                "vit" => ("#ffffff", "#334155"),           // Vit bakgrund, mörk stålgrå text
+                "krämvit" => ("#fef3c7", "#78350f"),       // Krämvit, mörkbrun text
+                "citrongul" => ("#fef9c3", "#854d0e"),     // Citrongul, mörkbrun text
+                "gul" => ("#facc15", "#422006"),           // Solgul, nästan svart text
+                "aprikos" => ("#fdba74", "#7c2d12"),       // Aprikos, mörkröd/brun text
+                
+                // Mörka/starka färger med VIT text för bästa kontrast!
+                "orange" => ("#f97316", "#ffffff"),
+                "laxrosa" or "korall" => ("#fb7185", "#ffffff"),
+                "röd" => ("#ef4444", "#ffffff"),
+                "mörkröd" => ("#7f1d1d", "#ffffff"),
+                "rosa" => ("#ec4899", "#ffffff"),
+                "cerise" => ("#be185d", "#ffffff"),
+                "lila" => ("#a855f7", "#ffffff"),
+                "mörklila" => ("#4c1d95", "#ffffff"),
+                
+                "ljusrosa" => ("#fbcfe8", "#831843"),      // Ljusrosa med mörkrosa text
+                "ljuslila" => ("#d8b4fe", "#4c1d95"),      // Ljuslila med mörklila text
+                
+                _ => ("#e2e8f0", "#334155") // Standard stålgrå
+            };
+        }
+
+        // SCENARIO A: En färg
+        if (validColors.Count == 1)
+        {
+            var pair = GetColorPair(validColors[0]);
+            return isText ? pair.Txt : pair.Bg;
+        }
+        
+        // SCENARIO B: Tvåfärgad (Mjuk gradient)
+        if (validColors.Count >= 2)
+        {
+            var pair1 = GetColorPair(validColors[0]);
+            var pair2 = GetColorPair(validColors[1]);
+
+            if (isText)
+            {
+                return pair1.Txt; // Tar textfärgen från den dominanta färgen
+            }
+            else
+            {
+                // Mjuk, fin fade från hörn till hörn (0% -> 100%)
+                return $"linear-gradient(135deg, {pair1.Bg} 0%, {pair2.Bg} 100%)";
+            }
+        }
+
+        // SCENARIO C: Flerfärgad / Tvåfärgad utan specifik färg
+        if (parts.Contains("flerfärgad") || parts.Contains("tvåfärgad"))
+        {
+            if (isText) return "#ffffff";
+            // En väldigt snygg mjuk solnedgång/regnbågs-fade
+            return "linear-gradient(135deg, #facc15 0%, #f472b6 50%, #a855f7 100%)";
+        }
+
+        return isText ? "#475569" : "#e2e8f0";
+    }
+
+    private async Task HandleCardClick()
+    {
+        if(OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(Dahlia);
+        }
+    }
+
+    private async Task HandleDelete(UserDahlia dahlia)
+    {
+        await OnDelete.InvokeAsync(dahlia);
+    }
+}

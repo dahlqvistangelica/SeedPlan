@@ -76,27 +76,7 @@ namespace SeedPlan.Client.Services
                 Console.WriteLine($"Kunde inte spara prenumerationen i Supabase: {ex.Message}");
             }
         }
-        public async Task CheckAndNotifyStaleAsync(List<SowingView> sowings)
-        {
-            var permission = await GetPermissionAsync();
-            if (permission != "granted") return;
-
-            foreach(var sowing in sowings)
-            {
-                var warning = SowingHelper.GetStaleWarning(
-                    sowing.Status,
-                    sowing.StatusUpdatedAt,
-                    sowing.SownDate);
-
-                if(warning.show)
-                {
-                    await SendNotificationAsync(
-                        $"{sowing.PlantName} behöver uppmärksamhet", warning.message);
-
-                    await Task.Delay(500);
-                }
-            }
-        }
+    
     
         
     
