@@ -201,6 +201,16 @@ Befintlig `plants`-tabell med fälten:
 - Visas och beter sig identiskt med inbyggda arter i alla delar av appen
 - Märks med en liten ikon i växtguiden för att skilja dem åt
 
+### 5.4 Bildhantering för växter
+- Bildfunktionen som idag används för dahlior ska även finnas för övriga växter med samma uppladdnings- och beskärningsstruktur.
+- Bilden laddas upp i användarens egen mapp i Supabase Storage.
+- Om växten har en vald variant sparas URL:en på varianten först.
+- Om ingen variant finns eller ingen variant är vald sparas URL:en direkt på plantan.
+- När en variant får eller uppdaterar sin bild ska plantan också spegla samma URL som fallback.
+- Vid visning ska variantens bild prioriteras före plantans bild.
+- Bilden ska kunna visas i växtguide, plantdetaljvy och övriga växtkort där bild stöds.
+- Egna växter ska följa samma bildstruktur som inbyggda växter.
+
 ---
 
 ## 6. Såddrekommendationer (utökad logik)
@@ -444,6 +454,10 @@ ALTER TABLE plants ADD COLUMN germination_days_min int;
 ALTER TABLE plants ADD COLUMN germination_days_max int;
 ALTER TABLE plants ADD COLUMN days_to_harvest int;
 ALTER TABLE plants ADD COLUMN sowing_notes text;
+ALTER TABLE plants ADD COLUMN photo_url text;
+
+-- Lägg till fält på varieties
+ALTER TABLE varieties ADD COLUMN photo_url text;
 
 -- Lägg till fält på seeds
 ALTER TABLE seeds ADD COLUMN purchase_date date;
@@ -477,6 +491,7 @@ CREATE TABLE user_plants (
   germination_days_max int,
   days_to_harvest int,
   sowing_notes text,
+  photo_url text,
   created_at timestamptz DEFAULT now()
 );
 
