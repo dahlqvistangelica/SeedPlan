@@ -97,7 +97,6 @@ namespace SeedPlan
                 .AddInteractiveWebAssemblyComponents();
 
             builder.Services.AddCropper();
-
             var app = builder.Build();
 
             // --- 7. MIDDLEWARE PIPELINE (Order is important!) ---
