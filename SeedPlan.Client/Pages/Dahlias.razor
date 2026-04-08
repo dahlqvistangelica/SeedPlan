@@ -303,6 +303,7 @@
             MaxHeight = maxHeight,
             DahliaTypes = activeTypes.ToList(),
             DahliaSizes = activeSizes.ToList(),
+            Colors = activeColors.ToList(),
         };
 
         var json = JsonSerializer.Serialize(filterData);
@@ -325,7 +326,7 @@
             }
             if (root.TryGetProperty("MaxHeight", out var maH))
             {
-                minHeight = maH.ValueKind == JsonValueKind.Null ? null : maH.GetInt32();
+                maxHeight = maH.ValueKind == JsonValueKind.Null ? null : maH.GetInt32();
             }
             if (root.TryGetProperty("DahliaTypes", out var t) && t.ValueKind == JsonValueKind.Array)
             {
@@ -350,6 +351,16 @@
                     }
                 }
 
+            }
+            if (root.TryGetProperty("Colors", out var c) && c.ValueKind == JsonValueKind.Array)
+            {
+                activeColors.Clear();
+                foreach (var item in c.EnumerateArray())
+                {
+                    var color = item.GetString();
+                    if (!string.IsNullOrWhiteSpace(color))
+                        activeColors.Add(color);
+                }
             }
             StateHasChanged();
         }
@@ -383,6 +394,12 @@
             if(activeSizes.Any())
             {
                 query = query.Where(d => d.Size.HasValue && activeSizes.Contains(d.Size.Value));
+            }
+            if (activeColors.Any())
+            {
+                query = query.Where(d =>
+                    !string.IsNullOrWhiteSpace(d.Color) &&
+                    activeColors.Any(ac => d.Color.Contains(ac, StringComparison.OrdinalIgnoreCase)));
             }
 
             return query.ToList();

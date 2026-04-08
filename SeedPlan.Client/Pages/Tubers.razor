@@ -45,7 +45,7 @@
                                 <Blazicon Svg="Lucide.ChevronDown"/>
                             }
                         </div>
-                        <h2 class="serif-title">@group.Key</h2>
+                        <h2 class="serif-title">@GetTypeName(group.Key)</h2>
                     </div>
 
                 
@@ -155,6 +155,32 @@
             };
         showEditModal = true;
     }
+
+    public string GetTypeName(DahliaType type) => type switch
+    {
+        DahliaType.Decorative => "Dekorativ",
+        DahliaType.DecorativeGiants => "Dekorativ Jätte",
+        DahliaType.DecorativeDwarfs => "Dekorativ Dvärg",
+        DahliaType.DecorativeSmall => "Dekorativ Liten",
+        DahliaType.DecorativeLarge => "Dekorativ Stor",
+        DahliaType.Anemone => "Anemon",
+        DahliaType.Ball => "Boll",
+        DahliaType.Cactus => "Kaktus",
+        DahliaType.SemiCactus => "Semikaktus",
+        DahliaType.DwarfCactus => "Dvärgkaktus",
+        DahliaType.Pompon => "Pompon",
+        DahliaType.Waterlily => "Näckros",
+        DahliaType.Mignon => "Mignon",
+        DahliaType.Collarette => "Halskrås",
+        DahliaType.Exclusive => "Esklusiva",
+        DahliaType.Fringed => "Fransade",
+        DahliaType.Orchid => "Orkide",
+        DahliaType.Other => "Övriga",
+        DahliaType.Peony => "Pion",
+        DahliaType.Single => "Enkla",
+        DahliaType.Stellar => "Stellar",
+        _ => type.ToString()
+    };
 
     private async Task HandleDelete(UserDahlia dahlia)
     {
