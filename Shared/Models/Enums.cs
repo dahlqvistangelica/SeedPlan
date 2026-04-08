@@ -21,4 +21,40 @@
         Fruit = 3
     }
 
+    public enum DahliaType
+    {
+        Decorative,
+        Cactus,
+        SemiCactus,
+        Ball,
+        Pompon,
+        Anemone,
+        Waterlily,
+        Single,
+        Collarette,
+        Dinnerplate,
+        Mignon,
+        DecorativeDwarfs, 
+        DecorativeGiants,
+        DecorativeSmall,
+        DecorativeLarge,
+        DwarfCactus,
+        Exclusive,
+        Fringed,
+        Orchid,
+        Peony,
+        Stellar,
+        Other
+    }
+
+    public enum DahliaSize
+    {
+        Under5,
+        Size5to10, 
+        Size10to15,
+        Size15to20,
+        Size20to25,
+        Over25
+    }
+
 }

@@ -164,3 +164,14 @@
         transform: rotate(360deg);
     }
 }
+
+@media(max-width: 400px)
+{
+    .modal-card{
+        padding: 1.2rem;
+        gap: 1px;
+    }
+    .modal-header .serif-title{
+        font-size: 1.4rem;
+    }
+}

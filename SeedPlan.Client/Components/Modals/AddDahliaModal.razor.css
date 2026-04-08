@@ -1,0 +1,91 @@
+﻿/* FIXES FIELDS OVERFLOWING */
+
+/* Label and input grouping */
+.input-block {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+}
+
+.sp-input-block label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* GRID FIX TO AVOID OVERLAPS */
+.sp-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.qty-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.unit-tag {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+/* SEARCH DROPDOWN STYLING */
+
+
+.sp-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.sp-selected-tag {
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #10b981;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sp-change-link {
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: bold;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.info-box {
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 16px;
+}
+
+    .info-box label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 800;
+        color: #94a3b8;
+        margin-bottom: 5px;
+        letter-spacing: 0.05em;
+    }
+
+    .info-box span {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+
+

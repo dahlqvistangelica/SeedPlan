@@ -1,3 +1,4 @@
+using Cropper.Blazor.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -51,6 +52,8 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
+            builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
+            builder.Services.AddScoped<IDahliaService, DahliaService>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<FeedbackModalService>(); 
@@ -75,7 +78,7 @@ namespace SeedPlan.Client
 
             // Register notificationservice.
             builder.Services.AddScoped<NotificationService>();
-
+            builder.Services.AddCropper();
 
             var host = builder.Build();
             var supabase = host.Services.GetRequiredService<Supabase.Client>();

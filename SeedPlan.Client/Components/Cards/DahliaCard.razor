@@ -1,0 +1,151 @@
+﻿@inject IJSRuntime JS
+
+@if (Dahlia != null)
+{
+    GetImage();
+    <div class="sp-dahlia-card">
+        
+        @* TOPPEN: Bakgrund med cirkel och Radera-knapp *@
+        <div class="sp-card-top" style="background: @GetDahliaColorCode(Dahlia.Color);">
+            
+
+            @* CIRKELN MED BILD ELLER FÄRG *@
+            <div class="sp-image-wrapper">
+                @if (!string.IsNullOrEmpty(Dahlia.PhotoUrls))
+                {
+                    
+                    @* Visa bild om den finns *@
+                    <img src="@displayImageUrl" class="sp-dahlia-image" alt="@Dahlia.Name" />
+                }
+                else
+                {
+                    @* Ingen bild? Visa en tom cirkel med tjock vit kant *@
+                    <div class="sp-default-circle" style="background: @GetDahliaColorCode(Dahlia.Color, true);"></div>
+                }
+            </div>
+        </div>
+
+        @* BOTTEN: All information *@
+        <div class="sp-card-bottom">
+            <h3 class="serif-title">@Dahlia.Name</h3>
+            
+
+            <ul class="detail-list">
+                <li class="detail-item">
+                    <div class="detail-icon"><Blazicon Svg="Lucide.Flower"/></div>
+                    <div class="detail-text"><span>Typ:</span>@Dahlia.GetTypeName()</div>
+                </li>
+                <li class="detail-item">
+                    <div class="detail-icon"><Blazicon Svg="MdiIcon.DiameterOutline" /></div>
+                    <div class="detail-text"><span>Blomstorlek:</span> @Dahlia.GetSize() cm</div>
+                </li>
+                <li class="detail-item">
+                    <div class="detail-icon"><Blazicon Svg="Lucide.Ruler" /></div>
+                    <div class="detail-text"><span>Höjd:</span> @(Dahlia.Height.ToString() ?? "?") cm</div>
+                </li>
+                <li class="detail-item">
+                    <div class="detail-icon"><Blazicon Svg="Lucide.PaintBucket" /></div>
+                    <div class="detail-text"><span>Färg:</span> @(Dahlia.Color.ToString() ?? "?")</div>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Dahlia Dahlia { get; set; } = new();
+    [Parameter] public EventCallback<UserDahlia> OnDelete { get; set; }
+    [Parameter] public EventCallback<UserDahlia> OnClick { get; set; }
+    private string displayImageUrl = "/images/placeholder.webp";
+
+    private void GetImage()
+    {
+        if(!string.IsNullOrWhiteSpace(Dahlia.PhotoUrls))
+        {
+            var urls = Dahlia.PhotoUrls.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if(urls.Any())
+            {
+                var randomIndex = Random.Shared.Next(urls.Length);
+                displayImageUrl = urls[randomIndex].Trim();
+            }
+        }
+        else
+        {
+            displayImageUrl = "/images/placeholder.webp";
+        }
+    }
+    // Färgkodning som ger en ljus bakgrund och en mörk textfärg (perfekt för FröKoll-etiketter)
+
+    private string GetDahliaColorCode(string? colorName, bool isText = false)
+    {
+        if (string.IsNullOrWhiteSpace(colorName))
+            return isText ? "#475569" : "#e2e8f0";
+
+        var parts = colorName.Split(',').Select(p => p.Trim().ToLower()).ToList();
+        var validColors = parts.Where(p => p != "tvåfärgad" && p != "flerfärgad").ToList();
+
+        // UPPDATERAD ORDBOK: (Bakgrundens riktiga färg, Textens färg)
+        (string Bg, string Txt) GetColorPair(string c)
+        {
+            return c switch
+            {
+                "vit" => ("#ffffff", "#334155"),           // Vit bakgrund, mörk stålgrå text
+                "krämvit" => ("#fef3c7", "#78350f"),       // Krämvit, mörkbrun text
+                "citrongul" => ("#fef9c3", "#854d0e"),     // Citrongul, mörkbrun text
+                "gul" => ("#facc15", "#422006"),           // Solgul, nästan svart text
+                "aprikos" => ("#fdba74", "#7c2d12"),       // Aprikos, mörkröd/brun text
+                
+                // Mörka/starka färger med VIT text för bästa kontrast!
+                "orange" => ("#f97316", "#ffffff"),
+                "laxrosa" or "korall" => ("#fb7185", "#ffffff"),
+                "röd" => ("#ef4444", "#ffffff"),
+                "mörkröd" => ("#7f1d1d", "#ffffff"),
+                "rosa" => ("#ec4899", "#ffffff"),
+                "cerise" => ("#be185d", "#ffffff"),
+                "lila" => ("#a855f7", "#ffffff"),
+                "mörklila" => ("#4c1d95", "#ffffff"),
+                
+                "ljusrosa" => ("#fbcfe8", "#831843"),      // Ljusrosa med mörkrosa text
+                "ljuslila" => ("#d8b4fe", "#4c1d95"),      // Ljuslila med mörklila text
+                
+                _ => ("#e2e8f0", "#334155") // Standard stålgrå
+            };
+        }
+
+        // SCENARIO A: En färg
+        if (validColors.Count == 1)
+        {
+            var pair = GetColorPair(validColors[0]);
+            return isText ? pair.Txt : pair.Bg;
+        }
+        
+        // SCENARIO B: Tvåfärgad (Mjuk gradient)
+        if (validColors.Count >= 2)
+        {
+            var pair1 = GetColorPair(validColors[0]);
+            var pair2 = GetColorPair(validColors[1]);
+
+            if (isText)
+            {
+                return pair1.Txt; // Tar textfärgen från den dominanta färgen
+            }
+            else
+            {
+                // Mjuk, fin fade från hörn till hörn (0% -> 100%)
+                return $"linear-gradient(135deg, {pair1.Bg} 0%, {pair2.Bg} 100%)";
+            }
+        }
+
+        // SCENARIO C: Flerfärgad / Tvåfärgad utan specifik färg
+        if (parts.Contains("flerfärgad") || parts.Contains("tvåfärgad"))
+        {
+            if (isText) return "#ffffff";
+            // En väldigt snygg mjuk solnedgång/regnbågs-fade
+            return "linear-gradient(135deg, #facc15 0%, #f472b6 50%, #a855f7 100%)";
+        }
+
+        return isText ? "#475569" : "#e2e8f0";
+    }
+
+}

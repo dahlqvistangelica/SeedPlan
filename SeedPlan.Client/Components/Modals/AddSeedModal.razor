@@ -204,9 +204,7 @@
                     var savedVariety = await PlantService.AddVarietyAsync(newVarietyObj);
                     newSeed.VarietyId = savedVariety.Id;
 
-                    // Add this line to verify:
-                    await JS.InvokeVoidAsync("console.log", $"Steg 2 klar! Nytt VarietyId: {savedVariety.Id}");
-
+                    
                     allVarieties.Add(savedVariety);
                 }
                 else

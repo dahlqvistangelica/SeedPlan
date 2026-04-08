@@ -1,0 +1,206 @@
+.group-content {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 20px;
+}
+.dahlia-container {
+	padding: 2rem 1.5rem;
+	max-width: 1000px;
+	margin: 0 auto;
+}
+
+.dahlia-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 2rem;
+}
+
+.filter-toggle {
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 10px;
+	width: 40px;
+	height: 40px;
+	color: #64748b;
+	cursor: pointer;
+	font-size: 1.5rem;
+}
+
+	.filter-toggle.active {
+		background: #10b981;
+		color: white;
+		border-color: #10b981;
+	}
+
+.filter-footer {
+	padding-bottom: 25px;
+	padding-right: 10px;
+}
+
+/* SEARCH FIELD */
+
+.search-wrapper {
+	position: relative;
+	margin-bottom: 2rem;
+	width: 94%;
+}
+/* Search icon */
+.search-icon {
+	position: absolute;
+	left: 15px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #cbd5e1; /* Changed from color to stroke */
+	width: 18px;
+	height: 18px; /* Add height to be safe */
+}
+
+.search-input {
+	width: 100%;
+	padding: 15px 15px 15px 45px;
+	border-radius: 15px;
+	border: 1px solid #f1f5f9;
+	background: white;
+	font-size: 1rem;
+	outline: none;
+}
+/* FILTER PANEL (IMAGE 3) */
+
+.filter-panel {
+	background: white;
+	border-radius: 20px;
+	padding: 25px;
+	margin-bottom: 2rem;
+	box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+
+.chip-group {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+	flex-wrap:wrap;
+}
+
+
+.chip {
+	padding: 8px 16px;
+	border-radius: 8px;
+	border: 1px solid #f1f5f9;
+	background: #f8fafc;
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #64748b;
+	cursor: pointer;
+}
+	.chip.active {
+		background: #10b981;
+		color: white;
+		border-color: #10b981;
+	}
+
+.property-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 12px 0;
+	border-bottom: 1px solid #f8fafc;
+	cursor: pointer;
+	color: #64748b;
+	font-size: 0.9rem;
+}
+
+.input-row {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 20px;
+}
+
+.status-text {
+	color: #cbd5e1;
+	font-weight: 600;
+}
+
+.reset-btn {
+	border: none;
+	background: #fff2f2;
+	color: #ef4444;
+	font-weight: 800;
+	font-size: 0.7rem;
+	cursor: pointer;
+	float: right;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding: 0.5rem;
+	border-radius: 20px;
+}
+/* Rullgardins-behållare */
+.filter-accordion {
+	border-bottom: 1px solid #f1f5f9;
+}
+
+/* Den klickbara rubriken */
+.accordion-toggle {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	background: none;
+	border: none;
+	padding: 12px 0; /* Stor träffyta för tummen */
+	cursor: pointer;
+	color: #334155;
+}
+
+.accordion-title {
+	font-size: 0.85rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+}
+
+label .accordion-title {
+	padding: 22px 0;
+}
+/* Innehållet när den är nedfälld */
+.accordion-content {
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* Skapar två kolumner automatiskt! */
+	gap: 10px;
+	padding-bottom: 16px;
+	animation: slideDown 0.2s ease-out;
+}
+
+/* Kryssrutorna */
+.checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 0.90rem;
+	color: #475569;
+	cursor: pointer;
+	padding: 3px 0; /* Lite luft så det är lätt att klicka */
+}
+
+	/* Gör själva rutan snygg och stor */
+	.checkbox-label input[type="checkbox"] {
+		width: 20px;
+		height: 20px;
+		accent-color: #10b981; /* Byt till din gröna accentfärg */
+		cursor: pointer;
+	}
+
+.height-group {
+	border-bottom: none;
+}
+
+@keyframes slideDown {
+	from {
+		opacity: 0;
+		transform: translateY(-5px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

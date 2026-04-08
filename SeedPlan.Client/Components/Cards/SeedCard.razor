@@ -1,0 +1,47 @@
+﻿@inject IJSRuntime JS 
+
+@if (Seed != null)
+{
+    <div class="seed-card" @onclick="HandleCardClick">
+        <div class="seed-info">
+            <h3>@(string.IsNullOrEmpty(Seed.VarietyName) ? Seed.Name : Seed.VarietyName)</h3>
+
+            @if (Seed.ExpiryDate.HasValue)
+            {
+                <span class="expiry-tag @(Seed.ExpiryDate < DateTime.Now ? "expired" : "")">
+                    Utgångsdatum: @Seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
+                </span>
+            }
+        </div>
+        <div class="seed-actions">
+            <div class="qty-badge" onclick="Open">
+                <Blazicon Svg="MdiIcon.SeedOutline" />
+                <span class="qty">@Seed.Quantity st</span>
+            </div>
+            <div class="arrow-icon"><Blazicon Svg="Lucide.ChevronRight" /></div>
+            @* DELEBUTTON *@
+            <button class="delete-seed-btn" @onclick="() => HandleDelete(Seed)" @onclick:stopPropagation="true">
+                <Blazicon Svg="Lucide.Trash2" />
+            </button>
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public SeedView Seed { get; set; } = new();
+    [Parameter] public EventCallback<SeedView> OnDelete { get; set; }
+    [Parameter] public EventCallback<SeedView> OnClick { get; set; }
+
+    private async Task HandleCardClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(Seed);
+        }
+    }
+
+    private async Task HandleDelete(SeedView seed)
+    {
+        await OnDelete.InvokeAsync(seed);
+    }
+
+}

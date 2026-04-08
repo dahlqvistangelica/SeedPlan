@@ -1,0 +1,230 @@
+﻿/* Korten med gamla runda formerna och skuggorna */
+.sowing-card-compact {
+    background: white;
+    border-radius: 24px; /* Från de gamla korten */
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03); /* Från de gamla korten */
+    border: 1px solid #f1f5f9;
+}
+
+    .sowing-card-compact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+        border-color: #e2e8f0;
+    }
+
+.compact-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Grundstilen för ikonen (utan färg) */
+.compact-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* FÄRGER PER STATUS (Ikon-bakgrund och ikon-färg) */
+.status-icon-0 {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+/* 0: Sådd - Grå */
+.status-icon-1 {
+    background: #ecfdf5;
+    color: #10b981;
+}
+/* 1: Grodd - Grön */
+.status-icon-2 {
+    background: #dcfce7;
+    color: #22c55e;
+}
+/* 2: Karaktärsblad - Ljusgrön */
+.status-icon-3 {
+    background: #eff6ff;
+    color: #3b82f6;
+}
+/* 3: Omskolning - Blå (som gamla!) */
+.status-icon-4 {
+    background: #fffbeb;
+    color: #f59e0b;
+}
+/* 4: Avhärdning - Gul/Orange */
+.status-icon-5 {
+    background: #fdf4ff;
+    color: #d946ef;
+}
+/* 5: Utplanterad - Rosa/Lila */
+.status-icon-6 {
+    background: #fef2f2;
+    color: #ef4444;
+}
+/* 6: Skördad - Röd */
+.status-icon-7 {
+    background: #f8fafc;
+    color: #0f766e;
+}
+/* 7: Avslutad - Mörkgrön/Teal */
+.status-icon-99 {
+    background: #fee2e2;
+    color: #dc2626;
+}
+/* 99: Misslyckad - Skarp Röd */
+
+/* Om du vill matcha lilla punkten i footern med samma färg: */
+.status-bg-0 {
+    background: #6b7280;
+}
+
+.status-bg-1 {
+    background: #10b981;
+}
+
+.status-bg-2 {
+    background: #22c55e;
+}
+
+.status-bg-3 {
+    background: #3b82f6;
+}
+
+.status-bg-4 {
+    background: #f59e0b;
+}
+
+.status-bg-5 {
+    background: #d946ef;
+}
+
+.status-bg-6 {
+    background: #ef4444;
+}
+
+.status-bg-7 {
+    background: #0f766e;
+}
+
+.status-bg-99 {
+    background: #dc2626;
+}
+
+.compact-titles {
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-start;
+    overflow: hidden;
+    gap: 8px;
+    width: 100%;
+}
+.plant-titles{
+    display:flex;
+    flex-direction: column;
+}
+.badge{
+    display: inline-block;
+}
+
+    /* Gamla typsnittet 'Lora' för växtnamnet */
+    .compact-titles .plant-name {
+        font-family: 'Lora', serif;
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: #1e293b;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Gamla typsnittet 'Inter' för sortnamnet */
+    .compact-titles .variety-name {
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+.compact-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 0.8rem;
+}
+
+/* Återskapat utseende från .status-badge */
+.compact-status {
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Om du vill ha kvar färgpricken inuti badgen */
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981; /* Grön som från gamla progressbaren */
+}
+
+.compact-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Gamla orangea/röda varningsfärgen */
+.alert-indicator {
+    color: #f97316;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+}
+
+/* Gamla enkla stilen för datum */
+.compact-meta .sown-date {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 400;
+    background: transparent;
+    padding: 0;
+}
+
+.batch-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-light);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    margin-left: 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}

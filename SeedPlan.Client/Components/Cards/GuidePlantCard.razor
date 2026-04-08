@@ -1,0 +1,66 @@
+﻿@inject IJSRuntime JS
+
+@if (plant != null)
+{
+
+    <div class="plant-card" @onclick="HandleCardClick">
+        <div class="card-top">
+            <div class="plant-icon-circle @GetPlantCategory(plant.Category)">
+                <Blazicon Svg="@GetPlantBlazicon(plant.Category)" />
+            </div>
+            <span class="hardiness-badge @GetHardinessClass(plant.HardinessLevel)">
+                @GetHardinessText(plant.HardinessLevel)
+            </span>
+        </div>
+
+        <div class="card-body">
+            <h3 class="plant-name">@plant.PlantName</h3>
+            <p class="sowing-info">Sås @plant.SowingLeadTime v. före frost</p>
+        </div>
+
+        <div class="card-footer">
+            <div class="feature-icons">
+                @if (plant.IsLightGerminating)
+                {
+                    <div class="icon-light">
+                        <Blazicon Svg="Lucide.Sparkles" class="icon-light" />
+                    </div>
+                }
+                @if (plant.RequiresTopping)
+                {
+                    <div class="icon-topping">
+                        <Blazicon Svg="Lucide.Scissors" class="icon-topping" />
+                    </div>
+                }
+            </div>
+            <div class="arrow">
+                <Blazicon Svg="Lucide.ChevronRight" class="arrow" />
+            </div>
+        </div>
+    </div>
+}
+@code {
+    [Parameter] public Plant plant { get; set; } = new();
+    [Parameter] public EventCallback<Plant> OnClick { get; set; }
+
+    private string GetHardinessText(int level) => level switch { 0 => "KÄNSLIG", 1 => "HALVHÄRDIG", 2 => "HÄRDIG", _ => "" };
+    private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };
+    private string GetPlantCategory(PlantCategory category) => category switch { PlantCategory.Vegetable => "vegetable", PlantCategory.Flower => "flower", PlantCategory.Herb => "herb", PlantCategory.Fruit => "fruit" };
+    private SvgIcon GetPlantBlazicon(PlantCategory category) => category switch
+    {
+        PlantCategory.Vegetable => Lucide.Carrot,
+        PlantCategory.Flower => Lucide.Flower,
+        PlantCategory.Herb => MdiIcon.Clover,
+        PlantCategory.Fruit => Lucide.Apple
+
+    };
+
+    private async Task HandleCardClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(plant);
+        }
+    }
+
+}

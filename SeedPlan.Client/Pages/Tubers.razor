@@ -1,0 +1,196 @@
+﻿@page "/tubers"
+@using Microsoft.AspNetCore.Authorization
+@inject IJSRuntime JS
+@inject IUserDahliaService UserDahliaService
+
+<SeoHead Title="Mina knölar - SeedPlan"
+         Description="Få överblick över ditt frö- och knöllager i SeedPlan, organisera dina fröer och håll koll på din fröinventering."
+         Keywords="dahlior, knölar, fröer, fröinventering, frölager, odling, seedplan" />
+<div class="tubers-container">
+    <header class="tubers-header">
+        <h1 class="serif-title">Mina knölar</h1>
+        <div class="control-button">
+            <button class="btn-add-dahlia" title="Lägg till knöl" @onclick="OpenAddUserDahlia">
+                <div class="btn-add-dahlia-icon"><Blazicon Svg="BootstrapIcon.Flower1"/></div>
+                <span>Ny dahlia</span>
+            </button>
+        </div>
+    </header>
+
+    @if(isLoading)
+    {
+        <LoadingSpinner Text="Laddar dina knölar.." />
+    }
+    else if(!userDahlias.Any())
+    {
+        <div class="empty-state">
+            <p>Ditt dahliabibliotek är tomt. Dags att fylla på!</p>
+        </div>
+    }
+    else
+    {
+        <div class="dahlia-list">
+            @foreach(var group in userDahlias.GroupBy(d => d.Variety.Type))
+            {
+                var isExpanded = expandedGroups.Contains(group.Key);
+                <div class="dahlia-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
+                    <div class="dahlia-group-header-main">
+                        <div class="chevron">
+                            @if(!isExpanded)
+                            {
+                                <Blazicon Svg="Lucide.ChevronRight"/>
+                            }
+                            else
+                            {
+                                <Blazicon Svg="Lucide.ChevronDown"/>
+                            }
+                        </div>
+                        <h2 class="serif-title">@GetTypeName(group.Key)</h2>
+                    </div>
+
+                
+
+                @if(group.Count() > 1)
+                {
+                    <span class="dahlia-count">
+                        @group.Count() sorter
+                    </span>
+                }
+                else
+                {
+                    <span class="dahlia-count">@group.Count() sort</span>
+                }
+                </div>
+
+                @if(isExpanded)
+                {
+                    <div class="group-content fade-in">
+                        @foreach(var dahlia in group)
+                        {
+                            <UserDahliaCard Dahlia="dahlia" OnDelete="() => HandleDelete(dahlia)" OnClick="() => OpenEditDahlia(dahlia)" />
+        
+                        }
+                    </div>
+                }
+            }
+        </div>
+    }
+</div>
+
+<AddDahliaModal IsVisible="showAddModal"
+              OnClose="() => showAddModal = false"
+              OnSaved="RefreshDahlias" />
+<EditDahliaModal IsVisible="showEditModal"
+               UserDahlia="selectedDahlia"
+               OnClose="() => showEditModal = false"
+               OnSaved="RefreshDahlias" />
+
+@code {
+    private List<UserDahlia> userDahlias = new List<UserDahlia>();
+    private bool isLoading = true;
+    private bool showAddModal = false;
+    private bool showEditModal = false;
+    private UserDahlia? selectedDahlia;
+    private HashSet<DahliaType> expandedGroups = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            try
+            {
+                await RefreshDahlias();
+            }
+            finally
+            {
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private void OpenAddUserDahlia() => showAddModal = true;
+
+    private async Task ToggleGroup(DahliaType dahliaType)
+    {
+        if(expandedGroups.Contains(dahliaType))
+        {
+            expandedGroups.Remove(dahliaType);
+        }
+        else
+        {
+            expandedGroups.Add(dahliaType);
+        }
+        await Task.Delay(1);
+    }
+
+    private async Task RefreshDahlias()
+    {
+        isLoading = true;
+        userDahlias = await UserDahliaService.GetUserDahliasAsync();
+        isLoading = false;
+        StateHasChanged();
+    }
+    private void OpenEditDahlia(UserDahlia dahlia)
+    {
+        selectedDahlia = new UserDahlia
+            {
+                Id = dahlia.Id,
+                UserId = dahlia.UserId,
+                VarietyId = dahlia.VarietyId,
+                HaveQty = dahlia.HaveQty,
+                LostInStorage = dahlia.LostInStorage,
+                RemainingQty = dahlia.HaveQty - dahlia.LostInStorage, 
+                Location = dahlia.Location,
+                Notes = dahlia.Notes,
+                PhotoUrl = dahlia.PhotoUrl,
+                Source = dahlia.Source,
+                LikeLevel = dahlia.LikeLevel,
+                Variety = dahlia.Variety
+            };
+        showEditModal = true;
+    }
+
+    public string GetTypeName(DahliaType type) => type switch
+    {
+        DahliaType.Decorative => "Dekorativ",
+        DahliaType.DecorativeGiants => "Dekorativ Jätte",
+        DahliaType.DecorativeDwarfs => "Dekorativ Dvärg",
+        DahliaType.DecorativeSmall => "Dekorativ Liten",
+        DahliaType.DecorativeLarge => "Dekorativ Stor",
+        DahliaType.Anemone => "Anemon",
+        DahliaType.Ball => "Boll",
+        DahliaType.Cactus => "Kaktus",
+        DahliaType.SemiCactus => "Semikaktus",
+        DahliaType.DwarfCactus => "Dvärgkaktus",
+        DahliaType.Pompon => "Pompon",
+        DahliaType.Waterlily => "Näckros",
+        DahliaType.Mignon => "Mignon",
+        DahliaType.Collarette => "Halskrås",
+        DahliaType.Exclusive => "Esklusiva",
+        DahliaType.Fringed => "Fransade",
+        DahliaType.Orchid => "Orkide",
+        DahliaType.Other => "Övriga",
+        DahliaType.Peony => "Pion",
+        DahliaType.Single => "Enkla",
+        DahliaType.Stellar => "Stellar",
+        _ => type.ToString()
+    };
+
+    private async Task HandleDelete(UserDahlia dahlia)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Vill du verkligen ta bort {dahlia.Variety.Name}?");
+        if(confirmed)
+        {
+            await UserDahliaService.DeleteUserDahliaAsync(dahlia.Id);
+            await RefreshDahlias();
+        }
+    }
+
+
+}

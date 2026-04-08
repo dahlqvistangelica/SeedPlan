@@ -1,0 +1,263 @@
+﻿@typeparam TItem where TItem : IHasPhoto
+@using Cropper.Blazor.Components
+@using Cropper.Blazor.Exceptions
+@using Cropper.Blazor.Models
+
+<div class="image-upload-container">
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message" style="color: #ef4444; font-size: 0.85rem; margin-top: 8px;">
+            <Blazicon Svg="Lucide.BadgeAlert" /> @errorMessage
+        </div>
+    }
+
+    @if(!string.IsNullOrEmpty(Item?.PhotoUrl))
+    {
+        <div class="image-preview">
+            <img src="@Item!.PhotoUrl" alt="Preview" />
+            <button type="button" class="btn-remove-image" @onclick="RemoveImage">
+                <Blazicon Svg="Lucide.X"/>
+            </button>
+        </div>
+    }
+    @*@if(!string.IsNullOrEmpty(Item?.PhotoUrl) || !string.IsNullOrEmpty(DefaultImageUrl))
+{
+    <div class="image-preview">
+        <img src="@(string.IsNullOrEmpty(Item?.PhotoUrl) ? DefaultImageUrl : Item!.PhotoUrl)" alt="Preview" />
+        @* Ta bort-knapp bara om det är en riktig uppladdad bild *@
+   @* @if (!string.IsNullOrEmpty(Item?.PhotoUrl))
+    {
+        <button type="button" class="btn-remove-image" @onclick="RemoveImage">
+            <Blazicon Svg="Lucide.X" />
+        </button>
+    }
+</div>
+}*@
+
+    @if(isUploadingImage)
+    {
+        <div class="image-upload-loading">
+            <LoadingSpinner Text="Laddar upp bild.." />
+        </div>
+    }
+
+    @if (hasCheckedTerms && !hasAcceptedImageTerms)
+    {
+        <div class="image-terms-box fade-in">
+            <div class="terms-icon"><Blazicon Svg="Lucide.Info" /></div>
+            <div class="terms-content">
+                <h4>Uppladdningsvillkor.</h4>
+                <p>Alla bilder du laddas upp blir tillgängliga för andra användare i appen genom de olika gallerierna. Tänk på att inte dela bilder med känslig information då den kan ses av andra. Genom att ladda upp bilder godkänner du detta.</p>
+                <button type="button" class="btn-terms-accept" @onclick="AcceptImageTerms">
+                    Jag godkänner
+                </button>
+            </div>
+        </div>
+    }
+
+    @if (isCropping)
+    {
+        <div class="cropper-wrapper fade-in" style="height: 300px; width: 100%; margin-bottom: 15px; border-radius: 8px; overflow: hidden;">
+            <CropperComponent @ref="cropperComponent" Src="@rawImageSrc" Options="cropperOptions" />
+        </div>
+        <div class="sp-grid-2" style="margin-bottom: 20px;">
+            <button type="button" class="sp-save-btn" @onclick="CropAndUpload">Beskär & Spara bild</button>
+            <button type="button" class="sp-cancel-btn" @onclick="CancelCrop">Avbryt</button>
+        </div>
+    }
+
+    <div style="@((hasCheckedTerms && hasAcceptedImageTerms && string.IsNullOrEmpty(Item?.PhotoUrl) && !isUploadingImage && !isCropping) ? "display:block;" : "display:none;")">
+        <label class="upload-button fade-in">
+            <Blazicon Svg="Lucide.Camera" />
+            <span>Välj bild</span>
+            <InputFile OnChange="LoadImageForCropping" accept="image/*" class="hidden-input" />
+        </label>
+    </div>
+</div>
+
+@code {
+    [Parameter] public TItem Item { get; set; } = default!;
+    [Parameter] public EventCallback<TItem> OnUploaded { get; set; }
+    [Parameter] public EventCallback<TItem> OnRemoved { get; set; }
+
+    [Parameter] public string BucketName { get; set; } = "dahlia-images";
+    [Parameter] public int CropWidth { get; set; } = 350;
+    [Parameter] public int CropHeight { get; set; } = 350;
+    [Parameter] public int MaxSizeBytes { get; set; } = 2 * 1024 * 1024;
+    //[Parameter] public string? DefaultImageUrl { get; set; } // Sätt om du vill ha fallback-bild
+
+    [Inject] public IJSRuntime JS { get; set; } = default!;
+    [Inject] public Supabase.Client Supabase { get; set; } = default!;
+
+    private CropperComponent? cropperComponent;
+    private bool isCropping = false;
+    private bool isUploadingImage = false;
+    private bool hasAcceptedImageTerms = false;
+    private bool hasCheckedTerms = true;
+    private string rawImageSrc = "";
+    private string errorMessage = "";
+
+    private Options cropperOptions = new Options
+    {
+        AspectRatio = 1,
+        ViewMode = ViewMode.Vm1,
+        DragMode = "move"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var stored = await JS.InvokeAsync<string>("localStorage.getItem", "hasAcceptedImageTerms");
+            if (stored == "true")
+            {
+                hasAcceptedImageTerms = true;
+            }
+        }
+        catch
+        {
+            // ignorera om localStorage inte går att läsa
+        }
+
+        hasCheckedTerms = true;
+    }
+
+    private async Task AcceptImageTerms()
+    {
+        hasAcceptedImageTerms = true;
+        try { await JS.InvokeVoidAsync("localStorage.setItem", "hasAcceptedImageTerms", "true"); }
+        catch { }
+    }
+
+    private async Task LoadImageForCropping(InputFileChangeEventArgs e)
+    {
+        errorMessage = string.Empty;
+        var file = e.File;
+        if (file == null) return;
+
+        try
+        {
+            var resizedFile = await file.RequestImageFileAsync("image/jpeg", 1200, 1200);
+            using var stream = resizedFile.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+
+            var base64 = Convert.ToBase64String(memoryStream.ToArray());
+            rawImageSrc = $"data:image/jpeg;base64,{base64}";
+            isCropping = true;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte ladda in bilden: {ex.Message}";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void CancelCrop()
+    {
+        isCropping = false;
+        rawImageSrc = "";
+        errorMessage = "";
+    }
+
+    private async Task CropAndUpload()
+    {
+        if (cropperComponent == null)
+        {
+            errorMessage = "Cropperkomponent är null!";
+            return;
+        }
+
+        isUploadingImage = true;
+        errorMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var imageBytes = await CropToMaxSizeAsync();
+            if (imageBytes.Length == 0)
+            {
+                errorMessage = "Beskärningen misslyckades: Datan var 0 bytes.";
+                return;
+            }
+
+            var session = await Supabase.Auth.RetrieveSessionAsync();
+            var user = session?.User ?? Supabase.Auth.CurrentUser;
+
+            if (user == null)
+            {
+                errorMessage = "Kunde inte hitta en inloggad användare.";
+                return;
+            }
+
+            var fileName = $"{user.Id}/{Guid.NewGuid()}.jpg";
+
+            await Supabase.Storage
+                .From(BucketName)
+                .Upload(imageBytes, fileName, new Supabase.Storage.FileOptions
+                {
+                    CacheControl = "3600",
+                    Upsert = false
+                });
+
+            Item.PhotoUrl = Supabase.Storage.From(BucketName).GetPublicUrl(fileName);
+
+            isCropping = false;
+            rawImageSrc = "";
+
+            await OnUploaded.InvokeAsync(Item);
+        }
+        catch (ImageProcessingException ex)
+        {
+            Console.WriteLine($"❌ ImageProcessingException: {ex}");
+            errorMessage = $"Fel vid beskärning: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Exception: {ex}");
+            errorMessage = $"Fel vid beskärning: {ex.Message}";
+        }
+        finally
+        {
+            isUploadingImage = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task<byte[]> CropToMaxSizeAsync()
+    {
+        var options = new GetCroppedCanvasOptions
+        {
+            Width = CropWidth,
+            Height = CropHeight,
+            FillColor = "#fff",
+            ImageSmoothingQuality = "high"
+        };
+
+        float quality = 0.9f;
+
+        while (quality >= 0.4f)
+        {
+            var receiver = await cropperComponent!.GetCroppedCanvasDataInBackgroundAsync(
+                options,
+                "image/jpeg",
+                quality);
+
+            using MemoryStream ms = await receiver.GetImageChunkStreamAsync();
+            var bytes = ms.ToArray();
+
+            if (bytes.Length <= MaxSizeBytes)
+                return bytes;
+
+            quality -= 0.1f;
+        }
+
+        throw new Exception("Bilden är fortfarande för stor även med låg kvalitet.");
+    }
+
+    private async Task RemoveImage()
+    {
+        Item.PhotoUrl = string.Empty;
+        await OnRemoved.InvokeAsync(Item);
+    }
+}
