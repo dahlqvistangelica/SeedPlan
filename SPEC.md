@@ -1,4 +1,4 @@
-# SeedPlan – Specifikation v2.1
+# SeedPlan – Specifikation v2.2
 
 > Baserad på befintlig app (Blazor WebAssembly + Supabase) – april 2026
 > Odlingsplatser är borttagna. Speccen speglar nuvarande app och visar tydligt vad som redan finns och vad som återstår.
@@ -9,7 +9,9 @@
 
 SeedPlan är en PWA för att hantera fröinventering, planera sådder baserat på sista frostdatum, följa såddars utveckling steg för steg, hålla koll på dahlior/knölar och ge en tydlig profil- och inställningsyta. All data lagras i Supabase med individuella användarkonton.
 
-Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knölar, profil och inställningar.
+Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knölar, profil och inställningar, samt två tydliga applägen:
+- **SeedPlan-läge** (fröer/sådder/guide)
+- **DahliaBox-läge** (dahliaöversikt/egna knölar/varianter)
 
 ### Befintlig stack (ändras ej)
 
@@ -25,6 +27,20 @@ Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knöl
 - Offline-läsning av inventarie och aktiva sådder via Service Worker ✅ (grundläggande)
 - Push-notiser via Web Push API 🟡 (grundinfrastruktur finns, men konfigurationen är fortfarande delvis manuell)
 - Responsiv design, primärt mobilvy ✅
+
+### 1.1 Nyligen levererat i UI och funktioner (release 1.5.1)
+- Appversion uppdaterad till **1.5.1** i klientens versionskontroll, settingsvisning och publik appsettings.
+- Växling mellan **SeedPlan** och **DahliaBox** sker via loggor i headern.
+- Aktivt appläge sparas i `localStorage` (`appMode`) och återställs vid sidladdning.
+- `BottomNav` är lägesstyrd:
+  - SeedPlan-läge: Översikt, Fröer, Sådder, Växtguide, Inställningar
+  - DahliaBox-läge: Översikt, Egna knölar, Varianter, Inställningar
+- DahliaBox har en egen startsida (`/dahliabox-home`) med:
+  - nyckeltal (antal sorter, antal knölar, favorittyp)
+  - säsongstidslinje (förodling och utplantering utifrån användarens sista frostdatum)
+- Dahlia-modaler använder återanvändbar funktionskomponent för betyg (`StarRating`) med klickbar 1-5-stjärnlogik.
+- Dahlia-sökning i `AddDahliaModal` är nu fullt asynkron i UI-event (`@oninput` + `await`), i stället för blockerande `.Result`.
+- Dahlia-sökning begränsas till toppträffar (limit) och sorteras alfabetiskt för snabb respons i dropdown.
 
 ---
 
@@ -540,17 +556,25 @@ CREATE TABLE notification_settings (
 ## 11. UI-struktur (uppdaterad navigation)
 
 ```
-📱 Bottom navigation:
-├── 🏠 Översikt        /          – Sårekommendationer + aktiva sådder + varningar
-├── 🌱 Lager
-│   ├── Fröer          /seeds     – Frölagret
-│   └── Knölar         /tubers    – Dahlialager / användarknölar
-├── 🌿 Såddar         /sowings   – Aktiva och avslutade såddar
-├── 📖 Guider
-│   ├── Växtguide      /guide     – Växtguide
-│   └── Dahlior        /dahlias   – Dahliabibliotek
-└── ⚙️ Inställningar  /settings  – Inställningsöversikt + länk till profil/konto
+📱 Header-lägeväljare:
+├── SeedPlan-logo   -> växlar till SeedPlan-läge
+└── Dahlia-logo     -> växlar till DahliaBox-läge (inloggad användare)
+
+📱 Bottom navigation – SeedPlan-läge:
+├── 🏠 Översikt        /              – Sårekommendationer + aktiva sådder + varningar
+├── 🌱 Fröer           /seeds         – Frölagret
+├── 🌿 Såddar         /sowings       – Aktiva och avslutade såddar
+├── 📖 Växtguide       /guide         – Växtguide
+└── ⚙️ Inställn.      /settings      – Inställningsöversikt + länk till profil/konto
+
+📱 Bottom navigation – DahliaBox-läge:
+├── 🏠 Översikt        /dahliabox-home – DahliaBox dashboard
+├── 🌱 Egna knölar     /tubers         – Användarens knöllager
+├── 🌸 Varianter       /dahlias        – Dahliabibliotek + filtrering/sök
+└── ⚙️ Inställn.      /settings       – Delad inställningsyta
 ```
+
+Notering: Önskelista-fliken är tillfälligt utkommenterad i navigeringen och ingår inte i aktivt flöde.
 
 Övriga sidor som är planerade men inte implementerade i navigationen ännu:
 - `/planning` – fullständig såddlista för säsongen
@@ -574,6 +598,16 @@ CREATE TABLE notification_settings (
 ---
 
 ## 13. Byggas i denna prioritetsordning
+
+### Prioritet 1 – Buildlista (nästa releasekandidat)
+- Lägg till visuell loading-state i dahlia-sökdropdown när asynkron sökning pågår (`isSearching`).
+- Lägg till enkel debounce/cancellation i dahlia-sökning för att minska överlappande requests vid snabb inmatning.
+- Säkerställ konsekvent fallback när sökning ger 0 träffar (tomt tillstånd + CTA för "Skapa ny sort").
+- QA av lägesväxling SeedPlan/DahliaBox (persistens i `localStorage`, korrekt redirect, korrekt active state i UI).
+- QA av mode-specifik bottomnav på mobil och desktop (inga brutna länkar mellan lägen).
+- Verifiera versionskedjan 1.5.1 (`MainLayout`, `Settings`, `wwwroot/appsettings.json`) i cache-scenario.
+- Lägg till/uppdatera tester för dahlia-sökflödet (asynkront input-event, resultatlista, val av träff).
+- Lägg till/uppdatera tester för `StarRating`-komponenten (toggle av samma stjärna => `null`).
 
 ### Prioritet 1 – Utökat fröinventarie
 - Inköpsdatum, inköpsställe och grobarhetsprocent
@@ -612,4 +646,4 @@ CREATE TABLE notification_settings (
 
 ---
 
-*Specifikation v2.1 – SeedPlan – april 2026*
+*Specifikation v2.2 – SeedPlan – april 2026*
