@@ -43,8 +43,8 @@
 }
 /* 0: Sådd - Grå */
 .status-icon-1 {
-    background: #ecfdf5;
-    color: #10b981;
+    background: var(--bg-icon);
+    color: var(--primary);
 }
 /* 1: Grodd - Grön */
 .status-icon-2 {
@@ -89,7 +89,7 @@
 }
 
 .status-bg-1 {
-    background: #10b981;
+    background: var(--primary);
 }
 
 .status-bg-2 {
@@ -187,7 +187,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #10b981; /* Grön som från gamla progressbaren */
+    background: var(--primary); /* Grön som från gamla progressbaren */
 }
 
 .compact-meta {

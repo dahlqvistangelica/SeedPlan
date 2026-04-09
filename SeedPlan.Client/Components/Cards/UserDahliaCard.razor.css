@@ -82,6 +82,12 @@
     color: #9ca3af; /* Ljusgrå text för subtitel */
 }
 
+.fk-subtitle Svg{
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--primary); 
+}
+
 /* FröKolls snygga status-etikett */
 .fk-badge {
     font-size: 0.65rem;

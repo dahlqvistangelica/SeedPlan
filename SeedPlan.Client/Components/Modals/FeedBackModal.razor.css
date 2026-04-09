@@ -28,7 +28,7 @@
 }
 
 .modal-header h2 span {
-    color: #10b981;
+    color: var(--primary);
     display: flex;
     align-items: center;
 }

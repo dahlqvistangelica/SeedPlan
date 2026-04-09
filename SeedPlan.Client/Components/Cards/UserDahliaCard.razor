@@ -30,16 +30,17 @@
                 <div class="fk-title-group">
                     <h3 class="fk-title">@Dahlia.Variety.Name</h3>
                     
-                    <p class="fk-subtitle">
+                    <div class="fk-subtitle">
                         @Dahlia.HaveQty st &bull;
-                        @if(Dahlia.LikeLevel > 0)
+
+                        @if(Dahlia.Rating > 0)
                         {
-                            @for (int i = 0; i <= Dahlia.LikeLevel; i++)
+                            @for (int i = 1; i <= Dahlia.Rating; i++)
                             {
-                                <Blazicon Svg="Lucide.Star" />                    
+                                <Blazicon Svg="MdiIcon.Star" style="color: var(--primary)" />
                             }
                         }
-                    </p>
+                    </div>
                 </div>
 
                 

@@ -181,11 +181,11 @@
     @if (totalPages > 1)
     {
         <div class="pagination-controls" style="margin-top: 20px; display: flex; gap: 15px; align-items: center;">
-            <button class="sp-btn" disabled="@(currentPage == 1)" @onclick="PreviousPage">⬅️ Föregående</button>
+            <button class="btn-primary" disabled="@(currentPage == 1)" @onclick="PreviousPage"><Blazicon Svg="Lucide.ChevronLeft"/> Föregående</button>
             
-            <span>Sida <strong>@currentPage</strong> av <strong>@totalPages</strong> (@totalDahlias träffar totalt)</span>
+            <span>Sida <strong>@currentPage</strong> av <strong>@totalPages</strong> (@totalDahlias totalt)</span>
             
-            <button class="sp-btn" disabled="@(currentPage == totalPages)" @onclick="NextPage">Nästa ➡️</button>
+            <button class="btn-primary" disabled="@(currentPage == totalPages)" @onclick="NextPage">Nästa <Blazicon Svg="Lucide.ChevronRight"/></button>
         </div>
     }
     </div>

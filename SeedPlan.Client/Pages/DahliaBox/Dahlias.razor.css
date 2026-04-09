@@ -28,9 +28,9 @@
 }
 
 	.filter-toggle.active {
-		background: #10b981;
+		background: var(--primary);
 		color: white;
-		border-color: #10b981;
+		border-color: var(--primary);
 	}
 
 .filter-footer {
@@ -95,9 +95,9 @@
 	cursor: pointer;
 }
 	.chip.active {
-		background: #10b981;
+		background: var(--primary);
 		color: white;
-		border-color: #10b981;
+		border-color: var(--primary);
 	}
 
 .property-row {
@@ -185,7 +185,7 @@ label .accordion-title {
 	.checkbox-label input[type="checkbox"] {
 		width: 20px;
 		height: 20px;
-		accent-color: #10b981; /* Byt till din gröna accentfärg */
+		accent-color: var(--primary); /* Byt till din gröna accentfärg */
 		cursor: pointer;
 	}
 

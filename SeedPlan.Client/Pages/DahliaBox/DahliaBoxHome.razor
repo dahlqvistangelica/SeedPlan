@@ -1,0 +1,184 @@
+﻿@page "/dahliabox-home"
+@inject IUserDahliaService UserDahliaService
+@inject IUserProfileService ProfileService
+
+<div class="dashboard-container">
+    <header class="dashboard-header">
+        
+        <div class="header-top">
+            <h1 class="serif-title">Välkommen tillbaka</h1>
+            <div class="date-badge">
+                <Blazicon Svg="Lucide.Calendar" />
+                <span>@DateTime.Now.ToString("yyyy-MM-dd")</span>
+            </div>
+        </div>
+        </header>
+    @if(isLoading)
+    {
+        <LoadingSpinner Text="Laddar din DahliaBox" />
+    }
+    else
+    {
+        @*Statistics*@
+        <div class="stats-grid">
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <Blazicon Svg="Lucide.ChartPie" />
+                </div>
+                <div class="stats-info">
+                    <h3>Antal sorter</h3>
+                    <span class="stat-number">@totalVarieties</span>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <Blazicon Svg="Lucide.ChartColumnStacked" />
+                </div>
+                <div class="stats-info">
+                    <h3>Antal knölar</h3>
+                    <span class="stat-number">@totalTubers</span>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="stats-icon">
+                    <Blazicon Svg="Lucide.Star" />
+                </div>
+                <div class="stats-info">
+                    <h3>Favorittyp</h3>
+                    <span class="stat-number">@favoriteTypeString</span>
+                </div>
+            </div>
+        </div>
+
+        @*Countdown*@
+        <h2 class="section-title">Säsongens tidslinje</h2>
+        <div class="countdown-grid">
+            <div class="countdown-card @(daysToPreCultivate <= 0 ? "ready" : "")">
+                <div class="card-header">
+                    <h3>Förodling</h3>
+                    <span>@preCultivateDate.ToString("d MMM")</span>
+                </div>
+                <div class="card-body">
+                    @if (daysToPreCultivate > 0)
+                    {
+                        <span class="big-number">@daysToPreCultivate</span>
+                        <span class="days-text">dagar kvar</span>
+                        <p class="hint">Börja väcka knölarna ca 5 veckor innan utplantering.</p>
+                    }
+                    else
+                    {
+                        <span class="action-text">Dags att förodla! 🌱</span>
+                    }
+                </div>
+            </div>
+
+            @* Utplantering *@
+            <div class="countdown-card @(daysToPlantOut <= 0 ? "ready" : "")">
+                <div class="card-header">
+                    <h3>Utplantering</h3>
+                    <span>@lastFrostDate.ToString("d MMM")</span>
+                </div>
+                <div class="card-body">
+                    @if (daysToPlantOut > 0)
+                    {
+                        <span class="big-number">@daysToPlantOut</span>
+                        <span class="days-text">dagar kvar</span>
+                        <p class="hint">När risken för frost är över (Järnnätterna).</p>
+                    }
+                    else
+                    {
+                        <span class="action-text">Dags att plantera ut! ☀️</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading;
+    private List<UserDahlia> myDahlias = new();
+    private UserProfile? userProfile;
+    
+    private int totalVarieties = 0;
+    private int totalTubers = 0;
+    // favoriteType behövs nog inte sparas som variabel om du bara ska visa texten
+    private string favoriteTypeString = "Laddar...";
+
+    private DateTime preCultivateDate;
+    private DateTime lastFrostDate;
+    private int daysToPreCultivate;
+    private int daysToPlantOut;
+
+    protected override void OnInitialized()
+    {
+        isLoading = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // 1. HÄMTA ALL DATA FÖRST
+            myDahlias = await UserDahliaService.GetUserDahliasAsync();
+            userProfile = await ProfileService.GetUserProfile();
+
+            // 2. NÄR DATAN FINNS, DÅ RÄKNAR VI
+            CalculateStats();
+            CalculateCountdowns();
+
+            // 3. SÄG TILL BLAZOR ATT RITA OM SKÄRMEN
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CalculateStats()
+    {
+        totalVarieties = myDahlias.Count();
+        totalTubers = myDahlias.Sum(d => d.HaveQty);
+
+        var topType = myDahlias.GroupBy(d => d.Variety.Type)
+                               .OrderByDescending(g => g.Count())
+                               .FirstOrDefault();
+
+        // Skyddsnät: Om listan är tom, sätt ett standardvärde!
+        if (topType != null)
+        {
+            var favoriteType = topType.First().Variety;
+            favoriteTypeString = favoriteType.GetTypeName();
+        }
+        else
+        {
+            favoriteTypeString = "Inga tillagda";
+        }
+    }
+
+    private void CalculateCountdowns()
+    {
+        // Skyddsnät: Kolla att profilen OCH frostdatumet faktiskt existerar
+        if (userProfile == null || !userProfile.LastFrostDate.HasValue)
+        {
+            return;
+        }
+
+        var today = DateTime.Now.Date; // Använd .Date för att slippa klockslag som bråkar
+
+        // Nu är det säkert att använda .Value
+        lastFrostDate = userProfile.LastFrostDate.Value.Date;
+
+        // Om frostdatumet passerat med 30 dagar, titta på nästa års säsong
+        if (today > lastFrostDate.AddDays(30))
+        {
+            // RÄTT sätt att lägga på ett år i C#
+            lastFrostDate = lastFrostDate.AddYears(1);
+        }
+
+        preCultivateDate = lastFrostDate.AddDays(-35);
+
+        daysToPlantOut = ((lastFrostDate - today).Days)+5;
+        daysToPreCultivate = (preCultivateDate - today).Days;
+    }
+}

@@ -124,7 +124,7 @@
 .btn-back {
     background: none;
     border: none;
-    color: #10b981;
+    color: var(--primary);
     display: flex;
     align-items: center;
     gap: 0.5rem;

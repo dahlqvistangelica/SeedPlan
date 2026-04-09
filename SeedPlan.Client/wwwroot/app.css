@@ -18,6 +18,7 @@
     --primary: #10b981;
     --primary-hover: #059669;
     --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
 }
 
 /* 2. SEEDPLAN-TEMAT (Förtydligande, matchar standarden) */
@@ -25,15 +26,24 @@
     --primary: #10b981;
     --primary-hover: #059669;
     --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
 }
 
 /* 3. DAHLIA-TEMAT (Här sker magin!) */
 /* När klassen .dahlia-theme aktiveras av din växelspak, 
    skriver den över färgerna från :root för allt som ligger inuti den. */
 .dahlia-theme {
-    --primary: #d81b60; /* Din dahlia-rosa färg */
-    --primary-hover: #ad144b; /* En mörkare rosa när man håller över knappar */
-    --bg-main: #fff0f5; /* Kanske en milt rosatonad bakgrund istället för krämvit? */
+    /* CSS HEX 
+    --eggshell: #F4EFDDff;
+    --dusty-lavender: #78617Fff;
+    --soft-linen: #EBE8DFff;
+    --rosy-taupe: #C4A5AAff;
+    --dusty-mauve: #A07D97ff; */
+    --primary: #A07D97;
+    --primary-hover: #78617F;
+    --secondary: #C4A5AA;
+    --bg-main: #EBE8DF;
+    --bg-icon: #f3eef2;
 }
 
 /* ==========================================================================
@@ -180,6 +190,7 @@ button {
 .btn-full {
     width: 100%;
 }
+
 
 /* ==========================================================================
    4. INPUT & FORM SYSTEM

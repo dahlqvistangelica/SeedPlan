@@ -152,7 +152,7 @@
 /* Misc styling */
 .theme-toggle-header {
     background: #f0fdf4;
-    color: #10b981;
+    color: var(--primary);
     width: 34px;
     height: 34px;
     border-radius: 50%;

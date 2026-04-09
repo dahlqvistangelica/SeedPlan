@@ -103,7 +103,7 @@
 }
 /* --- Status messages --- */
 .status-alert {
-    background-color: #ecfdf5;
+    background-color: var(--bg-icon);
     color: #065f46;
     padding: 12px 16px;
     border-radius: 12px;
@@ -132,6 +132,6 @@
     width: 16px;
     height: 16px;
     margin: 0;
-    accent-color: #059669;
+    accent-color: var(--primary-hover);
     cursor: pointer;
 }

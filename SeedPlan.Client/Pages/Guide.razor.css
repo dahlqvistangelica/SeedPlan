@@ -22,9 +22,9 @@
     font-size: 1.5rem;
 }
     .filter-toggle.active {
-        background: #10b981;
+        background: var(--primary);
         color: white;
-        border-color: #10b981;
+        border-color: var(--primary);
     }
 
 .filter-footer {
@@ -96,9 +96,9 @@
 }
 
     .chip.active {
-        background: #10b981;
+        background: var(--primary);
         color: white;
-        border-color: #10b981;
+        border-color: var(--primary);
     }
 
 .property-row {

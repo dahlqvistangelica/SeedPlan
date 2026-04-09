@@ -1,0 +1,22 @@
+﻿<div class="star-rating">
+    @for (int i = 1; i <= 5; i++)
+    {
+        var starNumber = i;
+        <button type="button" class="star-button" @onclick="() => HandleClick(starNumber)">
+            @* Vi använder en CSS-variabel eller hård färg för att garantera synlighet *@
+            <Blazicon Svg="MdiIcon.Star"
+                      style="@(starNumber <= (Rating ?? 0) ? "color: #fbbf24;" : "color: #d1d5db;")" />
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public int? Rating { get; set; }
+    [Parameter] public EventCallback<int?> RatingChanged { get; set; }
+
+    private async Task HandleClick(int newRating)
+    {
+        int? finalRating = (newRating == Rating) ? null : newRating;
+        await RatingChanged.InvokeAsync(finalRating);
+    }
+}
