@@ -6,6 +6,7 @@
 @using Cropper.Blazor.Exceptions
 @using Cropper.Blazor.Models
 @using System.Text.RegularExpressions
+@implements IDisposable
 
 @if (IsVisible)
 {
@@ -30,16 +31,31 @@
                         @if (!string.IsNullOrEmpty(searchText))
                         {
                             <div class="sp-dropdown">
-                                @foreach (var dahlia in searchResults)
+                                @if (isSearching)
                                 {
-                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(dahlia)">
-                                        <span>@dahlia.Name</span>
+                                    <div class="sp-dropdown-item sp-loading-item">
+                                        <span>Söker sorter...</span>
                                     </div>
                                 }
-                           
-                            <div class="sp-dropdown-item create-new-item" @onclick="PrepareToCreateNew">
-                                <span>➕ Skapa ny sort: "@searchText"</span>
-                            </div>
+                                else if (searchResults.Any())
+                                {
+                                    @foreach (var dahlia in searchResults)
+                                    {
+                                        <div class="sp-dropdown-item" @onclick="() => SelectResult(dahlia)">
+                                            <span>@dahlia.Name</span>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="sp-dropdown-item sp-empty-state">
+                                        <span>Inga träffar hittades.</span>
+                                    </div>
+                                }
+
+                                <div class="sp-dropdown-item create-new-item" @onclick="PrepareToCreateNew">
+                                    <span>➕ Skapa ny sort: "@searchText"</span>
+                                </div>
                             </div>
                         }
                     }
@@ -161,8 +177,10 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnSaved { get; set; }
 
+    private const int SearchDebounceMs = 250;
     private List<Dahlia> searchResults = new();
     private bool isSearching = false;
+    private CancellationTokenSource? searchCts;
     private bool isCreatingNewVariety = false;
     private Dahlia customVariety = new Dahlia(); 
     private string searchText = "";
@@ -190,35 +208,81 @@
     private async Task OnSearchInput(ChangeEventArgs e)
     {
         searchText = e.Value?.ToString() ?? "";
+        CancelPendingSearch();
 
-        if (searchText.Length > 1)
+        var trimmedSearch = searchText.Trim();
+        if (trimmedSearch.Length <= 1)
         {
-            isSearching = true;
-            // Comment translated to English.
-            var results = await DahliaService.SearchDahliasAsync(searchText);
-            searchResults = results.ToList();
             isSearching = false;
-        }
-        else
-        {
             searchResults.Clear();
+            return;
+        }
+
+        var cts = new CancellationTokenSource();
+        searchCts = cts;
+        isSearching = true;
+
+        try
+        {
+            await Task.Delay(SearchDebounceMs, cts.Token);
+            var results = await DahliaService.SearchDahliasAsync(trimmedSearch);
+
+            if (cts.IsCancellationRequested)
+            {
+                return;
+            }
+
+            searchResults = results.ToList();
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignore cancellation, a newer search input has already started.
+        }
+        finally
+        {
+            if (ReferenceEquals(searchCts, cts))
+            {
+                isSearching = false;
+                searchCts = null;
+            }
+
+            cts.Dispose();
         }
     }
+
+    private void CancelPendingSearch()
+    {
+        if (searchCts == null)
+        {
+            return;
+        }
+
+        searchCts.Cancel();
+        searchCts.Dispose();
+        searchCts = null;
+    }
+
     private void SelectResult(Dahlia res)
     {
+        CancelPendingSearch();
         selectedDahlia = res;
         newDahlia.VarietyId = res.Id;
         newDahlia.Variety = res;
         searchText = "";
+        searchResults.Clear();
+        isSearching = false;
         isDahliaSelected = true;
     }
 
     private void ChangePlant()
     {
+        CancelPendingSearch();
         selectedDahlia = null;
         newDahlia.Id = 0;
         newDahlia.VarietyId = ""; 
         newDahlia.Variety = null;
+        searchResults.Clear();
+        isSearching = false;
         isDahliaSelected = false;
     }
 
@@ -339,4 +403,9 @@
         DahliaType.Stellar => "Stellar",
         _ => type.ToString()
     };
+
+    public void Dispose()
+    {
+        CancelPendingSearch();
+    }
 }

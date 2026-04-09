@@ -40,6 +40,14 @@
 }
 
 /* SEARCH DROPDOWN STYLING */
+.sp-loading-item {
+    color: #475569;
+    font-style: italic;
+}
+
+.sp-empty-state {
+    color: #64748b;
+}
 
 
 .sp-dropdown-item:last-child {
