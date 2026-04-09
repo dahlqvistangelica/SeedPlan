@@ -1,5 +1,4 @@
-﻿
-.plant-grid {
+﻿.plant-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -34,12 +33,12 @@
         color: white;
     }*/
 
-
-
 .plant-name {
     font-weight: 700;
     margin: 0 0 4px 0;
     color: #1e293b;
+    font-family: 'Lora';
+    font-size: 1.3rem;
 }
 
 .sowing-info {
@@ -87,4 +86,8 @@
     font-weight: 800;
     padding: 4px 8px;
     border-radius: 8px;
+}
+
+.card-body {
+    flex-grow: 1;
 }
