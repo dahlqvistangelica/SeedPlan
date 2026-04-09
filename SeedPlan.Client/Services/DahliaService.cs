@@ -23,6 +23,32 @@ namespace SeedPlan.Client.Services
             return response.Models;
         }
 
+        public async Task<List<Dahlia>> SearchDahliasAsync(string searchTerm)
+        {
+            var response = await _supabase
+                .From<Dahlia>()
+                .Filter("name", Supabase.Postgrest.Constants.Operator.ILike, $"%{searchTerm}%")
+                .Order(d => d.Name, Supabase.Postgrest.Constants.Ordering.Ascending)
+                .Limit(5) // Begränsa till 15 träffar för att göra det blixtsnabbt
+                .Get();
+
+            return response.Models;
+        }
+
+        public async Task<Dahlia> AddDahliaVarietyAsync(Dahlia newDahlia)
+        {
+            var user = _supabase.Auth.CurrentUser;
+            if (user != null)
+            {
+                
+                var result = await _supabase.From<Dahlia>().Insert(newDahlia);
+                return result.Model;
+            }
+            else
+            {
+                throw new Exception("Du måste vara inloggad");
+            }
+        }
 
 
 

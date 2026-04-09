@@ -20,5 +20,9 @@ namespace SeedPlan.Shared.Interfaces
     public interface IDahliaService
     {
         Task<List<Dahlia>> GetAllDahliasAsync();
+
+        Task<Dahlia> AddDahliaVarietyAsync(Dahlia newDahlia);
+
+        Task<List<Dahlia>> SearchDahliasAsync(string searchTerm);
     }
 }
