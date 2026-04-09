@@ -2,10 +2,10 @@
 /* ==========================================================================
    1. CSS VARIABLES (Design System)
    ========================================================================== */
+
+/* 1. BASEN: Gemensamma mått och standardfärger */
 :root {
-    --primary: #10b981;
-    --primary-hover: #059669;
-    --bg-main: #fdfcf9; /* Cream-white background */
+    /* Gemensamma variabler för BÅDA apparna */
     --white: #ffffff;
     --text-dark: #1e293b;
     --text-muted: #64748b;
@@ -14,7 +14,36 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.03);
     --radius-lg: 20px;
     --radius-md: 12px;
-    --secondary-light: #ecfdf5;
+    /* Sätt SeedPlan (grön) som absolut standard */
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
+}
+
+/* 2. SEEDPLAN-TEMAT (Förtydligande, matchar standarden) */
+.seedplan-theme {
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
+}
+
+/* 3. DAHLIA-TEMAT (Här sker magin!) */
+/* När klassen .dahlia-theme aktiveras av din växelspak, 
+   skriver den över färgerna från :root för allt som ligger inuti den. */
+.dahlia-theme {
+    /* CSS HEX 
+    --eggshell: #F4EFDDff;
+    --dusty-lavender: #78617Fff;
+    --soft-linen: #EBE8DFff;
+    --rosy-taupe: #C4A5AAff;
+    --dusty-mauve: #A07D97ff; */
+    --primary: #A07D97;
+    --primary-hover: #78617F;
+    --secondary: #C4A5AA;
+    --bg-main: #EBE8DF;
+    --bg-icon: #f3eef2;
 }
 
 /* ==========================================================================
@@ -161,6 +190,7 @@ button {
 .btn-full {
     width: 100%;
 }
+
 
 /* ==========================================================================
    4. INPUT & FORM SYSTEM
@@ -371,6 +401,71 @@ select {
     color: #22c55e;
     border: 1px #22c55e dashed;
 }
+
+/* =========================================
+   PAGINATION 
+========================================= */
+
+.pagination-controls {
+    display: flex;
+    justify-content: center; /* centers everything */
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1); 
+    flex-wrap: wrap; 
+}
+
+
+.pagination-info {
+    font-size: 1rem;
+    color: #555;
+}
+
+    .pagination-info strong {
+        
+        color: var(--primary-color, #4CAF50);
+        font-size: 1.1rem;
+    }
+
+.total-hits {
+    font-size: 0.85rem;
+    color: #888;
+    margin-left: 0.5rem;
+}
+
+
+.pagination-controls .sp-btn {
+    background-color: var(--primary-color, #4CAF50);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .pagination-controls .sp-btn:hover:not(:disabled) {
+        filter: brightness(0.9); 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+  
+    .pagination-controls .sp-btn:disabled {
+        background-color: #d1d5db; 
+        color: #9ca3af;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
 
 /* ==========================================================================
    6. GLOBAL UTILITIES & ANIMATIONS

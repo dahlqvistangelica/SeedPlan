@@ -12,7 +12,7 @@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card fade-in" @onclick:stopPropagation>
             <header class="modal-header">
-                <h2>Lägg till dahlia</h2>
+                <h2 class="serif-title">Lägg till dahlia</h2>
             </header>
 
             <div class="modal-body">
@@ -26,10 +26,10 @@
                         @if (!string.IsNullOrEmpty(searchText))
                         {
                             <div class="sp-dropdown">
-                                @foreach (var result in GetSearchResults())
+                                @foreach (var dahlia in GetSearchResults())
                                 {
-                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(result)">
-                                        <span>@result.DisplayName</span>
+                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(dahlia)">
+                                        <span>@dahlia.Name</span>
                                     </div>
                                 }
                            
@@ -107,45 +107,49 @@
                                       Item="newDahlia"
                                       BucketName="dahlia-images" />
 
+               
+
                 <div class="sp-grid-2">
+                    <div class="input-block">
+                        <label>BETYG</label>
+                        <StarRating @bind-Rating="@newDahlia.Rating" />
+                    </div>
                     <div class="input-block">
                         <label>ANTAL</label>
                         <div class="qty-wrapper">
                             <input type="number" @bind="newDahlia.HaveQty" />
                             <span class="unit-tag"> st</span>
                         </div>
-                    </div> <div class="sp-input-block">
-                    <label>INKÖPSSTÄLLE</label>
-                    <input type="text" @bind="newDahlia.Source"/>
+                    </div>
+                    
                 </div>
-            </div>
 
-            <div class="sp-grid-2">
-                <div class="input-block">
-                    <label>PLATS</label>
-                    <input type="text" @bind="newDahlia.Location"placeholder="I förrådet, köksfönstret etc." />
+                <div class="sp-grid-2">
+                    <div class="input-block">
+                        <label>PLATS</label>
+                        <input type="text" @bind="newDahlia.Location" placeholder="I förrådet, köksfönstret etc." />
+                    </div>
+                    <div class="sp-input-block">
+                        <label>INKÖPSSTÄLLE</label>
+                        <input type="text" @bind="newDahlia.Source" />
+                    </div>
                 </div>
-                <div class="input-block">
-                    <label>STJÄRNOR</label>
-                    <input type="number" @bind="newDahlia.LikeLevel" min="0" max="5" />
-                </div>
-            </div>
 
-            <div class="input-block">
-                <label>ANTECKNINGAR</label>
-                <textarea @bind="newDahlia.Notes" placeholder="Nybeställd, favorit, virus?"></textarea>
+                <div class="input-block">
+                    <label>ANTECKNINGAR</label>
+                    <textarea @bind="newDahlia.Notes" placeholder="Nybeställd, favorit, virus?"></textarea>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="error-msg" style="color: red; text-align:center;">@errorMessage</p>
+                }
+                
+                <button type="button" class="sp-save-btn" @onclick="Save">Spara dahlia</button>
+                <button type="button" class="sp-cancel-btn" @onclick="Close">Avbryt</button>
             </div>
-                
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <p class="error-msg" style="color: red; text-align:center;">@errorMessage</p>
-            }
-                
-            <button type="button" class="sp-save-btn" @onclick="Save">Spara dahlia</button>
-            <button type="button" class="sp-cancel-btn" @onclick="Close">Avbryt</button>
         </div>
     </div>
-</div>
 }
 
 @code {
@@ -177,22 +181,21 @@
 
     }
 
-    private IEnumerable<SearchResult> GetSearchResults()
+    private List<Dahlia>GetSearchResults()
     {
-        if (string.IsNullOrWhiteSpace(searchText))
-            return Enumerable.Empty<SearchResult>();
+        if(string.IsNullOrWhiteSpace(searchText))
+        {
+            return new List<Dahlia>();
+        }
         var term = searchText.Trim().ToLower();
-        return allDahlias.Where(d => !string.IsNullOrWhiteSpace(d.Name) &&
-                        d.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
-            .Select(d => new SearchResult { Dahlia = d, DisplayName = d.Name })
-                                 .Take(5);
+        return DahliaService.SearchDahliasAsync(term).Result.ToList();
     }
 
-    private void SelectResult(SearchResult res)
+    private void SelectResult(Dahlia res)
     {
-        selectedDahlia = res.Dahlia;
-        newDahlia.VarietyId = res.Dahlia.Id;
-        newDahlia.Variety = res.Dahlia;
+        selectedDahlia = res;
+        newDahlia.VarietyId = res.Id;
+        newDahlia.Variety = res;
         searchText = "";
         isDahliaSelected = true;
     }

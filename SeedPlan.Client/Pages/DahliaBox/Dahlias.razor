@@ -19,7 +19,11 @@
     @* SEARCHFIELD *@
     <div class="search-section">
         <div class="search-wrapper">
-            <input type="text" value="@searchText" @oninput="OnSearchInput" placeholder="Sök växt..." class="search-input" />
+            <input type="text" 
+                @bind="searchText" 
+               @bind:after="OnFilterChanged" 
+               placeholder="Sök på namn..." 
+               class="search-input" />
         </div>
     </div>
 
@@ -53,9 +57,11 @@
                         </label>
                         @foreach (DahliaType type in Enum.GetValues(typeof(DahliaType)))
                         {
-                            <label class="checkbox-label">
-                                <input type="checkbox" checked="@activeTypes.Contains(type)" @onchange="() => ToggleType(type)" />
-                                <span>@GetTypeName(type)</span>
+                            <label>
+                                <input type="checkbox"
+                                       checked="@activeTypes.Contains(type)"
+                                       @onchange="@(e => ToggleType(type, (bool?)e.Value))" />
+                                @GetTypeName(type)
                             </label>
                         }
                     </div>
@@ -87,10 +93,12 @@
                         </label>
                         @foreach (DahliaSize size in Enum.GetValues(typeof(DahliaSize)))
                         {
-                            <label class="checkbox-label">
-                                <input type="checkbox" checked="@activeSizes.Contains(size)" @onchange="() => ToggleSizes(size)" />
-                                <span>@GetSizeName(size)</span>
-                            </label>
+                                <label>
+                                    <input type="checkbox"
+                                           checked="@activeSizes.Contains(size)"
+                                           @onchange="@(e => ToggleSize(size, (bool?)e.Value))" />
+                                    @GetSizeName(size)
+                                </label>
                         }
                     </div>
                 }
@@ -122,7 +130,7 @@
                         @foreach (var color in availableColors)
                         {
                             <label class="checkbox-label">
-                                <input type="checkbox" checked="@activeColors.Contains(color)" @onchange="() => ToggleColor(color)" />
+                                <input type="checkbox" checked="@activeColors.Contains(color)" @onchange="(e => ToggleColor(color, (bool?)e.Value))" />
                                 <span>@color</span>
                             </label>
                         }
@@ -153,16 +161,45 @@
 
 
     <div class="group-content fade-in sp-gallery-grid" >
-        @foreach (var dahlia in FilteredDahlias)
+        @if (pagedDahlias == null)
         {
-            <DahliaCard Dahlia="dahlia"/>
+            <LoadingSpinner Text="Laddar dahlior.."/>
+        }
+        else if (!pagedDahlias.Any())
+        {
+            <p>Hittade inga dahlior som matchar dina filter.</p>
+        }
+        else
+        {
+            @foreach (var dahlia in pagedDahlias)
+            {
+                <DahliaCard Dahlia="dahlia"/>
+            }
         }
     </div>
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination-controls" style="margin-top: 20px; display: flex; gap: 15px; align-items: center;">
+            <button class="btn-primary" disabled="@(currentPage == 1)" @onclick="PreviousPage"><Blazicon Svg="Lucide.ChevronLeft"/> Föregående</button>
+            
+            <span>Sida <strong>@currentPage</strong> av <strong>@totalPages</strong> (@totalDahlias totalt)</span>
+            
+            <button class="btn-primary" disabled="@(currentPage == totalPages)" @onclick="NextPage">Nästa <Blazicon Svg="Lucide.ChevronRight"/></button>
+        </div>
+    }
     </div>
 
 @code {
+    //Pagination variables.
+    private List<Dahlia> pagedDahlias;
+    private int currentPage = 1;
+    private int pageSize = 24;
+    private int totalDahlias = 0;
+    private int totalPages => (int)Math.Ceiling((double)totalDahlias / pageSize);
 
-    private List<Dahlia> allDahlias = new();
+
+    //Filtervariables.
     private string searchText = "";
     private bool showFilters = false;
     private int? maxHeight = null;
@@ -174,55 +211,28 @@
     private bool isSizeExpanded = false;
     private bool isColorExpanded = false;
     private List<string> activeColors = new();
-    private List<string> availableColors = new(); 
+    private List<string> availableColors = new();
 
     private const string StorageKey = "dahlia_filters";
 
     protected override async Task OnInitializedAsync()
     {
         searchText = "";
+        availableColors = await DahliaService.GetAvailableColorsAsync();
+        await LoadDahliasPageAsync();
+    }
+
+    private async Task LoadDahliasPageAsync()
+    {
+        var result = await DahliaService.GetPagedDahliasAsync(currentPage, pageSize, searchText, activeTypes.ToList(), activeSizes.ToList(), activeColors.ToList(), maxHeight, minHeight);
+        pagedDahlias = result.Dahlias;
+        totalDahlias = result.TotalCount;
     }
 
     private void ToggleFilters() => showFilters = !showFilters;
     private void ToggleTypeExpanded() => isTypeExpanded = !isTypeExpanded;
     private void ToggleSizeExpanded() => isSizeExpanded = !isSizeExpanded;
     private void ToggleColorExpanded() => isColorExpanded = !isColorExpanded;
-
-    private async Task ToggleType(DahliaType dahliaType)
-    {
-        if(activeTypes.Contains(dahliaType))
-        {
-            activeTypes.Remove(dahliaType);
-        }
-        else
-        {
-            activeTypes.Add(dahliaType);
-        }
-        StateHasChanged();
-        await SaveFilters();
-    }
-    private async Task ToggleSizes(DahliaSize size)
-    {
-        if(activeSizes.Contains(size))
-        {
-            activeSizes.Remove(size);
-        }
-        else
-        {
-            activeSizes.Add(size);
-        }
-        StateHasChanged();
-        await SaveFilters();
-    }
-    private async Task ToggleColor(string color)
-    {
-        if (activeColors.Contains(color))
-            activeColors.Remove(color);
-        else
-            activeColors.Add(color);
-        StateHasChanged();
-        await SaveFilters();
-    }
 
     private async Task ClearColors()
     {
@@ -243,24 +253,6 @@
         await SaveFilters();
     }
 
-    private async Task OnSearchInput(ChangeEventArgs e)
-    {
-        searchText = e.Value?.ToString() ?? "";
-        _searchCts?.Cancel();
-        _searchCts = new CancellationTokenSource();
-        var token = _searchCts.Token;
-
-        try
-        {
-            await Task.Delay(500, token);
-            if (!token.IsCancellationRequested)
-            {
-                await SaveFilters();
-            }
-        }
-        catch (TaskCanceledException) { }
-    }
-
     public void Dispose()
     {
         _searchCts?.Cancel();
@@ -274,8 +266,8 @@
         {
             try
             {
-                allDahlias = await DahliaService.GetAllDahliasAsync();
-                await LoadColorsFromDatabase();
+                
+                
                 await LoadFilters();
             }
             finally
@@ -371,42 +363,7 @@
 
         }
     }
-    private IEnumerable<Dahlia> FilteredDahlias
-    {
-        get
-        {
-            var query = allDahlias.AsEnumerable();
-            if(!string.IsNullOrWhiteSpace(searchText))
-            {
-                query = query.Where(d => d.Name != null && d.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase));
 
-            }
-            if(minHeight.HasValue)
-            {
-                query = query.Where(d => d.Height >= minHeight.Value);
-            }
-            if(maxHeight.HasValue)
-            {
-                query = query.Where(d => d.Height <= maxHeight.Value);
-            }
-            if(activeTypes.Any())
-            {
-                query = query.Where(d => activeTypes.Contains(d.Type));
-            }
-            if(activeSizes.Any())
-            {
-                query = query.Where(d => d.Size.HasValue && activeSizes.Contains(d.Size.Value));
-            }
-            if (activeColors.Any())
-            {
-                query = query.Where(d =>
-                    !string.IsNullOrWhiteSpace(d.Color) &&
-                    activeColors.Any(ac => d.Color.Contains(ac, StringComparison.OrdinalIgnoreCase)));
-            }
-
-            return query.ToList();
-        }
-    }
     public string GetTypeName(DahliaType type) => type switch
     {
         DahliaType.Decorative => "Dekorativ",
@@ -443,39 +400,56 @@
         DahliaSize.Over25 => "25 <",
         _ => "Okänd"
     };
-    private async Task LoadColorsFromDatabase()
+    
+    // TRIGGAS NÄR ETT FILTER ÄNDRAS
+    private async Task OnFilterChanged()
     {
-        try
+        // Viktigt: Om man är på sida 5 och byter filter, måste vi hoppa tillbaka till sida 1!
+        currentPage = 1;
+        await LoadDahliasPageAsync();
+    }
+
+    // --- Hjälpfunktioner för checkboxarna ---
+    private async Task ToggleType(DahliaType type, bool? isChecked)
+    {
+        if (isChecked == true) activeTypes.Add(type);
+        else activeTypes.Remove(type);
+        
+        await OnFilterChanged();
+    }
+
+    private async Task ToggleSize(DahliaSize size, bool? isChecked)
+    {
+        if (isChecked == true) activeSizes.Add(size);
+        else activeSizes.Remove(size);
+        
+        await OnFilterChanged();
+    }
+    // --- Hjälpfunktioner för checkboxarna ---
+    private async Task ToggleColor(string color, bool? isChecked)
+    {
+        if (isChecked == true) activeColors.Add(color);
+        else activeColors.Remove(color);
+        
+        await OnFilterChanged();
+    }
+    // --- Paginering-knapparna ---
+    private async Task NextPage()
+    {
+        if (currentPage < totalPages)
         {
-
-            var varieties = allDahlias;
-
-            var uniqueColors = new HashSet<string>();
-
-            foreach (var variety in varieties)
-            {
-                if (!string.IsNullOrWhiteSpace(variety.Color))
-                {
-                    
-                    var splitColors = variety.Color.Split(',', StringSplitOptions.RemoveEmptyEntries);
-
-                    foreach (var c in splitColors)
-                    {
-                        var cleanColor = c.Trim();
-
-                        if (cleanColor.Length > 0)
-                        {
-                            cleanColor = char.ToUpper(cleanColor[0]) + cleanColor.Substring(1).ToLower();
-                            uniqueColors.Add(cleanColor);
-                        }
-                    }
-                }
-            }
-            availableColors = uniqueColors.OrderBy(c => c).ToList();
+            currentPage++;
+            await LoadDahliasPageAsync();
+            // Valfritt: Om du vill skrolla upp till toppen av sidan när de byter sida
         }
-        catch (Exception ex)
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
         {
-            Console.WriteLine($"Kunde inte hämta färger från databasen: {ex.Message}");
+            currentPage--;
+            await LoadDahliasPageAsync();
         }
     }
     

@@ -36,7 +36,7 @@
 .dahlia-group-header-main h2 {
     margin: 0;
     font-size: 1.3rem;
-    color: #064e3b;
+    color: var(--primary-hover);
     font-family: 'Lora', serif;
 }
 

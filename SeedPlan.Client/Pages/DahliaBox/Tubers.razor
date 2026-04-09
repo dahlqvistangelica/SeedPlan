@@ -68,7 +68,7 @@
                         @foreach(var dahlia in group)
                         {
                             <UserDahliaCard Dahlia="dahlia" OnDelete="() => HandleDelete(dahlia)" OnClick="() => OpenEditDahlia(dahlia)" />
-        
+
                         }
                     </div>
                 }
@@ -150,7 +150,7 @@
                 Notes = dahlia.Notes,
                 PhotoUrl = dahlia.PhotoUrl,
                 Source = dahlia.Source,
-                LikeLevel = dahlia.LikeLevel,
+                Rating = dahlia.Rating,
                 Variety = dahlia.Variety
             };
         showEditModal = true;

@@ -10,6 +10,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject NotificationService NotificationService
+@inject AppState AppState
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
          Description="Planera din odling med SeedPlans såkalender, få överblick över aktiva sådder och håll koll på vad som behöver göras nu."
@@ -189,6 +190,10 @@
             {
                 await LoadData();
                 await ClearAppBadge();
+                if (AppState.CurrentMode == AppMode.DahliaBox)
+                {
+                    Nav.NavigateTo("/dahliabox-home");
+                }
 
                 var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
                 if(userEmail != "demo@seedplan.app")

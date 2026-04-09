@@ -33,7 +33,7 @@ else
                 <input type="text" @bind="userProfile.City" placeholder="T.ex. Örebro" autocomplete="off" />
                 @if (userProfile.Latitude.HasValue)
                 {
-                    <span style="font-size: 0.75rem; color: #10b981; margin-top: 4px;">
+                    <span style="font-size: 0.75rem; color: var(--primary); margin-top: 4px;">
                         <Blazicon Svg="Lucide.MapPin" /> @userProfile.City (@Math.Round(userProfile.Latitude.Value, 2), @Math.Round(userProfile.Longitude.Value, 2))
                     </span>
                 }

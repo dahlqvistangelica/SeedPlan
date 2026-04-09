@@ -8,8 +8,9 @@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card fade-in" @onclick:stopPropagation>
             <header class="modal-header">
-                <h2 class="serif-title">Redigera @UserDahlia.Variety.Name</h2>
-                @*TODO! Lägg in stjärmarkering här.*@
+                <h2 class="serif-title">@UserDahlia.Variety.Name</h2>
+                <StarRating Rating="@UserDahlia.Rating"
+                            RatingChanged="@(async (newVal) => await HandleRatingChange(newVal))" />
                 <button class="close-x" @onclick="Close">x</button>
             </header>
 
@@ -76,7 +77,14 @@
     }
 
     private Task Close() => OnClose.InvokeAsync();
+    private async Task HandleRatingChange(int? newVal)
+    {
+        UserDahlia.Rating = newVal;
 
-    
+        if (UserDahlia.Id != 0)
+        {
+            await UserDahliaService.UpdateUserDahliaAsync(UserDahlia);
 
+        }
+    }
 }

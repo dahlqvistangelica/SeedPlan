@@ -26,11 +26,11 @@
 /* HOVER EFFECT */
 
 .plant-card:hover {
-    border-color: #10b981;
+    border-color: var(--primary);
     transition: all 0.2s ease;
 }
 /*    .plant-card:hover .plant-icon-circle {
-        background: #10b981;
+        background: var(--primary);
         color: white;
     }*/
 
