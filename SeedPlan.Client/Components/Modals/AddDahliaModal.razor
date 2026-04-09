@@ -26,10 +26,10 @@
                         @if (!string.IsNullOrEmpty(searchText))
                         {
                             <div class="sp-dropdown">
-                                @foreach (var result in GetSearchResults())
+                                @foreach (var dahlia in GetSearchResults())
                                 {
-                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(result)">
-                                        <span>@result.DisplayName</span>
+                                    <div class="sp-dropdown-item" @onclick="() => SelectResult(dahlia)">
+                                        <span>@dahlia.Name</span>
                                     </div>
                                 }
                            
@@ -177,22 +177,30 @@
 
     }
 
-    private IEnumerable<SearchResult> GetSearchResults()
+    private List<Dahlia>GetSearchResults()
     {
-        if (string.IsNullOrWhiteSpace(searchText))
-            return Enumerable.Empty<SearchResult>();
+        if(string.IsNullOrWhiteSpace(searchText))
+        {
+            return new List<Dahlia>();
+        }
         var term = searchText.Trim().ToLower();
-        return allDahlias.Where(d => !string.IsNullOrWhiteSpace(d.Name) &&
-                        d.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
-            .Select(d => new SearchResult { Dahlia = d, DisplayName = d.Name })
-                                 .Take(5);
+        return DahliaService.SearchDahliasAsync(term).Result.ToList();
     }
 
-    private void SelectResult(SearchResult res)
+
+    // private IEnumerable<SearchResult> GetSearchResults()
+    // {
+    //     if (string.IsNullOrWhiteSpace(searchText))
+    //         return Enumerable.Empty<SearchResult>();
+    //     var term = searchText.Trim().ToLower();
+    //     return DahliaService.SearchDahliasAsync(term).Result.AsEn;
+    // }
+
+    private void SelectResult(Dahlia res)
     {
-        selectedDahlia = res.Dahlia;
-        newDahlia.VarietyId = res.Dahlia.Id;
-        newDahlia.Variety = res.Dahlia;
+        selectedDahlia = res;
+        newDahlia.VarietyId = res.Id;
+        newDahlia.Variety = res;
         searchText = "";
         isDahliaSelected = true;
     }

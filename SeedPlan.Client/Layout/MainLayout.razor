@@ -5,6 +5,7 @@
 @inject NavigationManager Nav
 @inject FeedbackModalService FeedbackService
 @inject AuthService Auth
+@inject AppState AppState
 @implements IDisposable
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
@@ -12,27 +13,49 @@
          Keywords="såkalender, fröhantering, odlingsplanering, sådder, odling" />
 
 
-<div class="app-shell">
+<div class="app-shell @(AppState.CurrentMode == AppMode.DahliaBox ? "dahlia-theme" : "seedplan-theme")">
     @* TOP-HEADER WITH ICON *@
     <header class="main-header">
         <div class="header-content">
+        
             <div class="brand" @onclick='() => Nav.NavigateTo("/")'>
-                <div class="logo-circle"><img src="small-logo.webp" width="50" height="50" decoding="async"></div>
-                <h1 class="app-title">SeedPlan</h1>
-            </div>
-            <div class="header-actions">
-                <AuthorizeView>
-                    <NotAuthorized>
-                        <nav class="header-nav">
-                            <a href="/om-oss" class="header-link">Om SeedPlan</a>
-                            <a href="/guide-preview" class="header-link">Växtguide</a>
-                        </nav>
-                    </NotAuthorized>
-                </AuthorizeView>
-                <LoginDisplay />
-            </div>
-        </div>
-    </header>
+
+                <div class="logo-circle">
+                    <img src="small-logo.webp"
+                         class="@(AppState.CurrentMode == AppMode.SeedPlan ? "active-logo" : "inactive-logo")"
+                         width="50" height="50" decoding="async"
+                         @onclick="() => SwitchMode(AppMode.SeedPlan)"
+                         @onclick:stopPropagation="true"> 
+                    </div>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="logo-circle">
+                                <img src="dahlia-logo.jpg"
+                                     class="@(AppState.CurrentMode == AppMode.DahliaBox ? "active-logo" : "inactive-logo")"
+                                     width="50" height="50" decoding="async"
+                                     @onclick="() => SwitchMode(AppMode.DahliaBox)"
+                                     @onclick:stopPropagation="true">
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+
+                    <div class="header-actions">
+                        <AuthorizeView>
+                            <NotAuthorized>
+                                <nav class="header-nav">
+                                    <a href="/om-oss" class="header-link">Om SeedPlan</a>
+                                    <a href="/guide-preview" class="header-link">Växtguide</a>
+                                </nav>
+                            </NotAuthorized>
+                        </AuthorizeView>
+
+                        <LoginDisplay />
+                    </div>
+        
+                </div>
+            </header>
 
     <main class="main-container">
         <AuthorizeView>
@@ -222,13 +245,23 @@
 
     protected override async Task OnInitializedAsync()
     {
+        AppState.OnChange += StateHasChanged;
         Nav.LocationChanged += HandleLocationChanged;
+
 
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            var saveMode = await JS.InvokeAsync<string>("localStorage.getItem", "appMode");
+            if(!string.IsNullOrEmpty(saveMode) && Enum.TryParse<AppMode>(saveMode, out var mode))
+                if(AppState.CurrentMode != mode)
+                {
+                    AppState.SetMode(mode);
+                    StateHasChanged();
+
+                }
             try
             {
                 var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
@@ -272,9 +305,23 @@
             isLoadingDemo = false;
         }
     }
+
+    private async Task SwitchMode(AppMode newMode)
+    {
+        AppState.SetMode(newMode);
+        if(AppState.CurrentMode == AppMode.DahliaBox)
+        {
+            Nav.NavigateTo("/dahlias");
+        }
+        else
+        {
+            Nav.NavigateTo("/");
+        }
+        await JS.InvokeVoidAsync("localStorage.setItem", "appMode", newMode.ToString());
+    }
     public void Dispose()
     {
-
         Nav.LocationChanged -= HandleLocationChanged;
+        AppState.OnChange -= StateHasChanged;
     }
 }
