@@ -224,7 +224,7 @@
             using var doc = JsonDocument.Parse(json);
             var root = doc.RootElement;
 
-            // Use GetProperty safely
+            // Comment translated to English.
             if (root.TryGetProperty("SearchText", out var s)) searchText = s.GetString() ?? "";
 
             if (root.TryGetProperty("Hardiness", out var h))

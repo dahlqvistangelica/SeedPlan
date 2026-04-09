@@ -15,14 +15,14 @@
     margin-bottom: 2.5rem;
 }
 
-/* Container för dropdown och knapp */
+/* Comment translated to English. */
 .group-controls {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-/* KNAPP: Ny sådd */
+/* Comment translated to English. */
 .btn-add-sowing {
     display: flex;
     align-items: center;
@@ -80,21 +80,21 @@
     }
 
     .control-select {
-        flex-grow: 1; /* Gör att dropdown-menyn tar upp resten av bredden */
+        flex-grow: 1; /* Comment translated to English. */
     }
 
     .btn-add-sowing span {
-        display: none; /* Dölj texten "Ny sådd", visa bara ikonen */
+        display: none; /* Comment translated to English. */
     }
 
     .btn-add-sowing {
         padding: 10px;
-        aspect-ratio: 1/1; /* Gör knappen perfekt fyrkantig/rund */
+        aspect-ratio: 1/1; /* Comment translated to English. */
         justify-content: center;
     }
 
     .sowing-grid {
-        /* Tvingar fram 1 kolumn på väldigt små skärmar istället för att försöka klämma in 2 */
+        /* Comment translated to English. */
         grid-template-columns: 1fr;
         gap: 1rem;
     }

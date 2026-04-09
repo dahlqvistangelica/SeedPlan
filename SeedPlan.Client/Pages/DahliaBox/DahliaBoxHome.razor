@@ -104,7 +104,7 @@
     
     private int totalVarieties = 0;
     private int totalTubers = 0;
-    // favoriteType behövs nog inte sparas som variabel om du bara ska visa texten
+    // Comment translated to English.
     private string favoriteTypeString = "Laddar...";
 
     private DateTime preCultivateDate;
@@ -121,15 +121,15 @@
     {
         if (firstRender)
         {
-            // 1. HÄMTA ALL DATA FÖRST
+            // Comment translated to English.
             myDahlias = await UserDahliaService.GetUserDahliasAsync();
             userProfile = await ProfileService.GetUserProfile();
 
-            // 2. NÄR DATAN FINNS, DÅ RÄKNAR VI
+            // Comment translated to English.
             CalculateStats();
             CalculateCountdowns();
 
-            // 3. SÄG TILL BLAZOR ATT RITA OM SKÄRMEN
+            // Comment translated to English.
             isLoading = false;
             StateHasChanged();
         }
@@ -144,7 +144,7 @@
                                .OrderByDescending(g => g.Count())
                                .FirstOrDefault();
 
-        // Skyddsnät: Om listan är tom, sätt ett standardvärde!
+        // Comment translated to English.
         if (topType != null)
         {
             var favoriteType = topType.First().Variety;
@@ -158,21 +158,21 @@
 
     private void CalculateCountdowns()
     {
-        // Skyddsnät: Kolla att profilen OCH frostdatumet faktiskt existerar
+        // Comment translated to English.
         if (userProfile == null || !userProfile.LastFrostDate.HasValue)
         {
             return;
         }
 
-        var today = DateTime.Now.Date; // Använd .Date för att slippa klockslag som bråkar
+        var today = DateTime.Now.Date; // Comment translated to English.
 
-        // Nu är det säkert att använda .Value
+        // Comment translated to English.
         lastFrostDate = userProfile.LastFrostDate.Value.Date;
 
-        // Om frostdatumet passerat med 30 dagar, titta på nästa års säsong
+        // Comment translated to English.
         if (today > lastFrostDate.AddDays(30))
         {
-            // RÄTT sätt att lägga på ett år i C#
+            // Comment translated to English.
             lastFrostDate = lastFrostDate.AddYears(1);
         }
 

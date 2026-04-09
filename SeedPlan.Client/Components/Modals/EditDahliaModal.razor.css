@@ -36,7 +36,7 @@
     margin-top: 8px;
 }
 
-/* Göm standardknappen helt */
+/* Comment translated to English. */
 .hidden-input {
     display: none !important;
     opacity: 0 !important;
@@ -45,7 +45,7 @@
     height: 0 !important;
 }
 
-/* Vår snygga knapp */
+/* Comment translated to English. */
 .upload-button {
     display: flex;
     flex-direction: column;
@@ -69,7 +69,7 @@
         color: #475569;
     }
 
-/* Om de har laddat upp en bild */
+/* Comment translated to English. */
 .image-preview {
     position: relative;
     width: 100px;
@@ -109,11 +109,11 @@
     border-radius: 12px;
 }
 
-/* Informationsrutan för bilduppladdning */
+/* Comment translated to English. */
 .image-terms-box {
     display: flex;
     gap: 12px;
-    background-color: #f0f9ff; /* Mjukt ljusblå bakgrund */
+    background-color: #f0f9ff; /* Comment translated to English. */
     border: 1px solid #bae6fd;
     padding: 16px;
     border-radius: 12px;
@@ -121,7 +121,7 @@
 }
 
 .terms-icon {
-    color: #0ea5e9; /* Blå ikon */
+    color: #0ea5e9; /* Comment translated to English. */
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -146,10 +146,10 @@
         line-height: 1.5;
     }
 
-/* Godkänn-knappen inuti rutan */
+/* Comment translated to English. */
 .btn-terms-accept {
     margin-top: 4px;
-    align-self: center; /* Gör så att knappen inte blir bredare än texten inuti */
+    align-self: center; /* Comment translated to English. */
     background-color: #0ea5e9;
     color: white;
     border: none;
@@ -165,7 +165,7 @@
         background-color: #0284c7;
     }
 
-/* Enkel animation för mjuka övergångar (om du inte redan har den) */
+/* Comment translated to English. */
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }

@@ -1,11 +1,11 @@
 ﻿.sp-modal-overlay {
-    position: fixed; /* Viktigt: Denna tar ut modalen ur det vanliga flödet */
+    position: fixed; /* Comment translated to English. */
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5); /* Halvgenomskinlig svart */
-    z-index: 9999; /* Säkerställ att den ligger överst */
+    z-index: 9999; /* Comment translated to English. */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -34,14 +34,14 @@
 }
 
 /* --- KROPP & SCROLLBAR --- */
-/* Begränsar höjden ifall fönstret / telefonen är liten, och lägger in en scroll. */
+/* Comment translated to English. */
 .sp-modal-body {
     max-height: 75vh;
     overflow-y: auto;
-    padding-right: 8px; /* Skapar utrymme för scrollbaren */
+    padding-right: 8px; /* Comment translated to English. */
 }
 
-/* Snygg scrollbar ifall feedback-formuläret tar för mycket plats */
+/* Comment translated to English. */
 .sp-modal-body::-webkit-scrollbar {
     width: 6px;
 }
@@ -60,7 +60,7 @@
     background: #94a3b8;
 }
 
-/* --- LABELS OCH BLOCK --- */
+/* Comment translated to English. */
 .sp-input-block {
     margin-bottom: 18px;
     display: flex;
@@ -70,7 +70,7 @@
     text-align: left;
 }
 
-/* Exakt som dina andra modaler: fetstilta uppercase-rubriker i grå färg */
+/* Comment translated to English. */
 .sp-input-block label {
     font-size: 0.75rem;
     font-weight: 700;
@@ -79,8 +79,8 @@
     letter-spacing: 0.05em;
 }
 
-/* --- TEXTOMRÅDE --- */
-/* Minihöjd på just message-boxen, annars samma grund som app.css */
+/* Comment translated to English. */
+/* Comment translated to English. */
 .sp-textarea {
     min-height: 120px;
 }

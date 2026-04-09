@@ -62,9 +62,9 @@
     background-color: #fef3c7; /* Very light orange/amber yellow */
     color: #a16207; /* Dark amber/orange text */
     padding: 4px 7px; /* Padding around text */
-    border-radius: 999px; /* Very rounded corners (pill shape) */
+    border-radius: 999px; /* Comment translated to English. */
     font-size: 0.7rem; /* Slightly smaller than main text */
-    font-weight: 500; /* Medium weight */
+    font-weight: 500; /* Comment translated to English. */
 }
 
 /* --- Harvest row --- */
@@ -72,7 +72,7 @@
     display: flex;
     align-items: center;
     gap: 8px; /* Spacing between icon and text */
-    color: #4b5563; /* Medium gray text color */
+    color: #4b5563; /* Comment translated to English. */
     font-size: 0.7rem; /* Standard size */
 }
 

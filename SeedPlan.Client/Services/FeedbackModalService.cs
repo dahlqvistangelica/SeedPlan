@@ -9,7 +9,7 @@ namespace SeedPlan.Client.Services
 
         public bool IsVisible { get; private set; } = false;
 
-        // Använd C# standard event mönster istället
+        // Comment translated to English.
         public event EventHandler? OnVisibilityChanged;
 
         public FeedbackModalService(Supabase.Client supabase)

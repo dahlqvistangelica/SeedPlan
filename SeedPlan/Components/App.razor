@@ -32,7 +32,6 @@
 
     <script src="notifications.js?v=4" defer></script>
     <script src="session-cleanup.js?v=4" defer></script>
-    <link href="_content/Blazorise/blazorise.css?v=2.0.4.0" rel="stylesheet" />
     <link rel="stylesheet" href="app.css" />
     <link rel="stylesheet" href="components.css" /> 
     <link rel="stylesheet" href="SeedPlan.styles.css" /> 
@@ -59,7 +58,7 @@
     <HeadOutlet @rendermode="new InteractiveWebAssemblyRenderMode(prerender: false)" />
 
     <style>
-        /* CSS för laddsnurran på Splash-skärmen */
+        /* CSS for the splash loading spinner */
         @@keyframes sp-spin {
         0% {
         transform: rotate(0deg);
@@ -85,7 +84,7 @@
     <script src="_framework/blazor.web.js"></script>
 
     <script>
-        // Letar efter klassen 'app-shell' som ligger i din MainLayout.razor
+        // Looks for the app-shell class rendered by MainLayout.razor
         var checkAppLoaded = setInterval(function() {
         if(document.querySelector('.app-shell')) {
         var splash = document.getElementById('blazor-splash');
@@ -94,7 +93,7 @@
         }
         clearInterval(checkAppLoaded);
         }
-        }, 50); // Kollar var 50:e millisekund
+        }, 50); // Check every 50 milliseconds
     </script>
 
     <script>

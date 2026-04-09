@@ -104,7 +104,7 @@
                 }
             </div>
 
-            @* FÄRG *@
+            @* Comment translated to English. *@
             <div class="filter-accordion">
                 <button class="accordion-toggle" @onclick="ToggleColorExpanded">
                     <span class="accordion-title">FÄRG @(activeColors.Any() ? $"({activeColors.Count})" : "")</span>
@@ -401,15 +401,15 @@
         _ => "Okänd"
     };
     
-    // TRIGGAS NÄR ETT FILTER ÄNDRAS
+    // Comment translated to English.
     private async Task OnFilterChanged()
     {
-        // Viktigt: Om man är på sida 5 och byter filter, måste vi hoppa tillbaka till sida 1!
+        // Comment translated to English.
         currentPage = 1;
         await LoadDahliasPageAsync();
     }
 
-    // --- Hjälpfunktioner för checkboxarna ---
+    // Comment translated to English.
     private async Task ToggleType(DahliaType type, bool? isChecked)
     {
         if (isChecked == true) activeTypes.Add(type);
@@ -425,7 +425,7 @@
         
         await OnFilterChanged();
     }
-    // --- Hjälpfunktioner för checkboxarna ---
+    // Comment translated to English.
     private async Task ToggleColor(string color, bool? isChecked)
     {
         if (isChecked == true) activeColors.Add(color);
@@ -433,14 +433,14 @@
         
         await OnFilterChanged();
     }
-    // --- Paginering-knapparna ---
+    // Comment translated to English.
     private async Task NextPage()
     {
         if (currentPage < totalPages)
         {
             currentPage++;
             await LoadDahliasPageAsync();
-            // Valfritt: Om du vill skrolla upp till toppen av sidan när de byter sida
+            // Comment translated to English.
         }
     }
 

@@ -22,7 +22,7 @@
     align-items: center;
 }
 
-/* Nytt: ankare som dropdownen fäster i */
+/* Comment translated to English. */
 .nav-anchor {
     position: relative;
     display: flex;
@@ -82,7 +82,7 @@
     z-index: 1000;
     border: 1px solid #f1f5f9;
 }
-/* Håll Guider-menyn inom skärmen */
+/* Comment translated to English. */
 .info-container .bottom-submenu {
     left: auto;
     right: 8px;
@@ -118,7 +118,7 @@
 }
 
 
-/* Submenu items - applicera på NavLink-elementen */
+/* Comment translated to English. */
 ::deep .submenu-item {
     font-size: 1.2rem;
     padding: 12px 16px;

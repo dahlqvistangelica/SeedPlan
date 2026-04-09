@@ -49,7 +49,7 @@ namespace SeedPlan.Client.Services
                     await _js.InvokeVoidAsync("localStorage.setItem", "sb_remember_me", "true");
                     await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
 
-                    // Verifiera att det sparades
+                    // Comment translated to English.
                     var verify = await _js.InvokeAsync<string?>("localStorage.getItem", "sb_remember_me");
                 }
                 else
@@ -122,7 +122,7 @@ namespace SeedPlan.Client.Services
         /// <summary>
         /// Translates Supabase error messages into user-friendly Swedish descriptions.
         /// </summary>
-        /// <remarks>This method is intended to improve the user experience by converting technical error
+        /// <remarks>This method improves user experience by converting technical Supabase error
         /// codes from Supabase into clear, localized messages suitable for display to end users.</remarks>
         /// <param name="message">The error message received from Supabase. Must not be null.</param>
         /// <returns>A user-friendly Swedish error message corresponding to the provided Supabase error code. Returns a generic

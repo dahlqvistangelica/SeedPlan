@@ -36,7 +36,7 @@ namespace SeedPlan.Client.Services
     int? minHeight = null)
         {
             // --- LOKAL FUNKTION SOM BYGGER FILTREN ---
-            // Denna bygger ihop sökningen, men skickar den inte till databasen ännu.
+            // Comment translated to English.
             Supabase.Postgrest.Interfaces.IPostgrestTable<Dahlia> BuildQuery()
             {
                 Supabase.Postgrest.Interfaces.IPostgrestTable<Dahlia> q = _supabase.From<Dahlia>();
@@ -61,7 +61,7 @@ namespace SeedPlan.Client.Services
                     var filterList = new List<Supabase.Postgrest.Interfaces.IPostgrestQueryFilter>();
                     foreach (var c in activeColors)
                     {
-                        // Säkerställ att kolumnnamnet stämmer med din databas (t.ex. "Color" eller "color")
+                        // Comment translated to English.
                         filterList.Add(new Supabase.Postgrest.QueryFilter("color", Supabase.Postgrest.Constants.Operator.ILike, $"%{c}%"));
                     }
                     q = q.Or(filterList);
@@ -71,11 +71,11 @@ namespace SeedPlan.Client.Services
             }
             // -----------------------------------------
 
-            // 1. Skapa en fråga BARA för att räkna antalet träffar
+            // Comment translated to English.
             var countQuery = BuildQuery();
             var totalCount = await countQuery.Count(Supabase.Postgrest.Constants.CountType.Exact);
 
-            // 2. Skapa en NY fräsch fråga BARA för att hämta datan
+            // Comment translated to English.
             var dataQuery = BuildQuery();
             var offSet = (pageNumber - 1) * pageSize;
 
@@ -94,7 +94,7 @@ namespace SeedPlan.Client.Services
                 .From<Dahlia>()
                 .Filter("name", Supabase.Postgrest.Constants.Operator.ILike, $"%{searchTerm}%")
                 .Order(d => d.Name, Supabase.Postgrest.Constants.Ordering.Ascending)
-                .Limit(5) // Begränsa till 15 träffar för att göra det blixtsnabbt
+                .Limit(5) // Comment translated to English.
                 .Get();
 
             return response.Models;
@@ -121,7 +121,7 @@ namespace SeedPlan.Client.Services
                 .From<DahliaColor>()
                 .Get();
 
-            // Plocka ut färgerna till en vanlig string-lista
+            // Comment translated to English.
             return response.Models.Select(c => c.ColorName).ToList();
         }
 

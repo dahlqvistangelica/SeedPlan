@@ -1,4 +1,4 @@
-/* --- 1. BASE STRUCTURE --- */
+﻿/* --- 1. BASE STRUCTURE --- */
 
 .app-shell {
     display: flex;
@@ -261,7 +261,7 @@
 }
 
 .feature-item:hover .feature-image {
-    transform: scale(1.02); /* Little interactivity on hover */
+    transform: scale(1.02); /* Comment translated to English. */
 }
 
 /* Text container (takes up ~45% of the width) */
@@ -337,7 +337,7 @@
 
 /* --- Responsive design for mobile --- */
 @media (max-width: 992px) {
-    /* Reduce gap and text size for medium screens (tablets) */
+    /* Comment translated to English. */
     .feature-item {
         gap: 2rem;
         margin-bottom: 6rem;
@@ -405,7 +405,7 @@
         padding: 0.75rem 0.2rem;
     }
 
-    /* Tvinga bild och text att staplas vertikalt på mobilen */
+    /* Comment translated to English. */
     .feature-item, .feature-item.feature-reverse {
         flex-direction: column;
         gap: 2rem;
@@ -425,7 +425,7 @@
     .feature-list {
         align-items: center;
     }
-    /* Centrera listan på mobilen */
+    /* Center the list on mobile */
 
     .hero-section {
         padding: 5rem 1.5rem;

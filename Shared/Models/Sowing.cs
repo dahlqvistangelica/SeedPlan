@@ -32,7 +32,7 @@ namespace SeedPlan.Shared.Models
 
         [Column("batch_number")]
         public int BatchNumber { get; set; } = 1;
-        // This is used to display the seed name in the interface
+        // Used for UI-only display of related seed information when needed.
         //[Reference(typeof(Seed))]
         //public Seed? Seed { get; set; }
 

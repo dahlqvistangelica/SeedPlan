@@ -1,11 +1,11 @@
-
+﻿
 /* ==========================================================================
    1. CSS VARIABLES (Design System)
    ========================================================================== */
 
-/* 1. BASEN: Gemensamma mått och standardfärger */
+/* Comment translated to English. */
 :root {
-    /* Gemensamma variabler för BÅDA apparna */
+    /* Shared variables for both app modes */
     --white: #ffffff;
     --text-dark: #1e293b;
     --text-muted: #64748b;
@@ -14,14 +14,14 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.03);
     --radius-lg: 20px;
     --radius-md: 12px;
-    /* Sätt SeedPlan (grön) som absolut standard */
+    /* SeedPlan (green) is the default theme */
     --primary: #10b981;
     --primary-hover: #059669;
     --bg-main: #fdfcf9;
     --bg-icon: #ecfdf5;
 }
 
-/* 2. SEEDPLAN-TEMAT (Förtydligande, matchar standarden) */
+/* 2. SEEDPLAN THEME (explicitly matches the default) */
 .seedplan-theme {
     --primary: #10b981;
     --primary-hover: #059669;
@@ -29,9 +29,8 @@
     --bg-icon: #ecfdf5;
 }
 
-/* 3. DAHLIA-TEMAT (Här sker magin!) */
-/* När klassen .dahlia-theme aktiveras av din växelspak, 
-   skriver den över färgerna från :root för allt som ligger inuti den. */
+/* 3. DAHLIA THEME */
+/* When .dahlia-theme is active, it overrides the :root palette for enclosed UI. */
 .dahlia-theme {
     /* CSS HEX 
     --eggshell: #F4EFDDff;

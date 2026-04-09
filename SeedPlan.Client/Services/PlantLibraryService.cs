@@ -231,7 +231,7 @@ namespace SeedPlan.Client.Services
         //ADMIN METHODS
 
         /// <summary>
-        /// Uppdaterar en befintlig växt i databasen.
+        /// Updates an existing plant record in the database.
         /// </summary>
         public async Task<Plant> UpdatePlantAsync(Plant plant)
         {

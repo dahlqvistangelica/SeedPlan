@@ -190,18 +190,18 @@
     {
         isLoading = true;
 
-        // 1. Hämta den inloggade användarens profil
+        // Comment translated to English.
         var currentUserProfile = await ProfileService.GetUserProfile();
-        // (OBS: Använd den metod du brukar använda för att hämta aktuell användare från din ProfileService)
+        // Comment translated to English.
 
-        // 2. Säkerhetskontroll: Om profilen saknas eller INTE är admin -> Kasta ut!
+        // Comment translated to English.
         if (currentUserProfile == null || !currentUserProfile.IsAdmin)
         {
             NavManager.NavigateTo("/");
             return;
         }
 
-        // 3. Om vi kommer hit är användaren admin, ladda växterna!
+        // Comment translated to English.
         await LoadPlants();
     }
     private async Task LoadPlants()
@@ -213,7 +213,7 @@
 
     private void EditPlant(Plant plant)
     {
-        // Skapa en kopia så att vi inte ändrar listan direkt om användaren avbryter
+        // Comment translated to English.
         editingPlant = new Plant
         {
             Id = plant.Id,

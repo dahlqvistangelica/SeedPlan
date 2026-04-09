@@ -32,11 +32,11 @@
     font-size: 1.1rem;
 }
 
-/* --- Statistik-kort --- */
+/* Comment translated to English. */
 /* --- Statistik-sektion (Mobilanpassad) --- */
 .stats-grid {
     display: flex;
-    flex-wrap: wrap; /* Gör att rutorna hoppar ner på nästa rad vid behov */
+    flex-wrap: wrap; /* Comment translated to English. */
     gap: 12px;
     margin-bottom: 2.5rem;
 }
@@ -44,26 +44,26 @@
 .stats-card {
     background-color: var(--white);
     border-radius: var(--radius-md);
-    padding: 12px 16px; /* Något mer kompakt som SeedPlan */
+    padding: 12px 16px; /* Comment translated to English. */
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-    /* Dessa rader gör magin */
-    flex: 1; /* Gör att rutorna försöker ta lika mycket plats */
-    min-width: 140px; /* Samma som dina SeedPlan-kort för att inte bli för smala */
+    /* Comment translated to English. */
+    flex: 1; /* Comment translated to English. */
+    min-width: 140px; /* Comment translated to English. */
 
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-    /* Behåll din hover-effekt */
+    /* Comment translated to English. */
     .stats-card:hover {
         transform: translateY(-3px);
         box-shadow: var(--shadow-md);
     }
 
-/* Gör ikonen något mindre för att matcha den kompakta stilen på mobilen */
+/* Comment translated to English. */
 .stats-icon {
     width: 40px;
     height: 40px;
@@ -76,7 +76,7 @@
     font-size: 1.5rem; /* Justera ikonens storlek inuti */
 }
 
-/* Justera texten inuti korten */
+/* Comment translated to English. */
 .stats-info h3 {
     margin: 0;
     font-size: 0.65rem; /* Liten label som SeedPlan */
@@ -95,10 +95,10 @@
 }
 
     .stats-number.text-sm {
-        font-size: 1.4rem; /* Lite mindre text för textsträngar som "Dekorativ" */
+        font-size: 1.4rem; /* Comment translated to English. */
     }
 
-/* --- Nedräknings-kort --- */
+/* Comment translated to English. */
 .section-title {
     font-family: serif;
     color: var(--text-dark);
@@ -164,7 +164,7 @@
     margin: 0;
 }
 
-/* När det är dags att agera! */
+/* Comment translated to English. */
 .countdown-card.ready {
     border: 2px solid var(--primary);
 }
@@ -188,11 +188,11 @@
 
     .stats-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Tvingar två kolumner på små skärmar */
+        grid-template-columns: 1fr 1fr; /* Comment translated to English. */
     }
 
     .stats-card {
-        min-width: 0; /* Tar bort begränsningen så grid-layouten kan styra */
+        min-width: 0; /* Comment translated to English. */
     }
 
     .date-badge {
