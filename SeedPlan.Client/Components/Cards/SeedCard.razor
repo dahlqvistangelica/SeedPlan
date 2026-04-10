@@ -2,24 +2,65 @@
 
 @if (Seed != null)
 {
-    <div class="seed-card" @onclick="HandleCardClick">
+    <div class="seed-card @(SeedInventoryHelper.IsOutOfStock(Seed.Quantity) ? "low-stock" : "")" @onclick="HandleCardClick">
         <div class="seed-info">
             <h3>@(string.IsNullOrEmpty(Seed.VarietyName) ? Seed.Name : Seed.VarietyName)</h3>
 
-            @if (Seed.ExpiryDate.HasValue)
+            <div class="seed-meta">
+                @if (Seed.PurchaseDate.HasValue)
+                {
+                    <span class="seed-meta-line">Köpt @Seed.PurchaseDate.Value.ToString("yyyy-MM-dd")</span>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Seed.PurchaseLocation))
+                {
+                    <span class="seed-meta-line">@Seed.PurchaseLocation</span>
+                }
+
+                @if (Seed.GerminationRate.HasValue)
+                {
+                    <span class="seed-meta-line">Grobarhet: @Seed.GerminationRate.Value%</span>
+                }
+            </div>
+
+            @if (SeedInventoryHelper.IsOutOfStock(Seed.Quantity))
             {
-                <span class="expiry-tag @(Seed.ExpiryDate < DateTime.Now ? "expired" : "")">
-                    Utgångsdatum: @Seed.ExpiryDate.Value.ToString("yyyy-MM-dd")
+                <span class="expiry-tag low-stock">
+                    Slut i lager
                 </span>
             }
+            else if (SeedInventoryHelper.IsExpired(Seed.ExpiryDate))
+            {
+                var expiryDate = Seed.ExpiryDate!.Value;
+                <span class="expiry-tag expired">
+                    Utgångsdatum: @expiryDate.ToString("yyyy-MM-dd")
+                </span>
+            }
+            else if (SeedInventoryHelper.IsExpiringSoon(Seed.ExpiryDate, Seed.Quantity))
+            {
+                var expiryDate = Seed.ExpiryDate!.Value;
+                <span class="expiry-tag warning">
+                    Utgångsdatum: @expiryDate.ToString("yyyy-MM-dd")
+                </span>
+            }
+
+@*             @if (SeedInventoryHelper.ParseTags(Seed.PlantTags).Any())
+            {
+                <div class="seed-tags">
+                    @foreach (var tag in SeedInventoryHelper.ParseTags(Seed.PlantTags))
+                    {
+                        <span class="seed-tag-chip">@tag</span>
+                    }
+                </div>
+            } *@
         </div>
         <div class="seed-actions">
-            <div class="qty-badge" onclick="Open">
+            <div class="qty-badge @(SeedInventoryHelper.IsOutOfStock(Seed.Quantity) ? "out-of-stock" : "")" onclick="Open">
                 <Blazicon Svg="MdiIcon.SeedOutline" />
                 <span class="qty">@Seed.Quantity st</span>
             </div>
             <div class="arrow-icon"><Blazicon Svg="Lucide.ChevronRight" /></div>
-            @* DELEBUTTON *@
+            @* DELETEBUTTON. *@
             <button class="delete-seed-btn" @onclick="() => HandleDelete(Seed)" @onclick:stopPropagation="true">
                 <Blazicon Svg="Lucide.Trash2" />
             </button>

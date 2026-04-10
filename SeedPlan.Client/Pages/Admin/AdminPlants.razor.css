@@ -1,0 +1,249 @@
+.tag-chip {
+    border: 1px solid #dbe4ee;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.tag-chip:hover {
+    border-color: #94a3b8;
+    background: #f8fafc;
+    color: #334155;
+}
+
+.tag-chip.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    box-shadow: 0 8px 18px rgba(58, 108, 111, 0.18);
+    transform: translateY(-1px);
+}
+
+.tag-chip.active:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+.admin-plants-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.search-wrap {
+    margin-bottom: 20px;
+}
+
+.bulk-panel {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.bulk-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.bulk-panel-title {
+    color: #334155;
+}
+
+.bulk-panel-count {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.bulk-tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.bulk-success-msg {
+    margin-top: 10px;
+    color: #15803d;
+    font-weight: 600;
+}
+
+.table-shell {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid #f1f5f9;
+}
+
+.plants-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.plants-table thead {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.plants-table th,
+.plants-table td {
+    padding: 15px;
+}
+
+.plants-table th {
+    font-weight: 600;
+    color: #475569;
+}
+
+.th-select {
+    width: 48px;
+    text-align: center;
+}
+
+.th-action {
+    text-align: center;
+}
+
+.plant-row {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.cell-select {
+    text-align: center;
+}
+
+.plant-cell-name {
+    line-height: 1.35;
+}
+
+.plant-primary-name {
+    color: #1e293b;
+}
+
+.plant-scientific-name {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.tag-badge.more {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.no-tags {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.btn-edit {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+}
+
+.admin-modal-card {
+    max-width: 700px;
+}
+
+.modal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-title {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.5rem;
+}
+
+.modal-scroll {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.section-divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin: 20px 0;
+}
+
+.options-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: center;
+}
+
+.option-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #334155;
+    font-weight: 600;
+}
+
+.option-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+.tags-block {
+    margin-top: 20px;
+}
+
+.tag-help {
+    display: block;
+    margin-top: 8px;
+    color: #94a3b8;
+}
+
+.modal-save-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+@media (max-width: 900px) {
+    .options-row {
+        grid-template-columns: 1fr;
+    }
+}

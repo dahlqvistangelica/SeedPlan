@@ -1,4 +1,4 @@
-﻿/* Comment translated to English. */
+﻿
 .hidden-input {
     display: none !important;
     opacity: 0 !important;
@@ -15,7 +15,7 @@
     width: 100%;
 }
 
-/* Comment translated to English. */
+
 .upload-button {
     display: flex;
     flex-direction: column;
@@ -39,7 +39,7 @@
         color: #475569;
     }
 
-/* Comment translated to English. */
+
 .image-preview {
     position: relative;
     width: 100px;
@@ -79,11 +79,11 @@
     border-radius: 12px;
 }
 
-/* Comment translated to English. */
+
 .image-terms-box {
     display: flex;
     gap: 12px;
-    background-color: #f0f9ff; /* Comment translated to English. */
+    background-color: #f0f9ff;
     border: 1px solid #bae6fd;
     padding: 16px;
     border-radius: 12px;
@@ -91,7 +91,7 @@
 }
 
 .terms-icon {
-    color: #0ea5e9; /* Comment translated to English. */
+    color: #0ea5e9;
     flex-shrink: 0;
     margin-top: 2px;
 }
@@ -116,10 +116,10 @@
         line-height: 1.5;
     }
 
-/* Comment translated to English. */
+
 .btn-terms-accept {
     margin-top: 4px;
-    align-self: center; /* Comment translated to English. */
+    align-self: center;
     background-color: #0ea5e9;
     color: white;
     border: none;
@@ -135,7 +135,7 @@
         background-color: #0284c7;
     }
 
-/* Comment translated to English. */
+
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
 }

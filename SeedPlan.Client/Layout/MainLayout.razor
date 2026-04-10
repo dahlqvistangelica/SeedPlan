@@ -1,11 +1,11 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
-@inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject FeedbackModalService FeedbackService
 @inject AuthService Auth
 @inject AppState AppState
+@inject IFeatureService FeatureService
 @implements IDisposable
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
@@ -231,7 +231,9 @@
     </main>
 </div>
 
-
+<FeatureModal IsVisible="showFeatureModal"
+              Feature="latestFeature"
+              OnCloseCallback="MarkFeatureAsSeen" />
 <FeedBackModal @rendermode="InteractiveAuto" />
 
 @code {
@@ -240,18 +242,20 @@
     private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
     private bool showLoginForm = false;
     private bool isLoadingDemo = false;
+    private AppFeature? latestFeature;
+    private bool showFeatureModal = false;
 
     protected override async Task OnInitializedAsync()
     {
         AppState.OnChange += StateHasChanged;
         Nav.LocationChanged += HandleLocationChanged;
-
-
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await CheckForUpdates();
+
             var saveMode = await JS.InvokeAsync<string>("localStorage.getItem", "appMode");
             if(!string.IsNullOrEmpty(saveMode) && Enum.TryParse<AppMode>(saveMode, out var mode))
                 if(AppState.CurrentMode != mode)
@@ -260,25 +264,6 @@
                     StateHasChanged();
 
                 }
-            try
-            {
-                var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
-                var onlineSettings = await Http.GetFromJsonAsync<VersionCheckModel>(noCacheUrl);
-                if(onlineSettings != null && !string.IsNullOrEmpty(onlineSettings.AppVersion))
-                {
-                    if(onlineSettings.AppVersion != CurrentAppVersion)
-                    {
-                        Nav.NavigateTo(Nav.Uri, forceLoad: true);
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"Kunde inte kolla version: {ex.Message}");
-            }
-
-            StateHasChanged();
-
         }
     }
 
@@ -317,6 +302,34 @@
         }
         await JS.InvokeVoidAsync("localStorage.setItem", "appMode", newMode.ToString());
     }
+
+    private async Task CheckForUpdates()
+    {
+        latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
+        if(latestFeature != null)
+        {
+            if(latestFeature.IsMandatory && latestFeature.VersionTag != CurrentAppVersion)
+            {
+                await JS.InvokeVoidAsync("location.reload", true);
+                return;
+            }
+            bool hasSeen = await FeatureService.HasUserSeenFeatureAsync(latestFeature.Id);
+            if(!hasSeen)
+            {
+                showFeatureModal = true;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task MarkFeatureAsSeen()
+    {
+        if(latestFeature != null)
+        {
+            await FeatureService.MarkFeatureAsSeenAsync(latestFeature.Id);
+        }
+    }
+
     public void Dispose()
     {
         Nav.LocationChanged -= HandleLocationChanged;

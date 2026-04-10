@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.Text.RegularExpressions;
+using SeedPlan.Shared.Interfaces;
 
 namespace SeedPlan.Client.Services
 {

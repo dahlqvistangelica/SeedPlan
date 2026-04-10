@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 using Microsoft.JSInterop.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using SeedPlan.Client.Services;
+using SeedPlan.Shared.Interfaces;
 using System;
 using System.Threading.Tasks;
 

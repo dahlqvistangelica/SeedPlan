@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .detail-card {
-    max-width: 800px !important; /* Comment translated to English. */
+    max-width: 800px !important;
     width: 95%;
     max-height: 90vh;
     overflow-y: auto;
@@ -93,7 +93,7 @@
     color: var(--primary);
 }
 
-/* Comment translated to English. */
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -126,15 +126,15 @@
 }
 
     .action-btn:hover {
-        color: #0f766e; /* Comment translated to English. */
+        color: #0f766e;
     }
 
 .delete-btn:hover {
-    color: #ef4444; /* Comment translated to English. */
+    color: #ef4444;
 }
 
 .close-btn:hover {
-    color: #1e293b; /* Comment translated to English. */
+    color: #1e293b;
 }
 
 /* --- 2. PROGRESS BAR --- */
@@ -303,7 +303,7 @@
    ========================================================================== */
 
 .add-seed-container {
-    background-color: #f2fcf5; /* Comment translated to English. */
+    background-color: #f2fcf5;
     border: 1px solid #dcfce7;
     border-radius: 16px;
     padding: 1.5rem;
@@ -335,7 +335,7 @@
 
     .form-header h3 {
         margin: 0;
-        color: #0f766e; /* Comment translated to English. */
+        color: #0f766e;
         font-size: 1.1rem;
         font-weight: 800;
         font-family: 'Inter', sans-serif;
@@ -366,7 +366,7 @@
 
 .save-btn-large {
     width: 100%;
-    background-color: var(--primary); /* Comment translated to English. */
+    background-color: var(--primary);
     color: white;
     border: none;
     padding: 1rem;
@@ -395,41 +395,41 @@
    ========================================================================== */
 @media (max-width: 600px) {
     .detail-card {
-        padding: 1.25rem; /* Comment translated to English. */
+        padding: 1.25rem;
         width: 100%;
         max-height: 95vh;
-        border-radius: 16px; /* Comment translated to English. */
+        border-radius: 16px;
         gap: 1rem;
     }
 
     .card-header {
         display: flex;
-        flex-direction: column; /* Comment translated to English. */
-        gap: 0.5rem; /* Comment translated to English. */
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
     .header-main {
-        order: 2; /* Comment translated to English. */
+        order: 2;
         width: 100%;
     }
 
     .header-actions {
-        order: 1; /* Comment translated to English. */
+        order: 1;
         width: 100%;
-        justify-content: flex-end; /* Comment translated to English. */
-        flex-wrap: wrap; /* Comment translated to English. */
+        justify-content: flex-end;
+        flex-wrap: wrap;
         margin-top: 0;
     }
 
     .status-badge {
-        margin-right: auto; /* Comment translated to English. */
+        margin-right: auto;
         margin-bottom: 0;
     }
     .title-area h3 {
         font-size: 1.2rem;
     }
 
-    /* Comment translated to English. */
+
     .step {
         width: 32px;
         height: 32px;
@@ -441,13 +441,13 @@
         padding: 1rem 0;
     }
 
-    /* Comment translated to English. */
+
     .add-seed-container {
         padding: 1rem;
         margin-bottom: 1rem;
     }
 
-    /* Comment translated to English. */
+
     .input-row {
         flex-direction: column;
         gap: 1.25rem;

@@ -1,0 +1,43 @@
+﻿@using SeedPlan.Shared.Models
+
+@if (IsVisible && Feature != null)
+{
+    <div class="modal-overlay" @onclick="Close">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            <header class="modal-header">
+                <div class="header-icon" style="color: var(--primary); font-size: 2rem; margin-bottom: 10px;">
+                    <Blazicon Svg="Lucide.PartyPopper" />
+                </div>
+                <h2 class="serif-title">@Feature.Title</h2>
+                <span class="version-badge">Version @Feature.VersionTag</span>
+            </header>
+
+            <div class="modal-body" style="text-align: center; padding: 20px 0;">
+                <p style="color: var(--text-dark); line-height: 1.6;">
+                    @Feature.Message
+                </p>
+            </div>
+
+            <div class="modal-footer" style="display: flex; justify-content: center; margin-top: 20px;">
+                <button class="sp-btn sp-btn-primary" @onclick="Close">
+                    Grymt, jag förstår!
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public AppFeature? Feature { get; set; }
+    [Parameter] public EventCallback OnCloseCallback { get; set; }
+
+    private async Task Close()
+    {
+        IsVisible = false;
+        if (OnCloseCallback.HasDelegate)
+        {
+            await OnCloseCallback.InvokeAsync();
+        }
+    }
+}

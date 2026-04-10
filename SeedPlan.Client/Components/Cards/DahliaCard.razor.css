@@ -2,37 +2,37 @@
 
 .sp-dahlia-card {
     background: white;
-    border-radius: 16px; /* Comment translated to English. */
+    border-radius: 16px;
     box-shadow: 0 8px 16px rgba(0,0,0,0.05); /* Soft, stor skugga */
-    overflow: hidden; /* Comment translated to English. */
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     width: 100%;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-    /* Comment translated to English. */
+
 /*    .sp-dahlia-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 12px 24px rgba(0,0,0,0.1);
     }*/
 
-/* Comment translated to English. */
+
 .sp-card-top {
-    height: 180px; /* Comment translated to English. */
+    height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative; /* Comment translated to English. */
+    position: relative;
 }
 
-/* Comment translated to English. */
+
 .sp-delete-btn {
     position: absolute;
     top: 10px;
     right: 10px;
     padding: 6px 10px;
-    background: white; /* Comment translated to English. */
+    background: white;
 }
 
 /* Wrapper som centrerar cirkeln */
@@ -42,19 +42,19 @@
     height: 120px;
     border-radius: 50%;
     overflow: hidden;
-    /* Comment translated to English. */
+
     border: 4px solid white;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Comment translated to English. */
+
 .sp-dahlia-image {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Comment translated to English. */
+    object-fit: cover;
 }
 
-/* Comment translated to English. */
+
 .sp-default-circle {
     width: 100%;
     height: 100%;
@@ -72,13 +72,13 @@
     .sp-card-bottom .serif-title {
         margin: 0;
         font-size: 1.4rem;
-        color: #1e293b; /* Comment translated to English. */
+        color: #1e293b;
     }
 
 .type-text {
     margin: 0;
     font-size: 0.9rem;
-    color: #94a3b8; /* Comment translated to English. */
+    color: #94a3b8;
     text-transform: capitalize;
 }
 
@@ -89,7 +89,7 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Comment translated to English. */
+    gap: 8px;
 }
 
 .detail-item {
@@ -103,10 +103,10 @@
    font-size: 1.3rem;
     display: flex;
     justify-content: center;
-    color: #cbd5e1; /* Comment translated to English. */
+    color: #cbd5e1;
 }
 
-/* Comment translated to English. */
+
 .detail-text {
     font-size: 0.95rem;
     color: #64748b;

@@ -164,7 +164,7 @@ label .accordion-title {
 /* Expanded panel content */
 .accordion-content {
 	display: grid;
-	grid-template-columns: 1fr 1fr; /* Comment translated to English. */
+	grid-template-columns: 1fr 1fr;
 	gap: 10px;
 	padding-bottom: 16px;
 	animation: slideDown 0.2s ease-out;
@@ -181,7 +181,7 @@ label .accordion-title {
 	padding: 3px 0; /* Extra spacing improves tap accuracy */
 }
 
-	/* Comment translated to English. */
+
 	.checkbox-label input[type="checkbox"] {
 		width: 20px;
 		height: 20px;
