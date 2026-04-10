@@ -29,6 +29,24 @@
                     </div>
                 </div>
 
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Inköpsdag</label>
+                        <input type="date" @bind="Seed.PurchaseDate" class="sp-input" />
+                    </div>
+                    <div class="input-block">
+                        <label>Inköpsställe</label>
+                        <input type="text" @bind="Seed.PurchaseLocation" class="sp-input" placeholder="T.ex. Runåbergs fröer" />
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Grobarhet (%)</label>
+                        <input type="number" min="0" max="100" @bind="Seed.GerminationRate" class="sp-input" placeholder="0-100" />
+                    </div>
+                </div>
+
                 <div class="input-block">
                     <label>Anteckningar</label>
                     <textarea @bind="Seed.Notes" class="sp-textarea" placeholder="Plats, jord, etc."></textarea>

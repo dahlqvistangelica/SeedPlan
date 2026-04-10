@@ -35,7 +35,9 @@ namespace SeedPlan.Client.Services
                 .Filter("plant_name", Supabase.Postgrest.Constants.Operator.ILike, $"%{searchTerm}%")
                 .Limit(10)
                 .Get();
-            return response.Models;
+            var plants = response.Models;
+            await HydratePlantTagsAsync(plants);
+            return plants;
 
         }
 
@@ -77,7 +79,23 @@ namespace SeedPlan.Client.Services
                 .From<Plant>()
                 .Order(x => x.PlantName, Supabase.Postgrest.Constants.Ordering.Ascending)
                 .Get();
-            return response.Models;
+
+            var plants = response.Models;
+            await HydratePlantTagsAsync(plants);
+            return plants;
+
+        }
+
+        public async Task<List<PlantTag>> GetAllTagsAsync()
+        {
+            var response = await _supabase
+                .From<PlantTag>()
+                .Get();
+
+            return response.Models
+                .OrderBy(tag => tag.SortOrder)
+                .ThenBy(tag => tag.DisplayName)
+                .ToList();
 
         }
         /// <summary>
@@ -239,7 +257,79 @@ namespace SeedPlan.Client.Services
                 .From<Plant>()
                 .Update(plant);
 
-            return response.Models.FirstOrDefault() ?? plant;
+            var updatedPlant = response.Models.FirstOrDefault() ?? plant;
+            await SyncPlantTagsAsync(updatedPlant);
+            updatedPlant.Tags = plant.Tags;
+            return updatedPlant;
+        }
+
+        private async Task HydratePlantTagsAsync(List<Plant> plants)
+        {
+            if (!plants.Any())
+            {
+                return;
+            }
+
+            var tags = await GetAllTagsAsync();
+            var linksResponse = await _supabase
+                .From<PlantTagLink>()
+                .Get();
+
+            var tagLookup = tags.ToDictionary(tag => tag.Id);
+            var tagLinksByPlant = linksResponse.Models
+                .GroupBy(link => link.PlantId)
+                .ToDictionary(group => group.Key, group => group.Select(link => link.TagId).Distinct().ToList());
+
+            foreach (var plant in plants)
+            {
+                if (tagLinksByPlant.TryGetValue(plant.Id, out var tagIds))
+                {
+                    plant.Tags = tagIds
+                        .Where(tagLookup.ContainsKey)
+                        .Select(tagId => tagLookup[tagId])
+                        .OrderBy(tag => tag.SortOrder)
+                        .ThenBy(tag => tag.DisplayName)
+                        .ToList();
+                }
+                else
+                {
+                    plant.Tags = new List<PlantTag>();
+                }
+            }
+        }
+
+        private async Task SyncPlantTagsAsync(Plant plant)
+        {
+            if (plant.Id <= 0)
+            {
+                return;
+            }
+
+            await _supabase
+                .From<PlantTagLink>()
+                .Where(link => link.PlantId == plant.Id)
+                .Delete();
+
+            var desiredTags = plant.Tags
+                .Where(tag => tag.Id > 0)
+                .GroupBy(tag => tag.Id)
+                .Select(group => group.First())
+                .ToList();
+
+            if (!desiredTags.Any())
+            {
+                return;
+            }
+
+            var links = desiredTags
+                .Select(tag => new PlantTagLink
+                {
+                    PlantId = plant.Id,
+                    TagId = tag.Id
+                })
+                .ToList();
+
+            await _supabase.From<PlantTagLink>().Insert(links);
         }
     }
 }

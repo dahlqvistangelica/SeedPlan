@@ -1,4 +1,4 @@
-# SeedPlan – Specifikation v2.2
+# SeedPlan – Specifikation v2.4
 
 > Baserad på befintlig app (Blazor WebAssembly + Supabase) – april 2026
 > Odlingsplatser är borttagna. Speccen speglar nuvarande app och visar tydligt vad som redan finns och vad som återstår.
@@ -597,22 +597,18 @@ Notering: Önskelista-fliken är tillfälligt utkommenterad i navigeringen och i
 
 ---
 
-## 13. Byggas i denna prioritetsordning
+## 13. Prioriteringsstatus (uppdaterad)
 
-### Prioritet 1 – Buildlista (nästa releasekandidat)
-- Lägg till visuell loading-state i dahlia-sökdropdown när asynkron sökning pågår (`isSearching`).
-- Lägg till enkel debounce/cancellation i dahlia-sökning för att minska överlappande requests vid snabb inmatning.
-- Säkerställ konsekvent fallback när sökning ger 0 träffar (tomt tillstånd + CTA för "Skapa ny sort").
-- QA av lägesväxling SeedPlan/DahliaBox (persistens i `localStorage`, korrekt redirect, korrekt active state i UI).
-- QA av mode-specifik bottomnav på mobil och desktop (inga brutna länkar mellan lägen).
-- Verifiera versionskedjan 1.5.1 (`MainLayout`, `Settings`, `wwwroot/appsettings.json`) i cache-scenario.
-- Lägg till/uppdatera tester för dahlia-sökflödet (asynkront input-event, resultatlista, val av träff).
-- Lägg till/uppdatera tester för `StarRating`-komponenten (toggle av samma stjärna => `null`).
-
-### Prioritet 1 – Utökat fröinventarie
-- Inköpsdatum, inköpsställe och grobarhetsprocent
-- Taggsystem och filtrering på tagg
-- Visuella lagervarningar för utgångsdatum och nollsaldo
+### Prioritet 1 – Levererat och mergat ✅
+- Visuell loading-state i dahlia-sökdropdown under asynkron sökning (`isSearching`).
+- Debounce + cancellation i dahlia-sökning för att minska överlappande requests vid snabb inmatning.
+- Konsekvent fallback vid 0 träffar med tomt tillstånd + CTA för "Skapa ny sort".
+- QA av lägesväxling SeedPlan/DahliaBox (persistens i `localStorage`, redirect och active state).
+- QA av mode-specifik bottomnav på mobil och desktop.
+- Verifierad versionskedja 1.5.1 i `MainLayout`, `Settings` och `wwwroot/appsettings.json`.
+- Tester tillagda/uppdaterade för dahlia-sökflöde (asynkront input-event, resultatlista, val av träff).
+- Tester tillagda/uppdaterade för `StarRating`-komponenten (toggle av samma stjärna => `null`).
+- Utökat fröinventarie levererat: inköpsdatum, inköpsställe, grobarhetsprocent, taggar, taggfilter och visuella lagervarningar.
 
 ### Prioritet 2 – Förbättrade såddrekommendationer
 - "Snart att så"-sektion på dashboarden
@@ -646,4 +642,4 @@ Notering: Önskelista-fliken är tillfälligt utkommenterad i navigeringen och i
 
 ---
 
-*Specifikation v2.2 – SeedPlan – april 2026*
+*Specifikation v2.4 – SeedPlan – april 2026*

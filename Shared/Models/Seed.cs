@@ -23,6 +23,15 @@ namespace SeedPlan.Shared.Models
         [Column("expiry_date")] // Supabase often uses snake_case
         public DateTime? ExpiryDate { get; set; }
 
+        [Column("purchase_date")]
+        public DateTime? PurchaseDate { get; set; }
+
+        [Column("purchase_location")]
+        public string? PurchaseLocation { get; set; }
+
+        [Column("germination_rate")]
+        public int? GerminationRate { get; set; }
+
         [Column("notes")]
         public string? Notes { get; set; }
 
@@ -46,6 +55,9 @@ namespace SeedPlan.Shared.Models
             VarietyName = old.VarietyName;
             Quantity = old.Quantity;
             ExpiryDate = old.ExpiryDate;
+            PurchaseDate = old.PurchaseDate;
+            PurchaseLocation = old.PurchaseLocation;
+            GerminationRate = old.GerminationRate;
             Notes = old.Notes;
             UserId = old.UserId;
             PlantData = old.PlantData;

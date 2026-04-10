@@ -28,6 +28,7 @@
                     <tr>
                         <th style="padding: 15px; font-weight: 600; color: #475569;">Namn</th>
                         <th style="padding: 15px; font-weight: 600; color: #475569;">Kategori</th>
+                        <th style="padding: 15px; font-weight: 600; color: #475569;">Taggar</th>
                         <th style="padding: 15px; font-weight: 600; color: #475569;">Sådjup</th>
                         <th style="padding: 15px; font-weight: 600; color: #475569;">Plantavstånd</th>
                         <th style="padding: 15px; font-weight: 600; color: #475569; text-align: center;">Åtgärd</th>
@@ -42,6 +43,25 @@
                                 <small style="color: #94a3b8; font-style: italic;">@plant.ScientificName</small>
                             </td>
                             <td style="padding: 15px;">@plant.Category.ToString()</td>
+                            <td style="padding: 15px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    @if (plant.Tags.Any())
+                                    {
+                                        @foreach (var tag in plant.Tags.Take(3))
+                                        {
+                                            <span style="display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; background: #eff6ff; color: #1d4ed8; font-size: 0.75rem; font-weight: 700;">@tag.DisplayName</span>
+                                        }
+                                        @if (plant.Tags.Count > 3)
+                                        {
+                                            <span style="display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 999px; background: #f8fafc; color: #64748b; font-size: 0.75rem; font-weight: 700;">+@((plant.Tags.Count) - 3)</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: #94a3b8; font-style: italic;">Inga taggar</span>
+                                    }
+                                </div>
+                            </td>
                             <td style="padding: 15px;">@(plant.SowingDepth != null ? plant.SowingDepth : "Okänt")</td>
                             <td style="padding: 15px;">@(plant.PlantSpacing !=null ? plant.PlantSpacing : "Okänt" )</td>
                             <td style="padding: 15px; text-align: center;">
@@ -153,6 +173,22 @@
                         Kan direktsås
                     </label>
                 </div>
+
+                <div class="input-block" style="margin-top: 20px;">
+                    <label>Taggar</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        @foreach (var tag in availableTags)
+                        {
+                            var isSelected = editingPlant.Tags.Any(selected => selected.Id == tag.Id);
+                            <button type="button"
+                                    class="tag-chip @(isSelected ? "active" : "")"
+                                    @onclick="() => ToggleTag(tag)">
+                                @tag.DisplayName
+                            </button>
+                        }
+                    </div>
+                    <small style="display: block; margin-top: 8px; color: #94a3b8;">Välj förutbestämda taggar som visas i växtguiden.</small>
+                </div>
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))
@@ -171,6 +207,7 @@
 
 @code {
     private List<Plant> allPlants = new();
+    private List<PlantTag> availableTags = new();
     private bool isLoading = true;
     private string searchQuery = string.Empty;
 
@@ -207,6 +244,7 @@
     private async Task LoadPlants()
     {
         isLoading = true;
+        availableTags = await PlantService.GetAllTagsAsync();
         allPlants = await PlantService.GetAllPlantsAsync();
         isLoading = false;
     }
@@ -230,7 +268,14 @@
             PlantSpacing = plant.PlantSpacing,
             IsLightGerminating = plant.IsLightGerminating,
             RequiresTopping = plant.RequiresTopping,
-            DirectSowing = plant.DirectSowing
+            DirectSowing = plant.DirectSowing,
+            Tags = plant.Tags.Select(tag => new PlantTag
+            {
+                Id = tag.Id,
+                TagKey = tag.TagKey,
+                DisplayName = tag.DisplayName,
+                SortOrder = tag.SortOrder
+            }).ToList()
         };
         
         errorMessage = null;
@@ -241,6 +286,30 @@
     {
         showEditModal = false;
         editingPlant = null;
+    }
+
+    private void ToggleTag(PlantTag tag)
+    {
+        if (editingPlant == null)
+        {
+            return;
+        }
+
+        var existingTag = editingPlant.Tags.FirstOrDefault(selected => selected.Id == tag.Id);
+        if (existingTag != null)
+        {
+            editingPlant.Tags.Remove(existingTag);
+        }
+        else
+        {
+            editingPlant.Tags.Add(new PlantTag
+            {
+                Id = tag.Id,
+                TagKey = tag.TagKey,
+                DisplayName = tag.DisplayName,
+                SortOrder = tag.SortOrder
+            });
+        }
     }
 
     private async Task SavePlant()

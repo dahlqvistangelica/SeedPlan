@@ -28,6 +28,18 @@ namespace SeedPlan.Shared.Models.ViewModels
         [Column("expiry_date")]
         public DateTime? ExpiryDate { get; set; }
 
+        [Column("purchase_date")]
+        public DateTime? PurchaseDate { get; set; }
+
+        [Column("purchase_location")]
+        public string? PurchaseLocation { get; set; }
+
+        [Column("germination_rate")]
+        public int? GerminationRate { get; set; }
+
+        [Column("plant_tags")]
+        public string? PlantTags { get; set; }
+
         [Column("notes")]
         public string? Notes { get; set; }
 
