@@ -1,5 +1,4 @@
-﻿
-.group-content {
+﻿.group-content {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 16px;
@@ -142,7 +141,7 @@
 
 .search-input {
     width: 100%;
-    padding: 10px 35px 10px 40px; /* Gör plats för ikoner på sidorna */
+    padding: 10px 35px 10px 40px; /* Make room for icons on both sides */
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 1rem;

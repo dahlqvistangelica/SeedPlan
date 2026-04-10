@@ -54,6 +54,7 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
             builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
             builder.Services.AddScoped<IDahliaService, DahliaService>();
+            builder.Services.AddScoped<IFeatureService, FeatureService>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<FeedbackModalService>();

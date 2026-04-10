@@ -46,6 +46,9 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
+            builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
+            builder.Services.AddScoped<IDahliaService, DahliaService>();
+            builder.Services.AddScoped<IFeatureService, FeatureService>();
             // 4. THE NEW AUTH ARCHITECTURE (copied from Client)
             builder.Services.AddScoped<SupabaseAuthStateProvider>();
 

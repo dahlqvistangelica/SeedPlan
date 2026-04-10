@@ -36,6 +36,12 @@ namespace SeedPlan.Client.Services
             return response.Models.Any();
         }
 
+        public async Task<string> GetLatestVersionAsync()
+        {
+            var version = await GetLatestActiveFeatureAsync();
+            return version.VersionTag;
+        }
+
         public async Task MarkFeatureAsSeenAsync(int featureId)
         {
             var userId = _supabase.Auth.CurrentUser?.Id;
@@ -49,6 +55,28 @@ namespace SeedPlan.Client.Services
             };
 
             await _supabase.From<UserSeenFeature>().Insert(seenRecord);
+        }
+        
+        public async Task<List<AppFeature>> GetAllFeaturesAsync()
+        {
+            var response = await _supabase.From<AppFeature>()
+                .Order(f => f.CreatedAt, Supabase.Postgrest.Constants.Ordering.Descending)
+                .Get();
+
+            return response.Models;
+        }
+
+        
+        public async Task AddFeatureAsync(AppFeature feature)
+        {
+            feature.CreatedAt = DateTime.UtcNow; 
+            await _supabase.From<AppFeature>().Insert(feature);
+        }
+
+        
+        public async Task UpdateFeatureAsync(AppFeature feature)
+        {
+            await _supabase.From<AppFeature>().Update(feature);
         }
     }
 }

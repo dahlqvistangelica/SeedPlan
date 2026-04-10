@@ -29,16 +29,16 @@
 .user-display-name {
     font-size: 0.9rem;
     color: #64748b;
-    /* Comment translated to English. */
+
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis;
 }
 
-/* Comment translated to English. */
+
 @media (max-width: 768px) {
     .user-display-name {
-        max-width: 75px; /* Comment translated to English. */
+        max-width: 75px;
     }
 }
 

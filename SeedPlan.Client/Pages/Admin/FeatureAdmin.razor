@@ -1,0 +1,140 @@
+﻿@page "/admin/features"
+@using SeedPlan.Shared.Models
+@inject IFeatureService FeatureService
+@inject NavigationManager NavManager
+@inject IUserProfileService ProfileService
+
+<div class="dashboard-container">
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar adminfeatures.." />
+    }
+    else
+    {
+        <header class="dashboard-header feature-admin-header">
+            <h1 class="serif-title">Hantera App-uppdateringar (Release Notes)</h1>
+            <p class="subtitle">Skapa nya popups eller tvinga fram uppdateringar för alla användare.</p>
+        </header>
+
+        <div class="admin-grid">
+
+            @* LEFT SIDE: Form for adding new feature/update *@
+            <div class="form-section card-box">
+                <h3>Skapa ny uppdatering</h3>
+
+                <div class="input-block">
+                    <label>Titel (T.ex. "Ny funktion: Statistik!")</label>
+                    <input type="text" @bind="newFeature.Title" class="sp-input" />
+                </div>
+
+                <div class="input-block">
+                    <label>Meddelande</label>
+                    <textarea @bind="newFeature.Message" class="sp-input" rows="4"></textarea>
+                </div>
+
+                <div class="input-block">
+                    <label>Versions-tagg (T.ex. 1.2.1)</label>
+                    <input type="text" @bind="newFeature.VersionTag" class="sp-input" />
+                </div>
+
+                <div class="checkbox-block">
+                    <label class="checkbox-label">
+                        <input type="checkbox" @bind="newFeature.IsMandatory" />
+                        <strong>Obligatorisk uppdatering?</strong>
+                        <span class="checkbox-help">
+                            (Tvingar appen att ladda om sig själv direkt. Använd bara vid viktiga kod-ändringar).
+                        </span>
+                    </label>
+                </div>
+
+                <button class="btn-primary feature-submit-btn" @onclick="SaveNewFeature">
+                    Skicka ut uppdatering 🚀
+                </button>
+
+                @if (showSuccess)
+                {
+                    <div class="success-message">
+                        Sparad! Den är nu live för alla användare.
+                    </div>
+                }
+            </div>
+
+            @* RIGHT SIDE: List of earlier updates *@
+            <div class="list-section card-box">
+                <h3>Tidigare uppdateringar</h3>
+
+                @if (allFeatures == null)
+                {
+                    <p>Laddar...</p>
+                }
+                else
+                {
+                    <div class="feature-list">
+                        @foreach (var f in allFeatures)
+                        {
+                            <div class="feature-item">
+                                <div class="feature-item-header">
+                                    <strong>@f.VersionTag: @f.Title</strong>
+                                    <button class="sp-btn @(f.IsActive ? "sp-btn-outline" : "sp-btn-secondary")"
+                                            @onclick="() => ToggleActive(f)">
+                                        @(f.IsActive ? "Aktiv (Klicka för att dölja)" : "Inaktiv")
+                                    </button>
+                                </div>
+                                <p class="feature-item-message">@f.Message</p>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<AppFeature> allFeatures;
+    private AppFeature newFeature = new AppFeature { IsActive = true };
+    private bool showSuccess = false;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var currentUserProfile = await ProfileService.GetUserProfile();
+
+        if (currentUserProfile == null || !currentUserProfile.IsAdmin)
+        {
+            NavManager.NavigateTo("/");
+            return;
+        }
+
+        await LoadFeatures();
+    }
+
+    private async Task LoadFeatures()
+    {
+        allFeatures = await FeatureService.GetAllFeaturesAsync();
+        isLoading = false;
+    }
+
+    private async Task SaveNewFeature()
+    {
+        if (string.IsNullOrWhiteSpace(newFeature.Title) || string.IsNullOrWhiteSpace(newFeature.VersionTag))
+            return;
+
+        await FeatureService.AddFeatureAsync(newFeature);
+
+        newFeature = new AppFeature { IsActive = true };
+
+        showSuccess = true;
+        await LoadFeatures();
+
+        _ = Task.Delay(3000).ContinueWith(_ => { showSuccess = false; InvokeAsync(StateHasChanged); });
+    }
+
+    private async Task ToggleActive(AppFeature feature)
+    {
+        feature.IsActive = !feature.IsActive;
+        await FeatureService.UpdateFeatureAsync(feature);
+        await LoadFeatures();
+    }
+}

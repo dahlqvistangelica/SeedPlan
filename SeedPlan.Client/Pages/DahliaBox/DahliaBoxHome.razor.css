@@ -1,5 +1,5 @@
 ﻿/* =========================================
-   DASHBOARD / STARTSIDA
+   DASHBOARD / HOME PAGE
 ========================================= */
 /* Dashboard container */
 .dashboard-container {
@@ -26,17 +26,15 @@
         font-size: 0.85rem;
     }
 
-
 .subtitle {
     color: var(--text-muted);
     font-size: 1.1rem;
 }
 
-/* Comment translated to English. */
-/* --- Statistik-sektion (Mobilanpassad) --- */
+/* --- STAT SECTION (PHONE-adjusted) --- */
 .stats-grid {
     display: flex;
-    flex-wrap: wrap; /* Comment translated to English. */
+    flex-wrap: wrap;
     gap: 12px;
     margin-bottom: 2.5rem;
 }
@@ -44,26 +42,24 @@
 .stats-card {
     background-color: var(--white);
     border-radius: var(--radius-md);
-    padding: 12px 16px; /* Comment translated to English. */
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--border-color);
-    /* Comment translated to English. */
-    flex: 1; /* Comment translated to English. */
-    min-width: 140px; /* Comment translated to English. */
+
+    flex: 1;
+    min-width: 140px;
 
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-    /* Comment translated to English. */
     .stats-card:hover {
         transform: translateY(-3px);
         box-shadow: var(--shadow-md);
     }
 
-/* Comment translated to English. */
 .stats-icon {
     width: 40px;
     height: 40px;
@@ -73,13 +69,12 @@
     align-items: center;
     justify-content: center;
     border-radius: 12px;
-    font-size: 1.5rem; /* Justera ikonens storlek inuti */
+    font-size: 1.5rem; /* Adjust icon size */
 }
 
-/* Comment translated to English. */
 .stats-info h3 {
     margin: 0;
-    font-size: 0.65rem; /* Liten label som SeedPlan */
+    font-size: 0.65rem; /* Small label like SeedPlan */
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -88,17 +83,16 @@
 }
 
 .stat-number {
-    font-size: 1.2rem; /* Lite mer kompakt siffra */
+    font-size: 1.2rem; /* Slightly more compact number */
     font-weight: 700;
     color: var(--primary);
     line-height: 1.2;
 }
 
     .stats-number.text-sm {
-        font-size: 1.4rem; /* Comment translated to English. */
+        font-size: 1.4rem;
     }
 
-/* Comment translated to English. */
 .section-title {
     font-family: serif;
     color: var(--text-dark);
@@ -164,7 +158,6 @@
     margin: 0;
 }
 
-/* Comment translated to English. */
 .countdown-card.ready {
     border: 2px solid var(--primary);
 }
@@ -179,7 +172,6 @@
     color: var(--primary);
 }
 
-
 @media (max-width: 480px) {
     .dashboard-container {
         padding: 1rem 0.6rem; /* Even smaller side padding on small mobile screens */
@@ -188,11 +180,11 @@
 
     .stats-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* Comment translated to English. */
+        grid-template-columns: 1fr 1fr;
     }
 
     .stats-card {
-        min-width: 0; /* Comment translated to English. */
+        min-width: 0;
     }
 
     .date-badge {

@@ -19,14 +19,14 @@
     user-select: none;
 }
 
-/* Comment translated to English. */
+
 .group-controls {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-/* Comment translated to English. */
+
 .btn-add-sowing {
     display: flex;
     align-items: center;

@@ -12,6 +12,9 @@ namespace SeedPlan.Shared.Interfaces
         Task<AppFeature> GetLatestActiveFeatureAsync();
         Task<bool> HasUserSeenFeatureAsync(int featureId);
         Task MarkFeatureAsSeenAsync(int featureId);
-
+        Task<string> GetLatestVersionAsync();
+        Task<List<AppFeature>> GetAllFeaturesAsync();
+        Task AddFeatureAsync(AppFeature feature);
+        Task UpdateFeatureAsync(AppFeature feature);
     }
 }
