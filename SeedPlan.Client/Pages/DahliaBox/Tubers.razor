@@ -9,14 +9,41 @@
 <div class="tubers-container">
     <header class="tubers-header">
         <h1 class="serif-title">Mina knölar</h1>
-        <div class="control-button">
+     <div class="group-controls">
+            <div class="control-button">
             <button class="btn-add-dahlia" title="Lägg till knöl" @onclick="OpenAddUserDahlia">
                 <div class="btn-add-dahlia-icon"><Blazicon Svg="BootstrapIcon.Flower1"/></div>
                 <span>Ny dahlia</span>
             </button>
         </div>
+        </div>
     </header>
-
+    <div class="toolbar">
+        <div class="search-box">
+            <input type="text"
+                   placeholder="Sök efter sort..."
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   class="search-input" />
+        
+            @if (!string.IsNullOrEmpty(searchTerm))
+            {
+                <button class="clear-search-btn" @onclick="@(() => searchTerm = "")">
+                    <Blazicon Svg="Lucide.X" />
+                </button>
+            }
+        </div>
+        <div class="control-select">
+            <select @bind="currentGrouping" class="group-select">
+                <option value="none">Ingen gruppering</option>
+                <option value="rating">Gruppera efter betyg</option>
+                <option value="type">Gruppera efter typ</option>
+                <option value="size">Gruppera efter storlek</option>
+                <option value="color">Gruppera efter färg</option>
+                <option value="name">Gruppera efter initialbokstav</option>
+            </select>
+        </div>
+    </div>
     @if(isLoading)
     {
         <LoadingSpinner Text="Laddar dina knölar.." />
@@ -30,47 +57,61 @@
     else
     {
         <div class="dahlia-list">
-            @foreach(var group in userDahlias.GroupBy(d => d.Variety.Type))
+            @if (currentGrouping == "none")
             {
-                var isExpanded = expandedGroups.Contains(group.Key);
-                <div class="dahlia-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
-                    <div class="dahlia-group-header-main">
-                        <div class="chevron">
-                            @if(!isExpanded)
-                            {
-                                <Blazicon Svg="Lucide.ChevronRight"/>
-                            }
-                            else
-                            {
-                                <Blazicon Svg="Lucide.ChevronDown"/>
-                            }
-                        </div>
-                        <h2 class="serif-title">@GetTypeName(group.Key)</h2>
-                    </div>
-
-                
-
-                @if(group.Count() > 1)
+                <div class="group-content">
+                @foreach (var dahlia in GetSortedDahlias())
                 {
-                    <span class="dahlia-count">
-                        @group.Count() sorter
-                    </span>
-                }
-                else
-                {
-                    <span class="dahlia-count">@group.Count() sort</span>
+                    
+                        <UserDahliaCard Dahlia="dahlia" OnDelete="() => HandleDelete(dahlia)" OnClick="() => OpenEditDahlia(dahlia)" />
+                    
                 }
                 </div>
-
-                @if(isExpanded)
+            }
+            else
+            {
+                @foreach (var group in GetGroupedDahlias())
                 {
-                    <div class="group-content fade-in">
-                        @foreach(var dahlia in group)
-                        {
-                            <UserDahliaCard Dahlia="dahlia" OnDelete="() => HandleDelete(dahlia)" OnClick="() => OpenEditDahlia(dahlia)" />
+                    var isExpanded = expandedGroups.Contains(group.Key);
+                    <div class="dahlia-group-header" @onclick="() => ToggleGroup(group.Key)" style="cursor: pointer;">
+                        <div class="dahlia-group-header-main">
+                            <div class="chevron">
+                                @if (!isExpanded)
+                                {
+                                    <Blazicon Svg="Lucide.ChevronRight"/>
+                                }
+                                else
+                                {
+                                    <Blazicon Svg="Lucide.ChevronDown"/>
+                                }
+                            </div>
+                            <h2 class="serif-title">@group.Key</h2>
+                        </div>
 
+
+
+                        @if (group.Count() > 1)
+                        {
+                            <span class="dahlia-count">
+                                @group.Count() sorter
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="dahlia-count">@group.Count() sort</span>
                         }
                     </div>
+
+                    @if (isExpanded)
+                    {
+                        <div class="group-content fade-in">
+                            @foreach (var dahlia in group)
+                            {
+                                <UserDahliaCard Dahlia="dahlia" OnDelete="() => HandleDelete(dahlia)" OnClick="() => OpenEditDahlia(dahlia)" />
+
+                            }
+                        </div>
+                    }
                 }
             }
         </div>
@@ -91,7 +132,9 @@
     private bool showAddModal = false;
     private bool showEditModal = false;
     private UserDahlia? selectedDahlia;
-    private HashSet<DahliaType> expandedGroups = new();
+    private HashSet<string> expandedGroups = new();
+    private string currentGrouping = "none";
+    private string searchTerm = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,15 +159,15 @@
 
     private void OpenAddUserDahlia() => showAddModal = true;
 
-    private async Task ToggleGroup(DahliaType dahliaType)
+    private async Task ToggleGroup(string groupKey)
     {
-        if(expandedGroups.Contains(dahliaType))
+        if(expandedGroups.Contains(groupKey))
         {
-            expandedGroups.Remove(dahliaType);
+            expandedGroups.Remove(groupKey);
         }
         else
         {
-            expandedGroups.Add(dahliaType);
+            expandedGroups.Add(groupKey);
         }
         await Task.Delay(1);
     }
@@ -192,5 +235,54 @@
         }
     }
 
+    private IEnumerable<UserDahlia>GetFilteredDahlias()
+    {
+        if(string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return userDahlias;
+        }
+        return userDahlias.Where(d => d.Variety.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private IEnumerable<UserDahlia> GetSortedDahlias()
+    {
+        return GetFilteredDahlias().OrderBy(d => d.Variety.Name);
+    }
+
+    private IEnumerable<IGrouping<string, UserDahlia>> GetGroupedDahlias()
+    {
+        var sourceList = GetFilteredDahlias();
+
+        return currentGrouping switch
+        {
+            "rating" => sourceList
+                .OrderByDescending(r => r.Rating) 
+                .GroupBy(r => r.Rating?.ToString() ?? "Ingen bedömning"),
+                
+            "color" => sourceList
+                
+                .SelectMany(d => d.Variety.Color
+                    .Split(new[] { ',', '/' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(color => new { SingleColor = color.Trim(), Dahlia = d })
+                )
+                .GroupBy(x => x.SingleColor, x => x.Dahlia)
+                .OrderBy(g => g.Key),
+                
+            "type" => sourceList
+                .OrderBy(d => d.Variety.GetTypeName())
+                .GroupBy(d => d.Variety.GetTypeName().ToString()),
+                
+            "size" => sourceList
+                .OrderBy(d => d.Variety.Size)
+                .GroupBy(d => d.Variety.GetSize()),
+                
+            "name" => sourceList
+                .OrderBy(d => d.Variety.Name)
+                .GroupBy(d => d.Variety.Name.Substring(0, 1).ToUpper()),
+                
+            _ => new List<IGrouping<string, UserDahlia>>()
+        };
+    }
+    }
 
 }

@@ -44,7 +44,7 @@
                 </span>
             }
 
-            @if (SeedInventoryHelper.ParseTags(Seed.PlantTags).Any())
+@*             @if (SeedInventoryHelper.ParseTags(Seed.PlantTags).Any())
             {
                 <div class="seed-tags">
                     @foreach (var tag in SeedInventoryHelper.ParseTags(Seed.PlantTags))
@@ -52,7 +52,7 @@
                         <span class="seed-tag-chip">@tag</span>
                     }
                 </div>
-            }
+            } *@
         </div>
         <div class="seed-actions">
             <div class="qty-badge @(SeedInventoryHelper.IsOutOfStock(Seed.Quantity) ? "out-of-stock" : "")" onclick="Open">

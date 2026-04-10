@@ -10,25 +10,40 @@
 <div class="sowings-container">
     <header class="sowings-header">
         <h1 class="serif-title">Mina Sådder</h1>
-        
-        @* GROUPCONTROLS *@
         <div class="group-controls">
+        <div class="control-button">
+            <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
+                <Blazicon Svg="Lucide.Sprout" />
+                <span>Ny sådd</span> @* Comment translated to English. *@
+            </button>
+            </div>
+        </div>
+    </header>
+        @* GROUPCONTROLS *@
+        <div class="toolbar">
+                <div class="search-box">
+                    <input type="text"
+                           @bind="searchTerm"
+                           @bind:event="oninput"
+                           placeholder="Sök växt eller sort..."
+                           class="search-input" />
+                    @if (!string.IsNullOrEmpty(searchTerm))
+                    {
+                        <button class="clear-btn" @onclick="@(() => searchTerm = "")">
+                            <Blazicon Svg="Lucide.CircleX" />
+                        </button>
+                    }
+                </div>
             <div class="control-select">
                 <select @bind="currentGrouping" class="group-select">
                     <option value="none">Ingen gruppering</option>
                     <option value="status">Gruppera efter såstatus</option>
-                    <option value="plant">Gruppera efter växtnamn</option>
+                    <option value="plant">Gruppera efter växt</option>
                     <option value="date">Gruppera efter sådatum</option>
                 </select>
             </div>
-            <div class="control-button">
-                <button class="btn-add-sowing" title="Lägg till sådd" @onclick="OpenAddSowing">
-                    <Blazicon Svg="Lucide.Sprout" />
-                    <span>Ny sådd</span> @* Comment translated to English. *@
-                </button>
-            </div>
         </div>
-    </header>
+
     <AddSowingModal IsVisible="showAddModal"
                     OnClose="() => showAddModal = false"
                     OnSaved="LoadSowings" />
@@ -89,6 +104,7 @@
     private string currentGrouping = "none";
     private bool isLoading = true;
     private bool showAddModal = false;
+    private string searchTerm = "";
 
     private string statusErrorMessage = "";
     private bool isStatusUpdating;
@@ -141,37 +157,39 @@
 
         StateHasChanged();
     }
-    /// <summary>
-    /// Groups the collection of sowings according to the current grouping criteria.
-    /// </summary>
-    /// <remarks>The grouping is determined by the value of the current grouping setting. If the
-    /// grouping is by status, sowings are grouped by their status text. If by plant, sowings are grouped by plant
-    /// name, with unspecified names grouped under "Ospecifierat". If by date, sowings are grouped by the sowing
-    /// date in "yyyy-MM-dd" format. If no recognized grouping is set, all sowings are returned in a single
-    /// group.</remarks>
-    /// <returns>A sequence of groupings of sowings, where each group key represents the selected grouping criterion such as
-    /// status, plant name, or sowing date.</returns>
+
+    private IEnumerable<SowingView> GetFilteredSowings()
+    {
+        if(string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return mySowings;
+        }
+        return mySowings.Where(s => (s.PlantName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) || (s.VarietyName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false));
+    }
+
     private IEnumerable<IGrouping<string, SowingView>> GetGroupedSowings()
     {
+        var filtreredList = GetFilteredSowings();
+
         if (currentGrouping == "status")
         {
-            return mySowings
+            return filtreredList
             .OrderBy(s => s.Status)
             .GroupBy(s => GetStatusText(s.Status));
         }
         if (currentGrouping == "plant")
         {
-            return mySowings
+            return filtreredList
             .OrderBy(s => s.PlantName)
             .GroupBy(s => s.PlantName ?? "Ospecifierat");
         }
         if (currentGrouping == "date")
         {
-            return mySowings
+            return filtreredList
             .OrderBy(s => s.SownDate)
             .GroupBy(s => s.SownDate.ToString("yyyy-MM-dd"));
         }
-        return mySowings
+        return filtreredList
             .OrderByDescending(s => s.SownDate)
             .GroupBy(s => "");
     }
