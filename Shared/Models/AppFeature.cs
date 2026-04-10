@@ -18,5 +18,6 @@ namespace SeedPlan.Shared.Models
         [Column("message")]
         public string Message { get; set; }
         [Column("version_tag")]
+        public string VersionTag { get; set; }
     }
 }

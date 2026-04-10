@@ -57,13 +57,15 @@
 .plant-tag-chip {
     display: inline-flex;
     align-items: center;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: #f0fdf4;
-    color: #166534;
-    font-size: 0.72rem;
-    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border:1px dashed var(--primary-hover);
+    background: var(--bg-icon);
+    color: var(--primary);
+    font-size: 0.65rem;
+    font-weight: 700;
     letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
 .card-footer {

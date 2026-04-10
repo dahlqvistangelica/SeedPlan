@@ -19,6 +19,7 @@
             @if (plant.Tags.Any())
             {
                 <div class="plant-tags">
+                    <Blazicon Svg="Lucide.Tags" />
                     @foreach (var tag in plant.Tags)
                     {
                         <span class="plant-tag-chip">@tag.DisplayName</span>

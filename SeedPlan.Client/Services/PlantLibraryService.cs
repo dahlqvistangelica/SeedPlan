@@ -258,8 +258,14 @@ namespace SeedPlan.Client.Services
                 .Update(plant);
 
             var updatedPlant = response.Models.FirstOrDefault() ?? plant;
-            await SyncPlantTagsAsync(updatedPlant);
-            updatedPlant.Tags = plant.Tags;
+            await SyncPlantTagsAsync(updatedPlant, plant.Tags);
+            updatedPlant.Tags = plant.Tags
+                .Where(tag => tag.Id > 0)
+                .GroupBy(tag => tag.Id)
+                .Select(group => group.First())
+                .OrderBy(tag => tag.SortOrder)
+                .ThenBy(tag => tag.DisplayName)
+                .ToList();
             return updatedPlant;
         }
 
@@ -298,38 +304,55 @@ namespace SeedPlan.Client.Services
             }
         }
 
-        private async Task SyncPlantTagsAsync(Plant plant)
+        private async Task SyncPlantTagsAsync(Plant plant, IEnumerable<PlantTag> desiredTags)
         {
             if (plant.Id <= 0)
             {
                 return;
             }
 
-            await _supabase
+            var existingLinksResponse = await _supabase
                 .From<PlantTagLink>()
                 .Where(link => link.PlantId == plant.Id)
-                .Delete();
+                .Get();
 
-            var desiredTags = plant.Tags
+            var desiredTagIds = desiredTags
                 .Where(tag => tag.Id > 0)
                 .GroupBy(tag => tag.Id)
-                .Select(group => group.First())
+                .Select(group => group.Key)
+                .ToHashSet();
+
+            var existingTagIds = existingLinksResponse.Models
+                .Select(link => link.TagId)
+                .ToHashSet();
+
+            var linksToDelete = existingLinksResponse.Models
+                .Where(link => !desiredTagIds.Contains(link.TagId))
                 .ToList();
 
-            if (!desiredTags.Any())
+            foreach (var linkToDelete in linksToDelete)
+            {
+                await _supabase
+                    .From<PlantTagLink>()
+                    .Where(link => link.Id == linkToDelete.Id)
+                    .Delete();
+            }
+
+            var tagsToInsert = desiredTagIds
+                .Except(existingTagIds)
+                .Select(tagId => new PlantTagLink
+                {
+                    PlantId = plant.Id,
+                    TagId = tagId
+                })
+                .ToList();
+
+            if (!tagsToInsert.Any())
             {
                 return;
             }
 
-            var links = desiredTags
-                .Select(tag => new PlantTagLink
-                {
-                    PlantId = plant.Id,
-                    TagId = tag.Id
-                })
-                .ToList();
-
-            await _supabase.From<PlantTagLink>().Insert(links);
+            await _supabase.From<PlantTagLink>().Insert(tagsToInsert);
         }
     }
 }
