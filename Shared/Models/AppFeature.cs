@@ -12,12 +12,19 @@ namespace SeedPlan.Shared.Models
     public class AppFeature: BaseModel
     {
         [PrimaryKey("id", false)]
-        public string Id { get; set; }
+        public int Id { get; set; }
         [Column("title")]
         public string Title { get; set; }
         [Column("message")]
         public string Message { get; set; }
         [Column("version_tag")]
         public string VersionTag { get; set; }
+        [Column("is_active")]
+        public bool IsActive { get; set; }
+        [Column("is_mandatory")]
+        public bool IsMandatory { get; set; }
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+
     }
 }

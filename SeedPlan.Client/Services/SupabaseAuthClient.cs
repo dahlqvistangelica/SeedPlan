@@ -1,5 +1,6 @@
 using Supabase.Gotrue;
 using System.Text.Json;
+using SeedPlan.Shared.Interfaces;
 
 namespace SeedPlan.Client.Services
 {
