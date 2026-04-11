@@ -9,8 +9,6 @@
         <div class="modal-card fade-in" @onclick:stopPropagation>
             <header class="modal-header">
                 <h2 class="serif-title">@UserDahlia.Variety.Name</h2>
-                <StarRating Rating="@UserDahlia.Rating"
-                            RatingChanged="@(async (newVal) => await HandleRatingChange(newVal))" />
                 <button class="close-x" @onclick="Close">x</button>
             </header>
 
@@ -19,7 +17,10 @@
                                       Item="UserDahlia"
                                       BucketName="dahlia-images" />
 
-
+                <div class="input-row">
+                <StarRating Rating="@UserDahlia.Rating"
+                            RatingChanged="@(async (newVal) => await HandleRatingChange(newVal))" />
+                </div>
                 <div class="input-row">
                     <div class="input-block">
                         <label>Antal</label>

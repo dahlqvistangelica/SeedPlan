@@ -26,6 +26,9 @@
         <button type="button" class="btn-primary" @onclick="HandleLogin">Logga in</button>
         <button type="button" class="btn-secondary" @onclick="NavigateToRegister">Skapa konto</button>
     </div>
+    <div class="forgot-password">
+        <p @onclick="NavigateToForgotPassword" class="forgot-text">Glömt lösenord?</p>
+    </div>
 </div>
 
 @code {
@@ -56,5 +59,9 @@
     private void NavigateToRegister()
     {
         Nav.NavigateTo("/register");
+    }
+    private void NavigateToForgotPassword()
+    {
+        Nav.NavigateTo("/forgot-password");
     }
 }

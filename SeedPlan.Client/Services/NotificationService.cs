@@ -33,50 +33,78 @@ namespace SeedPlan.Client.Services
             var permission = await RequestPermissionAsync();
             if (permission != "granted") return;
 
+            // 1. Hämta prenumerationen från webbläsaren
             var subscriptionJson = await _js.InvokeAsync<string?>("subscribeToPush");
             if (string.IsNullOrEmpty(subscriptionJson)) return;
 
             var session = await _supabase.Auth.RetrieveSessionAsync();
-            //Save prenumeration in Supabase.
             var user = session?.User ?? _supabase.Auth.CurrentUser;
 
-            if (user == null)
-            {
-                Console.WriteLine("C# kunde inte hitta inloggad användare i NotificationService");
-                return;
-            }
+            if (user == null) return;
+
             try
             {
-                var existingSub = await _supabase.From<PushSubscription>().Where(x => x.UserId == user.Id).Single();
-                if (existingSub != null)
-                {
-                    existingSub.SubscriptionJson = subscriptionJson;
-                    existingSub.UpdatedAt = DateTime.UtcNow;
-                    await _supabase.From<PushSubscription>().Update(existingSub);
-                    Console.WriteLine("Befintlig push-prenumeration uppdaterad");
+                // 2. Kolla om JUST DEN HÄR webbläsarens prenumeration redan finns i databasen
+                var response = await _supabase.From<PushSubscription>()
+                .Where(x => x.UserId == user.Id)
+                .Get();
 
-                }
-                else
+                // Plocka ut den första matchningen (eller null om den inte finns)
+                var existingSub = response.Models.FirstOrDefault(x => x.SubscriptionJson == subscriptionJson);
+
+                // 3. Om den inte finns, spara den! (Vi skapar en ny rad för varje enhet)
+                if (existingSub == null)
                 {
                     var newSub = new PushSubscription
                     {
                         UserId = user.Id,
-                        SubscriptionJson = subscriptionJson,
-                        UpdatedAt = DateTime.UtcNow
+                        SubscriptionJson = subscriptionJson
                     };
-                    await _supabase.From<PushSubscription>().Insert(newSub);
-                    Console.WriteLine("Ny pushprenumeration sparades i Supabase.");
-                }
-                var options = new Supabase.Postgrest.QueryOptions { OnConflict = "user_id" };
 
+                    // 
+                    await _supabase.From<PushSubscription>().Insert(newSub);
+                }
+                else
+                {
+                    // Uppdatera tidsstämpeln om den redan fanns
+                    existingSub.UpdatedAt = DateTime.UtcNow;
+                    await _supabase.From<PushSubscription>().Update(existingSub);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Kunde inte spara prenumerationen i Supabase: {ex.Message}");
+                Console.WriteLine($"Kunde inte spara prenumeration: {ex.Message}");
             }
         }
 
+        public async Task UnsubscribeFromPushAsync()
+        {
+            // Hämta denna enhets unika nyckel
+            var subscriptionJson = await _js.InvokeAsync<string?>("subscribeToPush");
+            if (string.IsNullOrEmpty(subscriptionJson)) return;
 
+            var user = _supabase.Auth.CurrentUser;
+            if (user == null) return;
+
+            try
+            {
+
+                var response = await _supabase.From<PushSubscription>()
+                .Where(x => x.UserId == user.Id)
+                .Get();
+
+                var existingSub = response.Models.FirstOrDefault(x => x.SubscriptionJson == subscriptionJson);
+
+                if (existingSub != null)
+                {
+                    await _supabase.From<PushSubscription>().Delete(existingSub);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Kunde inte radera prenumeration: {ex.Message}");
+            }
+        }
 
 
     }

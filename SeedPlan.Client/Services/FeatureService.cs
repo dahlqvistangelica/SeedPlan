@@ -30,7 +30,8 @@ namespace SeedPlan.Client.Services
                 return true;
             }
             var response = await _supabase.From<UserSeenFeature>()
-                .Where(x => x.UserId == userId && x.FeatureId == featureId)
+                .Where(x => x.UserId == userId)
+                .Where(x => x.FeatureId == featureId)
                 .Get();
 
             return response.Models.Any();
@@ -38,23 +39,38 @@ namespace SeedPlan.Client.Services
 
         public async Task<string> GetLatestVersionAsync()
         {
-            var version = await GetLatestActiveFeatureAsync();
-            return version.VersionTag;
+            var version = await _supabase.From<AppFeature>()
+                .Order(f => f.CreatedAt, Supabase.Postgrest.Constants.Ordering.Descending)
+                .Limit(1)
+                .Get();
+
+            return version.Models.First().VersionTag;
         }
 
         public async Task MarkFeatureAsSeenAsync(int featureId)
         {
-            var userId = _supabase.Auth.CurrentUser?.Id;
-
-            if(string.IsNullOrEmpty(userId))
-            { return; }
-            var seenRecord = new UserSeenFeature
+            try
             {
-                UserId = userId,
-                FeatureId = featureId
-            };
+                var userId = _supabase.Auth.CurrentUser?.Id;
 
-            await _supabase.From<UserSeenFeature>().Insert(seenRecord);
+                if (string.IsNullOrEmpty(userId))
+                { return; }
+                var seenRecord = new UserSeenFeature
+                {
+                    UserId = userId,
+                    FeatureId = featureId
+                };
+
+                await _supabase.From<UserSeenFeature>().Insert(seenRecord);
+            }
+            catch(Supabase.Postgrest.Exceptions.PostgrestException ex) when (ex.Message.Contains("23505") || ex.Message.Contains("duplicate"))
+            {
+                Console.WriteLine("Notis: funktionven var redan markerad som läst.");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Kunde inte markera funktionen som läst." + ex.Message);
+            }
         }
         
         public async Task<List<AppFeature>> GetAllFeaturesAsync()
