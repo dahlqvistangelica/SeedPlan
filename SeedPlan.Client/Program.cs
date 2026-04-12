@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using SeedPlan.Client.Services;
+using SeedPlan.Shared.Helpers;
 using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
 using Supabase;
@@ -58,6 +59,7 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<FeedbackModalService>();
+            builder.Services.AddScoped<GardenPlanService>();
             
 
             // 3. Blazor's built-in security

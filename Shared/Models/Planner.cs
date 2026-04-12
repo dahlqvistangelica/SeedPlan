@@ -46,7 +46,7 @@ namespace SeedPlan.Shared.Models
         [Column("inserted_at")]
         public DateTime InsertedAt { get; set; }
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 
     [Table("crops")]
@@ -69,6 +69,6 @@ namespace SeedPlan.Shared.Models
         [Column("inserted_at")]
         public DateTime InsertedAt { get; set; }
         [Column("updated_at")]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }
