@@ -55,5 +55,8 @@ namespace SeedPlan.Shared.Models
 
         [Column("dev_time_max")]
         public int? DevelopDaysMax { get; set; } 
+
+        [JsonIgnore]
+        public List<PlantTag> Tags { get; set; } = new();
     }
 }

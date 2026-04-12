@@ -22,9 +22,9 @@
     font-size: 1.5rem;
 }
     .filter-toggle.active {
-        background: #10b981;
+        background: var(--primary);
         color: white;
-        border-color: #10b981;
+        border-color: var(--primary);
     }
 
 .filter-footer {
@@ -95,12 +95,10 @@
     cursor: pointer;
 }
 
-
-
     .chip.active {
-        background: #10b981;
+        background: var(--primary);
         color: white;
-        border-color: #10b981;
+        border-color: var(--primary);
     }
 
 .property-row {
@@ -130,4 +128,11 @@
     margin-bottom: 10px;
     padding: 0.5rem;
     border-radius: 20px;
+}
+@media (max-width: 600px) {
+    .guide-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 2rem 0.3rem;
+    }
 }

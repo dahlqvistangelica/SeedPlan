@@ -5,7 +5,7 @@
 
 @if (FeedbackService.IsVisible)
 {
-    @* Här inne ligger din modal... *@
+    @* Comment translated to English. *@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card fade-in" @onclick:stopPropagation>
             <header class="modal-header">
@@ -75,7 +75,7 @@
                     
                     @if (!string.IsNullOrEmpty(successMessage))
                     {
-                        <p class="success-msg" style="color: #10b981; text-align: center;">@successMessage</p>
+                        <p class="success-msg" style="color: var(--primary); text-align: center;">@successMessage</p>
                     }
 
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">

@@ -10,6 +10,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject NotificationService NotificationService
+@inject AppState AppState
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
          Description="Planera din odling med SeedPlans såkalender, få överblick över aktiva sådder och håll koll på vad som behöver göras nu."
@@ -189,6 +190,10 @@
             {
                 await LoadData();
                 await ClearAppBadge();
+                if (AppState.CurrentMode == AppMode.DahliaBox)
+                {
+                    Nav.NavigateTo("/dahliabox-home");
+                }
 
                 var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
                 if(userEmail != "demo@seedplan.app")
@@ -212,18 +217,31 @@
         {
             isLoading = true;
 
-            //Get profile
-            userProfile = await ProfileService.GetUserProfile();
+            var profileTask = ProfileService.GetUserProfile();
+            var sowingsTask = SowingService.GetMySowings();
+            var sowingViewsTask = SowingService.GetMySowingViews();
+
+            userProfile = await profileTask;
+
             if (userProfile?.LastFrostDate != null)
             {
-                overview = await PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
-                overview.Past = overview.Past.Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category)).ToList();
-                sowingSuggestions = await InventoryService.GetCurrentSowingCalendar();
-                sowingSuggestions = sowingSuggestions.Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Plant.Category)).ToList();
+                var overviewTask = PlantService.GetSowingOverviewAsync(userProfile.LastFrostDate.Value);
+                var suggestionsTask = InventoryService.GetCurrentSowingCalendar();
+
+                await Task.WhenAll(overviewTask, suggestionsTask);
+
+                overview = await overviewTask;
+                overview.Past = overview.Past
+                    .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category))
+                    .ToList();
+
+                sowingSuggestions = (await suggestionsTask)
+                    .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Plant.Category))
+                    .ToList();
             }
-            //Get sowings
-            var allSowings = await SowingService.GetMySowings() ?? new List<Sowing>();
-            allSowingViews = await SowingService.GetMySowingViews();
+
+            var allSowings = await sowingsTask ?? new List<Sowing>();
+            allSowingViews = await sowingViewsTask ?? new List<SowingView>();
 
             activeSowings = allSowings.Where(s => SowingStatusFlow.IsActive(s.Status)).ToList();
 
@@ -241,7 +259,6 @@
         {
             isLoading = false;
             StateHasChanged();
-            await Task.Delay(200);
         }
     }
 
@@ -249,7 +266,7 @@
     {
         try
         {
-            // Rensar den röda cirkeln helt
+            // Comment translated to English.
             await JS.InvokeVoidAsync("appBadging.clearBadge");
         }
         catch (Exception ex)

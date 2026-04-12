@@ -1,5 +1,6 @@
 using Supabase.Gotrue;
 using System.Text.Json;
+using SeedPlan.Shared.Interfaces;
 
 namespace SeedPlan.Client.Services
 {
@@ -55,7 +56,7 @@ namespace SeedPlan.Client.Services
 
         public async Task<bool> UpdatePassword(string newPassword)
         {
-            if(CurrentUserEmail?.ToLower() == "demo@seedplan.app")
+            if (CurrentUserEmail?.ToLower() == "demo@seedplan.app")
             {
                 return false;
             }

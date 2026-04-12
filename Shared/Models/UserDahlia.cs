@@ -32,7 +32,7 @@ namespace SeedPlan.Shared.Models
         [Column("source")]
         public string Source { get; set; } = string.Empty;
         [Column("like_level")]
-        public int? LikeLevel { get; set; } = null;
+        public int? Rating { get; set; } = null;
         [Reference(typeof(Dahlia))]
         public Dahlia Variety { get; set; }
 

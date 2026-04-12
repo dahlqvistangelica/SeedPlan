@@ -1,4 +1,4 @@
-using Cropper.Blazor.Extensions;
+﻿using Cropper.Blazor.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.StaticFiles;
@@ -46,7 +46,10 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserProfileService, UserProfileService>();
             builder.Services.AddScoped<IUserInventoryService, UserInventoryService>();
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
-            // 4. THE NEW AUTH ARCHITECTURE (Kopierat från Client)
+            builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
+            builder.Services.AddScoped<IDahliaService, DahliaService>();
+            builder.Services.AddScoped<IFeatureService, FeatureService>();
+            // 4. THE NEW AUTH ARCHITECTURE (copied from Client)
             builder.Services.AddScoped<SupabaseAuthStateProvider>();
 
             builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
@@ -59,7 +62,7 @@ namespace SeedPlan
 
             builder.Services.AddScoped<AuthService>();
 
-            // Du behöver säkert dessa två också på servern om du använder prerendering:
+            // These two services are also needed on the server when prerendering is enabled:
             builder.Services.AddScoped<FeedbackModalService>();
             builder.Services.AddScoped<NotificationService>();
 
@@ -97,7 +100,6 @@ namespace SeedPlan
                 .AddInteractiveWebAssemblyComponents();
 
             builder.Services.AddCropper();
-
             var app = builder.Build();
 
             // --- 7. MIDDLEWARE PIPELINE (Order is important!) ---
@@ -165,7 +167,7 @@ namespace SeedPlan
                 xml.AppendLine("<priority>0.8</priority>");
                 xml.AppendLine("</url>");
 
-                // Dynamiska växtsidor (om du lägger till dessa)
+                // Comment translated to English.
                 foreach (var plant in plants.Take(100))
                 {
                     xml.AppendLine("<url>");

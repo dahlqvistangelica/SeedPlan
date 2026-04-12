@@ -1,4 +1,4 @@
-namespace SeedPlan.Client.Services
+namespace SeedPlan.Shared.Interfaces
 {
     public interface IAuthStateNotifier
     {

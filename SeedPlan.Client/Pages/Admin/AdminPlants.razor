@@ -1,0 +1,533 @@
+﻿@page "/admin/plants"
+@using SeedPlan.Shared.Models
+@using SeedPlan.Shared.Interfaces
+@inject IPlantLibraryService PlantService
+@inject NavigationManager NavManager
+@inject IUserProfileService ProfileService
+
+<SeoHead Title="Admin - Hantera Växter" />
+
+<div class="page-body admin-plants-page">
+    <div class="header-top">
+        <h1 class="serif-title">Hantera Växtbiblioteket</h1>
+    </div>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar växtbiblioteket..." />
+    }
+    else
+    {
+        <div class="search-wrap">
+            <input type="search" class="form-input" placeholder="Sök efter en växt att redigera..." @bind="searchQuery" @bind:event="oninput" />
+        </div>
+
+        <div class="bulk-panel">
+            <div class="bulk-panel-header">
+                <strong class="bulk-panel-title">Bulk-tagga växter</strong>
+                <span class="bulk-panel-count">Valda växter: @selectedPlantIds.Count</span>
+            </div>
+
+            <div class="bulk-tag-list">
+                @foreach (var tag in availableTags)
+                {
+                    var isSelected = selectedBulkTagIds.Contains(tag.Id);
+                    <button type="button"
+                            class="tag-chip @(isSelected ? "active" : "")"
+                            @onclick="() => ToggleBulkTag(tag)">
+                        @tag.DisplayName
+                    </button>
+                }
+            </div>
+
+            <div class="bulk-actions">
+                <button class="btn-primary" @onclick="ApplyBulkTagsAsync" disabled="@(isBulkSaving || selectedPlantIds.Count == 0)">
+                    @(isBulkSaving ? "Sparar bulk-taggar..." : "Lägg till valda taggar på markerade växter")
+                </button>
+                <button class="btn-secondary" @onclick="ClearBulkSelection" disabled="@(isBulkSaving || selectedPlantIds.Count == 0)">
+                    Rensa markerade växter
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(bulkErrorMessage))
+            {
+                <p class="error-msg">@bulkErrorMessage</p>
+            }
+            @if (!string.IsNullOrWhiteSpace(bulkSuccessMessage))
+            {
+                <p class="bulk-success-msg">@bulkSuccessMessage</p>
+            }
+        </div>
+
+        <div class="table-shell">
+            <table class="plants-table">
+                <thead>
+                    <tr>
+                        <th class="th-select">
+                            <input type="checkbox"
+                                   checked="@AreAllFilteredPlantsSelected"
+                                   @onchange="ToggleSelectAllFiltered"
+                                   title="Markera alla i filtrerat resultat" />
+                        </th>
+                        <th>Namn</th>
+                        <th>Kategori</th>
+                        <th>Taggar</th>
+                        <th>Sådjup</th>
+                        <th>Plantavstånd</th>
+                        <th class="th-action">Åtgärd</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var plant in FilteredPlants)
+                    {
+                        <tr class="plant-row">
+                            <td class="cell-select">
+                                <input type="checkbox"
+                                       checked="@selectedPlantIds.Contains(plant.Id)"
+                                       @onchange="args => TogglePlantSelection(plant.Id, args)"
+                                       title="Markera växt för bulk-tagging" />
+                            </td>
+                            <td class="plant-cell-name">
+                                <strong class="plant-primary-name">@plant.PlantName</strong><br />
+                                <small class="plant-scientific-name">@plant.ScientificName</small>
+                            </td>
+                            <td>@plant.Category.ToString()</td>
+                            <td>
+                                <div class="tag-list">
+                                    @if (plant.Tags.Any())
+                                    {
+                                        @foreach (var tag in plant.Tags.Take(3))
+                                        {
+                                            <span class="tag-badge">@tag.DisplayName</span>
+                                        }
+                                        @if (plant.Tags.Count > 3)
+                                        {
+                                            <span class="tag-badge more">+@((plant.Tags.Count) - 3)</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="no-tags">Inga taggar</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>@(plant.SowingDepth != null ? plant.SowingDepth : "Okänt")</td>
+                            <td>@(plant.PlantSpacing != null ? plant.PlantSpacing : "Okänt")</td>
+                            <td class="th-action">
+                                <button class="btn-secondary btn-edit" @onclick="() => EditPlant(plant)">
+                                    <Blazicon Svg="Lucide.Pencil" /> Redigera
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (showEditModal && editingPlant != null)
+{
+    <div class="modal-overlay" @onclick="CloseModal">
+        <div class="modal-card fade-in admin-modal-card" @onclick:stopPropagation>
+            <div class="modal-top">
+                <h2 class="modal-title">Redigera @editingPlant.PlantName</h2>
+                <button class="close-x" @onclick="CloseModal"><Blazicon Svg="Lucide.X" /></button>
+            </div>
+
+            <div class="modal-scroll">
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Växtens namn (Svenska)</label>
+                        <input type="text" class="form-input" @bind="editingPlant.PlantName" />
+                    </div>
+                    <div class="input-block">
+                        <label>Vetenskapligt namn</label>
+                        <input type="text" class="form-input" @bind="editingPlant.ScientificName" />
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Kategori</label>
+                        <select class="form-input" @bind="editingPlant.Category">
+                            @foreach (var category in Enum.GetValues(typeof(PlantCategory)))
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="input-block">
+                        <label>Härdighetsnivå (0-4)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.HardinessLevel" min="0" max="4" />
+                    </div>
+                </div>
+
+                <hr class="section-divider" />
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Förodlingstid MAX (veckor)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.SowingLeadTime" />
+                    </div>
+                    <div class="input-block">
+                        <label>Förodlingstid MIN (veckor)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.SowingLeadTimeMin" />
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Utvecklingstid MIN (dagar till skörd)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.DevelopDaysMin" />
+                    </div>
+                    <div class="input-block">
+                        <label>Utvecklingstid MAX (dagar till skörd)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.DevelopDaysMax" />
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Veckor innan sista frost (Utplantering)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.WeeksBeforeFrost" />
+                    </div>
+                    <div class="input-block">
+                        <label>Sådjup (mm)</label>
+                        <input type="number" class="form-input" @bind="editingPlant.SowingDepth" step="0.1" />
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div class="input-block">
+                        <label>Planteringsavstånd</label>
+                        <input type="number" class="form-input" @bind="editingPlant.PlantSpacing" />
+                    </div>
+                </div>
+
+                <div class="input-row options-row">
+                    <label class="option-check">
+                        <input type="checkbox" @bind="editingPlant.IsLightGerminating" />
+                        Ljusgroende
+                    </label>
+                    <label class="option-check">
+                        <input type="checkbox" @bind="editingPlant.RequiresTopping" />
+                        Kräver toppning
+                    </label>
+                    <label class="option-check">
+                        <input type="checkbox" @bind="editingPlant.DirectSowing" />
+                        Kan direktsås
+                    </label>
+                </div>
+
+                <div class="input-block tags-block">
+                    <label>Taggar</label>
+                    <div class="bulk-tag-list">
+                        @foreach (var tag in availableTags)
+                        {
+                            var isSelected = editingPlant.Tags.Any(selected => selected.Id == tag.Id);
+                            <button type="button"
+                                    class="tag-chip @(isSelected ? "active" : "")"
+                                    @onclick="() => ToggleTag(tag)">
+                                @tag.DisplayName
+                            </button>
+                        }
+                    </div>
+                    <small class="tag-help">Välj förutbestämda taggar som visas i växtguiden.</small>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <p class="error-msg">@errorMessage</p>
+            }
+
+            <div class="modal-save-row">
+                <button class="btn-primary btn-full" @onclick="SavePlant" disabled="@isSaving">
+                    @(isSaving ? "Sparar..." : "Spara ändringar")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Plant> allPlants = new();
+    private List<PlantTag> availableTags = new();
+    private HashSet<int> selectedPlantIds = new();
+    private HashSet<int> selectedBulkTagIds = new();
+    private bool isLoading = true;
+    private string searchQuery = string.Empty;
+    private bool isBulkSaving = false;
+    private string? bulkErrorMessage;
+    private string? bulkSuccessMessage;
+
+    private bool showEditModal = false;
+    private Plant? editingPlant;
+    private bool isSaving = false;
+    private string? errorMessage;
+
+    private bool AreAllFilteredPlantsSelected
+    {
+        get
+        {
+            var filteredIds = FilteredPlants.Select(plant => plant.Id).ToList();
+            return filteredIds.Count > 0 && filteredIds.All(id => selectedPlantIds.Contains(id));
+        }
+    }
+
+    private IEnumerable<Plant> FilteredPlants => string.IsNullOrWhiteSpace(searchQuery)
+        ? allPlants
+        : allPlants.Where(p => p.PlantName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+                              (p.ScientificName != null && p.ScientificName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)));
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var currentUserProfile = await ProfileService.GetUserProfile();
+
+        if (currentUserProfile == null || !currentUserProfile.IsAdmin)
+        {
+            NavManager.NavigateTo("/");
+            return;
+        }
+
+        await LoadPlants();
+    }
+
+    private async Task LoadPlants()
+    {
+        isLoading = true;
+        availableTags = await PlantService.GetAllTagsAsync();
+        allPlants = await PlantService.GetAllPlantsAsync();
+        selectedPlantIds.Clear();
+        selectedBulkTagIds.Clear();
+        bulkErrorMessage = null;
+        bulkSuccessMessage = null;
+        isLoading = false;
+    }
+
+    private void EditPlant(Plant plant)
+    {
+        editingPlant = ClonePlantForEdit(plant);
+
+        errorMessage = null;
+        showEditModal = true;
+    }
+
+    private void TogglePlantSelection(int plantId, ChangeEventArgs args)
+    {
+        var isChecked = IsChecked(args);
+        if (isChecked)
+        {
+            selectedPlantIds.Add(plantId);
+        }
+        else
+        {
+            selectedPlantIds.Remove(plantId);
+        }
+
+        bulkSuccessMessage = null;
+        bulkErrorMessage = null;
+    }
+
+    private void ToggleSelectAllFiltered(ChangeEventArgs args)
+    {
+        var isChecked = IsChecked(args);
+        foreach (var plant in FilteredPlants)
+        {
+            if (isChecked)
+            {
+                selectedPlantIds.Add(plant.Id);
+            }
+            else
+            {
+                selectedPlantIds.Remove(plant.Id);
+            }
+        }
+
+        bulkSuccessMessage = null;
+        bulkErrorMessage = null;
+    }
+
+    private void ToggleBulkTag(PlantTag tag)
+    {
+        if (selectedBulkTagIds.Contains(tag.Id))
+        {
+            selectedBulkTagIds.Remove(tag.Id);
+        }
+        else
+        {
+            selectedBulkTagIds.Add(tag.Id);
+        }
+
+        bulkSuccessMessage = null;
+        bulkErrorMessage = null;
+    }
+
+    private void ClearBulkSelection()
+    {
+        selectedPlantIds.Clear();
+        bulkSuccessMessage = null;
+        bulkErrorMessage = null;
+    }
+
+    private async Task ApplyBulkTagsAsync()
+    {
+        bulkErrorMessage = null;
+        bulkSuccessMessage = null;
+
+        if (!selectedPlantIds.Any())
+        {
+            bulkErrorMessage = "Markera minst en växt först.";
+            return;
+        }
+
+        isBulkSaving = true;
+        try
+        {
+            var tagTemplate = availableTags
+                .Where(tag => selectedBulkTagIds.Contains(tag.Id))
+                .Select(CloneTag)
+                .ToList();
+
+            var selectedPlants = allPlants
+                .Where(plant => selectedPlantIds.Contains(plant.Id))
+                .ToList();
+
+            foreach (var selectedPlant in selectedPlants)
+            {
+                var updatedInput = ClonePlantForEdit(selectedPlant);
+                var mergedTags = updatedInput.Tags
+                    .Concat(tagTemplate)
+                    .GroupBy(tag => tag.Id)
+                    .Select(group => CloneTag(group.First()))
+                    .ToList();
+
+                updatedInput.Tags = mergedTags;
+
+                var updatedPlant = await PlantService.UpdatePlantAsync(updatedInput);
+                var index = allPlants.FindIndex(p => p.Id == updatedPlant.Id);
+                if (index != -1)
+                {
+                    allPlants[index] = updatedPlant;
+                }
+            }
+
+            bulkSuccessMessage = $"Taggar uppdaterade för {selectedPlants.Count} växter.";
+        }
+        catch (Exception ex)
+        {
+            bulkErrorMessage = "Kunde inte bulk-spara taggar. Försök igen.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isBulkSaving = false;
+        }
+    }
+
+    private static bool IsChecked(ChangeEventArgs args)
+    {
+        if (args.Value is bool boolValue)
+        {
+            return boolValue;
+        }
+
+        return bool.TryParse(args.Value?.ToString(), out var parsed) && parsed;
+    }
+
+    private void CloseModal()
+    {
+        showEditModal = false;
+        editingPlant = null;
+    }
+
+    private void ToggleTag(PlantTag tag)
+    {
+        if (editingPlant == null)
+        {
+            return;
+        }
+
+        var existingTag = editingPlant.Tags.FirstOrDefault(selected => selected.Id == tag.Id);
+        if (existingTag != null)
+        {
+            editingPlant.Tags.Remove(existingTag);
+        }
+        else
+        {
+            editingPlant.Tags.Add(new PlantTag
+            {
+                Id = tag.Id,
+                TagKey = tag.TagKey,
+                DisplayName = tag.DisplayName,
+                SortOrder = tag.SortOrder
+            });
+        }
+    }
+
+    private async Task SavePlant()
+    {
+        if (editingPlant == null) return;
+
+        isSaving = true;
+        errorMessage = null;
+
+        try
+        {
+            var updatedPlant = await PlantService.UpdatePlantAsync(editingPlant);
+
+            var index = allPlants.FindIndex(p => p.Id == updatedPlant.Id);
+            if (index != -1)
+            {
+                allPlants[index] = updatedPlant;
+            }
+
+            CloseModal();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Kunde inte spara ändringarna. Kontrollera din anslutning.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private static Plant ClonePlantForEdit(Plant plant)
+    {
+        return new Plant
+        {
+            Id = plant.Id,
+            PlantName = plant.PlantName,
+            ScientificName = plant.ScientificName,
+            Category = plant.Category,
+            HardinessLevel = plant.HardinessLevel,
+            SowingLeadTime = plant.SowingLeadTime,
+            SowingLeadTimeMin = plant.SowingLeadTimeMin,
+            DevelopDaysMin = plant.DevelopDaysMin,
+            DevelopDaysMax = plant.DevelopDaysMax,
+            WeeksBeforeFrost = plant.WeeksBeforeFrost,
+            SowingDepth = plant.SowingDepth,
+            PlantSpacing = plant.PlantSpacing,
+            IsLightGerminating = plant.IsLightGerminating,
+            RequiresTopping = plant.RequiresTopping,
+            DirectSowing = plant.DirectSowing,
+            Tags = plant.Tags.Select(CloneTag).ToList()
+        };
+    }
+
+    private static PlantTag CloneTag(PlantTag tag)
+    {
+        return new PlantTag
+        {
+            Id = tag.Id,
+            TagKey = tag.TagKey,
+            DisplayName = tag.DisplayName,
+            SortOrder = tag.SortOrder
+        };
+    }
+}

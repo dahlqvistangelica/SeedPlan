@@ -19,14 +19,12 @@
     }
 
 
-
 .plant-main {
     display: flex;
     gap: 1rem;
     position: relative;
 }
 
-/* Elements inside the card */
 .plant-name {
     font-weight: 700;
     font-size: 1.1rem;
@@ -64,9 +62,9 @@
     background-color: #fef3c7; /* Very light orange/amber yellow */
     color: #a16207; /* Dark amber/orange text */
     padding: 4px 7px; /* Padding around text */
-    border-radius: 999px; /* Very rounded corners (pill shape) */
+    border-radius: 999px;
     font-size: 0.7rem; /* Slightly smaller than main text */
-    font-weight: 500; /* Medium weight */
+    font-weight: 500;
 }
 
 /* --- Harvest row --- */
@@ -74,7 +72,7 @@
     display: flex;
     align-items: center;
     gap: 8px; /* Spacing between icon and text */
-    color: #4b5563; /* Medium gray text color */
+    color: #4b5563;
     font-size: 0.7rem; /* Standard size */
 }
 
@@ -151,13 +149,13 @@
 
 /* SOW NOW */
 .btn-sow-now {
-    background: #10b981;
+    background: var(--primary);
     border-radius: 6px;
     color: white;
     font-size: 0.75rem;
     padding: 0;
     font-weight: 600;
-    border: 1px solid #10b981;
+    border: 1px solid var(--primary);
     text-transform: uppercase;
     padding: 3px 8px;
 }

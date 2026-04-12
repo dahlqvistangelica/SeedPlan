@@ -1,12 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
-
+﻿
 /* ==========================================================================
    1. CSS VARIABLES (Design System)
    ========================================================================== */
+
+
 :root {
-    --primary: #10b981;
-    --primary-hover: #059669;
-    --bg-main: #fdfcf9; /* Cream-white background */
+    /* Shared variables for both app modes */
     --white: #ffffff;
     --text-dark: #1e293b;
     --text-muted: #64748b;
@@ -15,7 +14,35 @@
     --shadow-md: 0 4px 12px rgba(0,0,0,0.03);
     --radius-lg: 20px;
     --radius-md: 12px;
-    --secondary-light: #ecfdf5;
+    /* SeedPlan (green) is the default theme */
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
+}
+
+/* 2. SEEDPLAN THEME (explicitly matches the default) */
+.seedplan-theme {
+    --primary: #10b981;
+    --primary-hover: #059669;
+    --bg-main: #fdfcf9;
+    --bg-icon: #ecfdf5;
+}
+
+/* 3. DAHLIA THEME */
+/* When .dahlia-theme is active, it overrides the :root palette for enclosed UI. */
+.dahlia-theme {
+    /* CSS HEX 
+    --eggshell: #F4EFDDff;
+    --dusty-lavender: #78617Fff;
+    --soft-linen: #EBE8DFff;
+    --rosy-taupe: #C4A5AAff;
+    --dusty-mauve: #A07D97ff; */
+    --primary: #A07D97;
+    --primary-hover: #78617F;
+    --secondary: #C4A5AA;
+    --bg-main: #EBE8DF;
+    --bg-icon: #f3eef2;
 }
 
 /* ==========================================================================
@@ -163,6 +190,7 @@ button {
     width: 100%;
 }
 
+
 /* ==========================================================================
    4. INPUT & FORM SYSTEM
    ========================================================================== */
@@ -172,13 +200,12 @@ input[type="password"],
 input[type="date"],
 input[type="number"],
 input[type="search"],
-select,
 textarea,
 .sp-input,
 .form-input {
     font-family: 'Inter', sans-serif;
     width: 100%;
-    padding: 14px 20px;
+    padding: 10px 20px;
     border: 1px solid #f1f5f9;
     background-color: #f8fafc;
     border-radius: 14px;
@@ -189,6 +216,19 @@ textarea,
     box-sizing: border-box;
 }
 
+select {
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    padding: 8px 15px;
+    border: 1px solid #f1f5f9;
+    background-color: #f8fafc;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: #334155;
+    outline: none;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
     input:focus, select:focus, textarea:focus, .sp-input:focus, .form-input:focus {
         border-color: var(--primary);
         background-color: var(--white);
@@ -372,6 +412,71 @@ select {
     color: #22c55e;
     border: 1px #22c55e dashed;
 }
+
+/* =========================================
+   PAGINATION 
+========================================= */
+
+.pagination-controls {
+    display: flex;
+    justify-content: center; /* centers everything */
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1); 
+    flex-wrap: wrap; 
+}
+
+
+.pagination-info {
+    font-size: 1rem;
+    color: #555;
+}
+
+    .pagination-info strong {
+        
+        color: var(--primary-color, #4CAF50);
+        font-size: 1.1rem;
+    }
+
+.total-hits {
+    font-size: 0.85rem;
+    color: #888;
+    margin-left: 0.5rem;
+}
+
+
+.pagination-controls .sp-btn {
+    background-color: var(--primary-color, #4CAF50);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+    .pagination-controls .sp-btn:hover:not(:disabled) {
+        filter: brightness(0.9); 
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+  
+    .pagination-controls .sp-btn:disabled {
+        background-color: #d1d5db; 
+        color: #9ca3af;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
 
 /* ==========================================================================
    6. GLOBAL UTILITIES & ANIMATIONS

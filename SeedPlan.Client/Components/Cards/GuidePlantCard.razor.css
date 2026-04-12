@@ -1,5 +1,4 @@
-﻿
-.plant-grid {
+﻿.plant-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -26,26 +25,47 @@
 /* HOVER EFFECT */
 
 .plant-card:hover {
-    border-color: #10b981;
+    border-color: var(--primary);
     transition: all 0.2s ease;
 }
 /*    .plant-card:hover .plant-icon-circle {
-        background: #10b981;
+        background: var(--primary);
         color: white;
     }*/
-
-
 
 .plant-name {
     font-weight: 700;
     margin: 0 0 4px 0;
     color: #1e293b;
+    font-family: 'Lora';
+    font-size: 1.3rem;
 }
 
 .sowing-info {
     font-size: 0.8rem;
     color: #94a3b8;
     margin: 0;
+}
+
+.plant-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.plant-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border:1px dashed var(--primary-hover);
+    background: var(--bg-icon);
+    color: var(--primary);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
 .card-footer {
@@ -87,4 +107,8 @@
     font-weight: 800;
     padding: 4px 8px;
     border-radius: 8px;
+}
+
+.card-body {
+    flex-grow: 1;
 }

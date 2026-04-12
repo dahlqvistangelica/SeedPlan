@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .detail-card {
-    max-width: 800px !important; /* Lite bredare för att tidslinjen ska få plats snyggt */
+    max-width: 800px !important;
     width: 95%;
     max-height: 90vh;
     overflow-y: auto;
@@ -90,10 +90,10 @@
 
 .sown-quantity {
     font-weight: 700;
-    color: #10b981;
+    color: var(--primary);
 }
 
-/* --- KNAPPAR & STATUS --- */
+
 .header-actions {
     display: flex;
     align-items: center;
@@ -126,15 +126,15 @@
 }
 
     .action-btn:hover {
-        color: #0f766e; /* Hover för pennan */
+        color: #0f766e;
     }
 
 .delete-btn:hover {
-    color: #ef4444; /* Hover för soptunnan */
+    color: #ef4444;
 }
 
 .close-btn:hover {
-    color: #1e293b; /* Hover för krysset */
+    color: #1e293b;
 }
 
 /* --- 2. PROGRESS BAR --- */
@@ -182,8 +182,8 @@
     }
 
     .step.active {
-        background: #10b981;
-        border-color: #10b981;
+        background: var(--primary);
+        border-color: var(--primary);
         color: white;
         box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         transform: scale(1.15);
@@ -303,7 +303,7 @@
    ========================================================================== */
 
 .add-seed-container {
-    background-color: #f2fcf5; /* Ljusgrön bakgrund */
+    background-color: #f2fcf5;
     border: 1px solid #dcfce7;
     border-radius: 16px;
     padding: 1.5rem;
@@ -335,7 +335,7 @@
 
     .form-header h3 {
         margin: 0;
-        color: #0f766e; /* Mörkgrön rubrik */
+        color: #0f766e;
         font-size: 1.1rem;
         font-weight: 800;
         font-family: 'Inter', sans-serif;
@@ -345,7 +345,7 @@
 .text-link {
     background: none;
     border: none;
-    color: #10b981;
+    color: var(--primary);
     font-weight: 700;
     font-size: 0.9rem;
     cursor: pointer;
@@ -366,7 +366,7 @@
 
 .save-btn-large {
     width: 100%;
-    background-color: #10b981; /* Den stora gröna knappen */
+    background-color: var(--primary);
     color: white;
     border: none;
     padding: 1rem;
@@ -379,7 +379,7 @@
 }
 
     .save-btn-large:hover:not(:disabled) {
-        background-color: #059669;
+        background-color: var(--primary-hover);
         transform: translateY(-1px);
     }
 
@@ -395,41 +395,41 @@
    ========================================================================== */
 @media (max-width: 600px) {
     .detail-card {
-        padding: 1.25rem; /* Mindre luft i kanterna på liten skärm */
+        padding: 1.25rem;
         width: 100%;
         max-height: 95vh;
-        border-radius: 16px; /* Lite skarpare hörn på mobilen */
+        border-radius: 16px;
         gap: 1rem;
     }
 
     .card-header {
         display: flex;
-        flex-direction: column; /* Staplar sektionerna på varandra */
-        gap: 0.5rem; /* Lite mellanrum mellan knapparna och namnet */
+        flex-direction: column;
+        gap: 0.5rem;
     }
 
     .header-main {
-        order: 2; /* Tvingar ner ikonen, namnet och datumet till raden under */
+        order: 2;
         width: 100%;
     }
 
     .header-actions {
-        order: 1; /* Tvingar UPP knapparna till toppen av modalen */
+        order: 1;
         width: 100%;
-        justify-content: flex-end; /* Skjuter alla knappar längst till höger */
-        flex-wrap: wrap; /* Tillåter radbrytning om det är extremt trångt */
+        justify-content: flex-end;
+        flex-wrap: wrap;
         margin-top: 0;
     }
 
     .status-badge {
-        margin-right: auto; /* Frivilligt knep: Trycker badgen ("GRODD") till vänster, medan knapparna stannar till höger. Ta bort om du vill ha allt till höger! */
+        margin-right: auto;
         margin-bottom: 0;
     }
     .title-area h3 {
         font-size: 1.2rem;
     }
 
-    /* Krymp tidslinjen så den ryms på skärmen */
+
     .step {
         width: 32px;
         height: 32px;
@@ -441,13 +441,13 @@
         padding: 1rem 0;
     }
 
-    /* Justera inmatningsformulären (Anteckningar / Skörd) */
+
     .add-seed-container {
         padding: 1rem;
         margin-bottom: 1rem;
     }
 
-    /* Tvinga input-fält som låg bredvid varandra att staplas ovanpå varandra */
+
     .input-row {
         flex-direction: column;
         gap: 1.25rem;

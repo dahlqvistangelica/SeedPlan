@@ -13,10 +13,21 @@
         <div class="control-button">
             <button class="btn-add-seed" title="Lägg till frö" @onclick="OpenAddSeed">
                 <div class="btn-add-seed-icon"><Blazicon Svg="MdiIcon.SeedPlusOutline" /></div>
-                <span>Nytt frö</span> @* Hides on mobile *@
+                <span>Nytt frö</span> @* Comment translated to English. *@
             </button>
         </div>
     </header>
+
+    @if (availableTags.Any())
+    {
+        <div class="tag-filter-bar">
+            <button class="tag-filter-chip @(string.IsNullOrWhiteSpace(selectedTag) ? "active" : "")" @onclick="ClearTagFilter">Alla taggar</button>
+            @foreach (var tag in availableTags)
+            {
+                <button class="tag-filter-chip @(string.Equals(selectedTag, tag, StringComparison.OrdinalIgnoreCase) ? "active" : "")" @onclick="() => SetTagFilter(tag)">@tag</button>
+            }
+        </div>
+    }
 
     @if (isLoading)
     {
@@ -95,7 +106,10 @@
                OnSaved="RefreshSeeds"/>
 
 @code {
+    private IEnumerable<SeedView> allSeeds = Enumerable.Empty<SeedView>();
     private IEnumerable<IGrouping<string, SeedView>> groupedSeeds = Enumerable.Empty<IGrouping<string, SeedView>>();
+    private List<string> availableTags = new();
+    private string selectedTag = string.Empty;
     private bool isLoading = true;
     private bool showEditModal = false;
     private Seed? selectedSeed;
@@ -154,8 +168,50 @@
     private async Task RefreshSeeds()
     {
         isLoading = true;
-        groupedSeeds = await SeedService.GetMySeedsGrouped();
+        var grouped = await SeedService.GetMySeedsGrouped();
+        allSeeds = grouped.SelectMany(group => group).ToList();
+        availableTags = allSeeds
+            .SelectMany(seed => SeedInventoryHelper.ParseTags(seed.PlantTags)) 
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(tag => tag)
+            .ToList();
+
+        if (!string.IsNullOrWhiteSpace(selectedTag) && !availableTags.Any(tag => string.Equals(tag, selectedTag, StringComparison.OrdinalIgnoreCase)))
+        {
+            selectedTag = string.Empty;
+        }
+
+        ApplyFilters();
         isLoading = false;
+        StateHasChanged();
+    }
+
+    private void ApplyFilters()
+    {
+        var filteredSeeds = allSeeds
+            .Where(seed => SeedInventoryHelper.HasTag(seed.PlantTags, selectedTag));
+
+        groupedSeeds = filteredSeeds
+            .GroupBy(seed => seed.VarietyId == null ? "Övrigt" : seed.PlantName ?? "Övrigt")
+            .OrderBy(group => group.Key == "Övrigt" ? "ZZZ" : group.Key)
+            .ToList();
+
+        expandedGroups = expandedGroups
+            .Where(groupKey => groupedSeeds.Any(group => group.Key == groupKey))
+            .ToHashSet();
+    }
+
+    private void SetTagFilter(string tag)
+    {
+        selectedTag = tag;
+        ApplyFilters();
+        StateHasChanged();
+    }
+
+    private void ClearTagFilter()
+    {
+        selectedTag = string.Empty;
+        ApplyFilters();
         StateHasChanged();
     }
 

@@ -82,6 +82,24 @@
                         </div>
                     </div>
 
+                    <div class="sp-grid-2">
+                        <div class="sp-input-block">
+                            <label>INKÖPSDAG</label>
+                            <input type="date" @bind="newSeed.PurchaseDate" class="sp-input" />
+                        </div>
+                        <div class="sp-input-block">
+                            <label>INKÖPSSTÄLLE</label>
+                            <input type="text" @bind="newSeed.PurchaseLocation" class="sp-input" placeholder="T.ex. Runåbergs fröer" />
+                        </div>
+                    </div>
+
+                    <div class="sp-grid-2">
+                        <div class="sp-input-block">
+                            <label>GROBARHET (%)</label>
+                            <input type="number" min="0" max="100" @bind="newSeed.GerminationRate" class="sp-input" placeholder="0-100" />
+                        </div>
+                    </div>
+
                     <div class="sp-input-block">
                         <label>ANTECKNINGAR</label>
                         <textarea @bind="newSeed.Notes" class="sp-textarea" placeholder="Färg, smak, etc."></textarea>
@@ -178,6 +196,7 @@
                 await JS.InvokeVoidAsync("alert", "Antalet fröer kan inte vara under 0.");
                 return;
             }
+
             if(!string.IsNullOrWhiteSpace(newSeed.VarietyName))
             {
                 newSeed.VarietyName = newSeed.VarietyName.Trim();

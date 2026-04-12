@@ -1,4 +1,4 @@
-.group-content {
+﻿.group-content {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 	gap: 20px;
@@ -28,9 +28,9 @@
 }
 
 	.filter-toggle.active {
-		background: #10b981;
+		background: var(--primary);
 		color: white;
-		border-color: #10b981;
+		border-color: var(--primary);
 	}
 
 .filter-footer {
@@ -95,9 +95,9 @@
 	cursor: pointer;
 }
 	.chip.active {
-		background: #10b981;
+		background: var(--primary);
 		color: white;
-		border-color: #10b981;
+		border-color: var(--primary);
 	}
 
 .property-row {
@@ -134,12 +134,12 @@
 	padding: 0.5rem;
 	border-radius: 20px;
 }
-/* Rullgardins-behållare */
+/* Accordion container */
 .filter-accordion {
 	border-bottom: 1px solid #f1f5f9;
 }
 
-/* Den klickbara rubriken */
+/* Clickable header */
 .accordion-toggle {
 	display: flex;
 	justify-content: space-between;
@@ -147,7 +147,7 @@
 	width: 100%;
 	background: none;
 	border: none;
-	padding: 12px 0; /* Stor träffyta för tummen */
+	padding: 12px 0; /* Large touch target */
 	cursor: pointer;
 	color: #334155;
 }
@@ -161,16 +161,16 @@
 label .accordion-title {
 	padding: 22px 0;
 }
-/* Innehållet när den är nedfälld */
+/* Expanded panel content */
 .accordion-content {
 	display: grid;
-	grid-template-columns: 1fr 1fr; /* Skapar två kolumner automatiskt! */
+	grid-template-columns: 1fr 1fr;
 	gap: 10px;
 	padding-bottom: 16px;
 	animation: slideDown 0.2s ease-out;
 }
 
-/* Kryssrutorna */
+/* Checkboxes */
 .checkbox-label {
 	display: flex;
 	align-items: center;
@@ -178,14 +178,14 @@ label .accordion-title {
 	font-size: 0.90rem;
 	color: #475569;
 	cursor: pointer;
-	padding: 3px 0; /* Lite luft så det är lätt att klicka */
+	padding: 3px 0; /* Extra spacing improves tap accuracy */
 }
 
-	/* Gör själva rutan snygg och stor */
+
 	.checkbox-label input[type="checkbox"] {
 		width: 20px;
 		height: 20px;
-		accent-color: #10b981; /* Byt till din gröna accentfärg */
+		accent-color: var(--primary); /* Use the app primary accent color */
 		cursor: pointer;
 	}
 
@@ -202,5 +202,12 @@ label .accordion-title {
 	to {
 		opacity: 1;
 		transform: translateY(0);
+	}
+}
+@media (max-width: 600px) {
+	.dahlia-container {
+		max-width: 100%;
+		margin: 0 auto;
+		padding: 2rem 0.3rem;
 	}
 }

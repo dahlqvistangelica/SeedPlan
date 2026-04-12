@@ -1,4 +1,4 @@
-/* --- 1. BASE STRUCTURE --- */
+﻿/* --- 1. BASE STRUCTURE --- */
 
 .app-shell {
     display: flex;
@@ -33,18 +33,23 @@
     cursor: pointer;
 }
 
-.logo-circle {
-    color: var(--primary);
-    background: var(--white);
-    border-radius: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
-}
+
 .logo-circle img{
-    width: 60px;
+    border-radius: 50px;
 }
+/* Styla logotyperna */
+.inactive-logo {
+    opacity: 0.5;
+    filter: grayscale(100%);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.active-logo {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
 
 .app-title {
     font-size: 1.3rem;
@@ -119,7 +124,7 @@
 .btn-back {
     background: none;
     border: none;
-    color: #10b981;
+    color: var(--primary);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -256,7 +261,7 @@
 }
 
 .feature-item:hover .feature-image {
-    transform: scale(1.02); /* Little interactivity on hover */
+    transform: scale(1.02);
 }
 
 /* Text container (takes up ~45% of the width) */
@@ -332,7 +337,7 @@
 
 /* --- Responsive design for mobile --- */
 @media (max-width: 992px) {
-    /* Reduce gap and text size for medium screens (tablets) */
+
     .feature-item {
         gap: 2rem;
         margin-bottom: 6rem;
@@ -400,7 +405,7 @@
         padding: 0.75rem 0.2rem;
     }
 
-    /* Tvinga bild och text att staplas vertikalt på mobilen */
+
     .feature-item, .feature-item.feature-reverse {
         flex-direction: column;
         gap: 2rem;
@@ -420,7 +425,7 @@
     .feature-list {
         align-items: center;
     }
-    /* Centrera listan på mobilen */
+    /* Center the list on mobile */
 
     .hero-section {
         padding: 5rem 1.5rem;

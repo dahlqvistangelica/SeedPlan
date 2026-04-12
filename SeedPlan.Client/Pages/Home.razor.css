@@ -70,7 +70,7 @@
 
     .mini-icon.green {
         background: #f0fdf4;
-        color: #10b981;
+        color: var(--primary);
     }
 
     .mini-icon.yellow {
@@ -185,11 +185,6 @@
     font-size: 0.85rem;
     font-weight: 600;
     color: #64748b;
-}
-
-.mini-icon {
-    width: 14px;
-    color: #94a3b8;
 }
 
 .mini-badge {

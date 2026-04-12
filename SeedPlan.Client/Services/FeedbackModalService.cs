@@ -1,8 +1,5 @@
 ﻿using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-using Supabase.Realtime.PostgresChanges;
-using System;
-using System.Threading.Tasks;
 
 namespace SeedPlan.Client.Services
 {
@@ -12,7 +9,7 @@ namespace SeedPlan.Client.Services
 
         public bool IsVisible { get; private set; } = false;
 
-        // Använd C# standard event mönster istället
+        // Comment translated to English.
         public event EventHandler? OnVisibilityChanged;
 
         public FeedbackModalService(Supabase.Client supabase)

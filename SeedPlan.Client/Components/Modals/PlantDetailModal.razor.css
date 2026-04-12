@@ -34,9 +34,28 @@
     overflow-wrap: anywhere;
 }
 
+.plant-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.plant-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
 .expand-btn {
     background: #dcfce7; 
-    color: #10b981;
+    color: var(--primary);
     border: none;
     width: 34px;
     height: 34px;
@@ -54,7 +73,7 @@
     }
 
 .sowing-guide-text {
-    color: #10b981;
+    color: var(--primary);
     font-weight: 700;
     margin-top: 0;
     margin-bottom: 25px;
@@ -133,7 +152,7 @@
 .text-link {
     background: none;
     border: none;
-    color: #10b981;
+    color: var(--primary);
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
@@ -157,7 +176,7 @@
 
 
 .save-btn-large {
-    background: #10b981;
+    background: var(--primary);
     color: white;
     border: none;
     width: 100%;
@@ -171,7 +190,7 @@
 .text-link {
     background: none;
     border: none;
-    color: #10b981;
+    color: var(--primary);
     font-weight: 700;
     cursor: pointer;
 }
@@ -240,7 +259,7 @@
 
 .inventory-section[open] .inventory-chevron {
     transform: rotate(90deg);
-    color: #10b981;
+    color: var(--primary);
 }
 
 .inventory-summary:hover {
@@ -310,7 +329,7 @@
 
 
 .sow-now-action {
-    background: #10b981;
+    background: var(--primary);
     color: white;
     border: none;
     padding: 8px 16px;

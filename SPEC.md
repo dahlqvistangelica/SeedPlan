@@ -1,4 +1,4 @@
-# SeedPlan – Specifikation v2.1
+# SeedPlan – Specifikation v2.4
 
 > Baserad på befintlig app (Blazor WebAssembly + Supabase) – april 2026
 > Odlingsplatser är borttagna. Speccen speglar nuvarande app och visar tydligt vad som redan finns och vad som återstår.
@@ -9,7 +9,9 @@
 
 SeedPlan är en PWA för att hantera fröinventering, planera sådder baserat på sista frostdatum, följa såddars utveckling steg för steg, hålla koll på dahlior/knölar och ge en tydlig profil- och inställningsyta. All data lagras i Supabase med individuella användarkonton.
 
-Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knölar, profil och inställningar.
+Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knölar, profil och inställningar, samt två tydliga applägen:
+- **SeedPlan-läge** (fröer/sådder/guide)
+- **DahliaBox-läge** (dahliaöversikt/egna knölar/varianter)
 
 ### Befintlig stack (ändras ej)
 
@@ -25,6 +27,20 @@ Nuvarande app innehåller dashboard, fröer, sådder, växtguide, dahlior, knöl
 - Offline-läsning av inventarie och aktiva sådder via Service Worker ✅ (grundläggande)
 - Push-notiser via Web Push API 🟡 (grundinfrastruktur finns, men konfigurationen är fortfarande delvis manuell)
 - Responsiv design, primärt mobilvy ✅
+
+### 1.1 Nyligen levererat i UI och funktioner (release 1.5.1)
+- Appversion uppdaterad till **1.5.1** i klientens versionskontroll, settingsvisning och publik appsettings.
+- Växling mellan **SeedPlan** och **DahliaBox** sker via loggor i headern.
+- Aktivt appläge sparas i `localStorage` (`appMode`) och återställs vid sidladdning.
+- `BottomNav` är lägesstyrd:
+  - SeedPlan-läge: Översikt, Fröer, Sådder, Växtguide, Inställningar
+  - DahliaBox-läge: Översikt, Egna knölar, Varianter, Inställningar
+- DahliaBox har en egen startsida (`/dahliabox-home`) med:
+  - nyckeltal (antal sorter, antal knölar, favorittyp)
+  - säsongstidslinje (förodling och utplantering utifrån användarens sista frostdatum)
+- Dahlia-modaler använder återanvändbar funktionskomponent för betyg (`StarRating`) med klickbar 1-5-stjärnlogik.
+- Dahlia-sökning i `AddDahliaModal` är nu fullt asynkron i UI-event (`@oninput` + `await`), i stället för blockerande `.Result`.
+- Dahlia-sökning begränsas till toppträffar (limit) och sorteras alfabetiskt för snabb respons i dropdown.
 
 ---
 
@@ -152,10 +168,18 @@ Nuvarande UI i `AddSeedModal` och `EditSeedModal` hanterar just dessa fält. Nä
 | Taggar | Många-till-många | Se sektion 4.3 |
 
 ### 4.3 Taggar
-- Användaren skapar egna taggar (t.ex. "favorit", "ekologisk", "ny")
-- Taggar kopplas till frön (ett frö kan ha flera taggar)
-- Taggar visas som klickbara chips på frökortet
-- Filtrering på tagg möjlig i frövisningen
+- Användaren skapar egna taggar (t.ex. "favorit", "ekologisk", "ny").
+- Taggar kopplas till frön (ett frö kan ha flera taggar) via en många-till-många-relation.
+- Taggar visas som klickbara chips på frökortet.
+- Filtrering på tagg möjlig i frövisningen.
+- **Databas:**
+  - Tabell `tags` (id, user_id, name)
+  - Kopplingstabell `seed_tags` (seed_id, tag_id)
+- **RLS:** Endast ägaren (user_id) har åtkomst till sina taggar och kopplingar.
+- **Behörigheter:**
+  - select på `tags` ges till anon, authenticated, service_role
+  - select/insert/update/delete på `plant_tags` ges till authenticated, service_role
+  - RLS-policies säkerställer att endast ägaren kan läsa/ändra sina taggar och kopplingar
 
 ### 4.4 Varningar i inventariet
 - **Gult** märke: Utgångsdatum inom 6 månader
@@ -437,6 +461,7 @@ Statistik bygger på händelseloggar (`sowing_events`). Om en användare inte ha
 
 ---
 
+
 ## 10. Databasschema (delta från befintligt)
 
 Befintliga tabeller som **ändras**:
@@ -495,18 +520,25 @@ CREATE TABLE user_plants (
   created_at timestamptz DEFAULT now()
 );
 
--- Taggar
+-- Taggar (för frön och växter)
 CREATE TABLE tags (
   id serial PRIMARY KEY,
   user_id uuid REFERENCES auth.users NOT NULL,
   name text NOT NULL
 );
 
--- Taggkoppling till frön
+-- Koppling tagg till frö (seed_tags)
 CREATE TABLE seed_tags (
   seed_id int REFERENCES seeds ON DELETE CASCADE,
   tag_id int REFERENCES tags ON DELETE CASCADE,
   PRIMARY KEY (seed_id, tag_id)
+);
+
+-- Koppling tagg till växt (plant_tags)
+CREATE TABLE plant_tags (
+  plant_id int REFERENCES plants ON DELETE CASCADE,
+  tag_id int REFERENCES tags ON DELETE CASCADE,
+  PRIMARY KEY (plant_id, tag_id)
 );
 
 -- Händelselogg per sådd
@@ -533,24 +565,47 @@ CREATE TABLE notification_settings (
 );
 ```
 
-**RLS-policies:** Alla nya tabeller får policies med `auth.uid() = user_id`.
+**RLS-policies:**
+- Alla nya tabeller får policies med `auth.uid() = user_id` (t.ex. tags, seed_tags, plant_tags).
+- För tabellerna `tags`, `seed_tags`, `plant_tags` gäller:
+  - Endast ägaren (user_id) kan läsa/ändra sina taggar och kopplingar.
+  - select på `tags` ges till anon, authenticated, service_role.
+  - select/insert/update/delete på `plant_tags` ges till authenticated, service_role.
+  - Exempel på policy (tags):
+    ```sql
+    create policy "Authenticated can read tags"
+    on public.tags
+    as permissive
+    for select
+    to public
+    using (auth.role() = 'authenticated'::text);
+    ```
+  - Se även migrationsfil 20260410120000_fix_tags_rls.sql för fullständiga grants och policies.
 
 ---
 
 ## 11. UI-struktur (uppdaterad navigation)
 
 ```
-📱 Bottom navigation:
-├── 🏠 Översikt        /          – Sårekommendationer + aktiva sådder + varningar
-├── 🌱 Lager
-│   ├── Fröer          /seeds     – Frölagret
-│   └── Knölar         /tubers    – Dahlialager / användarknölar
-├── 🌿 Såddar         /sowings   – Aktiva och avslutade såddar
-├── 📖 Guider
-│   ├── Växtguide      /guide     – Växtguide
-│   └── Dahlior        /dahlias   – Dahliabibliotek
-└── ⚙️ Inställningar  /settings  – Inställningsöversikt + länk till profil/konto
+📱 Header-lägeväljare:
+├── SeedPlan-logo   -> växlar till SeedPlan-läge
+└── Dahlia-logo     -> växlar till DahliaBox-läge (inloggad användare)
+
+📱 Bottom navigation – SeedPlan-läge:
+├── 🏠 Översikt        /              – Sårekommendationer + aktiva sådder + varningar
+├── 🌱 Fröer           /seeds         – Frölagret
+├── 🌿 Såddar         /sowings       – Aktiva och avslutade såddar
+├── 📖 Växtguide       /guide         – Växtguide
+└── ⚙️ Inställn.      /settings      – Inställningsöversikt + länk till profil/konto
+
+📱 Bottom navigation – DahliaBox-läge:
+├── 🏠 Översikt        /dahliabox-home – DahliaBox dashboard
+├── 🌱 Egna knölar     /tubers         – Användarens knöllager
+├── 🌸 Varianter       /dahlias        – Dahliabibliotek + filtrering/sök
+└── ⚙️ Inställn.      /settings       – Delad inställningsyta
 ```
+
+Notering: Önskelista-fliken är tillfälligt utkommenterad i navigeringen och ingår inte i aktivt flöde.
 
 Övriga sidor som är planerade men inte implementerade i navigationen ännu:
 - `/planning` – fullständig såddlista för säsongen
@@ -573,12 +628,18 @@ CREATE TABLE notification_settings (
 
 ---
 
-## 13. Byggas i denna prioritetsordning
+## 13. Prioriteringsstatus (uppdaterad)
 
-### Prioritet 1 – Utökat fröinventarie
-- Inköpsdatum, inköpsställe och grobarhetsprocent
-- Taggsystem och filtrering på tagg
-- Visuella lagervarningar för utgångsdatum och nollsaldo
+### Prioritet 1 – Levererat och mergat ✅
+- Visuell loading-state i dahlia-sökdropdown under asynkron sökning (`isSearching`).
+- Debounce + cancellation i dahlia-sökning för att minska överlappande requests vid snabb inmatning.
+- Konsekvent fallback vid 0 träffar med tomt tillstånd + CTA för "Skapa ny sort".
+- QA av lägesväxling SeedPlan/DahliaBox (persistens i `localStorage`, redirect och active state).
+- QA av mode-specifik bottomnav på mobil och desktop.
+- Verifierad versionskedja 1.5.1 i `MainLayout`, `Settings` och `wwwroot/appsettings.json`.
+- Tester tillagda/uppdaterade för dahlia-sökflöde (asynkront input-event, resultatlista, val av träff).
+- Tester tillagda/uppdaterade för `StarRating`-komponenten (toggle av samma stjärna => `null`).
+- Utökat fröinventarie levererat: inköpsdatum, inköpsställe, grobarhetsprocent, taggar, taggfilter och visuella lagervarningar.
 
 ### Prioritet 2 – Förbättrade såddrekommendationer
 - "Snart att så"-sektion på dashboarden
@@ -612,4 +673,4 @@ CREATE TABLE notification_settings (
 
 ---
 
-*Specifikation v2.1 – SeedPlan – april 2026*
+*Specifikation v2.4 – SeedPlan – april 2026*

@@ -1,14 +1,14 @@
-﻿/* fk = FröKoll-style */
+﻿
 
 .fk-card {
     display: flex;
     flex-direction: row;
     background-color: #ffffff;
-    border: 1px solid #f3f4f6; /* Mycket subtil kant som i FröKoll */
+    border: 1px solid #f3f4f6;
     border-radius: 16px;
     padding: 16px;
     gap: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03); /* Mjuk skugga */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     align-items: center;
@@ -20,7 +20,7 @@
         border-color: #e5e7eb;
     }
 
-/* VÄNSTER: Den runda bilden (Från mockupp 1) */
+
 .fk-image-section {
     flex-shrink: 0;
 }
@@ -43,16 +43,16 @@
         object-fit: cover;
     }
 
-/* HÖGER: Innehållet */
+
 .fk-content-section {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    min-width: 0; /* Förhindrar att texten trycker ut kortet */
+    min-width: 0;
 }
 
-/* Header med titel och etikett */
+
 .fk-header {
     display: flex;
     justify-content: space-between;
@@ -79,27 +79,32 @@
 .fk-subtitle {
     margin: 0;
     font-size: 0.8rem;
-    color: #9ca3af; /* Ljusgrå text för subtitel */
+    color: #9ca3af;
 }
 
-/* FröKolls snygga status-etikett */
+.fk-subtitle Svg{
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--primary); 
+}
+
+
 .fk-badge {
     font-size: 0.65rem;
     font-weight: 800;
     padding: 4px 8px;
     border-radius: 12px;
     letter-spacing: 0.5px;
-    flex-shrink: 0;
 }
 
-/* Bottenraden med ikoner och knappar */
+
 .fk-bottom-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-/* FröKolls små fyrkantiga ikon-lådor */
+
 .fk-icons-group {
     display: flex;
     gap: 8px;
@@ -109,10 +114,10 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background-color: #f8fafc; /* Svagt isblå/grå */
+    background-color: #f8fafc;
     color: #64748b;
     padding: 6px 10px;
-    border-radius: 8px; /* Fyrkantig med rundade hörn */
+    border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 600;
 }
@@ -123,16 +128,16 @@
     }
 
 .fk-notes-section {
-    margin-top: 4px; /* Skapar lite luft mellan knapparna och linjen */
-    padding-top: 10px; /* Skapar luft mellan linjen och texten */
+    margin-top: 4px;
+    padding-top: 10px;
     border-top: 1px solid #f1f5f9; /* Den svaga skiljelinjen */
 }
 
 .fk-notes-box {
     display: flex;
-    align-items: flex-start; /* Gör att ikonen stannar högst upp om texten bryts till ny rad */
+    align-items: flex-start;
     gap: 8px;
-    color: #64748b; /* Behaglig mörkgrå/blå ton */
+    color: #64748b;
     font-size: 0.8rem;
     line-height: 1.4;
 }
@@ -140,15 +145,15 @@
 .fk-notes-icon {
     display: flex;
     align-items: center;
-    color: #cbd5e1; /* Ännu ljusare grå för ikonen så den blir diskret */
+    color: #cbd5e1;
     width: 14px; /* Tvingar ikonen att vara liten */
-    margin-top: 1px; /* Justerar ikonen så den ligger perfekt i höjd med första textraden */
+    margin-top: 1px;
 }
 
 .fk-notes-text {
-    font-style: italic; /* Kursiv stil för att markera att det är en personlig anteckning */
+    font-style: italic;
 }
-/* Chevron (pil) och Radera-knapp */
+
 .fk-actions-group {
     display: flex;
     align-items: center;
@@ -167,7 +172,7 @@
 }
 
     .fk-delete-btn:hover {
-        color: #ef4444; /* Röd vid hover */
+        color: #ef4444;
     }
 
 .fk-chevron {

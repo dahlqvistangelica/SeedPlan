@@ -1,10 +1,12 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
-@inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject FeedbackModalService FeedbackService
 @inject AuthService Auth
+@inject AppState AppState
+@inject Supabase.Client Supabase
+@inject IFeatureService FeatureService
 @implements IDisposable
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
@@ -12,27 +14,49 @@
          Keywords="såkalender, fröhantering, odlingsplanering, sådder, odling" />
 
 
-<div class="app-shell">
+<div class="app-shell @(AppState.CurrentMode == AppMode.DahliaBox ? "dahlia-theme" : "seedplan-theme")">
     @* TOP-HEADER WITH ICON *@
     <header class="main-header">
         <div class="header-content">
+        
             <div class="brand" @onclick='() => Nav.NavigateTo("/")'>
-                <div class="logo-circle"><img src="small-logo.png"></div>
-                <h1 class="app-title">SeedPlan</h1>
-            </div>
-            <div class="header-actions">
-                <AuthorizeView>
-                    <NotAuthorized>
-                        <nav class="header-nav">
-                            <a href="/om-oss" class="header-link">Om SeedPlan</a>
-                            <a href="/guide-preview" class="header-link">Växtguide</a>
-                        </nav>
-                    </NotAuthorized>
-                </AuthorizeView>
-                <LoginDisplay />
-            </div>
-        </div>
-    </header>
+
+                <div class="logo-circle">
+                    <img src="small-logo.webp"
+                         class="@(AppState.CurrentMode == AppMode.SeedPlan ? "active-logo" : "inactive-logo")"
+                         width="50" height="50" decoding="async"
+                         @onclick="() => SwitchMode(AppMode.SeedPlan)"
+                         @onclick:stopPropagation="true"> 
+                    </div>
+
+                    <AuthorizeView>
+                        <Authorized>
+                            <div class="logo-circle">
+                                <img src="dahlia-logo.jpg"
+                                     class="@(AppState.CurrentMode == AppMode.DahliaBox ? "active-logo" : "inactive-logo")"
+                                     width="50" height="50" decoding="async"
+                                     @onclick="() => SwitchMode(AppMode.DahliaBox)"
+                                     @onclick:stopPropagation="true">
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+                    </div>
+
+                    <div class="header-actions">
+                        <AuthorizeView>
+                            <NotAuthorized>
+                                <nav class="header-nav">
+                                    <a href="/om-oss" class="header-link">Om SeedPlan</a>
+                                    <a href="/guide-preview" class="header-link">Växtguide</a>
+                                </nav>
+                            </NotAuthorized>
+                        </AuthorizeView>
+
+                        <LoginDisplay />
+                    </div>
+        
+                </div>
+            </header>
 
     <main class="main-container">
         <AuthorizeView>
@@ -50,8 +74,6 @@
                     <div class="page-body">
                         @Body
                     </div>
-
-
                 }
                 else
                 {
@@ -84,12 +106,16 @@
                                             <p>Upptäck verktygen som gör odlandet enklare, roligare och mer framgångsrikt.</p>
                                         </div>
 
-                                        @* Funktionsblock 1 - Växtguide *@
+                                        @* Comment translated to English. *@
                                         <div class="feature-item">
                                             <div class="feature-image-wrapper">
                                                 <img src="/images/screenshot-4.webp"
                                                      alt="Mockup av SeedPlans detaljerade Växtguide med Tomat-profil och skötselråd"
-                                                     class="feature-image" />
+                                                     class="feature-image"
+                                                     loading="lazy"
+                                                     decoding="async"
+                                                     width="665"
+                                                     height="400" />
                                             </div>
                                             <div class="feature-text-wrapper">
                                                 <span class="feature-tag tag-knowledge">KUNSKAP</span>
@@ -103,18 +129,19 @@
                                             </div>
                                         </div>
 
-                                        @* Funktionsblock 2 - Såkalender *@
+                                        @* Comment translated to English. *@
                                         <div class="feature-item feature-reverse">
                                             <div class="feature-image-wrapper">
                                                 <img srcset="/images/mockup1-sm.webp 400w,
                                                 /images/mockup1-md.webp 800w,
                                                 /images/mockup1-opt.webp 1200w"
                                                      sizes="(max-width: 768px) 100vw, 665px"
-                                                     src="/images/mockup1-opt.webp"
+                                                     src="/images/mockup1-sm.webp"
                                                      alt="Mockup av SeedPlans Såkalender för APRIL med färgkodade så-datum"
                                                      width="665"
                                                      height="499"
                                                      loading="lazy"
+                                                     decoding="async"
                                                      class="feature-image">
                                             </div>
                                             <div class="feature-text-wrapper">
@@ -129,12 +156,16 @@
                                             </div>
                                         </div>
 
-                                        @* Funktionsblock 3 - Fröinventarie *@
+                                        @* Comment translated to English. *@
                                         <div class="feature-item">
                                             <div class="feature-image-wrapper">
                                                 <img src="/images/screenshot-2.webp"
                                                      alt="Mockup av SeedPlans Fröinventarie med lista över fröpåsar"
-                                                     class="feature-image" />
+                                                     class="feature-image"
+                                                     loading="lazy"
+                                                     decoding="async"
+                                                     width="665"
+                                                     height="400" />
                                             </div>
                                             <div class="feature-text-wrapper">
                                                 <span class="feature-tag tag-order">ORDNING</span>
@@ -148,18 +179,19 @@
                                             </div>
                                         </div>
 
-                                        @* Funktionsblock 4 - Sådd-spårning *@
+                                        @* Comment translated to English. *@
                                         <div class="feature-item feature-reverse">
                                             <div class="feature-image-wrapper">
                                                 <img srcset="/images/mockup2-sm.webp 400w,
                                                 /images/mockup2-md.webp 800w,
                                                 /images/mockup2-opt.webp 1200w"
                                                      sizes="(max-width: 768px) 100vw, 665px"
-                                                     src="/images/mockup2-opt.webp"
+                                                     src="/images/mockup2-sm.webp"
                                                      alt="Mockup av SeedPlans Sådd-spårning med tidslinjevy"
                                                      width="665"
                                                      height="1442"
                                                      loading="lazy"
+                                                     decoding="async"
                                                      class="feature-image">
                                             </div>
                                             <div class="feature-text-wrapper">
@@ -200,44 +232,46 @@
     </main>
 </div>
 
-
+<FeatureModal IsVisible="showFeatureModal"
+              Feature="latestFeature"
+              OnCloseCallback="MarkFeatureAsSeen" />
 <FeedBackModal @rendermode="InteractiveAuto" />
 
 @code {
-    private const string CurrentAppVersion = "1.4.1";
-    private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
-    private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
+    private const string CurrentAppVersion = "1.5.2";
+    private bool IsRegisterPage => Nav.Uri.Contains("/register", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsPublicPage =>
+        Nav.Uri.Contains("/om-oss", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/guide-preview", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/forgot-password", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/update-password", StringComparison.OrdinalIgnoreCase);
     private bool showLoginForm = false;
     private bool isLoadingDemo = false;
+    private AppFeature? latestFeature;
+    private bool showFeatureModal = false;
+    private bool isClosingModal = false;
 
     protected override async Task OnInitializedAsync()
     {
+        AppState.OnChange += StateHasChanged;
         Nav.LocationChanged += HandleLocationChanged;
-
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            try
-            {
-                var noCacheUrl = $"appsettings.json?t={DateTime.Now.Ticks}";
-                var onlineSettings = await Http.GetFromJsonAsync<VersionCheckModel>(noCacheUrl);
-                if(onlineSettings != null && !string.IsNullOrEmpty(onlineSettings.AppVersion))
+            
+
+            var saveMode = await JS.InvokeAsync<string>("localStorage.getItem", "appMode");
+            if(!string.IsNullOrEmpty(saveMode) && Enum.TryParse<AppMode>(saveMode, out var mode))
+                if(AppState.CurrentMode != mode)
                 {
-                    if(onlineSettings.AppVersion != CurrentAppVersion)
-                    {
-                        Nav.NavigateTo(Nav.Uri, forceLoad: true);
-                    }
+                    AppState.SetMode(mode);
+                    StateHasChanged();
+
                 }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"Kunde inte kolla version: {ex.Message}");
-            }
-
-            StateHasChanged();
-
+            await CheckForUpdates();
         }
     }
 
@@ -262,9 +296,96 @@
             isLoadingDemo = false;
         }
     }
-    public void Dispose()
+
+    private async Task SwitchMode(AppMode newMode)
+    {
+        AppState.SetMode(newMode);
+        if(AppState.CurrentMode == AppMode.DahliaBox)
+        {
+            Nav.NavigateTo("/dahliabox-home");
+        }
+        else
+        {
+            Nav.NavigateTo("/");
+        }
+        await JS.InvokeVoidAsync("localStorage.setItem", "appMode", newMode.ToString());
+    }
+
+    private async Task CheckForUpdates()
     {
 
+        await Task.Delay(500);
+
+        var session = await Supabase.Auth.RetrieveSessionAsync();
+        if (session?.User == null)
+        {
+            return;
+        }
+
+
+        latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
+        if (latestFeature == null)
+        {
+        }
+
+        // If updated version, clear flag for next update.
+        if (latestFeature.VersionTag == CurrentAppVersion)
+        {
+            await JS.InvokeVoidAsync("sessionStorage.removeItem", "hasReloadedForUpdate");
+        }
+
+        if (latestFeature.IsMandatory && latestFeature.VersionTag != CurrentAppVersion)
+        {
+            var hasReloaded = await JS.InvokeAsync<string>("sessionStorage.getItem", "hasReloadedForUpdate");
+        
+            if (string.IsNullOrEmpty(hasReloaded))
+            {
+                // First try, set flag and reload. 
+                await JS.InvokeVoidAsync("sessionStorage.setItem", "hasReloadedForUpdate", "true");
+                await JS.InvokeVoidAsync("location.reload", true);
+                return;
+            }
+            else
+            {
+                // If reload is done but still wrong version:
+                // Show message for user. 
+                Console.WriteLine("Webbläsaren vägrar släppa cachen trots omladdning.");
+                
+                return;
+            }
+        }
+
+        // Show featuremodal for non-force news or if version is the same. 
+        bool hasSeen = await FeatureService.HasUserSeenFeatureAsync(latestFeature.Id);
+        if (!hasSeen)
+        {
+            showFeatureModal = true;
+            StateHasChanged();
+        }
+    }
+
+    private async Task MarkFeatureAsSeen()
+    {
+        if (isClosingModal) return;
+    
+        isClosingModal = true;
+        try
+        {
+
+            await FeatureService.MarkFeatureAsSeenAsync(latestFeature.Id);
+        }
+        finally
+        {
+           
+            showFeatureModal = false; 
+            isClosingModal = false;   
+            StateHasChanged();        
+        }
+    }
+
+    public void Dispose()
+    {
         Nav.LocationChanged -= HandleLocationChanged;
+        AppState.OnChange -= StateHasChanged;
     }
 }

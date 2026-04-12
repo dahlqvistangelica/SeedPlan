@@ -4,6 +4,7 @@
 @inject NotificationService NotificationService
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@inject IFeatureService FeatureService
 
 <SeoHead Title="Inställningar - SeedPlan"
          Description="Hantera dina inställningar i SeedPlan, inklusive frostdatum, plats, aviseringar och profil."
@@ -78,16 +79,26 @@ else
         {
             <div class="settings-card" @onclick='() => Nav.NavigateTo("/admin/plants")'>
                 <div class="icon-circle" style="background: #fefce8; color: #ca8a04;">
-                    <Blazicon Svg="Lucide.Database" /> @* Byt ut ikonen om du vill! *@
+                    <Blazicon Svg="Lucide.Database" /> 
                 </div>
                 <div class="card-text">
                     <span class="title">Hantera växtbibliotek (Admin)</span>
                     <span class="value">Redigera arter, förodlingstider och kategorier</span>
                 </div>
             </div>
+
+            <div class="settings-card" @onclick='() => Nav.NavigateTo("/admin/features")'>
+                <div class="icon-circle" style="background: #fefce8; color: #ca8a04;">
+                    <Blazicon Svg="Lucide.Database" /> 
+                </div>
+                <div class="card-text">
+                    <span class="title">Hantera features</span>
+                    <span class="value">Redigera features och uppdatera info.</span>
+                </div>
+            </div>
         }
 
-        <div class="version-text">SeedPlan v.1.4.1</div>
+        <div class="version-text">SeedPlan v.@currentVersion</div>
     </div>
 }
 @if (showFrostModal)
@@ -171,43 +182,54 @@ else
     private bool showNotificationsModal;
     private bool notificationsEnabled;
     private string statusMessage = "";
+    private string currentVersion = "";
 
     protected override async Task OnInitializedAsync()
     {
         isLoading = true;
+        try
+        {
+            var profile = await ProfileService.GetUserProfile();
+            if (profile != null)
+            {
+                userProfile = profile;
+            }
+            else
+            {
+                userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
+                userProfile.GrowingZone = 1;
+            }
+
+            // Depending on how your service is implemented. If you use the method we built:
+            var latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
+            currentVersion = latestFeature?.VersionTag ?? "Okänd version";
+        
+            // OR if you implemented your own GetLatestVersionAsync that only returns the string:
+            // currentVersion = await FeatureService.GetLatestVersionAsync();
+
+            // No StateHasChanged is needed here; Blazor does it automatically after OnInitialized
+        }
+        finally
+        {
+            isLoading = false;
+            // Inget StateHasChanged behövs här, Blazor gör det automatiskt efter OnInitialized
+        }
     }
+
+    // 2. Read JavaScript/LocalStorage AFTER the HTML has rendered
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
-            try
+            var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
+            if (bool.TryParse(stored, out var enabled))
             {
-                var profile = await ProfileService.GetUserProfile();
-                if (profile != null)
-                {
-                    userProfile = profile;
-                }
-                else
-                {
-                    userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
-                    userProfile.GrowingZone = 1;
-                }
-
-                var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
-                if (bool.TryParse(stored, out var enabled))
-                {
-                    notificationsEnabled = enabled;
-                }
-                
-            }
-            finally
-            {
-                isLoading = false;
-                StateHasChanged();
+                notificationsEnabled = enabled;
+                StateHasChanged(); // Needed here because state changes after first render
             }
         }
-    }  
-    //FROSTDATE
+    }
+    // FROST DATE
     private string GetFrostDateText()
         => userProfile.LastFrostDate.HasValue
             ? userProfile.LastFrostDate.Value.ToString("d MMM")

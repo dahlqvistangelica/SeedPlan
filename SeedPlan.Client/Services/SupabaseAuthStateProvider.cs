@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using System.Security.Claims;
-using SeedPlan.Shared.Interfaces;
-using System.Text.Json;
 using Microsoft.JSInterop;
+using SeedPlan.Shared.Interfaces;
 using Supabase.Gotrue;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace SeedPlan.Client.Services
 {
@@ -21,7 +21,7 @@ namespace SeedPlan.Client.Services
             _supabase = supabase;
             _profileService = profileService;
             _js = js;
-            
+
             // IMPORTANT: Removed 'AddStateChangedListener' to stop infinity loops. 
         }
 
@@ -41,7 +41,7 @@ namespace SeedPlan.Client.Services
             // 1. If already loaded userdata, return from memory.
             if (_cachedState != null && _initialized)
             {
-                
+
                 return _cachedState;
             }
 
@@ -58,28 +58,28 @@ namespace SeedPlan.Client.Services
                         //After that check localStorage("remind me")
                         var json = await _js.InvokeAsync<string?>("sessionStorage.getItem", "sb_session");
 
-                        if(string.IsNullOrEmpty(json))
+                        if (string.IsNullOrEmpty(json))
                         {
                             json = await _js.InvokeAsync<string?>("localStorage.getItem", "sb_session");
                         }
-                       
+
 
                         if (!string.IsNullOrEmpty(json))
                         {
                             var savedSession = JsonSerializer.Deserialize<Session>(json);
-         
+
                             if (savedSession?.AccessToken != null && savedSession.RefreshToken != null)
                             {
                                 try
                                 {
                                     await _supabase.Auth.SetSession(
                                         savedSession.AccessToken, savedSession.RefreshToken);
-                                    
-                                    
+
+
                                 }
-                                catch(Exception ex)
+                                catch (Exception ex)
                                 {
-                                    
+
                                     //Refresh token has expired - clear and continue as signed out.
                                     await _js.InvokeVoidAsync("localStorage.removeItem", "sb_session");
                                     await _js.InvokeVoidAsync("sessionStorage.removeItem", "sb_session");
@@ -97,8 +97,8 @@ namespace SeedPlan.Client.Services
                 var session = _supabase.Auth.CurrentSession;
 
                 //Mark as initialized.
-               
-                
+
+
 
                 if (session?.User == null)
                 {

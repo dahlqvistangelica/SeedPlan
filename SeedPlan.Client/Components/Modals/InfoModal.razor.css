@@ -92,7 +92,7 @@
     color: #334155;
 }
 
-/* Mobilanpassning: minska padding och anpassa utrymme på små skärmar */
+
 @media (max-width: 480px) {
     .detail-card {
         padding: 20px;

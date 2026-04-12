@@ -1,17 +1,21 @@
-﻿
-.group-content {
+﻿.group-content {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 16px;
+}
+.group-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .dahlia-group-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: 2px solid #f1f5f9;
-    margin-top: 1.5rem;
+    margin-top: 0.2rem;
     cursor: pointer;
     transition: background-color 0.2s;
     user-select: none; /* Prevents text selection on quick clicks */
@@ -36,7 +40,7 @@
 .dahlia-group-header-main h2 {
     margin: 0;
     font-size: 1.3rem;
-    color: #064e3b;
+    color: var(--primary-hover);
     font-family: 'Lora', serif;
 }
 
@@ -48,10 +52,6 @@
     border-radius: 20px;
     font-weight: 600;
     white-space: nowrap;
-}
-
-.group-content {
-    padding-top: 0.1rem;
 }
 
 .group-arrow {
@@ -107,11 +107,71 @@
         font-size: 0.9rem;
     }
 
-@media(max-width: 600px) {
+@media (max-width: 600px) {
     .tubers-container {
         max-width: 100%;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 2rem 0.3rem;
+    }
+}
+
+/* SEARCHFIELD */
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.search-container {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--text-muted);
+}
+
+.search-input {
+    width: 100%;
+    padding: 8px 35px 8px 35px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+    .search-input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
     }
 
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 50%;
 }
+
+    .clear-search-btn:hover {
+        background-color: #f1f5f9;
+        color: var(--text-dark);
+    }

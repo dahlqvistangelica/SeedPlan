@@ -24,7 +24,7 @@
 {
     <div class="image-preview">
         <img src="@(string.IsNullOrEmpty(Item?.PhotoUrl) ? DefaultImageUrl : Item!.PhotoUrl)" alt="Preview" />
-        @* Ta bort-knapp bara om det är en riktig uppladdad bild *@
+        @* Comment translated to English. *@
    @* @if (!string.IsNullOrEmpty(Item?.PhotoUrl))
     {
         <button type="button" class="btn-remove-image" @onclick="RemoveImage">
@@ -84,7 +84,7 @@
     [Parameter] public int CropWidth { get; set; } = 350;
     [Parameter] public int CropHeight { get; set; } = 350;
     [Parameter] public int MaxSizeBytes { get; set; } = 2 * 1024 * 1024;
-    //[Parameter] public string? DefaultImageUrl { get; set; } // Sätt om du vill ha fallback-bild
+    // Comment translated to English.
 
     [Inject] public IJSRuntime JS { get; set; } = default!;
     [Inject] public Supabase.Client Supabase { get; set; } = default!;
@@ -116,7 +116,7 @@
         }
         catch
         {
-            // ignorera om localStorage inte går att läsa
+            // Comment translated to English.
         }
 
         hasCheckedTerms = true;

@@ -1,73 +1,67 @@
-﻿<nav class="bottom-nav">
-    <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
-        <Blazicon Svg="Lucide.Sun" />
-        <span>ÖVERSIKT</span>
-    </NavLink>
-    <div class="nav-item inventory-container">
-        <div class="nav-item" @onclick="ToggleInventory">
-            <Blazicon Svg="Lucide.HouseHeart" />
-            <span>LAGER</span>
-        </div>
-        @if (isInventoryExpanded)
-        {
-            <div class="bottom-submenu fade-in-up">
-                <NavLink class="submenu-item" href="seeds" @onclick="ToggleInventory">
-                    <Blazicon Svg="MdiIcon.SeedOutline" /><span> Fröer</span>
-                </NavLink>
-                <NavLink class="submenu-item" href="tubers" @onclick="ToggleInventory">
-                    <Blazicon Svg="BootstrapIcon.Flower1" /><span> Knölar</span>
-                </NavLink>
-            </div>
-        }
-    </div>
-    <NavLink class="nav-item" href="sowings">
-        <Blazicon Svg="MdiIcon.Sprout" />
-        <span>SÅDDER</span>
-    </NavLink>
-    <NavLink class="nav-item" href="planner">
-        <Blazicon Svg="MdiIcon.FloorPlan" />
-        <span>PLANERING</span>
-                        </NavLink>
-    <div class="nav-item info-container">
-        <div class="nav-item" @onclick="ToggleInfo">
+﻿@inject AppState AppState
+@implements IDisposable
 
-            <Blazicon Svg="MdiIcon.InformationSlabCircleOutline" />
-            <span>GUIDER</span>
-    
-        </div>
-        @if (isInfoExpanded)
-        {
-            <div class="bottom-submenu fade-in-up">
-                <NavLink class="submenu-item" href="guide" @onclick="ToggleInfo">
-                    <Blazicon Svg="MdiIcon.BookOpenVariant" /><span>Växtguide</span>
-                </NavLink>
-                <NavLink class="submenu-item" href="dahlias" @onclick="ToggleInfo">
-                    <Blazicon Svg="BootstrapIcon.Flower3" /><span>Dahlior</span>
-                    </NavLink>
-            </div>
-        }
-    </div>
-    <NavLink class="nav-item" href="settings">
-        <Blazicon Svg="Lucide.Settings" />
-        <span>INSTÄLLN.</span>
-    </NavLink>
+<nav class="bottom-nav">
+    @if (AppState.CurrentMode == AppMode.SeedPlan)
+    {
+        <NavLink class="nav-item" href="" Match="NavLinkMatch.All">
+            <Blazicon Svg="Lucide.Sun" />
+            <span>ÖVERSIKT</span>
+        </NavLink>
+        <NavLink class="nav-item" href="seeds">
+            <Blazicon Svg="MdiIcon.SeedOutline" /><span>FRÖER</span>
+        </NavLink>
+
+        <NavLink class="nav-item" href="sowings">
+            <Blazicon Svg="MdiIcon.Sprout" />
+            <span>SÅDDER</span>
+        </NavLink>
+
+        <NavLink class="nav-item" href="guide">
+            <Blazicon Svg="MdiIcon.BookOpenVariant" /><span>VÄXTGUIDE</span>
+        </NavLink>
+
+        <NavLink class="nav-item" href="settings">
+            <Blazicon Svg="Lucide.Settings" />
+            <span>INSTÄLLN.</span>
+        </NavLink>
+    }
+    else if(AppState.CurrentMode == AppMode.DahliaBox)
+    {
+        <NavLink class="nav-item" href="dahliabox-home">
+            <Blazicon Svg="Lucide.Sun" />
+            <span>ÖVERSIKT</span>
+        </NavLink>
+        <NavLink class="nav-item" href="tubers">
+            <Blazicon Svg="BootstrapIcon.Flower1" /><span>EGNA KNÖLAR</span>
+        </NavLink>
+
+        @* <NavLink class="nav-item" href="wishlist">
+            <span class="nav-item">ÖNSKELISTA
+                (kommande)
+            </span>
+        </NavLink> *@
+
+        <NavLink class="nav-item" href="dahlias">
+            <Blazicon Svg="BootstrapIcon.Flower3" /><span>VARIANTER</span>
+        </NavLink>
+        <NavLink class="nav-item" href="settings">
+            <Blazicon Svg="Lucide.Settings" />
+            <span>INSTÄLLN.</span>
+        </NavLink>
+    }
 </nav>
 
-@code {
-    private bool isInventoryExpanded = false;
-    private bool isInfoExpanded = false;
 
-    private void ToggleInventory()
+
+@code {
+    protected override void OnInitialized()
     {
-        isInventoryExpanded = !isInventoryExpanded;
-        // Stäng den andra menyn automatiskt!
-        if (isInventoryExpanded) isInfoExpanded = false;
+        AppState.OnChange += StateHasChanged;
     }
 
-    private void ToggleInfo()
+    public void Dispose()
     {
-        isInfoExpanded = !isInfoExpanded;
-        // Stäng den andra menyn automatiskt!
-        if (isInfoExpanded) isInventoryExpanded = false;
+        AppState.OnChange -= StateHasChanged;
     }
 }

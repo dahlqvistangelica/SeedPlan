@@ -20,7 +20,7 @@ namespace SeedPlan.Client.Services
         /// is authenticated and a profile exists; otherwise, null.</returns>
         public async Task<UserProfile?> GetUserProfile()
         {
-            
+
             try
             {
                 await _supabase.InitializeAsync();
@@ -35,9 +35,9 @@ namespace SeedPlan.Client.Services
 
                 return response.Model;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                                return null;
+                return null;
             }
         }
         /// <summary>
@@ -53,7 +53,7 @@ namespace SeedPlan.Client.Services
             await _supabase.InitializeAsync();
 
             var user = _supabase.Auth.CurrentUser;
-            if(user == null)
+            if (user == null)
             {
                 return;
             }

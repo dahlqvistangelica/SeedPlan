@@ -1,10 +1,10 @@
 using Cropper.Blazor.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 using SeedPlan.Client.Services;
 using SeedPlan.Shared.Interfaces;
+using SeedPlan.Shared.Models;
 using Supabase;
 using System.Text.Json;
 
@@ -21,11 +21,11 @@ namespace SeedPlan.Client
                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
             }.GetStreamAsync("appsettings.json"));
 
-            if(builder.HostEnvironment.IsDevelopment())
+            if (builder.HostEnvironment.IsDevelopment())
             {
                 var http = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
                 var response = await http.GetAsync("appsettings.Development.json");
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     builder.Configuration.AddJsonStream(await response.Content.ReadAsStreamAsync());
                 }
@@ -54,9 +54,11 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<IUserSowingService, UserSowingService>();
             builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
             builder.Services.AddScoped<IDahliaService, DahliaService>();
+            builder.Services.AddScoped<IFeatureService, FeatureService>();
             builder.Services.AddScoped<AuthService>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.AddScoped<FeedbackModalService>(); 
+            builder.Services.AddScoped<FeedbackModalService>();
+            
 
             // 3. Blazor's built-in security
             builder.Services.AddAuthorizationCore();
@@ -80,6 +82,9 @@ namespace SeedPlan.Client
             builder.Services.AddScoped<NotificationService>();
             builder.Services.AddCropper();
 
+            //Appmode-service
+            builder.Services.AddScoped<AppState>();
+
             var host = builder.Build();
             var supabase = host.Services.GetRequiredService<Supabase.Client>();
             var js = host.Services.GetRequiredService<IJSRuntime>();
@@ -89,7 +94,7 @@ namespace SeedPlan.Client
 
             supabase.Auth.AddStateChangedListener(async (sender, state) =>
             {
-      
+
 
                 if (state == Supabase.Gotrue.Constants.AuthState.SignedIn)
                 {

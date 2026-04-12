@@ -4,7 +4,7 @@ using SeedPlan.Shared.Models.ViewModels;
 
 namespace SeedPlan.Client.Services
 {
-    public class PlantLibraryService: IPlantLibraryService
+    public class PlantLibraryService : IPlantLibraryService
     {
         private readonly Supabase.Client _supabase;
         private readonly IUserProfileService _profileService;
@@ -35,7 +35,9 @@ namespace SeedPlan.Client.Services
                 .Filter("plant_name", Supabase.Postgrest.Constants.Operator.ILike, $"%{searchTerm}%")
                 .Limit(10)
                 .Get();
-            return response.Models;
+            var plants = response.Models;
+            await HydratePlantTagsAsync(plants);
+            return plants;
 
         }
 
@@ -77,7 +79,23 @@ namespace SeedPlan.Client.Services
                 .From<Plant>()
                 .Order(x => x.PlantName, Supabase.Postgrest.Constants.Ordering.Ascending)
                 .Get();
-            return response.Models;
+
+            var plants = response.Models;
+            await HydratePlantTagsAsync(plants);
+            return plants;
+
+        }
+
+        public async Task<List<PlantTag>> GetAllTagsAsync()
+        {
+            var response = await _supabase
+                .From<PlantTag>()
+                .Get();
+
+            return response.Models
+                .OrderBy(tag => tag.SortOrder)
+                .ThenBy(tag => tag.DisplayName)
+                .ToList();
 
         }
         /// <summary>
@@ -123,7 +141,7 @@ namespace SeedPlan.Client.Services
 
                     DateTime calculatedPlantOutDate = actualSowDate.AddDays(indoorWeeks * 7);
 
-                    if(plant.HardinessLevel <= 1 && calculatedPlantOutDate < lastFrostDate)
+                    if (plant.HardinessLevel <= 1 && calculatedPlantOutDate < lastFrostDate)
                     {
                         calculatedPlantOutDate = lastFrostDate;
                     }
@@ -231,7 +249,7 @@ namespace SeedPlan.Client.Services
         //ADMIN METHODS
 
         /// <summary>
-        /// Uppdaterar en befintlig växt i databasen.
+        /// Updates an existing plant record in the database.
         /// </summary>
         public async Task<Plant> UpdatePlantAsync(Plant plant)
         {
@@ -239,7 +257,102 @@ namespace SeedPlan.Client.Services
                 .From<Plant>()
                 .Update(plant);
 
-            return response.Models.FirstOrDefault() ?? plant;
+            var updatedPlant = response.Models.FirstOrDefault() ?? plant;
+            await SyncPlantTagsAsync(updatedPlant, plant.Tags);
+            updatedPlant.Tags = plant.Tags
+                .Where(tag => tag.Id > 0)
+                .GroupBy(tag => tag.Id)
+                .Select(group => group.First())
+                .OrderBy(tag => tag.SortOrder)
+                .ThenBy(tag => tag.DisplayName)
+                .ToList();
+            return updatedPlant;
+        }
+
+        private async Task HydratePlantTagsAsync(List<Plant> plants)
+        {
+            if (!plants.Any())
+            {
+                return;
+            }
+
+            var tags = await GetAllTagsAsync();
+            var linksResponse = await _supabase
+                .From<PlantTagLink>()
+                .Get();
+
+            var tagLookup = tags.ToDictionary(tag => tag.Id);
+            var tagLinksByPlant = linksResponse.Models
+                .GroupBy(link => link.PlantId)
+                .ToDictionary(group => group.Key, group => group.Select(link => link.TagId).Distinct().ToList());
+
+            foreach (var plant in plants)
+            {
+                if (tagLinksByPlant.TryGetValue(plant.Id, out var tagIds))
+                {
+                    plant.Tags = tagIds
+                        .Where(tagLookup.ContainsKey)
+                        .Select(tagId => tagLookup[tagId])
+                        .OrderBy(tag => tag.SortOrder)
+                        .ThenBy(tag => tag.DisplayName)
+                        .ToList();
+                }
+                else
+                {
+                    plant.Tags = new List<PlantTag>();
+                }
+            }
+        }
+
+        private async Task SyncPlantTagsAsync(Plant plant, IEnumerable<PlantTag> desiredTags)
+        {
+            if (plant.Id <= 0)
+            {
+                return;
+            }
+
+            var existingLinksResponse = await _supabase
+                .From<PlantTagLink>()
+                .Where(link => link.PlantId == plant.Id)
+                .Get();
+
+            var desiredTagIds = desiredTags
+                .Where(tag => tag.Id > 0)
+                .GroupBy(tag => tag.Id)
+                .Select(group => group.Key)
+                .ToHashSet();
+
+            var existingTagIds = existingLinksResponse.Models
+                .Select(link => link.TagId)
+                .ToHashSet();
+
+            var linksToDelete = existingLinksResponse.Models
+                .Where(link => !desiredTagIds.Contains(link.TagId))
+                .ToList();
+
+            foreach (var linkToDelete in linksToDelete)
+            {
+                await _supabase
+                    .From<PlantTagLink>()
+                    .Where(link => link.Id == linkToDelete.Id)
+                    .Delete();
+            }
+
+            var tagsToInsert = desiredTagIds
+                .Except(existingTagIds)
+                .Select(tagId => new PlantTagLink
+                {
+                    PlantId = plant.Id,
+                    TagId = tagId
+                })
+                .ToList();
+
+            if (!tagsToInsert.Any())
+            {
+                return;
+            }
+
+            await _supabase.From<PlantTagLink>().Insert(tagsToInsert);
         }
     }
 }

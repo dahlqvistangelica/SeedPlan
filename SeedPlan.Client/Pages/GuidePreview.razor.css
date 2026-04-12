@@ -36,7 +36,7 @@
 }
 
 .plant-card:hover {
-    border-color: #10b981;
+    border-color: var(--primary);
 }
 
 .card-top {
@@ -120,7 +120,7 @@
 .btn-primary {
     display: inline-block;
     padding: 12px 32px;
-    background: #10b981;
+    background: var(--primary);
     color: white;
     border-radius: 10px;
     text-decoration: none;
@@ -129,7 +129,7 @@
 }
 
 .btn-primary:hover {
-    background: #059669;
+    background: var(--primary-hover);
 }
 @media (max-width: 680px)
 {

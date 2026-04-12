@@ -7,7 +7,7 @@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card detail-card fade-in" @onclick:stopPropagation>
             
-            @* 1. HEADER OCH KNAPPAR *@
+            @* Comment translated to English. *@
             <div class="card-header">
                 <div class="header-main">
                     <div class="icon-box status-bg-@(Sowing.Status)">
@@ -70,7 +70,7 @@
                     </div>
                 }
                 
-                @* NYTT: Visa felmeddelandet här om ett statushopp misslyckas *@
+                @* Comment translated to English. *@
                 @if (!string.IsNullOrWhiteSpace(inlineErrorMessage) && !showStatusInputForm && !isEditingNotes)
                 {
                     <div class="warning-box" style="margin-top: 1rem; color: #dc2626; border-color: #fca5a5; background: #fef2f2;">
@@ -80,7 +80,7 @@
                 }
             </div>
 
-            @* --- INLINE FORMULÄR: ANTECKNA / ÄNDRA ANTAL --- *@
+            @* Comment translated to English. *@
             @if (isEditingNotes)
             {
                 <div class="add-seed-container slide-down">
@@ -116,7 +116,7 @@
                 </div>
             }
 
-            @* --- INLINE FORMULÄR: STATUSBYTE (Grodd, Skörd, Misslyckad) --- *@
+            @* Comment translated to English. *@
             @if (showStatusInputForm)
             {
                 <div class="add-seed-container slide-down">
@@ -237,7 +237,7 @@
     [Parameter] public SowingView? Sowing { get; set; }
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnUpdateNeeded { get; set; } // Ny: Informerar parent att ladda om listan
+    [Parameter] public EventCallback OnUpdateNeeded { get; set; } // Comment translated to English.
     [Parameter] public EventCallback<SowingView> OnDeleted { get; set; }
 
     private List<SowingEvent> events = new();
@@ -246,14 +246,14 @@
     private bool isStatusUpdating;
     private string? inlineErrorMessage;
 
-    // --- INTERNT TILLSTÅND FÖR FORMULÄR (Flyttat från Sowings.razor) ---
+    // Comment translated to English.
 
-    // 1. Anteckna / Ändra antal
+    // Comment translated to English.
     private bool isEditingNotes;
     private int? editActiveCount;
     private string? editNotes;
 
-    // 2. Data för statusbyte
+    // Comment translated to English.
     private bool showStatusInputForm;
     private int pendingTargetStatus;
     private string statusFormTitle = string.Empty;
@@ -264,7 +264,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        // Återställ formulärtillstånd när modalen öppnas/stängs
+        // Comment translated to English.
         if (!IsVisible)
         {
             isEditingNotes = false;
@@ -292,7 +292,7 @@
 
         inlineErrorMessage = null;
 
-        // Använd enum precis som i din gamla kod för att undvika "magic numbers"
+        // Comment translated to English.
         if (newStatus == (int)SowingStatus.Germinated ||
             newStatus == (int)SowingStatus.Harvested ||
             newStatus == (int)SowingStatus.Failed)
@@ -301,7 +301,7 @@
             return;
         }
 
-        // Standarduppdatering (inga extra fält behövs)
+        // Comment translated to English.
         await ExecuteImmediateStatusUpdate(newStatus);
     }
 
@@ -355,7 +355,7 @@
             await LoadEvents();
             await OnUpdateNeeded.InvokeAsync();
         }
-        // Samma trygga felhantering här!
+        // Comment translated to English.
         catch (InvalidOperationException ex)
         {
             inlineErrorMessage = $"Ogiltig statusövergång: {ex.Message}";

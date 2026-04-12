@@ -28,6 +28,9 @@ namespace SeedPlan.Shared.Models
         [JsonConverter(typeof(StringEnumConverter))]
         public DahliaSize? Size { get; set; } = null;
 
+        [Column("is_approved")]
+        public bool IsApproved { get; set; }
+
         public string GetTypeName() => this.Type switch
         {
             DahliaType.Decorative => "Dekorativ",
@@ -66,5 +69,7 @@ namespace SeedPlan.Shared.Models
         };
 
     }
-    }
+
+
+}
 

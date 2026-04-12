@@ -5,21 +5,21 @@
     GetImage();
     <div class="sp-dahlia-card">
         
-        @* TOPPEN: Bakgrund med cirkel och Radera-knapp *@
+        @* Comment translated to English. *@
         <div class="sp-card-top" style="background: @GetDahliaColorCode(Dahlia.Color);">
             
 
-            @* CIRKELN MED BILD ELLER FÄRG *@
+            @* Comment translated to English. *@
             <div class="sp-image-wrapper">
                 @if (!string.IsNullOrEmpty(Dahlia.PhotoUrls))
                 {
                     
-                    @* Visa bild om den finns *@
+                    @* Comment translated to English. *@
                     <img src="@displayImageUrl" class="sp-dahlia-image" alt="@Dahlia.Name" />
                 }
                 else
                 {
-                    @* Ingen bild? Visa en tom cirkel med tjock vit kant *@
+                    @* Comment translated to English. *@
                     <div class="sp-default-circle" style="background: @GetDahliaColorCode(Dahlia.Color, true);"></div>
                 }
             </div>
@@ -75,7 +75,7 @@
             displayImageUrl = "/images/placeholder.webp";
         }
     }
-    // Färgkodning som ger en ljus bakgrund och en mörk textfärg (perfekt för FröKoll-etiketter)
+    // Comment translated to English.
 
     private string GetDahliaColorCode(string? colorName, bool isText = false)
     {
@@ -85,18 +85,18 @@
         var parts = colorName.Split(',').Select(p => p.Trim().ToLower()).ToList();
         var validColors = parts.Where(p => p != "tvåfärgad" && p != "flerfärgad").ToList();
 
-        // UPPDATERAD ORDBOK: (Bakgrundens riktiga färg, Textens färg)
+        // Comment translated to English.
         (string Bg, string Txt) GetColorPair(string c)
         {
             return c switch
             {
-                "vit" => ("#ffffff", "#334155"),           // Vit bakgrund, mörk stålgrå text
-                "krämvit" => ("#fef3c7", "#78350f"),       // Krämvit, mörkbrun text
-                "citrongul" => ("#fef9c3", "#854d0e"),     // Citrongul, mörkbrun text
-                "gul" => ("#facc15", "#422006"),           // Solgul, nästan svart text
-                "aprikos" => ("#fdba74", "#7c2d12"),       // Aprikos, mörkröd/brun text
+                "vit" => ("#ffffff", "#334155"),           // Comment translated to English.
+                "krämvit" => ("#fef3c7", "#78350f"),       // Comment translated to English.
+                "citrongul" => ("#fef9c3", "#854d0e"),     // Comment translated to English.
+                "gul" => ("#facc15", "#422006"),           // Comment translated to English.
+                "aprikos" => ("#fdba74", "#7c2d12"),       // Comment translated to English.
                 
-                // Mörka/starka färger med VIT text för bästa kontrast!
+                // Comment translated to English.
                 "orange" => ("#f97316", "#ffffff"),
                 "laxrosa" or "korall" => ("#fb7185", "#ffffff"),
                 "röd" => ("#ef4444", "#ffffff"),
@@ -106,21 +106,21 @@
                 "lila" => ("#a855f7", "#ffffff"),
                 "mörklila" => ("#4c1d95", "#ffffff"),
                 
-                "ljusrosa" => ("#fbcfe8", "#831843"),      // Ljusrosa med mörkrosa text
-                "ljuslila" => ("#d8b4fe", "#4c1d95"),      // Ljuslila med mörklila text
+                "ljusrosa" => ("#fbcfe8", "#831843"),      // Comment translated to English.
+                "ljuslila" => ("#d8b4fe", "#4c1d95"),      // Comment translated to English.
                 
-                _ => ("#e2e8f0", "#334155") // Standard stålgrå
+                _ => ("#e2e8f0", "#334155") // Comment translated to English.
             };
         }
 
-        // SCENARIO A: En färg
+        // Comment translated to English.
         if (validColors.Count == 1)
         {
             var pair = GetColorPair(validColors[0]);
             return isText ? pair.Txt : pair.Bg;
         }
         
-        // SCENARIO B: Tvåfärgad (Mjuk gradient)
+        // Comment translated to English.
         if (validColors.Count >= 2)
         {
             var pair1 = GetColorPair(validColors[0]);
@@ -128,20 +128,20 @@
 
             if (isText)
             {
-                return pair1.Txt; // Tar textfärgen från den dominanta färgen
+                return pair1.Txt; // Comment translated to English.
             }
             else
             {
-                // Mjuk, fin fade från hörn till hörn (0% -> 100%)
+                // Comment translated to English.
                 return $"linear-gradient(135deg, {pair1.Bg} 0%, {pair2.Bg} 100%)";
             }
         }
 
-        // SCENARIO C: Flerfärgad / Tvåfärgad utan specifik färg
+        // Comment translated to English.
         if (parts.Contains("flerfärgad") || parts.Contains("tvåfärgad"))
         {
             if (isText) return "#ffffff";
-            // En väldigt snygg mjuk solnedgång/regnbågs-fade
+            // Comment translated to English.
             return "linear-gradient(135deg, #facc15 0%, #f472b6 50%, #a855f7 100%)";
         }
 

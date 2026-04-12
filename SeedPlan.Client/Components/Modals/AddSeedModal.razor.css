@@ -75,7 +75,7 @@
 .sp-selected-tag {
     margin-top: 5px;
     font-size: 0.85rem;
-    color: #10b981;
+    color: var(--primary);
     display: flex;
     justify-content: space-between;
 }

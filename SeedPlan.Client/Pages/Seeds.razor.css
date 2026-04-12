@@ -2,9 +2,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: 2px solid #f1f5f9;
-    margin-top: 1.5rem;
+    margin-top: 0.2rem;
     cursor: pointer;
     transition: background-color 0.2s;
     user-select: none; /* Prevents text selection on quick clicks */
@@ -73,6 +73,30 @@
     margin-bottom: 2rem;
 }
 
+.tag-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.tag-filter-chip {
+    border: 1px solid #dbe4ee;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 999px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tag-filter-chip.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+
 .seed-list {
     display: flex;
     flex-direction: column;
@@ -93,6 +117,11 @@
     transition: transform 0.1s ease, box-shadow 0.2s;
 }
 
+.seed-card.low-stock {
+    opacity: 0.72;
+    border-style: dashed;
+}
+
     .seed-card:active {
         transform: scale(0.98);
     }
@@ -100,6 +129,34 @@
 .seed-info h3 {
     margin: 0;
     font-size: 1.1rem;
+}
+
+.seed-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.45rem;
+}
+
+.seed-meta-line {
+    font-size: 0.78rem;
+    color: #64748b;
+}
+
+.seed-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+.seed-tag-chip {
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
 }
 
 .plant-type {
@@ -112,11 +169,28 @@
 .expiry-tag {
     font-size: 0.75rem;
     color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f8fafc;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
 }
+
+    .expiry-tag.warning {
+        color: #b45309;
+        background: #fef3c7;
+    }
 
     .expiry-tag.expired {
         color: #ef4444;
+        background: #fee2e2;
         font-weight: 700;
+    }
+
+    .expiry-tag.low-stock {
+        color: #64748b;
+        background: #e2e8f0;
     }
 
 .seed-actions {
@@ -166,6 +240,11 @@
     color: var(--primary);
 }
 
+.qty-badge.out-of-stock {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
 .sow-icon {
     width: 16px;
     height: 16px;
@@ -202,7 +281,7 @@
     .seeds-container {
         max-width: 100%;
         margin: 0 auto;
-        padding: 2rem 1.5rem;
+        padding: 2rem 0.3rem;
     }
     .btn-add-seed span {
         display: none; /* Hide the "New sowing" text on small screens, show only + */

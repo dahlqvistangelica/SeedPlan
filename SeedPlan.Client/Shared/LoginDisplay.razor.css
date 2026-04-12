@@ -29,16 +29,16 @@
 .user-display-name {
     font-size: 0.9rem;
     color: #64748b;
-    /* Lägg till detta för hantering av för långa namn */
+
     white-space: nowrap; 
     overflow: hidden; 
     text-overflow: ellipsis;
 }
 
-/* Lägg märke till att jag även sätter max-width på mobilen */
+
 @media (max-width: 768px) {
     .user-display-name {
-        max-width: 75px; /* Ändra detta värde tills det ser bra ut i din header */
+        max-width: 75px;
     }
 }
 
@@ -152,7 +152,7 @@
 /* Misc styling */
 .theme-toggle-header {
     background: #f0fdf4;
-    color: #10b981;
+    color: var(--primary);
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -166,3 +166,4 @@
 .theme-toggle-header:hover {
     background: #e8f8f0;
 }
+
