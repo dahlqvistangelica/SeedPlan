@@ -33,7 +33,7 @@ namespace SeedPlan.Client.Services
             var permission = await RequestPermissionAsync();
             if (permission != "granted") return;
 
-            // 1. Hämta prenumerationen från webbläsaren
+            
             var subscriptionJson = await _js.InvokeAsync<string?>("subscribeToPush");
             if (string.IsNullOrEmpty(subscriptionJson)) return;
 
@@ -44,15 +44,15 @@ namespace SeedPlan.Client.Services
 
             try
             {
-                // 2. Kolla om JUST DEN HÄR webbläsarens prenumeration redan finns i databasen
+                
                 var response = await _supabase.From<PushSubscription>()
                 .Where(x => x.UserId == user.Id)
                 .Get();
 
-                // Plocka ut den första matchningen (eller null om den inte finns)
+                
                 var existingSub = response.Models.FirstOrDefault(x => x.SubscriptionJson == subscriptionJson);
 
-                // 3. Om den inte finns, spara den! (Vi skapar en ny rad för varje enhet)
+                
                 if (existingSub == null)
                 {
                     var newSub = new PushSubscription
@@ -66,7 +66,7 @@ namespace SeedPlan.Client.Services
                 }
                 else
                 {
-                    // Uppdatera tidsstämpeln om den redan fanns
+                    
                     existingSub.UpdatedAt = DateTime.UtcNow;
                     await _supabase.From<PushSubscription>().Update(existingSub);
                 }

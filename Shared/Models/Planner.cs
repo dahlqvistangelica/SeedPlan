@@ -10,6 +10,7 @@ namespace SeedPlan.Shared.Models
 {
     public class CultivationArea
     {
+        public int Id { get; set; }
         public string Name { get; set; } = "Min Pallkrage";
         public int WidthCm { get; set; } = 80;  // Standard pallkrage
         public int LengthCm { get; set; } = 120; // Standard pallkrage
@@ -21,16 +22,15 @@ namespace SeedPlan.Shared.Models
         public string Id { get; set; } = Guid.NewGuid().ToString(); // För att Blazor ska kunna hålla isär dem när vi drar
         public Plant Plant { get; set; }
 
-        // Positionens mittpunkt i centimeter
         public double CenterX { get; set; }
         public double CenterY { get; set; }
     }
 
-    [Table("garden_plans")]
+    [Table("cultivation_areas")]
     public class GardenPlan : BaseModel
     {
         [PrimaryKey("id", false)]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         [Column("user_id")]
         public string UserId { get; set; } // Vem äger planen?
@@ -43,16 +43,20 @@ namespace SeedPlan.Shared.Models
 
         [Column("length_cm")]
         public int LengthCm { get; set; }
+        [Column("inserted_at")]
+        public DateTime InsertedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
     }
 
-    [Table("garden_plan_crops")]
+    [Table("crops")]
     public class GardenPlanCrop : BaseModel
     {
         [PrimaryKey("id", false)]
-        public string Id { get; set; }
+        public int Id { get; set; }
 
-        [Column("plan_id")]
-        public string PlanId { get; set; } // Kopplar till GardenPlan
+        [Column("area_id")]
+        public int AreaId { get; set; } // Kopplar till GardenPlan
 
         [Column("plant_id")]
         public int PlantId { get; set; } // Vilken växt?
@@ -62,5 +66,9 @@ namespace SeedPlan.Shared.Models
 
         [Column("center_y")]
         public double CenterY { get; set; } // Y-koordinat sparad!
+        [Column("inserted_at")]
+        public DateTime InsertedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
     }
 }
