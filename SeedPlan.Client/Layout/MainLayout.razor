@@ -5,6 +5,7 @@
 @inject FeedbackModalService FeedbackService
 @inject AuthService Auth
 @inject AppState AppState
+@inject Supabase.Client Supabase
 @inject IFeatureService FeatureService
 @implements IDisposable
 
@@ -237,13 +238,19 @@
 <FeedBackModal @rendermode="InteractiveAuto" />
 
 @code {
-    private const string CurrentAppVersion = "1.5.1";
-    private bool IsRegisterPage => Nav.Uri.EndsWith("/register", StringComparison.OrdinalIgnoreCase);
-    private bool IsPublicPage => Nav.Uri.EndsWith("/om-oss", StringComparison.OrdinalIgnoreCase) || Nav.Uri.EndsWith("/guide-preview", StringComparison.OrdinalIgnoreCase);
+    private const string CurrentAppVersion = "1.5.2";
+    private bool IsRegisterPage => Nav.Uri.Contains("/register", StringComparison.OrdinalIgnoreCase);
+
+    private bool IsPublicPage =>
+        Nav.Uri.Contains("/om-oss", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/guide-preview", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/forgot-password", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/update-password", StringComparison.OrdinalIgnoreCase);
     private bool showLoginForm = false;
     private bool isLoadingDemo = false;
     private AppFeature? latestFeature;
     private bool showFeatureModal = false;
+    private bool isClosingModal = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -254,7 +261,7 @@
     {
         if (firstRender)
         {
-            await CheckForUpdates();
+            
 
             var saveMode = await JS.InvokeAsync<string>("localStorage.getItem", "appMode");
             if(!string.IsNullOrEmpty(saveMode) && Enum.TryParse<AppMode>(saveMode, out var mode))
@@ -264,6 +271,7 @@
                     StateHasChanged();
 
                 }
+            await CheckForUpdates();
         }
     }
 
@@ -305,28 +313,73 @@
 
     private async Task CheckForUpdates()
     {
-        latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
-        if(latestFeature != null)
+
+        await Task.Delay(500);
+
+        var session = await Supabase.Auth.RetrieveSessionAsync();
+        if (session?.User == null)
         {
-            if(latestFeature.IsMandatory && latestFeature.VersionTag != CurrentAppVersion)
+            return;
+        }
+
+
+        latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
+        if (latestFeature == null)
+        {
+        }
+
+        // If updated version, clear flag for next update.
+        if (latestFeature.VersionTag == CurrentAppVersion)
+        {
+            await JS.InvokeVoidAsync("sessionStorage.removeItem", "hasReloadedForUpdate");
+        }
+
+        if (latestFeature.IsMandatory && latestFeature.VersionTag != CurrentAppVersion)
+        {
+            var hasReloaded = await JS.InvokeAsync<string>("sessionStorage.getItem", "hasReloadedForUpdate");
+        
+            if (string.IsNullOrEmpty(hasReloaded))
             {
+                // First try, set flag and reload. 
+                await JS.InvokeVoidAsync("sessionStorage.setItem", "hasReloadedForUpdate", "true");
                 await JS.InvokeVoidAsync("location.reload", true);
                 return;
             }
-            bool hasSeen = await FeatureService.HasUserSeenFeatureAsync(latestFeature.Id);
-            if(!hasSeen)
+            else
             {
-                showFeatureModal = true;
-                StateHasChanged();
+                // If reload is done but still wrong version:
+                // Show message for user. 
+                Console.WriteLine("Webbläsaren vägrar släppa cachen trots omladdning.");
+                
+                return;
             }
+        }
+
+        // Show featuremodal for non-force news or if version is the same. 
+        bool hasSeen = await FeatureService.HasUserSeenFeatureAsync(latestFeature.Id);
+        if (!hasSeen)
+        {
+            showFeatureModal = true;
+            StateHasChanged();
         }
     }
 
     private async Task MarkFeatureAsSeen()
     {
-        if(latestFeature != null)
+        if (isClosingModal) return;
+    
+        isClosingModal = true;
+        try
         {
+
             await FeatureService.MarkFeatureAsSeenAsync(latestFeature.Id);
+        }
+        finally
+        {
+           
+            showFeatureModal = false; 
+            isClosingModal = false;   
+            StateHasChanged();        
         }
     }
 

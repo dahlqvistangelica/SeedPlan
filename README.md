@@ -22,8 +22,8 @@ README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SP
 ## Funktioner i appen (idag)
 
 - Dashboard med rekommenderade arter att så, aktiva sådder och varningar.
-- Fröinventarie med lagerhantering och koppling till växtdatabas.
-- Såddhantering med statusflöde, batchnummer, historik och misslyckade såddar.
+- Fröinventarie med lagerhantering, koppling till växtdatabas och **taggar** (egna taggar, filtrering, chips på frökort).
+- Såddhantering med statusflöde, batchnummer, historik och misslyckade sådder.
 - Växtguide baserad på `plants`-data.
 - Dahliabibliotek och eget knölager via separata sidor.
 - Supabase Auth (e-post/lösenord) och profilsida med ort och kategorival.
@@ -47,6 +47,8 @@ README:n speglar nuläget i appen och prioriteringar framåt enligt [SPEC.md](SP
 - Frontend: Blazor WebAssembly (.NET 8)
 - Backend/API: Blazor + Supabase
 - Databas & Auth: Supabase (PostgreSQL + GoTrue)
+	- **Taggar:** Tabell `tags` (egna per användare), kopplingstabeller `seed_tags` och `plant_tags` för många-till-många-relationer.
+	- **RLS:** Endast ägaren kan läsa/ändra sina taggar och kopplingar (se migrationsfil 20260410120000_fix_tags_rls.sql).
 - Deployment: Docker + Railway
 
 ## Prioriterad roadmap (enligt SPEC)

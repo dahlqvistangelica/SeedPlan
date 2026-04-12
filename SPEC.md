@@ -168,10 +168,18 @@ Nuvarande UI i `AddSeedModal` och `EditSeedModal` hanterar just dessa fält. Nä
 | Taggar | Många-till-många | Se sektion 4.3 |
 
 ### 4.3 Taggar
-- Användaren skapar egna taggar (t.ex. "favorit", "ekologisk", "ny")
-- Taggar kopplas till frön (ett frö kan ha flera taggar)
-- Taggar visas som klickbara chips på frökortet
-- Filtrering på tagg möjlig i frövisningen
+- Användaren skapar egna taggar (t.ex. "favorit", "ekologisk", "ny").
+- Taggar kopplas till frön (ett frö kan ha flera taggar) via en många-till-många-relation.
+- Taggar visas som klickbara chips på frökortet.
+- Filtrering på tagg möjlig i frövisningen.
+- **Databas:**
+  - Tabell `tags` (id, user_id, name)
+  - Kopplingstabell `seed_tags` (seed_id, tag_id)
+- **RLS:** Endast ägaren (user_id) har åtkomst till sina taggar och kopplingar.
+- **Behörigheter:**
+  - select på `tags` ges till anon, authenticated, service_role
+  - select/insert/update/delete på `plant_tags` ges till authenticated, service_role
+  - RLS-policies säkerställer att endast ägaren kan läsa/ändra sina taggar och kopplingar
 
 ### 4.4 Varningar i inventariet
 - **Gult** märke: Utgångsdatum inom 6 månader
@@ -453,6 +461,7 @@ Statistik bygger på händelseloggar (`sowing_events`). Om en användare inte ha
 
 ---
 
+
 ## 10. Databasschema (delta från befintligt)
 
 Befintliga tabeller som **ändras**:
@@ -511,18 +520,25 @@ CREATE TABLE user_plants (
   created_at timestamptz DEFAULT now()
 );
 
--- Taggar
+-- Taggar (för frön och växter)
 CREATE TABLE tags (
   id serial PRIMARY KEY,
   user_id uuid REFERENCES auth.users NOT NULL,
   name text NOT NULL
 );
 
--- Taggkoppling till frön
+-- Koppling tagg till frö (seed_tags)
 CREATE TABLE seed_tags (
   seed_id int REFERENCES seeds ON DELETE CASCADE,
   tag_id int REFERENCES tags ON DELETE CASCADE,
   PRIMARY KEY (seed_id, tag_id)
+);
+
+-- Koppling tagg till växt (plant_tags)
+CREATE TABLE plant_tags (
+  plant_id int REFERENCES plants ON DELETE CASCADE,
+  tag_id int REFERENCES tags ON DELETE CASCADE,
+  PRIMARY KEY (plant_id, tag_id)
 );
 
 -- Händelselogg per sådd
@@ -549,7 +565,22 @@ CREATE TABLE notification_settings (
 );
 ```
 
-**RLS-policies:** Alla nya tabeller får policies med `auth.uid() = user_id`.
+**RLS-policies:**
+- Alla nya tabeller får policies med `auth.uid() = user_id` (t.ex. tags, seed_tags, plant_tags).
+- För tabellerna `tags`, `seed_tags`, `plant_tags` gäller:
+  - Endast ägaren (user_id) kan läsa/ändra sina taggar och kopplingar.
+  - select på `tags` ges till anon, authenticated, service_role.
+  - select/insert/update/delete på `plant_tags` ges till authenticated, service_role.
+  - Exempel på policy (tags):
+    ```sql
+    create policy "Authenticated can read tags"
+    on public.tags
+    as permissive
+    for select
+    to public
+    using (auth.role() = 'authenticated'::text);
+    ```
+  - Se även migrationsfil 20260410120000_fix_tags_rls.sql för fullständiga grants och policies.
 
 ---
 

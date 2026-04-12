@@ -1,0 +1,28 @@
+﻿.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.modal-body {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    text-align: center;
+    padding: 15px 0;
+    color: var(--text-dark);
+}
+.header-icon {
+    color: var(--primary);
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Optional: adds space between icon and text */
+}
+.modal-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+.version-badge{
+    font-size: 0.9rem;
+}
