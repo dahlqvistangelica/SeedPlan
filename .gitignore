@@ -379,3 +379,11 @@ supabase/migrations
 /docs/images
 /SeedPlan.Client/Layout/BottomNav - Copy.razor
 /SeedPlan.Client/Layout/BottomNav - Copy.razor.css
+SeedPlan.Client/wwwroot/fonts/inter-italic-latin-ext.woff2
+SeedPlan.Client/wwwroot/fonts/inter-italic-latin.woff2
+SeedPlan.Client/wwwroot/fonts/inter-normal-latin-ext.woff2
+SeedPlan.Client/wwwroot/fonts/inter-normal-latin.woff2
+SeedPlan.Client/wwwroot/fonts/lora-italic-latin-ext.woff2
+SeedPlan.Client/wwwroot/fonts/lora-italic-latin.woff2
+SeedPlan.Client/wwwroot/fonts/lora-normal-latin-ext.woff2
+SeedPlan.Client/wwwroot/fonts/lora-normal-latin.woff2
