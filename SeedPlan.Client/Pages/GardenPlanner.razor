@@ -795,27 +795,23 @@ else
 
     private void AutoFill(CultivationArea area)
     {
-        // Group existing crop types by plant
         var existing = area.Crops.GroupBy(c => c.Plant.Id)
             .ToDictionary(g => g.Key, g => (plant: g.First().Plant, count: g.Count()));
         area.Crops.Clear();
 
-        double x = 0, y = 0, rowH = 0;
-        foreach (var (plantId, info) in existing)
+        foreach (var (_, info) in existing)
         {
             int spacing = info.plant.PlantSpacing ?? 20;
             for (int i = 0; i < info.count; i++)
             {
-                if (x + spacing > area.WidthCm) { x = 0; y += rowH; rowH = 0; }
-                if (y + spacing > area.LengthCm) break;
+                var pos = FindFreePosition(area, spacing);
+                if (!pos.HasValue) break;
                 area.Crops.Add(new PlantedCrop
                 {
                     Plant = info.plant,
-                    CenterX = x + spacing / 2.0,
-                    CenterY = y + spacing / 2.0
+                    CenterX = pos.Value.x,
+                    CenterY = pos.Value.y
                 });
-                x += spacing;
-                if (spacing > rowH) rowH = spacing;
             }
         }
     }
@@ -882,12 +878,9 @@ else
         double newX = Math.Clamp((e.ClientX - dragOffsetX + dPx / 2) / Scale, half, area.WidthCm - half);
         double newY = Math.Clamp((e.ClientY - dragOffsetY + dPx / 2) / Scale, half, area.LengthCm - half);
 
-        if (!IsOverlapping(draggedCrop, area, newX, newY))
-        {
-            draggedCrop.CenterX = newX;
-            draggedCrop.CenterY = newY;
-            StateHasChanged();
-        }
+        draggedCrop.CenterX = newX;
+        draggedCrop.CenterY = newY;
+        StateHasChanged();
     }
 
     private void HandlePointerUp(PointerEventArgs e)
