@@ -102,6 +102,66 @@
 .count-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .count-header h2 { margin: 0; }
 
+.pending-plant-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 6px 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.pending-plant-name {
+    flex: 1;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #15803d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+.qty-stepper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.qty-btn {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #bbf7d0;
+    background: white;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #15803d;
+    flex-shrink: 0;
+}
+.qty-btn:hover { background: #dcfce7; }
+
+.qty-input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 2px 4px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #15803d;
+    background: white;
+}
+.qty-input::-webkit-inner-spin-button,
+.qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
 .btn-import-sowings {
     display: flex;
     align-items: center;

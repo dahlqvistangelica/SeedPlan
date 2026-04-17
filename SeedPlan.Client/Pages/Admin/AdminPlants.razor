@@ -10,6 +10,9 @@
 <div class="page-body admin-plants-page">
     <div class="header-top">
         <h1 class="serif-title">Hantera Växtbiblioteket</h1>
+        <button class="btn-primary" @onclick="OpenAddModal">
+            <Blazicon Svg="Lucide.Plus" /> Lägg till växt
+        </button>
     </div>
 
     @if (isLoading)
@@ -131,7 +134,7 @@
     <div class="modal-overlay" @onclick="CloseModal">
         <div class="modal-card fade-in admin-modal-card" @onclick:stopPropagation>
             <div class="modal-top">
-                <h2 class="modal-title">Redigera @editingPlant.PlantName</h2>
+                <h2 class="modal-title">@(isAddingNew ? "Lägg till ny växt" : $"Redigera {editingPlant.PlantName}")</h2>
                 <button class="close-x" @onclick="CloseModal"><Blazicon Svg="Lucide.X" /></button>
             </div>
 
@@ -244,7 +247,7 @@
 
             <div class="modal-save-row">
                 <button class="btn-primary btn-full" @onclick="SavePlant" disabled="@isSaving">
-                    @(isSaving ? "Sparar..." : "Spara ändringar")
+                    @(isSaving ? "Sparar..." : (isAddingNew ? "Lägg till växt" : "Spara ändringar"))
                 </button>
             </div>
         </div>
@@ -257,6 +260,7 @@
     private HashSet<int> selectedPlantIds = new();
     private HashSet<int> selectedBulkTagIds = new();
     private bool isLoading = true;
+    private bool isAddingNew = false;
     private string searchQuery = string.Empty;
     private bool isBulkSaving = false;
     private string? bulkErrorMessage;
@@ -437,10 +441,19 @@
         return bool.TryParse(args.Value?.ToString(), out var parsed) && parsed;
     }
 
+    private void OpenAddModal()
+    {
+        editingPlant = new Plant();
+        isAddingNew = true;
+        errorMessage = null;
+        showEditModal = true;
+    }
+
     private void CloseModal()
     {
         showEditModal = false;
         editingPlant = null;
+        isAddingNew = false;
     }
 
     private void ToggleTag(PlantTag tag)
@@ -470,25 +483,37 @@
     private async Task SavePlant()
     {
         if (editingPlant == null) return;
+        if (string.IsNullOrWhiteSpace(editingPlant.PlantName))
+        {
+            errorMessage = "Växtens namn är obligatoriskt.";
+            return;
+        }
 
         isSaving = true;
         errorMessage = null;
 
         try
         {
-            var updatedPlant = await PlantService.UpdatePlantAsync(editingPlant);
-
-            var index = allPlants.FindIndex(p => p.Id == updatedPlant.Id);
-            if (index != -1)
+            if (isAddingNew)
             {
-                allPlants[index] = updatedPlant;
+                var added = await PlantService.AddPlantAsync(editingPlant);
+                allPlants.Add(added);
+                allPlants = allPlants.OrderBy(p => p.PlantName).ToList();
+            }
+            else
+            {
+                var updated = await PlantService.UpdatePlantAsync(editingPlant);
+                var index = allPlants.FindIndex(p => p.Id == updated.Id);
+                if (index != -1) allPlants[index] = updated;
             }
 
             CloseModal();
         }
         catch (Exception ex)
         {
-            errorMessage = "Kunde inte spara ändringarna. Kontrollera din anslutning.";
+            errorMessage = isAddingNew
+                ? "Kunde inte lägga till växten. Kontrollera behörigheter och anslutning."
+                : "Kunde inte spara ändringarna. Kontrollera din anslutning.";
             Console.WriteLine(ex.Message);
         }
         finally

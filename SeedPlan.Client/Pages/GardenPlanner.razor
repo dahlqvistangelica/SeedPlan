@@ -365,13 +365,28 @@ else
                                 <div class="dropdown">
                                     @foreach (var p in searchResults)
                                     {
-                                        <div class="dropdown-item" @onclick="() => AddPlantToArea(p, selectedArea)">
+                                        <div class="dropdown-item" @onclick="() => SelectPlant(p)">
                                             <strong>@p.PlantName</strong>
                                             <span>@p.PlantSpacing cm</span>
                                         </div>
                                     }
                                 </div>
                             }
+                            @if (pendingPlant != null)
+                            {
+                                <div class="pending-plant-row">
+                                    <span class="color-dot" style="background:@GetColor(pendingPlant.Id)"></span>
+                                    <span class="pending-plant-name">@pendingPlant.PlantName</span>
+                                    <div class="qty-stepper">
+                                        <button class="qty-btn" @onclick="() => { if (pendingQty > 1) pendingQty--; }">−</button>
+                                        <input type="number" class="qty-input" min="1" @bind="pendingQty" />
+                                        <button class="qty-btn" @onclick="() => pendingQty++">+</button>
+                                    </div>
+                                    <button class="btn-approve" @onclick="AddPendingToArea">Lägg till</button>
+                                    <button class="btn-icon" @onclick="() => pendingPlant = null"><Blazicon Svg="Lucide.X" /></button>
+                                </div>
+                            }
+
                             <div class="area-util">
                                 <span>Utnyttjad: <strong>@GetFillPercent(selectedArea)%</strong></span>
                                 <button class="btn-secondary btn-sm" @onclick="() => AutoFill(selectedArea)">
@@ -403,7 +418,7 @@ else
                                             int remaining = qty - placed;
                                             bool done = remaining <= 0;
                                             <div class="sowing-item @(done ? "disabled" : "")"
-                                                 @onclick="() => { if (!done) AddPlantToArea(plant, selectedArea!); }">
+                                                 @onclick="() => { if (!done) SelectPlantFromSowing(plant, remaining); }">
                                                 <span class="color-dot" style="background:@GetColor(plant.Id)"></span>
                                                 <span class="sowing-item-name">@plant.PlantName</span>
                                                 @if (done)
@@ -513,7 +528,6 @@ else
 @code {
     // ── Constants ─────────────────────────────────────────────────────────────
     private const double Scale = 3.0;
-    private const int GridStep = 10; // cm
 
     private static readonly string[] AreaColors = new[]
     {
@@ -548,6 +562,10 @@ else
     private string searchQuery = string.Empty;
     private List<Plant> searchResults = new();
     private List<Plant> plantLibrary = new();
+
+    // Pending plant add
+    private Plant? pendingPlant;
+    private int pendingQty = 1;
 
     // Delete confirm
     private bool showDeleteConfirm;
@@ -734,6 +752,35 @@ else
             searchResults.Clear();
     }
 
+    private void SelectPlant(Plant plant)
+    {
+        pendingPlant = plant;
+        pendingQty = 1;
+        searchQuery = string.Empty;
+        searchResults.Clear();
+    }
+
+    private void SelectPlantFromSowing(Plant plant, int maxQty)
+    {
+        pendingPlant = plant;
+        pendingQty = maxQty;
+        searchResults.Clear();
+    }
+
+    private void AddPendingToArea()
+    {
+        if (pendingPlant == null || selectedArea == null) return;
+        var spacing = pendingPlant.PlantSpacing ?? 20;
+        for (int i = 0; i < pendingQty; i++)
+        {
+            var pos = FindFreePosition(selectedArea, spacing);
+            if (!pos.HasValue) break;
+            selectedArea.Crops.Add(new PlantedCrop { Plant = pendingPlant, CenterX = pos.Value.x, CenterY = pos.Value.y });
+        }
+        pendingPlant = null;
+        pendingQty = 1;
+    }
+
     private void AddPlantToArea(Plant plant, CultivationArea area)
     {
         var spacing = plant.PlantSpacing ?? 20;
@@ -775,8 +822,11 @@ else
 
     private (double x, double y)? FindFreePosition(CultivationArea area, int spacing)
     {
-        for (double y = spacing / 2.0; y <= area.LengthCm - spacing / 2.0; y += GridStep)
-            for (double x = spacing / 2.0; x <= area.WidthCm - spacing / 2.0; x += GridStep)
+        double half = spacing / 2.0;
+        double step = Math.Max(1.0, spacing / 2.0);
+
+        for (double y = half; y <= area.LengthCm - half; y += step)
+            for (double x = half; x <= area.WidthCm - half; x += step)
                 if (!area.Crops.Any(c =>
                 {
                     double minD = ((c.Plant.PlantSpacing ?? 20) + spacing) / 2.0;
@@ -828,12 +878,9 @@ else
         var area = dragSourceArea!;
         int spacing = draggedCrop.Plant.PlantSpacing ?? 20;
         double dPx = spacing * Scale;
-        double rawX = Math.Clamp(e.ClientX - dragOffsetX + dPx / 2, dPx / 2, area.WidthCm * Scale - dPx / 2);
-        double rawY = Math.Clamp(e.ClientY - dragOffsetY + dPx / 2, dPx / 2, area.LengthCm * Scale - dPx / 2);
-        double newX = Math.Round(rawX / Scale / GridStep) * GridStep;
-        double newY = Math.Round(rawY / Scale / GridStep) * GridStep;
-        newX = Math.Clamp(newX, spacing / 2.0, area.WidthCm - spacing / 2.0);
-        newY = Math.Clamp(newY, spacing / 2.0, area.LengthCm - spacing / 2.0);
+        double half = spacing / 2.0;
+        double newX = Math.Clamp((e.ClientX - dragOffsetX + dPx / 2) / Scale, half, area.WidthCm - half);
+        double newY = Math.Clamp((e.ClientY - dragOffsetY + dPx / 2) / Scale, half, area.LengthCm - half);
 
         if (!IsOverlapping(draggedCrop, area, newX, newY))
         {
@@ -849,13 +896,18 @@ else
 
         if (dragTargetArea != null && dragTargetArea != dragSourceArea)
         {
-            // Move crop to the new area
-            dragSourceArea!.Crops.Remove(draggedCrop);
             var spacing = draggedCrop.Plant.PlantSpacing ?? 20;
-            var pos = FindFreePosition(dragTargetArea, spacing) ?? (draggedCrop.CenterX, draggedCrop.CenterY);
-            draggedCrop.CenterX = pos.Item1;
-            draggedCrop.CenterY = pos.Item2;
-            dragTargetArea.Crops.Add(draggedCrop);
+            var pos = FindFreePosition(dragTargetArea, spacing);
+            if (pos.HasValue)
+            {
+                // Move crop to new area only if there is room — avoids placing
+                // the crop at source-area coordinates inside the target bed,
+                // which could make it land off-canvas and impossible to grab.
+                dragSourceArea!.Crops.Remove(draggedCrop);
+                draggedCrop.CenterX = pos.Value.x;
+                draggedCrop.CenterY = pos.Value.y;
+                dragTargetArea.Crops.Add(draggedCrop);
+            }
         }
 
         draggedCrop = null;

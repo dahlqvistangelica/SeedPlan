@@ -248,9 +248,23 @@ namespace SeedPlan.Client.Services
 
         //ADMIN METHODS
 
-        /// <summary>
-        /// Updates an existing plant record in the database.
-        /// </summary>
+        public async Task<Plant> AddPlantAsync(Plant plant)
+        {
+            plant.Id = 0;
+            var response = await _supabase.From<Plant>().Insert(plant);
+            var inserted = response.Models.FirstOrDefault() ?? plant;
+            if (plant.Tags.Any())
+                await SyncPlantTagsAsync(inserted, plant.Tags);
+            inserted.Tags = plant.Tags
+                .Where(t => t.Id > 0)
+                .GroupBy(t => t.Id)
+                .Select(g => g.First())
+                .OrderBy(t => t.SortOrder)
+                .ThenBy(t => t.DisplayName)
+                .ToList();
+            return inserted;
+        }
+
         public async Task<Plant> UpdatePlantAsync(Plant plant)
         {
             var response = await _supabase
