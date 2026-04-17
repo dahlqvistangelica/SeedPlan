@@ -1,4 +1,6 @@
-﻿// Unregister service worker on localhost (development)
+﻿// Unregister service worker on localhost (development).
+// Only delete app-level caches — never touch dotnet-resources* so the
+// WASM runtime stays cached between reloads.
 if (window.location.hostname === 'localhost') {
     navigator.serviceWorker.getRegistrations().then(function (regs) {
         regs.forEach(function (reg) {
@@ -8,8 +10,12 @@ if (window.location.hostname === 'localhost') {
     });
     caches.keys().then(function (keys) {
         keys.forEach(function (key) {
-            caches.delete(key);
-            console.log('Cache deleted:', key);
+            if (!key.startsWith('dotnet-resources')) {
+                caches.delete(key);
+                console.log('Cache deleted:', key);
+            } else {
+                console.log('Cache preserved (WASM runtime):', key);
+            }
         });
     });
 }

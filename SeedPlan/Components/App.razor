@@ -23,7 +23,7 @@
     <noscript><link href="_content/Cropper.Blazor/cropper.min.css" rel="stylesheet"></noscript>
 
     <script src="notifications.js?v=4" defer></script>
-    <script src="session-cleanup.js?v=4" defer></script>
+    <script src="session-cleanup.js?v=5" defer></script>
 
     <link rel="stylesheet" href="app.css" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="app.css" /></noscript>
@@ -86,7 +86,7 @@
     <script>
         // Looks for the app-shell class rendered by MainLayout.razor
         var checkAppLoaded = setInterval(function() {
-        if(document.querySelector('.app-shell')) {
+        if(document.querySelector('.app-shell') || document.querySelector('.planner-shell')) {
         var splash = document.getElementById('blazor-splash');
         if(splash) {
         splash.style.display = 'none';

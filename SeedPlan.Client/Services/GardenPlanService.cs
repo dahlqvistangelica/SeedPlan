@@ -1,96 +1,129 @@
-﻿using SeedPlan.Shared.Helpers;
+using SeedPlan.Shared.Helpers;
 using SeedPlan.Shared.Interfaces;
 using SeedPlan.Shared.Models;
-using Supabase;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace SeedPlan.Client.Services
 {
     public class GardenPlanService
-{
-    private readonly Supabase.Client _supabase;
-    private readonly IPlantLibraryService _plantLibrary;
-
-    public GardenPlanService(Supabase.Client supabase, IPlantLibraryService plantLibrary)
     {
-        _supabase = supabase;
-        _plantLibrary = plantLibrary;
-    }
+        private readonly Supabase.Client _supabase;
+        private readonly IPlantLibraryService _plantLibrary;
 
-
-    public async Task<List<CultivationArea>> GetUserPlansAsync(string userId)
-    {
-        var dbPlans = (await _supabase.From<GardenPlan>().Where(gp => gp.UserId == userId).Get()).Models;
-        var plantLib = await _plantLibrary.GetAllPlantsAsync();
-
-        var result = new List<CultivationArea>();
-        foreach (var dbPlan in dbPlans)
+        public GardenPlanService(Supabase.Client supabase, IPlantLibraryService plantLibrary)
         {
-            var area = Mapper.ToCultivationArea(dbPlan);
-
-            // Hämta crops för denna plan
-            var dbCrops = (await _supabase.From<GardenPlanCrop>().Where(c => c.AreaId == dbPlan.Id).Get()).Models;
-            area.Crops = dbCrops
-                .Select(crop => Mapper.ToPlantedCrop(crop, plantLib.FirstOrDefault(p => p.Id == crop.PlantId)))
-                .ToList();
-
-            result.Add(area);
-        }
-        return result;
-    }
-
-    // Spara (insert eller update) en plan och dess crops
-    public async Task SavePlanAsync(CultivationArea area, string userId)
-    {
-        // 1. Spara/uppdatera plan (insert om ny => nytt id tillbaka, annars update)
-        var isNew = area is { Name: { Length: > 0 }, Id: 0 };
-        GardenPlan dbPlan = Mapper.ToGardenPlan(area);
-        dbPlan.UserId = userId;
-
-        if (isNew)
-        {
-            dbPlan = (await _supabase.From<GardenPlan>().Insert(dbPlan)).Models.First();
-            area.Id = dbPlan.Id;
-        }
-        else
-        {
-            await _supabase.From<GardenPlan>().Update(dbPlan);
+            _supabase = supabase;
+            _plantLibrary = plantLibrary;
         }
 
-        // 2. Radera gamla crops (för att slippa dubbletter)
-        await _supabase.From<GardenPlanCrop>().Where(c => c.AreaId == area.Id).Delete();
+        // ── Gardens ──────────────────────────────────────────────────────────
 
-        // 3. Lägg in nya crops
-        foreach (var crop in area.Crops)
+        public async Task<List<Garden>> GetUserGardensAsync(string userId)
         {
-            var dbCrop = Mapper.ToGardenPlanCrop(crop, area.Id);
-            await _supabase.From<GardenPlanCrop>().Insert(dbCrop);
+            var plantLib = await _plantLibrary.GetAllPlantsAsync();
+
+            var dbGardens = (await _supabase.From<GardenDb>()
+                .Where(g => g.UserId == userId)
+                .Order("year", Supabase.Postgrest.Constants.Ordering.Descending)
+                .Get()).Models;
+
+            var dbAreas = (await _supabase.From<GardenPlan>()
+                .Where(a => a.UserId == userId)
+                .Order("sort_order", Supabase.Postgrest.Constants.Ordering.Ascending)
+                .Get()).Models;
+
+            var areaIds = dbAreas.Select(a => a.Id).ToList();
+            List<GardenPlanCrop> allCrops = new();
+            if (areaIds.Any())
+            {
+                allCrops = (await _supabase.From<GardenPlanCrop>()
+                    .Filter("area_id", Supabase.Postgrest.Constants.Operator.In, areaIds)
+                    .Get()).Models;
+            }
+
+            var result = new List<Garden>();
+            foreach (var dbGarden in dbGardens)
+            {
+                var garden = Mapper.ToGarden(dbGarden);
+                garden.Areas = dbAreas
+                    .Where(a => a.GardenId == dbGarden.Id)
+                    .Select(a =>
+                    {
+                        var area = Mapper.ToCultivationArea(a);
+                        area.Crops = allCrops
+                            .Where(c => c.AreaId == a.Id)
+                            .Select(c => Mapper.ToPlantedCrop(c, plantLib.FirstOrDefault(p => p.Id == c.PlantId)))
+                            .ToList();
+                        return area;
+                    })
+                    .ToList();
+                result.Add(garden);
+            }
+            return result;
+        }
+
+        public async Task<Garden> SaveGardenAsync(Garden garden, string userId)
+        {
+            var dbGarden = Mapper.ToGardenDb(garden, userId);
+            if (garden.Id == 0)
+            {
+                dbGarden = (await _supabase.From<GardenDb>().Insert(dbGarden)).Models.First();
+                garden.Id = dbGarden.Id;
+            }
+            else
+            {
+                await _supabase.From<GardenDb>().Update(dbGarden);
+            }
+            return garden;
+        }
+
+        public async Task DeleteGardenAsync(long gardenId)
+        {
+            // Areas and crops cascade-delete via FK
+            await _supabase.From<GardenDb>().Where(g => g.Id == gardenId).Delete();
+        }
+
+        // ── Areas ─────────────────────────────────────────────────────────────
+
+        public async Task<CultivationArea> SaveAreaAsync(CultivationArea area, string userId)
+        {
+            var dbArea = Mapper.ToGardenPlan(area, userId);
+            if (area.Id == 0)
+            {
+                dbArea = (await _supabase.From<GardenPlan>().Insert(dbArea)).Models.First();
+                area.Id = dbArea.Id;
+            }
+            else
+            {
+                await _supabase.From<GardenPlan>().Update(dbArea);
+            }
+
+            // Replace crops: delete old, insert new
+            await _supabase.From<GardenPlanCrop>().Filter("area_id", Supabase.Postgrest.Constants.Operator.Equals, area.Id.ToString()).Delete();
+            foreach (var crop in area.Crops)
+            {
+                await _supabase.From<GardenPlanCrop>().Insert(Mapper.ToGardenPlanCrop(crop, area.Id));
+            }
+
+            return area;
+        }
+
+        public async Task DeleteAreaAsync(long areaId)
+        {
+            // Crops cascade-delete
+            await _supabase.From<GardenPlan>().Where(a => a.Id == areaId).Delete();
+        }
+
+        // ── Full garden save (garden + all areas) ─────────────────────────────
+
+        public async Task SaveFullGardenAsync(Garden garden, string userId)
+        {
+            await SaveGardenAsync(garden, userId);
+            for (int i = 0; i < garden.Areas.Count; i++)
+            {
+                garden.Areas[i].GardenId = garden.Id;
+                garden.Areas[i].SortOrder = i;
+                await SaveAreaAsync(garden.Areas[i], userId);
+            }
         }
     }
-
-    // Hämta EN plan med crops
-    public async Task<CultivationArea?> GetPlanAsync(int areaId)
-    {
-        var dbPlan = (await _supabase.From<GardenPlan>().Where(gp => gp.Id == areaId).Get()).Models.FirstOrDefault();
-        if (dbPlan == null) return null;
-
-        var plantLib = await _plantLibrary.GetAllPlantsAsync();
-        var dbCrops = (await _supabase.From<GardenPlanCrop>().Where(c => c.AreaId == areaId).Get()).Models;
-
-        var area = Mapper.ToCultivationArea(dbPlan);
-        area.Crops = dbCrops
-            .Select(crop => Mapper.ToPlantedCrop(crop, plantLib.FirstOrDefault(p => p.Id == crop.PlantId)))
-            .ToList();
-        return area;
-    }
-
-    public async Task DeletePlanAsync(int areaId)
-    {
-        await _supabase.From<GardenPlan>().Where(gp => gp.Id == areaId).Delete();
-        // crops raderas automatiskt pga on delete cascade
-    }
-}
-
-
 }
