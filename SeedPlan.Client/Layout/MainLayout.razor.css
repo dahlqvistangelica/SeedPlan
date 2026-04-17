@@ -37,7 +37,7 @@
 .logo-circle img{
     border-radius: 50px;
 }
-/* Styla logotyperna */
+/* Style logotypes */
 .inactive-logo {
     opacity: 0.5;
     filter: grayscale(100%);
@@ -71,9 +71,40 @@
     font-weight: 500;
     transition: color 0.2s ease;
 }
+    .header-link:hover {
+        color: var(--primary);
+    }
+.planner-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
 
-.header-link:hover {
+.planner-link:hover {
     color: var(--primary);
+}
+
+.planner-link-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 1.8rem !important;
+}
+
+.planner-link-icon span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+@media (max-width: 480px) {
+    .planner-link-icon span {
+        display: none;
+    }
 }
 
 .header-actions {

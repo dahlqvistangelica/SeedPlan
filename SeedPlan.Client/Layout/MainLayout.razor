@@ -43,14 +43,18 @@
                     </div>
 
                     <div class="header-actions">
-                        <AuthorizeView>
-                            <NotAuthorized>
-                                <nav class="header-nav">
+                        <nav class="header-nav">
+                            <a href="/planner" target="_blank" rel="noopener" class="planner-link planner-link-icon">
+                                <Blazicon Svg="MdiIcon.FloorPlan" />
+                                <span>Planerare</span>
+                            </a>
+                            <AuthorizeView>
+                                <NotAuthorized>
                                     <a href="/om-oss" class="header-link">Om SeedPlan</a>
                                     <a href="/guide-preview" class="header-link">Växtguide</a>
-                                </nav>
-                            </NotAuthorized>
-                        </AuthorizeView>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                        </nav>
 
                         <LoginDisplay />
                     </div>

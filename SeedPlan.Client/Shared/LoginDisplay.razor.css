@@ -42,6 +42,12 @@
     }
 }
 
+@media (max-width: 480px) {
+    .user-display-name {
+        display: none;
+    }
+}
+
 .avatar {
     width: 36px;
     height: 36px;

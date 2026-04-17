@@ -22,8 +22,8 @@ namespace SeedPlan.Shared.Models
             [Column("subscription_json")]
             public string SubscriptionJson { get; set; } = string.Empty;
 
-            [Column("updated_at")]
-            public DateTime UpdatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; } = null;
         }
     
 }

@@ -1,0 +1,162 @@
+.admin-dahlias-page .header-top {
+    margin-bottom: 1.5rem;
+}
+
+.pending-count {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+.dahlia-review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.review-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    transition: opacity 0.2s ease;
+}
+
+.review-card.processing {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.review-photo {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.review-photo-placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+}
+
+.review-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-name {
+    display: block;
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.review-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.review-badge,
+.review-color,
+.review-height,
+.review-size {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.review-badge {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+.review-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.btn-approve {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #dcfce7;
+    color: #15803d;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.btn-approve:hover:not(:disabled) {
+    background: #bbf7d0;
+}
+
+.btn-approve:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 4rem 0;
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.empty-state svg {
+    font-size: 2.5rem;
+}
+
+/* Modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+.modal-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 400px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.modal-card h3 { margin: 0; }
+.modal-card p { margin: 0; color: var(--text-muted); }
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
