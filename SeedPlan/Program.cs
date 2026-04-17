@@ -94,7 +94,16 @@ namespace SeedPlan
                 var navigationManager = sp.GetRequiredService<Microsoft.AspNetCore.Components.NavigationManager>();
                 return new HttpClient { BaseAddress = new Uri(navigationManager.BaseUri) };
             });
-            // --- 6. UI & COMPONENTS ---
+            // --- 6. CSS MINIFICATION ---
+            builder.Services.AddWebOptimizer(pipeline =>
+            {
+                // app.css and components.css — hand-authored stylesheets
+                pipeline.MinifyCssFiles("app.css", "components.css");
+                // Blazor CSS isolation bundle — filename includes a build hash, so match by glob
+                pipeline.MinifyCssFiles("**/*.bundle.scp.css");
+            });
+
+            // --- 7. UI & COMPONENTS ---
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
@@ -128,6 +137,7 @@ namespace SeedPlan
             }
 
             app.UseHttpsRedirection();
+            app.UseWebOptimizer();
 
             // Configure static files and PWA manifest
             var contentTypeProvider = new FileExtensionContentTypeProvider();
@@ -135,7 +145,35 @@ namespace SeedPlan
 
             app.UseStaticFiles(new StaticFileOptions
             {
-                ContentTypeProvider = contentTypeProvider
+                ContentTypeProvider = contentTypeProvider,
+                OnPrepareResponse = ctx =>
+                {
+                    var path = ctx.Context.Request.Path.Value ?? "";
+
+                    // Service worker files must never be immutably cached — PWA updates depend on this.
+                    if (path.Contains("service-worker"))
+                    {
+                        ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+                        return;
+                    }
+
+                    // Blazor CSS isolation bundles have a build hash in the filename — immutable.
+                    if (path.Contains(".bundle.scp.css"))
+                    {
+                        ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000, immutable";
+                        return;
+                    }
+
+                    // Self-hosted fonts are content-stable — cache for 1 year.
+                    if (path.StartsWith("/fonts/"))
+                    {
+                        ctx.Context.Response.Headers.CacheControl = "public, max-age=31536000";
+                        return;
+                    }
+
+                    // Everything else (app.css, components.css, images, JS, etc.) — 7 days.
+                    ctx.Context.Response.Headers.CacheControl = "public, max-age=604800";
+                }
             });
 
             app.UseAntiforgery();

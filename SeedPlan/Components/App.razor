@@ -11,28 +11,31 @@
     <link rel="preload" href="_framework/dotnet.native.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
     <link rel="preload" href="_framework/System.Private.CoreLib.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" /> 
     <link rel="preload" href="small-logo.webp" as="image" />
+    <!-- Preload main body font — breaks the fonts.css → woff2 cascade chain -->
+    <link rel="preload" href="/fonts/inter-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
 
-    
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
-              rel="stylesheet"
-              media="print"
-              onload="this.media='all'">
-        <noscript>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
-                  rel="stylesheet">
-        </noscript>
-    <link href="https://fonts.googleapis.com/css2?family=...&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link href="_content/Cropper.Blazor/cropper.min.css" rel="stylesheet" />
-    
+    <!-- All CSS is async: the splash screen uses only inline styles,
+         so no stylesheet is needed before Blazor hydrates. -->
+    <link rel="stylesheet" href="fonts.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="fonts.css" /></noscript>
+
+    <link href="_content/Cropper.Blazor/cropper.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="_content/Cropper.Blazor/cropper.min.css" rel="stylesheet"></noscript>
 
     <script src="notifications.js?v=4" defer></script>
     <script src="session-cleanup.js?v=4" defer></script>
-    <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="components.css" /> 
-    <link rel="stylesheet" href="SeedPlan.styles.css" /> 
-    <link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="app.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="app.css" /></noscript>
+
+    <link rel="stylesheet" href="components.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="components.css" /></noscript>
+
+    <link rel="stylesheet" href="SeedPlan.styles.css" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="SeedPlan.styles.css" /></noscript>
+
+    <link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="_content/Blazicons/css/blazicons.min.css" rel="stylesheet"></noscript>
     <link rel="manifest" href="manifest.webmanifest">
     <script type="application/ld+json">
         {
