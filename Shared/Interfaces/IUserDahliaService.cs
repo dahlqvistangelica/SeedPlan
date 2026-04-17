@@ -34,6 +34,9 @@ namespace SeedPlan.Shared.Interfaces
  List<string>? activeColors = null,
  int? maxHeight = null,
  int? minHeight = null);
-        
-        }
+
+        Task<List<Dahlia>> GetPendingDahliasAsync();
+        Task ApproveDahliaAsync(string id);
+        Task DeleteDahliaAsync(string id);
+    }
 }

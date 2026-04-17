@@ -1,0 +1,176 @@
+@page "/admin/dahlias"
+@using SeedPlan.Shared.Models
+@using SeedPlan.Shared.Interfaces
+@inject IDahliaService DahliaService
+@inject NavigationManager NavManager
+@inject IUserProfileService ProfileService
+
+<SeoHead Title="Admin - Godkänn Dahliasorter" />
+
+<div class="page-body admin-dahlias-page">
+    <div class="header-top">
+        <h1 class="serif-title">Godkänn dahliasorter</h1>
+    </div>
+
+    @if (isLoading)
+    {
+        <LoadingSpinner Text="Laddar väntande sorter..." />
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error-msg">@errorMessage</p>
+    }
+    else if (!pending.Any())
+    {
+        <div class="empty-state">
+            <Blazicon Svg="Lucide.CheckCircle2" />
+            <p>Inga sorter väntar på godkännande.</p>
+        </div>
+    }
+    else
+    {
+        <p class="pending-count">@pending.Count @(pending.Count == 1 ? "sort" : "sorter") väntar på godkännande</p>
+
+        <div class="dahlia-review-list">
+            @foreach (var d in pending)
+            {
+                <div class="review-card @(processingId == d.Id ? "processing" : "")">
+                    @if (!string.IsNullOrEmpty(d.PhotoUrls))
+                    {
+                        <img class="review-photo" src="@d.PhotoUrls.Split(',')[0].Trim()" alt="@d.Name" />
+                    }
+                    else
+                    {
+                        <div class="review-photo-placeholder"></div>
+                    }
+
+                    <div class="review-info">
+                        <strong class="review-name">@d.Name</strong>
+                        <div class="review-meta">
+                            <span class="review-badge">@d.GetTypeName()</span>
+                            @if (!string.IsNullOrEmpty(d.Color))
+                            {
+                                <span class="review-color">@d.Color</span>
+                            }
+                            @if (d.Height.HasValue)
+                            {
+                                <span class="review-height">@d.Height cm</span>
+                            }
+                            @if (d.Size.HasValue)
+                            {
+                                <span class="review-size">⌀ @d.GetSize() cm</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="review-actions">
+                        <button class="btn-approve"
+                                disabled="@(processingId != null)"
+                                @onclick="() => Approve(d.Id)">
+                            <Blazicon Svg="Lucide.Check" /> Godkänn
+                        </button>
+                        <button class="btn-icon danger"
+                                disabled="@(processingId != null)"
+                                title="Ta bort sort"
+                                @onclick="() => ConfirmDelete(d)">
+                            <Blazicon Svg="Lucide.Trash2" />
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (deleteTarget != null)
+{
+    <div class="modal-backdrop" @onclick="CancelDelete">
+        <div class="modal-card" @onclick:stopPropagation="true">
+            <h3>Ta bort sort?</h3>
+            <p>«@deleteTarget.Name» tas bort permanent ur databasen.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="CancelDelete">Avbryt</button>
+                <button class="btn-danger" @onclick="DeleteConfirmed">Ta bort</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Dahlia> pending = new();
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? processingId;
+    private Dahlia? deleteTarget;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var profile = await ProfileService.GetUserProfile();
+        if (profile == null || !profile.IsAdmin)
+        {
+            NavManager.NavigateTo("/");
+            return;
+        }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            pending = await DahliaService.GetPendingDahliasAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte hämta sorter: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Approve(string id)
+    {
+        processingId = id;
+        try
+        {
+            await DahliaService.ApproveDahliaAsync(id);
+            pending.RemoveAll(d => d.Id == id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte godkänna sort: {ex.Message}";
+        }
+        finally
+        {
+            processingId = null;
+        }
+    }
+
+    private void ConfirmDelete(Dahlia d) => deleteTarget = d;
+    private void CancelDelete() => deleteTarget = null;
+
+    private async Task DeleteConfirmed()
+    {
+        if (deleteTarget == null) return;
+        var id = deleteTarget.Id;
+        deleteTarget = null;
+        processingId = id;
+        try
+        {
+            await DahliaService.DeleteDahliaAsync(id);
+            pending.RemoveAll(d => d.Id == id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Kunde inte ta bort sort: {ex.Message}";
+        }
+        finally
+        {
+            processingId = null;
+        }
+    }
+}

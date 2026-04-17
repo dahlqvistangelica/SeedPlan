@@ -89,11 +89,21 @@ else
 
             <div class="settings-card" @onclick='() => Nav.NavigateTo("/admin/features")'>
                 <div class="icon-circle" style="background: #fefce8; color: #ca8a04;">
-                    <Blazicon Svg="Lucide.Database" /> 
+                    <Blazicon Svg="Lucide.Database" />
                 </div>
                 <div class="card-text">
                     <span class="title">Hantera features</span>
                     <span class="value">Redigera features och uppdatera info.</span>
+                </div>
+            </div>
+
+            <div class="settings-card" @onclick='() => Nav.NavigateTo("/admin/dahlias")'>
+                <div class="icon-circle" style="background: #fdf4ff; color: #9333ea;">
+                    <Blazicon Svg="BootstrapIcon.Flower3" />
+                </div>
+                <div class="card-text">
+                    <span class="title">Godkänn dahliasorter (Admin)</span>
+                    <span class="value">Granska och godkänn inlagda sorter</span>
                 </div>
             </div>
         }

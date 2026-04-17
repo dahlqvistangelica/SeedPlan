@@ -121,10 +121,34 @@ namespace SeedPlan.Client.Services
                 .From<DahliaColor>()
                 .Get();
 
-            // Comment translated to English.
             return response.Models.Select(c => c.ColorName).ToList();
         }
 
+        public async Task<List<Dahlia>> GetPendingDahliasAsync()
+        {
+            var response = await _supabase
+                .From<Dahlia>()
+                .Filter("is_approved", Supabase.Postgrest.Constants.Operator.Equals, "false")
+                .Order(d => d.Name, Supabase.Postgrest.Constants.Ordering.Ascending)
+                .Get();
+            return response.Models;
+        }
 
+        public async Task ApproveDahliaAsync(string id)
+        {
+            await _supabase
+                .From<Dahlia>()
+                .Where(d => d.Id == id)
+                .Set(d => d.IsApproved, true)
+                .Update();
+        }
+
+        public async Task DeleteDahliaAsync(string id)
+        {
+            await _supabase
+                .From<Dahlia>()
+                .Where(d => d.Id == id)
+                .Delete();
+        }
     }
 }
