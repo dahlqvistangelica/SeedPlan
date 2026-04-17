@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -18,7 +18,6 @@
 
 <div class="dashboard-container">
     <header class="dashboard-header">
-        
         <div class="header-top">
             <h1 class="serif-title">Välkommen tillbaka</h1>
             <div class="date-badge">
@@ -56,7 +55,7 @@
     }
     else
     {
-        @* ACTIVE SOWINGS (STATISTICS) *@
+        @* ACTIVE SOWINGS STATISTICS *@
         @if (activeSowings != null && activeSowings.Any())
         {
             <div class="sowing-stats-section">
@@ -93,56 +92,110 @@
                 </div>
             </div>
         }
-        @if(userProfile?.PreferredPlantCategories?.Any() == false)
+
+        @if (userProfile?.PreferredPlantCategories?.Any() == false)
         {
             <div class="alert alert-info">
                 Välj minst en kategori i inställningarna för att se såförslag.
             </div>
         }
-
-        @* SOWING WINDOW PASSED *@
-        @if (overview?.Past != null && overview.Past.Any())
-        { 
-            <details class="past-section">
-                <summary>Redan passerat (@overview.Past.Count)</summary>
-                <div class="plant-grid mini">
-                    @foreach (var plant in overview.Past)
-                    {
-                        <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
-                            <div class="mini-card-content">
-                                <div class="mini-icon"><Blazicon Svg="Lucide.CalendarX" /></div>
-                                <span>@plant.PlantName</span>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </details>
-        }
-
-        @* CURRENT SOWING WINDOW *@
-        <h2 class="section-title">BÖR SÅS NU</h2>
-
-        @if (userProfile?.LastFrostDate == null)
+        else if (userProfile?.LastFrostDate == null)
         {
             <div class="alert alert-info">
                 <p>Inga såförslag hittades. Har du ställt in ditt <strong>sista frostdatum</strong> i profilen?</p>
                 <a href="/profile" class="btn-link">Gå till profil</a>
             </div>
         }
-        else if (sowingSuggestions == null || !sowingSuggestions.Any())
-        {
-            <div class="alert alert-success">
-                <p>Du är i fas! Inget behöver sås just nu.</p>
-            </div>
-        }
         else
         {
-            <div class="plant-grid">
-                @foreach (var item in sowingSuggestions)
-                {
-                    <SowingSuggestionCard item="item" OnClick="() => OpenPlantDetail(item.Plant)" StartSowing="() => StartSowing(item.Plant)" />
-                }
-            </div>
+            @* DAGS ATT SÅ — HAR FRÖN *@
+            @if (sowingWithSeeds.Any())
+            {
+                <details class="sow-section" open>
+                    <summary>
+                        <span class="sow-section-name">Dags att så</span>
+                        <span class="sow-section-badge badge-has-seeds">@sowingWithSeeds.Count har frön</span>
+                    </summary>
+                    <div class="plant-grid">
+                        @foreach (var item in sowingWithSeeds)
+                        {
+                            <SowingSuggestionCard item="item" OnClick="() => OpenPlantDetail(item.Plant)" StartSowing="() => StartSowing(item.Plant)" />
+                        }
+                    </div>
+                </details>
+            }
+
+            @* DAGS ATT SÅ — SAKNAR FRÖN *@
+            @if (sowingWithoutSeeds.Any())
+            {
+                <details class="sow-section">
+                    <summary>
+                        <span class="sow-section-name">Dags att så</span>
+                        <span class="sow-section-badge badge-no-seeds">@sowingWithoutSeeds.Count saknar frön</span>
+                    </summary>
+                    <div class="plant-grid">
+                        @foreach (var item in sowingWithoutSeeds)
+                        {
+                            <SowingSuggestionCard item="item" OnClick="() => OpenPlantDetail(item.Plant)" StartSowing="() => StartSowing(item.Plant)" />
+                        }
+                    </div>
+                </details>
+            }
+
+            @if (!sowingWithSeeds.Any() && !sowingWithoutSeeds.Any())
+            {
+                <div class="alert alert-success">
+                    <p>Du är i fas! Inget behöver sås just nu.</p>
+                </div>
+            }
+
+            @* SNART DAGS ATT SÅ *@
+            @if (upcomingPlants.Any())
+            {
+                <details class="sow-section">
+                    <summary>
+                        <span class="sow-section-name">Snart dags att så</span>
+                        <span class="sow-section-badge badge-upcoming">@upcomingPlants.Count</span>
+                    </summary>
+                    <div class="plant-grid mini">
+                        @foreach (var plant in upcomingPlants)
+                        {
+                            var sowDate = userProfile.LastFrostDate!.Value.AddDays(-(plant.SowingLeadTime * 7));
+                            <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
+                                <div class="mini-card-content">
+                                    <div class="mini-icon upcoming-icon"><Blazicon Svg="Lucide.CalendarClock" /></div>
+                                    <div class="mini-card-text">
+                                        <span>@plant.PlantName</span>
+                                        <span class="mini-badge">från @sowDate.ToString("d MMM")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </details>
+            }
+
+            @* REDAN PASSERAT *@
+            @if (pastPlants.Any())
+            {
+                <details class="sow-section">
+                    <summary>
+                        <span class="sow-section-name">Redan passerat</span>
+                        <span class="sow-section-badge badge-past">@pastPlants.Count</span>
+                    </summary>
+                    <div class="plant-grid mini">
+                        @foreach (var plant in pastPlants)
+                        {
+                            <div class="mini-card" @onclick="() => OpenPlantDetail(plant)">
+                                <div class="mini-card-content">
+                                    <div class="mini-icon"><Blazicon Svg="Lucide.CalendarX" /></div>
+                                    <span>@plant.PlantName</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </details>
+            }
         }
     }
 </div>
@@ -158,35 +211,37 @@
     private List<PlantSowingView> sowingSuggestions = new();
     private int countGerminated, countRepotted, countAcclimated, countPlantedOut, countHarvested;
 
+    private List<PlantSowingView> sowingWithSeeds = new();
+    private List<PlantSowingView> sowingWithoutSeeds = new();
+    private List<Plant> upcomingPlants = new();
+    private List<Plant> pastPlants = new();
+
     private bool showDetailModal = false;
     private bool showSowModal = false;
     private Plant? selectedPlant;
     private Plant? selectedPlantForSowing;
-    // Remove: private List<SowingView> staleSowings = new();
 
-    // Add this property instead
     private IEnumerable<SowingView> staleSowings =>
         allSowingViews.Where(s => SowingHelper.GetStaleWarning(
             s.Status,
             s.StatusUpdatedAt,
             s.SownDate).show);
 
-    // Add this list as a backing field
     private List<SowingView> allSowingViews = new();
 
-    protected override async Task OnInitializedAsync() 
+    protected override async Task OnInitializedAsync()
     {
         isLoading = true;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if (firstRender)
         {
             var authState = await AuthProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
-            if(user.Identity is not null && user.Identity.IsAuthenticated)
+            if (user.Identity is not null && user.Identity.IsAuthenticated)
             {
                 await LoadData();
                 await ClearAppBadge();
@@ -196,11 +251,10 @@
                 }
 
                 var userEmail = user.Identity.Name ?? user.FindFirst(c => c.Type == "email")?.Value;
-                if(userEmail != "demo@seedplan.app")
+                if (userEmail != "demo@seedplan.app")
                 {
                     await NotificationService.SubscribeToPushAsync();
                 }
-
             }
             else
             {
@@ -231,12 +285,24 @@
                 await Task.WhenAll(overviewTask, suggestionsTask);
 
                 overview = await overviewTask;
-                overview.Past = overview.Past
-                    .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category))
-                    .ToList();
 
                 sowingSuggestions = (await suggestionsTask)
                     .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Plant.Category))
+                    .ToList();
+
+                sowingWithSeeds = sowingSuggestions.Where(x => x.HasSeeds).ToList();
+                sowingWithoutSeeds = sowingSuggestions.Where(x => !x.HasSeeds).ToList();
+
+                // Exclude plants already shown in "dags att så" (shifted plants would otherwise duplicate into "passerat")
+                var sowingSuggestionPlantIds = sowingSuggestions.Select(x => x.Plant.Id).ToHashSet();
+
+                pastPlants = overview.Past
+                    .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category))
+                    .Where(p => !sowingSuggestionPlantIds.Contains(p.Id))
+                    .ToList();
+
+                upcomingPlants = overview.Upcoming
+                    .Where(p => userProfile.PreferredPlantCategories.Contains((int)p.Category))
                     .ToList();
             }
 
@@ -266,7 +332,6 @@
     {
         try
         {
-            // Comment translated to English.
             await JS.InvokeVoidAsync("appBadging.clearBadge");
         }
         catch (Exception ex)
@@ -275,11 +340,7 @@
         }
     }
 
-
-    // HELPMETHODS
-   
-
-    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true;  }
+    private void OpenPlantDetail(Plant plant) { selectedPlant = plant; showDetailModal = true; }
     private void StartSowing(Plant plant) { selectedPlantForSowing = plant; showSowModal = true; }
     private async Task HandleRefresh() => await LoadData();
 }

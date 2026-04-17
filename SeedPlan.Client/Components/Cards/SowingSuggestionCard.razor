@@ -10,6 +10,7 @@
         </div>
         <div class="plant-core-info">
             <div class="plant-title-row">
+                <span class="urgency-dot urgency-@item.Urgency.ToString().ToLower()" title="@GetUrgencyTitle(item.Urgency)"></span>
                 <span class="plant-name">@item.Plant.PlantName</span>
                 @if (item.HasSeeds)
                 {
@@ -88,6 +89,13 @@
         }
     }
 
+    private string GetUrgencyTitle(SowingUrgency u) => u switch
+    {
+        SowingUrgency.Optimal => "Optimalt tillfälle",
+        SowingUrgency.Good => "Ok, men inte idealt",
+        SowingUrgency.LastChance => "Sista chansen",
+        _ => ""
+    };
     private string GetFrostText(int weeks) => weeks <= 0 ? "planteras ut efter frost" : $"planteras ut {weeks} v. före frost";
     private string GetHardinessText(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
     private string GetHardinessClass(int level) => level switch { 0 => "sensitive", 1 => "half-hardy", 2 => "hardy", _ => "" };

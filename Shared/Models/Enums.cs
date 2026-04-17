@@ -21,6 +21,13 @@
         Fruit = 3
     }
 
+    public enum SowingUrgency
+    {
+        Optimal = 0,   // within 7 days of optimal date
+        Good = 1,      // 8–14 days
+        LastChance = 2 // 15–21 days
+    }
+
     public enum DahliaType
     {
         Decorative,

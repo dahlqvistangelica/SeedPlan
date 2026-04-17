@@ -261,25 +261,29 @@ Rekommenderat datum = Sista frostdatum + (weeks_before_frost × 7)
 (negativt weeks_before_frost = härdiga arter som kan sås FÖRE sista frost)
 ```
 
-**Brådskegrader (används för sortering och färgkodning):**
-- 🟢 Grön – optimalt: inom ±7 dagar från rekommenderat datum
-- 🟡 Gul – ok men inte idealt: 8–14 dagar från rekommenderat datum
-- 🔴 Röd – sista chans: 15–21 dagar efter rekommenderat datum
-- ⚫ Grå – passerat: >21 dagar efter rekommenderat datum (visas i "Redan passerat"-sektionen)
+**Brådskegrader (används för sortering och färgkodning) ✅ implementerat:**
+- 🟢 Grön – optimalt: inom 7 dagar från rekommenderat datum (`SowingUrgency.Optimal`)
+- 🟡 Gul – ok men inte idealt: 8–14 dagar från rekommenderat datum (`SowingUrgency.Good`)
+- 🔴 Röd – sista chans: 15+ dagar efter rekommenderat datum (`SowingUrgency.LastChance`)
+- Beräknas i `PlantLibraryService.GetSowingCalendarAsync`, lagras på `PlantSowingView.Urgency`
+- Visas som färgad punkt på `SowingSuggestionCard`, kort sorteras efter brådska
+- Obs: "Grå/passerat"-tillståndet hanteras via separata sektioner i dashboarden, inte som urgency-nivå
 
 **Kommande (visas i "Snart att så"):**
 - Arter vars såddfönster börjar inom de närmaste 14 dagarna
 
 ### 6.3 Presentationsvyer
 
-**Dashboardvyn (befintlig):**
-- "Bör sås nu" – aktiva fönster, sorterade på brådska, med färgkodning ✅
-- "Redan passerat" – befintlig accordion-sektion ✅
+**Dashboardvyn ✅ levererat (april 2026):**
+Dashboarden har fyra ihopfällbara sektioner i denna ordning:
+1. **Dags att så – har frön** (öppen som standard) – `SowingSuggestionCard` med "Så nu"-knapp och brådskepunkt
+2. **Dags att så – saknar frön** (stängd) – samma korttyp utan "Så nu"
+3. **Snart dags att så** (stängd) – mini-kort med datum för när fönstret öppnar (nästa 14 dagar)
+4. **Redan passerat** (stängd, längst ner) – mini-kort
 
-**Planerat i nästa iteration:**
-- "Snart att så" – ny sektion för kommande 14 dagar
+Buggfix: "shifted"-växter (kan fortfarande sås men fönstret passerat) visas nu enbart i "Dags att så", aldrig i "Redan passerat".
 
-**Listvy på egen sida (`/planning`) – ny sida:**
+**Listvy på egen sida (`/planning`) – uppskjuten till höst 2026:**
 - Fullständig lista med alla arter och deras såddstatus för säsongen
 - Filter: visa bara de med frön i lager / visa alla
 - Sortering: brådska, art A–Ö, datum
@@ -640,21 +644,30 @@ Notering: Önskelista-fliken är tillfälligt utkommenterad i navigeringen och i
 - Tester tillagda/uppdaterade för dahlia-sökflöde (asynkront input-event, resultatlista, val av träff).
 - Tester tillagda/uppdaterade för `StarRating`-komponenten (toggle av samma stjärna => `null`).
 - Utökat fröinventarie levererat: inköpsdatum, inköpsställe, grobarhetsprocent, taggar, taggfilter och visuella lagervarningar.
+- Dashboard refaktorerad med fyra ihopfällbara sektioner (har frön / saknar frön / snart / passerat).
+- Brådskegrader implementerade: `SowingUrgency`-enum (Optimal/Good/LastChance), färgad punkt på såkort, sortering efter brådska.
+- Buggfix: "shifted"-växter duplicerades inte längre i "Redan passerat".
+- Trädgårdsplaneraren: fri placering (inget grid), överlappsbuggar fixade i AutoFill och drag, pendingPlant-flöde med antalväljare.
+- Planerarlänk synlig för alla användare i MainLayout-headern.
+- Admin: `/admin/dahlias` – godkännande och radering av inskickade dahliasorter.
+- Admin: `/admin/plants` – lägg till och redigera växter i växtbiblioteket (`AddPlantAsync` i `IPlantLibraryService`).
 
-### Prioritet 2 – Förbättrade såddrekommendationer
-- "Snart att så"-sektion på dashboarden
-- Planeringssida (`/planning`)
-- Tydligare brådskegrader och färgkodning i alla rekommendationsvyer
+### Prioritet 2 – Förbättrade såddrekommendationer ✅ (delvis)
+- ✅ "Snart att så"-sektion på dashboarden
+- ✅ Brådskegrader och färgkodning i rekommendationsvyer
+- 🔨 Planeringssida (`/planning`) – uppskjuten till höst 2026
 
-### Prioritet 3 – Statistik
+### Prioritet 3 – Notiser
+- Automatisk daglig cron-trigger i Supabase
+- Utökade påminnelser för kommande såddfönster
+- Tydligare notiskonfiguration i UI via `notification_settings`
+
+### Prioritet 4 – Statistik
 - Statistiksida (`/statistics`)
 - Groningsprocent per art
 - Säsongsöversikt baserad på `sowing_events`
 
-### Prioritet 4 – Notiser
-- Automatisk daglig cron-trigger i Supabase
-- Utökade påminnelser för kommande såddfönster
-- Tydligare notiskonfiguration i UI via `notification_settings`
+
 
 ---
 

@@ -153,6 +153,12 @@ namespace SeedPlan.Client.Services
                     bool harvestAfterAug = harvestLate.HasValue && harvestLate.Value > lastHarvestDeadline;
 
                     DateTime? deadlineSowDateForAug = plant.DevelopDaysMin.HasValue ? lastHarvestDeadline.AddDays(-plant.DevelopDaysMin.Value) : null;
+
+                    int daysFromOptimal = (int)(today - sowStart).TotalDays;
+                    var urgency = daysFromOptimal <= 7 ? SowingUrgency.Optimal
+                                : daysFromOptimal <= 14 ? SowingUrgency.Good
+                                : SowingUrgency.LastChance;
+
                     return new PlantSowingView
                     {
                         Plant = plant,
@@ -164,10 +170,11 @@ namespace SeedPlan.Client.Services
                         PlantOutDate = calculatedPlantOutDate,
                         HarvestDateEarly = harvestEarly,
                         HarvestDateLate = harvestLate,
+                        Urgency = urgency,
                     };
                 })
                 .Where(x => (x.IsInNormalWindow || x.IsShifted) && !x.HarvestAfterAug)
-                .OrderBy(x => x.IsShifted)          // Normal window first
+                .OrderBy(x => (int)x.Urgency)
                 .ThenBy(x => x.SowDate)
                 .ToList();
         }
