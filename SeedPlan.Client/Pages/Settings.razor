@@ -1,5 +1,6 @@
 ﻿@page "/settings"
 @using SeedPlan.Shared.Models
+@using SeedPlan.Client.Components.Modals
 @inject IUserProfileService ProfileService
 @inject NotificationService NotificationService
 @inject INotificationSettingsService NotifSettingsService
@@ -49,8 +50,8 @@ else
                     <Blazicon Svg="Lucide.Bell" />
                 </div>
                 <div class="card-text">
-                    <div class="title">Aviseringar</div>
-                    <div class="value">@(notifSettings.Enabled ? "Påslagna" : "Avstängda")</div>
+                    <span class="title">Aviseringsinställningar</span>
+                    <div class="value">@(notifSettings.Enabled ? "Påslagna" : "Avstängda"), Hantera påminnelser och aviseringar.</div>
                 </div>
             </div>
 
@@ -155,69 +156,8 @@ else
     </div>
 }
 
-@if (showNotificationsModal)
-{
-    <div class="settings-modal-backdrop">
-        <div class="settings-modal notif-modal">
-            <h3>Aviseringar</h3>
-
-            <label class="toggle-row">
-                <input type="checkbox" @bind="notifSettings.Enabled" />
-                <span>Aktivera push-aviseringar</span>
-            </label>
-
-            @if (notifSettings.Enabled)
-            {
-                <div class="notif-section">
-                    <p class="notif-section-label">Påminn om kommande såddag</p>
-                    <p class="muted small">Välj hur många dagar innan sådfönstret öppnar du vill få en notis.</p>
-                    <div class="notif-chips">
-                        @foreach (var day in new[] { 1, 2, 3, 5, 7, 14 })
-                        {
-                            var d = day;
-                            var active = notifSettings.DaysBeforeSowing.Contains(d);
-                            <button class="notif-chip @(active ? "active" : "")"
-                                    @onclick="() => ToggleDayBeforeSowing(d)">
-                                @d dag@(d == 1 ? "" : "ar")
-                            </button>
-                        }
-                    </div>
-                </div>
-
-                <div class="notif-section">
-                    <p class="notif-section-label">Påminn om orörda sådder</p>
-                    <p class="muted small">Skicka en påminnelse om en sådd inte uppdaterats på X dagar.</p>
-                    <div class="notif-chips">
-                        @foreach (var day in new[] { 7, 10, 14, 21, 30 })
-                        {
-                            var d = day;
-                            <button class="notif-chip @(notifSettings.DaysInactiveReminder == d ? "active" : "")"
-                                    @onclick="() => notifSettings.DaysInactiveReminder = d">
-                                @d dagar
-                            </button>
-                        }
-                    </div>
-                </div>
-            }
-
-            <p class="muted small ios-note">
-                <strong>iPhone-användare:</strong> Spara SeedPlan på hemskärmen (Dela → "Lägg till på hemskärmen") och öppna appen därifrån för att ta emot aviseringar.
-            </p>
-
-            <div class="modal-actions">
-                <button class="btn-secondary" @onclick="CloseNotificationsModal">Avbryt</button>
-                <button class="btn-primary" @onclick="SaveNotifications">Spara</button>
-            </div>
-
-            @if (!string.IsNullOrWhiteSpace(statusMessage))
-            {
-                <div class="status-alert">@statusMessage</div>
-            }
-        </div>
-    </div>
-}
-
 <InfoModal @bind-IsVisible="showInfoModal" />
+<NotificationSettingsModal @bind-IsOpen="showNotificationsModal" />
 
 @code {
     private bool isLoading = true;
@@ -225,7 +165,7 @@ else
     private bool showFrostModal;
     private bool showZoneModal;
     private bool showInfoModal;
-    private bool showNotificationsModal;
+    private bool showNotificationsModal = false;
     private NotificationSettings notifSettings = new();
     private string statusMessage = "";
     private string currentVersion = "";
@@ -283,12 +223,6 @@ else
         statusMessage = "";
     }
 
-    private void CloseNotificationsModal()
-    {
-        showNotificationsModal = false;
-        statusMessage = "";
-    }
-
     private async Task SaveFrostDate()
     {
         if (userProfile.LastFrostDate.HasValue)
@@ -316,30 +250,6 @@ else
         statusMessage = "Växtzon uppdaterad ✨";
         await Task.Delay(1500);
         CloseZoneModal();
-    }
-
-    private void ToggleDayBeforeSowing(int day)
-    {
-        var list = notifSettings.DaysBeforeSowing.ToList();
-        if (list.Contains(day))
-            list.Remove(day);
-        else
-            list.Add(day);
-        notifSettings.DaysBeforeSowing = list.OrderBy(x => x).ToArray();
-    }
-
-    private async Task SaveNotifications()
-    {
-        await NotifSettingsService.UpsertAsync(notifSettings);
-
-        if (notifSettings.Enabled)
-            await NotificationService.SubscribeToPushAsync();
-        else
-            await NotificationService.UnsubscribeFromPushAsync();
-
-        statusMessage = "Aviseringar uppdaterade ✨";
-        await Task.Delay(1500);
-        CloseNotificationsModal();
     }
 
     private void NavigateToProfile()

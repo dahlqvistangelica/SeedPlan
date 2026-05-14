@@ -1,4 +1,4 @@
-﻿@using SeedPlan.Shared.Models
+﻿﻿@using SeedPlan.Shared.Models
 @inject IUserSowingService SowingService
 @inject IJSRuntime JS
 
@@ -7,7 +7,6 @@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card detail-card fade-in" @onclick:stopPropagation>
             
-            @* Comment translated to English. *@
             <div class="card-header">
                 <div class="header-main">
                     <div class="icon-box status-bg-@(Sowing.Status)">
@@ -49,20 +48,18 @@
                 </div>
             </div>
 
-            @* 2. PROGRESS BAR (Tidslinjen) *@
+            @* 2. PROGRESS BAR (TIMELINE is now static - read only) *@
             <div class="progress-container">
                 <div class="progress-line"></div>
                 <div class="progress-steps">
                     @for (int i = 0; i <= 7; i++)
                     {
                         var stepStatus = i;
-                        <div class="step @(Sowing.Status == stepStatus ? "active" : "") @(isStatusUpdating ? "disabled" : "")"
-                             @onclick="() => UpdateStatus(stepStatus)">
+                        <div class="step @(Sowing.Status >= stepStatus ? "active" : "") @(isStatusUpdating ? "disabled" : "")">
                             <Blazicon Svg="@GetStatusIcon(stepStatus)" />
                         </div>
                     }
                 </div>
-                
                 @if (isStatusUpdating && !showStatusInputForm && !isEditingNotes)
                 {
                     <div class="status-loader">
@@ -70,7 +67,6 @@
                     </div>
                 }
                 
-                @* Comment translated to English. *@
                 @if (!string.IsNullOrWhiteSpace(inlineErrorMessage) && !showStatusInputForm && !isEditingNotes)
                 {
                     <div class="warning-box" style="margin-top: 1rem; color: #dc2626; border-color: #fca5a5; background: #fef2f2;">
@@ -80,7 +76,7 @@
                 }
             </div>
 
-            @* Comment translated to English. *@
+            @* EDITING SOWING NOTES. *@
             @if (isEditingNotes)
             {
                 <div class="add-seed-container slide-down">
@@ -109,14 +105,13 @@
                         }
                         else
                         {
-
                             <span>Spara ändringar</span>
                         }
                     </button>
                 </div>
             }
 
-            @* Comment translated to English. *@
+            @* SHOW STATUS INPUT FORM *@
             @if (showStatusInputForm)
             {
                 <div class="add-seed-container slide-down">
@@ -161,14 +156,13 @@
                         }
                         else
                         {
-
                             <span>Spara status</span>
                         }
                     </button>
                 </div>
             }
-
-            @* 3. INFOBOXAR *@
+            
+            @* 3. INFOBOXES *@
             <div class="alerts-section">
                 @if (Sowing.Status == 0)
                 {
@@ -201,35 +195,47 @@
                 }
             </div>
 
-            @* 4. HISTORIK *@
-            <details class="events-section" open="@eventsLoaded">
-                <summary class="events-summary" @onclick="LoadEvents">
-                    HISTORIK
-                </summary>
-                @if (isLoadingEvents)
+            @* 4. NEW FORM TO "Register new event" *@
+
+            <section class="register-event" style="margin-top:2rem;">
+                <h4>Registrera ny händelse</h4>
+                <div>
+                    <label>Status</label>
+                    <select @bind="newEventStatus">
+                        <option value="0">Sådd</option>
+                        <option value="1">Grodd</option>
+                        <option value="2">Karaktärsblad</option>
+                        <option value="3">Omskolning</option>
+                        <option value="4">Avhärdning</option>
+                        <option value="5">Utplanderad</option>
+                        <option value="6">Skördad</option>
+                        <option value="99">Misslyckad</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Datum</label>
+                    <input type="date" @bind="newEventDate"/>
+                </div>
+                @if (newEventStatus == 1)
                 {
-                    <p class="events-loading">Laddar historik...</p>
+                    <div>
+                        <label>Antal grodda plantor</label>
+                        <input type="number" @bind="newEventSproutedCount" min="0" />
+                    </div>
                 }
-                else if (events.Any())
+                @if (newEventStatus == 6)
                 {
-                    <ul class="events-list">
-                        @foreach (var ev in events)
-                        {
-                            <li class="event-item">
-                                <div class="event-head">
-                                    <span class="event-type">@GetEventTypeText(ev.EventType)</span>
-                                    <span class="event-date">@ev.EventDate.ToString("yyyy-MM-dd")</span>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(ev.Notes))
-                                {
-                                    <div class="event-notes">@ev.Notes</div>
-                                }
-                            </li>
-                        }
-                    </ul>
+                    <div>
+                        <label>Skördevikt (gram)</label>
+                        <input type="number" @bind="newEventHarvestWeight" min="0" />
+                    </div>
                 }
-            </details>
-            
+                <div>
+                    <label>Anteckningar (valfritt)</label>
+                    <textarea @bind="newEventNotes"></textarea>
+                </div>
+                <button @onclick="SubmitNewEventAsync">Spara</button>
+            </section>
         </div>
     </div>
 }
@@ -237,23 +243,16 @@
     [Parameter] public SowingView? Sowing { get; set; }
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnUpdateNeeded { get; set; } // Comment translated to English.
+    [Parameter] public EventCallback OnUpdateNeeded { get; set; } 
     [Parameter] public EventCallback<SowingView> OnDeleted { get; set; }
 
-    private List<SowingEvent> events = new();
-    private bool isLoadingEvents;
-    private bool eventsLoaded;
     private bool isStatusUpdating;
     private string? inlineErrorMessage;
 
-    // Comment translated to English.
-
-    // Comment translated to English.
     private bool isEditingNotes;
     private int? editActiveCount;
     private string? editNotes;
 
-    // Comment translated to English.
     private bool showStatusInputForm;
     private int pendingTargetStatus;
     private string statusFormTitle = string.Empty;
@@ -262,37 +261,66 @@
     private int? inputHarvestCount;
     private string? inputStatusNotes;
 
-    protected override async Task OnParametersSetAsync()
+    // --- VARIABLES TO REGISTER NEW EVENT ---
+    private int newEventStatus = 0;
+    private DateTime newEventDate = DateTime.Today;
+    private string newEventNotes = "";
+    private int? newEventSproutedCount;
+    private int? newEventHarvestWeight;
+
+    protected override void OnParametersSet()
     {
-        // Comment translated to English.
-        if (!IsVisible)
+        // Standardvalues for new event-form
+        newEventDate = DateTime.Today;
+        newEventStatus = 0;
+        newEventNotes = "";
+        newEventSproutedCount = null;
+        newEventHarvestWeight = null;
+    }
+
+    private async Task SubmitNewEventAsync()
+    {
+        if (Sowing == null || isStatusUpdating) return;
+        isStatusUpdating = true;
+        inlineErrorMessage = null;
+        try
         {
-            isEditingNotes = false;
-            showStatusInputForm = false;
-            inlineErrorMessage = null;
+            await SowingService.UpdateSowingStatusAsync(new UpdateSowingStatusRequest
+            {
+                SowingId = Sowing.Id,
+                TargetStatus = newEventStatus,
+                EventDate = newEventDate,
+                SeedlingCount = newEventStatus == 1 ? newEventSproutedCount : null,
+                HarvestWeightG = newEventStatus == 6 ? newEventHarvestWeight : null,
+                Notes = newEventNotes
+            });
+
+            Sowing.Status = newEventStatus;
+            // Återställ fält
+            newEventNotes = "";
+            newEventSproutedCount = null;
+            newEventHarvestWeight = null;
+            newEventDate = DateTime.Today;
+            await OnUpdateNeeded.InvokeAsync();
         }
-        else if (Sowing != null && !eventsLoaded && !isEditingNotes && !showStatusInputForm)
+        catch (Exception ex)
         {
-            await LoadEvents();
+            inlineErrorMessage = "Kunde inte spara händelsen.";
+            Console.WriteLine(ex.Message);
+        }
+        finally
+        {
+            isStatusUpdating = false;
         }
     }
 
-    private async Task LoadEvents()
-    {
-        if (Sowing == null) return;
-        isLoadingEvents = true;
-        events = await SowingService.GetSowingEventsAsync(Sowing.Id);
-        isLoadingEvents = false;
-        eventsLoaded = true;
-    }
+    // Earlier backend & event history removed 
 
     private async Task UpdateStatus(int newStatus)
     {
+        // Keep logic when change in header-UI
         if (Sowing == null || Sowing.Status == newStatus || isStatusUpdating) return;
-
         inlineErrorMessage = null;
-
-        // Comment translated to English.
         if (newStatus == (int)SowingStatus.Germinated ||
             newStatus == (int)SowingStatus.Harvested ||
             newStatus == (int)SowingStatus.Failed)
@@ -300,8 +328,6 @@
             ActivateStatusInputMode(newStatus);
             return;
         }
-
-        // Comment translated to English.
         await ExecuteImmediateStatusUpdate(newStatus);
     }
 
@@ -321,7 +347,6 @@
             99 => "Varför misslyckades sådden?",
             _ => "Uppdatera status"
         };
-
         showStatusInputForm = true;
     }
 
@@ -336,7 +361,6 @@
         if (Sowing == null) return;
         isStatusUpdating = true;
         inlineErrorMessage = null;
-
         try
         {
             await SowingService.UpdateSowingStatusAsync(new UpdateSowingStatusRequest
@@ -352,10 +376,8 @@
 
             Sowing.Status = pendingTargetStatus;
             showStatusInputForm = false;
-            await LoadEvents();
             await OnUpdateNeeded.InvokeAsync();
         }
-        // Comment translated to English.
         catch (InvalidOperationException ex)
         {
             inlineErrorMessage = $"Ogiltig statusövergång: {ex.Message}";
@@ -364,10 +386,9 @@
         {
             inlineErrorMessage = ex.Message;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             inlineErrorMessage = "Kunde inte uppdatera status på grund av serverfel. Försök igen.";
-            Console.WriteLine($"Status update failed: {ex.Message}");
         }
         finally
         {
@@ -380,7 +401,6 @@
         if (Sowing == null) return;
         isStatusUpdating = true;
         StateHasChanged();
-
         try
         {
             await SowingService.UpdateSowingStatusAsync(new UpdateSowingStatusRequest
@@ -389,12 +409,9 @@
                 TargetStatus = newStatus,
                 EventDate = DateTime.Now
             });
-
             Sowing.Status = newStatus;
-            await LoadEvents();
             await OnUpdateNeeded.InvokeAsync();
         }
-        // Catch specifik errors from backend.
         catch (InvalidOperationException ex)
         {
             inlineErrorMessage = $"Ogiltig statusövergång: {ex.Message}";
@@ -414,6 +431,7 @@
             StateHasChanged();
         }
     }
+
     // --- Logic for notes. ---
 
     private void ActivateEditNotesMode()
@@ -435,10 +453,8 @@
     private async Task SaveNotesUpdatesAsync()
     {
         if (Sowing == null) return;
-        
         isStatusUpdating = true;
         inlineErrorMessage = null;
-
         try
         {
             // Same call to Sowingservice
@@ -455,19 +471,15 @@
             {
                 Sowing.Quantity = editActiveCount.Value;
             }
-            
             isEditingNotes = false; // Close form inside modal
-            await LoadEvents();     // Load history
-            await OnUpdateNeeded.InvokeAsync(); // Tells sowings.razor to update list. 
+            await OnUpdateNeeded.InvokeAsync(); // Tells sowings.razor to update list.
         }
         catch (ArgumentException ex)
         {
-            //Catch specific errors from backend. 
             inlineErrorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            // Catch generall crashes. 
             inlineErrorMessage = "Kunde inte spara anteckningen just nu.";
             Console.WriteLine($"Progress update failed: {ex.Message}");
         }
@@ -478,7 +490,6 @@
     }
 
     // --- DELETE LOGIC ---
-
     private async Task HandleDelete()
     {
         if (Sowing == null) return;
@@ -505,7 +516,7 @@
         7 => "AVSLUTAD",
         99 => "MISSLYCKAD",
         _ => "OKÄND"
-    }; 
+    };
 
     private SvgIcon GetStatusIcon(int status) => status switch
     {
@@ -519,14 +530,10 @@
         7 => Lucide.Check,
         99 => Lucide.TriangleAlert,
         _ => Lucide.Sprout
-    }; 
-
-    private string GetEventTypeText(string? type) =>
-        int.TryParse(type, out var val) ? GetStatusText(val) : (type ?? "Händelse"); 
+    };
 
     private Task Close()
     {
-        eventsLoaded = false;
         return OnClose.InvokeAsync();
     }
 }

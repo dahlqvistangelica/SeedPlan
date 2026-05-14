@@ -1,0 +1,142 @@
+﻿@using SeedPlan.Shared.Models
+@inject INotificationSettingsService NotificationSettingsService
+
+@if (IsOpen)
+{
+    <div class="settings-modal-backdrop">
+        <div class="settings-modal">
+            <h3>Aviseringsinställningar</h3>
+
+            <label class="toggle-row">
+                <input type="checkbox" @bind="settings.Enabled" />
+                <span>Aktivera alla aviseringar</span>
+            </label>
+            <label class="toggle-row">
+                <input type="checkbox" @bind="settings.SowingNotificationsEnabled" />
+                <span>Aktivera sådd-notiser</span>
+            </label>
+
+            <fieldset style="margin-bottom:1rem;">
+                <legend><strong>Dagar före sådd (push-påminnelser):</strong></legend>
+                <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                    @for (int i = 0; i < settings.DaysBeforeSowing.Length; i++)
+                    {
+                        <input type="number" style="width:60px;"
+                               @bind="settings.DaysBeforeSowing[i]" min="1" />
+                        <button type="button" @onclick="() => RemoveBeforeSowingDay(i)">🗙</button>
+                    }
+                    <button type="button" @onclick="AddBeforeSowingDay" style="margin-left:8px;">
+                        + Dag
+                    </button>
+                </div>
+            </fieldset>
+
+            <div class="form-group">
+                <label>Påminnelse om orörd sådd (dagar):</label>
+                <input type="number" @bind="settings.DaysInactiveReminder" min="1" style="width:80px;" />
+            </div>
+
+            <div class="form-group">
+                <label>Påminnelse efter sådd (dagar):</label>
+                <input type="number" @bind="settings.DaysSownReminder" min="0" style="width:80px;" />
+            </div>
+            <div class="form-group">
+                <label>Påminnelse efter grodd (dagar):</label>
+                <input type="number" @bind="settings.DaysGerminatedReminder" min="0" style="width:80px;" />
+            </div>
+            <div class="form-group">
+                <label>Påminnelse efter karaktärsblad (dagar):</label>
+                <input type="number" @bind="settings.DaysTrueLeavesReminder" min="0" style="width:80px;" />
+            </div>
+            <div class="form-group">
+                <label>Påminnelse efter omskolning (dagar):</label>
+                <input type="number" @bind="settings.DaysPottedOnReminder" min="0" style="width:80px;" />
+            </div>
+            <div class="form-group">
+                <label>Påminnelse efter avhärdning (dagar):</label>
+                <input type="number" @bind="settings.DaysHardeningOffReminder" min="0" style="width:80px;" />
+            </div>
+            <div class="form-group">
+                <label>Påminnelse efter utplantering (dagar):</label>
+                <input type="number" @bind="settings.DaysPlantedOutReminder" min="0" style="width:80px;" />
+            </div>
+
+            <p class="muted small ios-note">
+                <strong>iPhone-användare:</strong> Spara SeedPlan på hemskärmen (Dela → "Lägg till på hemskärmen") och öppna appen därifrån för att ta emot aviseringar.
+            </p>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" @onclick="OnCancelClicked">Avbryt</button>
+                <button class="btn-primary" @onclick="OnSaveClicked" disabled="@saving">
+                    @(saving ? "Sparar..." : "Spara")
+                </button>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="status-alert">@statusMessage</div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private NotificationSettings settings = new();
+    private bool saving = false;
+    private string statusMessage = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen)
+        {
+            settings = await NotificationSettingsService.GetAsync();
+            // Ev. nulldefault
+            if (settings.DaysBeforeSowing == null || settings.DaysBeforeSowing.Length == 0)
+                settings.DaysBeforeSowing = new int[] { 7, 2 };
+            StateHasChanged();
+        }
+    }
+
+    private void AddBeforeSowingDay()
+    {
+        var list = settings.DaysBeforeSowing.ToList();
+        list.Add(3);
+        settings.DaysBeforeSowing = list.ToArray();
+    }
+    private void RemoveBeforeSowingDay(int idx)
+    {
+        var list = settings.DaysBeforeSowing.ToList();
+        if (idx >= 0 && idx < list.Count)
+            list.RemoveAt(idx);
+        settings.DaysBeforeSowing = list.ToArray();
+    }
+
+    private async Task OnSaveClicked()
+    {
+        saving = true;
+        statusMessage = "";
+        try
+        {
+            await NotificationSettingsService.UpsertAsync(settings);
+            statusMessage = "Notisinställningar sparade!";
+            await IsOpenChanged.InvokeAsync(false);
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "Kunde inte spara: " + ex.Message;
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    private async Task OnCancelClicked()
+    {
+        statusMessage = "";
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}
