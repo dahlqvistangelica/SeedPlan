@@ -1,0 +1,196 @@
+﻿/* Vi återanvänder basen från FeedBackModal.razor.css */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    background-color: white;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+    .modal-header h2 {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .modal-header h2 span {
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+
+/* SCROLL-LOGIK */
+.sp-modal-body {
+    max-height: 60vh; /* Något lägre för att få plats med knappar */
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-bottom: 20px;
+}
+
+    .sp-modal-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .sp-modal-body::-webkit-scrollbar-thumb {
+        background-color: #e2e8f0;
+        border-radius: 10px;
+    }
+
+.sp-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* TOGGLE & INPUTS */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #334155;
+    transition: opacity 0.2s;
+}
+
+    .toggle-row.muted {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+.sp-fieldset {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+    .sp-fieldset legend {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+        padding: 0 8px;
+    }
+
+.days-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.day-input-group {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.sp-input.small {
+    width: 60px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-weight: 600;
+}
+
+.remove-day-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    display: flex;
+    padding: 4px;
+}
+
+.add-day-btn {
+    background: #f1f5f9;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #64748b;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* SPARA-KNAPP */
+.save-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+    .save-btn:disabled {
+        background-color: #94a3b8;
+        cursor: not-allowed;
+    }
+
+.status-alert {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+    .status-alert.success {
+        background: #f0fdf4;
+        color: #166534;
+    }
+
+    .status-alert.error {
+        background: #fef2f2;
+        color: #991b1b;
+    }
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
