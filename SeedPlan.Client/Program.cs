@@ -82,6 +82,7 @@ namespace SeedPlan.Client
 
             // Register notificationservice.
             builder.Services.AddScoped<NotificationService>();
+            builder.Services.AddScoped<INotificationSettingsService, NotificationSettingsService>();
             builder.Services.AddCropper();
 
             //Appmode-service

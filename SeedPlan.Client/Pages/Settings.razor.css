@@ -186,7 +186,70 @@ hr {
     margin: 1.5rem 0;
 }
 
-@media (max-width: 480px){
+/* --- Notification modal extras --- */
+.notif-modal {
+    max-width: 480px;
+}
+
+.notif-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px 0;
+    border-top: 1px solid #f1f5f9;
+}
+
+.notif-section-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #64748b;
+    margin: 0;
+}
+
+.notif-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.notif-chip {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+    .notif-chip:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+
+    .notif-chip.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+    }
+
+.muted.small, .ios-note {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.ios-note {
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
+}
+
+@media (max-width: 480px) {
     .settings-modal {
         background: white;
         padding: 2rem;

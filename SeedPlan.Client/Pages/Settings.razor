@@ -2,6 +2,7 @@
 @using SeedPlan.Shared.Models
 @inject IUserProfileService ProfileService
 @inject NotificationService NotificationService
+@inject INotificationSettingsService NotifSettingsService
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject IFeatureService FeatureService
@@ -49,7 +50,7 @@ else
                 </div>
                 <div class="card-text">
                     <div class="title">Aviseringar</div>
-                    <div class="value">@((notificationsEnabled ? "Påslagna" : "Avstängda"))</div>
+                    <div class="value">@(notifSettings.Enabled ? "Påslagna" : "Avstängda")</div>
                 </div>
             </div>
 
@@ -157,15 +158,50 @@ else
 @if (showNotificationsModal)
 {
     <div class="settings-modal-backdrop">
-        <div class="settings-modal">
+        <div class="settings-modal notif-modal">
             <h3>Aviseringar</h3>
+
             <label class="toggle-row">
-                <input type="checkbox" @bind="notificationsEnabled" />
-                <span>Aktivera påminnelser</span>
+                <input type="checkbox" @bind="notifSettings.Enabled" />
+                <span>Aktivera push-aviseringar</span>
             </label>
 
-            <p class="muted">
-                <strong>Viktigt för iPhone-användare:</strong> För att kunna ta emot aviseringar på iOS måste du först spara SeedPlan på din hemskärm (välj Dela-ikonen och sedan "Lägg till på hemskärmen"), samt öppna appen därifrån.
+            @if (notifSettings.Enabled)
+            {
+                <div class="notif-section">
+                    <p class="notif-section-label">Påminn om kommande såddag</p>
+                    <p class="muted small">Välj hur många dagar innan sådfönstret öppnar du vill få en notis.</p>
+                    <div class="notif-chips">
+                        @foreach (var day in new[] { 1, 2, 3, 5, 7, 14 })
+                        {
+                            var d = day;
+                            var active = notifSettings.DaysBeforeSowing.Contains(d);
+                            <button class="notif-chip @(active ? "active" : "")"
+                                    @onclick="() => ToggleDayBeforeSowing(d)">
+                                @d dag@(d == 1 ? "" : "ar")
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <div class="notif-section">
+                    <p class="notif-section-label">Påminn om orörda sådder</p>
+                    <p class="muted small">Skicka en påminnelse om en sådd inte uppdaterats på X dagar.</p>
+                    <div class="notif-chips">
+                        @foreach (var day in new[] { 7, 10, 14, 21, 30 })
+                        {
+                            var d = day;
+                            <button class="notif-chip @(notifSettings.DaysInactiveReminder == d ? "active" : "")"
+                                    @onclick="() => notifSettings.DaysInactiveReminder = d">
+                                @d dagar
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+
+            <p class="muted small ios-note">
+                <strong>iPhone-användare:</strong> Spara SeedPlan på hemskärmen (Dela → "Lägg till på hemskärmen") och öppna appen därifrån för att ta emot aviseringar.
             </p>
 
             <div class="modal-actions">
@@ -190,7 +226,7 @@ else
     private bool showZoneModal;
     private bool showInfoModal;
     private bool showNotificationsModal;
-    private bool notificationsEnabled;
+    private NotificationSettings notifSettings = new();
     private string statusMessage = "";
     private string currentVersion = "";
 
@@ -199,46 +235,31 @@ else
         isLoading = true;
         try
         {
-            var profile = await ProfileService.GetUserProfile();
+            var profileTask = ProfileService.GetUserProfile();
+            var notifTask = NotifSettingsService.GetAsync();
+            var featureTask = FeatureService.GetLatestActiveFeatureAsync();
+
+            await Task.WhenAll(profileTask, notifTask, featureTask);
+
+            var profile = await profileTask;
             if (profile != null)
-            {
                 userProfile = profile;
-            }
             else
             {
                 userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
                 userProfile.GrowingZone = 1;
             }
 
-            // Depending on how your service is implemented. If you use the method we built:
-            var latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
-            currentVersion = latestFeature?.VersionTag ?? "Okänd version";
-        
-            // OR if you implemented your own GetLatestVersionAsync that only returns the string:
-            // currentVersion = await FeatureService.GetLatestVersionAsync();
-
-            // No StateHasChanged is needed here; Blazor does it automatically after OnInitialized
+            notifSettings = await notifTask;
+            currentVersion = (await featureTask)?.VersionTag ?? "Okänd version";
         }
         finally
         {
             isLoading = false;
-            // Inget StateHasChanged behövs här, Blazor gör det automatiskt efter OnInitialized
+            
         }
     }
 
-    // 2. Read JavaScript/LocalStorage AFTER the HTML has rendered
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
-            if (bool.TryParse(stored, out var enabled))
-            {
-                notificationsEnabled = enabled;
-                StateHasChanged(); // Needed here because state changes after first render
-            }
-        }
-    }
     // FROST DATE
     private string GetFrostDateText()
         => userProfile.LastFrostDate.HasValue
@@ -297,14 +318,24 @@ else
         CloseZoneModal();
     }
 
+    private void ToggleDayBeforeSowing(int day)
+    {
+        var list = notifSettings.DaysBeforeSowing.ToList();
+        if (list.Contains(day))
+            list.Remove(day);
+        else
+            list.Add(day);
+        notifSettings.DaysBeforeSowing = list.OrderBy(x => x).ToArray();
+    }
+
     private async Task SaveNotifications()
     {
-        await JS.InvokeVoidAsync("localStorage.setItem", "notifications_enabled", notificationsEnabled.ToString().ToLowerInvariant());
+        await NotifSettingsService.UpsertAsync(notifSettings);
 
-        if (notificationsEnabled)
-        {
+        if (notifSettings.Enabled)
             await NotificationService.SubscribeToPushAsync();
-        }
+        else
+            await NotificationService.UnsubscribeFromPushAsync();
 
         statusMessage = "Aviseringar uppdaterade ✨";
         await Task.Delay(1500);

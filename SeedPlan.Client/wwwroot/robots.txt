@@ -1,7 +1,27 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
+Allow: /guide-preview
+Allow: /om-oss
+Allow: /register
+
+# Authenticated user pages
 Disallow: /profile
 Disallow: /seeds
 Disallow: /sowings
+Disallow: /settings
+Disallow: /guide
 
-Sitemap: https://seedplan.se/sitemap.xml
+# App-specific pages not relevant for search
+Disallow: /planner
+Disallow: /dahliabox-home
+Disallow: /dahlias
+Disallow: /tubers
+
+# Admin
+Disallow: /admin/
+
+# Auth flows
+Disallow: /forgot-password
+Disallow: /update-password
+
+Sitemap: https://seedplan.app/sitemap.xml
