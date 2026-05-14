@@ -7,6 +7,7 @@
     <div class="modal-overlay" @onclick="Close">
         <div class="modal-card detail-card fade-in" @onclick:stopPropagation>
             
+            <!-- HEADER -->
             <div class="card-header">
                 <div class="header-main">
                     <div class="icon-box status-bg-@(Sowing.Status)">
@@ -27,7 +28,6 @@
                         </p>
                     </div>
                 </div>
-                
                 <div class="header-actions">
                     <span class="status-badge">@GetStatusText(Sowing.Status)</span>
                     <button class="action-btn" title="Anteckna/Ändra antal" @onclick="ActivateEditNotesMode">
@@ -48,35 +48,40 @@
                 </div>
             </div>
 
-            @* 2. PROGRESS BAR (TIMELINE is now static - read only) *@
+            <!-- PROGRESS BAR -->
             <div class="progress-container">
                 <div class="progress-line"></div>
                 <div class="progress-steps">
-                    @for (int i = 0; i <= 7; i++)
+                    @foreach (var ev in events.OrderBy(e => e.EventDate))
                     {
-                        var stepStatus = i;
-                        <div class="step @(Sowing.Status >= stepStatus ? "active" : "") @(isStatusUpdating ? "disabled" : "")">
-                            <Blazicon Svg="@GetStatusIcon(stepStatus)" />
+                        var statusVal = int.TryParse(ev.EventType, out var v) ? v : 0;
+                        <div class="step @(selectedHistoryEvent == ev ? "is-selected" : "") @(ev.EventType == "99" ? "failed" : "")"
+                             @onclick="() => selectedHistoryEvent = ev">
+                            <Blazicon Svg="@GetStatusIcon(statusVal)" />
                         </div>
                     }
                 </div>
-                @if (isStatusUpdating && !showStatusInputForm && !isEditingNotes)
-                {
-                    <div class="status-loader">
-                        <Blazicon Svg="Lucide.LoaderCircle" class="spin" /> Uppdaterar...
-                    </div>
-                }
-                
-                @if (!string.IsNullOrWhiteSpace(inlineErrorMessage) && !showStatusInputForm && !isEditingNotes)
-                {
-                    <div class="warning-box" style="margin-top: 1rem; color: #dc2626; border-color: #fca5a5; background: #fef2f2;">
-                        <Blazicon Svg="Lucide.TriangleAlert" />
-                        <span>@inlineErrorMessage</span>
-                    </div>
-                }
             </div>
 
-            @* EDITING SOWING NOTES. *@
+            <!-- EVENT DETAIL PANE -->
+            @if (selectedHistoryEvent != null)
+            {
+                <div class="history-details slide-down">
+                    <button class="close-detail-btn" @onclick="() => selectedHistoryEvent = null">
+                        <Blazicon Svg="Lucide.X" />
+                    </button>
+                    <div class="event-info">
+                        <strong>@GetEventStatusText(selectedHistoryEvent.EventType)</strong>
+                        <span class="date-tag">@selectedHistoryEvent.EventDate.ToString("yyyy-MM-dd")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(selectedHistoryEvent.Notes))
+                    {
+                        <p class="history-notes">@selectedHistoryEvent.Notes</p>
+                    }
+                </div>
+            }
+
+            <!-- EDIT NOTES FORM -->
             @if (isEditingNotes)
             {
                 <div class="add-seed-container slide-down">
@@ -111,58 +116,7 @@
                 </div>
             }
 
-            @* SHOW STATUS INPUT FORM *@
-            @if (showStatusInputForm)
-            {
-                <div class="add-seed-container slide-down">
-                    <div class="form-header">
-                        <h3 style="text-transform: uppercase;">@statusFormTitle</h3>
-                        <button class="text-link" @onclick="CancelStatusTransition">Avbryt</button>
-                    </div>
-                    <div class="form-grid">
-                        @if (pendingTargetStatus == 1)
-                        {
-                            <div class="input-block full">
-                                <label>ANTAL GRODDA PLANTOR</label>
-                                <input type="number" class="form-input" @bind="inputSeedlingCount" min="0" />
-                            </div>
-                        }
-                        @if (pendingTargetStatus == 6)
-                        {
-                            <div class="input-row">
-                                <div class="input-block">
-                                    <label>SKÖRDEVIKT (G)</label>
-                                    <input type="number" class="form-input" @bind="inputHarvestWeightG" min="0" />
-                                </div>
-                                <div class="input-block">
-                                    <label>ANTAL SKÖRDADE</label>
-                                    <input type="number" class="form-input" @bind="inputHarvestCount" min="0" />
-                                </div>
-                            </div>
-                        }
-                        <div class="input-block full">
-                            <label>@(pendingTargetStatus == 99 ? "ORSAK (FRIVILLIGT)" : "ANTECKNING (FRIVILLIGT)")</label>
-                            <textarea class="sp-textarea" @bind="inputStatusNotes" placeholder="..."></textarea>
-                        </div>
-                        @if (!string.IsNullOrWhiteSpace(inlineErrorMessage))
-                        {
-                            <p class="error-msg">@inlineErrorMessage</p>
-                        }
-                    </div>
-                    <button class="save-btn-large" disabled="@isStatusUpdating" @onclick="SubmitStatusTransitionAsync">
-                        @if (isStatusUpdating)
-                        {
-                            <span>Uppdaterar...</span>
-                        }
-                        else
-                        {
-                            <span>Spara status</span>
-                        }
-                    </button>
-                </div>
-            }
-            
-            @* 3. INFOBOXES *@
+            <!-- 3. INFOBOXES -->
             <div class="alerts-section">
                 @if (Sowing.Status == 0)
                 {
@@ -195,47 +149,66 @@
                 }
             </div>
 
-            @* 4. NEW FORM TO "Register new event" *@
+            <!-- REGISTER NEW EVENT FORM -->
+            @if (!isEditingNotes)
+            {
+                <div class="add-seed-container slide-down">
+                    <div class="form-header">
+                        <h3>REGISTRERA NY HÄNDELSE</h3>
+                    </div>
+                    <div class="form-grid">
+                        <div class="input-row" style="display:flex; gap:1rem; flex-wrap: wrap;">
+                            <div style="flex:1; min-width: 150px;">
+                                <label style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 4px; display: block;">HÄNDELSE</label>
+                                <select class="form-input" @bind="newEventStatus" style="width:100%;">
+                                    <option value="1">GRODD</option>
+                                    <option value="2">KARAKTÄRSBLAD</option>
+                                    <option value="3">OMSKOLNING</option>
+                                    <option value="4">AVHÄRDNING</option>
+                                    <option value="5">UTPLANTERAD</option>
+                                    <option value="6">SKÖRDAD</option>
+                                    <option value="99">MISSLYCKAD</option>
+                                </select>
+                            </div>
+                            <div style="flex:1; min-width: 150px;">
+                                <label style="font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 4px; display: block;">DATUM</label>
+                                <input type="date" class="form-input" @bind="newEventDate" style="width:100%;" />
+                            </div>
+                        </div>
 
-            <section class="register-event" style="margin-top:2rem;">
-                <h4>Registrera ny händelse</h4>
-                <div>
-                    <label>Status</label>
-                    <select @bind="newEventStatus">
-                        <option value="0">Sådd</option>
-                        <option value="1">Grodd</option>
-                        <option value="2">Karaktärsblad</option>
-                        <option value="3">Omskolning</option>
-                        <option value="4">Avhärdning</option>
-                        <option value="5">Utplanderad</option>
-                        <option value="6">Skördad</option>
-                        <option value="99">Misslyckad</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Datum</label>
-                    <input type="date" @bind="newEventDate"/>
-                </div>
-                @if (newEventStatus == 1)
-                {
-                    <div>
-                        <label>Antal grodda plantor</label>
-                        <input type="number" @bind="newEventSproutedCount" min="0" />
+                        @if (newEventStatus == 1)
+                        {
+                            <div class="input-block full">
+                                <label>ANTAL GRODDA PLANTOR</label>
+                                <input type="number" class="form-input" @bind="newEventSproutedCount" min="0" />
+                            </div>
+                        }
+
+                        @if (newEventStatus == 6)
+                        {
+                            <div class="input-block full">
+                                <label>SKÖRDEVIKT (gram)</label>
+                                <input type="number" class="form-input" @bind="newEventHarvestWeight" min="0" />
+                            </div>
+                        }
+
+                        <div class="input-block full">
+                            <label>ANTECKNING (FRIVILLIGT)</label>
+                            <textarea class="sp-textarea" @bind="newEventNotes" placeholder="Skriv vad som hände..."></textarea>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(inlineErrorMessage))
+                        {
+                            <p class="error-msg">@inlineErrorMessage</p>
+                        }
                     </div>
-                }
-                @if (newEventStatus == 6)
-                {
-                    <div>
-                        <label>Skördevikt (gram)</label>
-                        <input type="number" @bind="newEventHarvestWeight" min="0" />
-                    </div>
-                }
-                <div>
-                    <label>Anteckningar (valfritt)</label>
-                    <textarea @bind="newEventNotes"></textarea>
+                    <button class="save-btn-large" disabled="@isStatusUpdating" @onclick="SubmitNewEventAsync">
+                        <span>@(isStatusUpdating ? "Registrerar..." : "Spara händelse")</span>
+                    </button>
                 </div>
-                <button @onclick="SubmitNewEventAsync">Spara</button>
-            </section>
+            }
+            
+
+            
         </div>
     </div>
 }
@@ -243,39 +216,46 @@
     [Parameter] public SowingView? Sowing { get; set; }
     [Parameter] public bool IsVisible { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnUpdateNeeded { get; set; } 
+    [Parameter] public EventCallback OnUpdateNeeded { get; set; }
     [Parameter] public EventCallback<SowingView> OnDeleted { get; set; }
 
-    private bool isStatusUpdating;
+    private SowingEvent? selectedHistoryEvent;
+    private List<SowingEvent> events = new();
+    private bool eventsLoaded, isLoadingEvents, isStatusUpdating;
     private string? inlineErrorMessage;
 
     private bool isEditingNotes;
     private int? editActiveCount;
     private string? editNotes;
 
-    private bool showStatusInputForm;
-    private int pendingTargetStatus;
-    private string statusFormTitle = string.Empty;
-    private int? inputSeedlingCount;
-    private int? inputHarvestWeightG;
-    private int? inputHarvestCount;
-    private string? inputStatusNotes;
-
-    // --- VARIABLES TO REGISTER NEW EVENT ---
-    private int newEventStatus = 0;
+    // New event input state
+    private int newEventStatus = 1;
     private DateTime newEventDate = DateTime.Today;
     private string newEventNotes = "";
     private int? newEventSproutedCount;
     private int? newEventHarvestWeight;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        // Standardvalues for new event-form
-        newEventDate = DateTime.Today;
-        newEventStatus = 0;
-        newEventNotes = "";
-        newEventSproutedCount = null;
-        newEventHarvestWeight = null;
+        if (IsVisible && Sowing != null)
+        {
+            selectedHistoryEvent = null;
+            newEventDate = DateTime.Today;
+            newEventStatus = 1;
+            newEventNotes = "";
+            newEventSproutedCount = null;
+            newEventHarvestWeight = null;
+            await LoadEvents();
+        }
+    }
+
+    private async Task LoadEvents()
+    {
+        if (Sowing == null) return;
+        isLoadingEvents = true;
+        events = await SowingService.GetSowingEventsAsync(Sowing.Id);
+        isLoadingEvents = false;
+        eventsLoaded = true;
     }
 
     private async Task SubmitNewEventAsync()
@@ -296,104 +276,31 @@
             });
 
             Sowing.Status = newEventStatus;
-            // Återställ fält
+            // Reset form
             newEventNotes = "";
             newEventSproutedCount = null;
             newEventHarvestWeight = null;
             newEventDate = DateTime.Today;
             await OnUpdateNeeded.InvokeAsync();
         }
-        catch (Exception ex)
+        catch
         {
             inlineErrorMessage = "Kunde inte spara händelsen.";
-            Console.WriteLine(ex.Message);
         }
         finally
         {
             isStatusUpdating = false;
+            selectedHistoryEvent = null;
+            await LoadEvents();
         }
     }
-
-    // Earlier backend & event history removed 
 
     private async Task UpdateStatus(int newStatus)
     {
-        // Keep logic when change in header-UI
+        // For future-proofing if more transition logic is needed; currently, this delegates to immediate status update (no sub-dialog).
         if (Sowing == null || Sowing.Status == newStatus || isStatusUpdating) return;
         inlineErrorMessage = null;
-        if (newStatus == (int)SowingStatus.Germinated ||
-            newStatus == (int)SowingStatus.Harvested ||
-            newStatus == (int)SowingStatus.Failed)
-        {
-            ActivateStatusInputMode(newStatus);
-            return;
-        }
         await ExecuteImmediateStatusUpdate(newStatus);
-    }
-
-    private void ActivateStatusInputMode(int targetStatus)
-    {
-        isEditingNotes = false;
-        pendingTargetStatus = targetStatus;
-        inputSeedlingCount = null;
-        inputHarvestWeightG = null;
-        inputHarvestCount = null;
-        inputStatusNotes = string.Empty;
-
-        statusFormTitle = targetStatus switch
-        {
-            1 => "Hur många grodde?",
-            6 => "Registrera skörd",
-            99 => "Varför misslyckades sådden?",
-            _ => "Uppdatera status"
-        };
-        showStatusInputForm = true;
-    }
-
-    private void CancelStatusTransition()
-    {
-        showStatusInputForm = false;
-        inlineErrorMessage = null;
-    }
-
-    private async Task SubmitStatusTransitionAsync()
-    {
-        if (Sowing == null) return;
-        isStatusUpdating = true;
-        inlineErrorMessage = null;
-        try
-        {
-            await SowingService.UpdateSowingStatusAsync(new UpdateSowingStatusRequest
-            {
-                SowingId = Sowing.Id,
-                TargetStatus = pendingTargetStatus,
-                EventDate = DateTime.Now,
-                SeedlingCount = inputSeedlingCount,
-                HarvestWeightG = inputHarvestWeightG,
-                HarvestCount = inputHarvestCount,
-                Notes = inputStatusNotes
-            });
-
-            Sowing.Status = pendingTargetStatus;
-            showStatusInputForm = false;
-            await OnUpdateNeeded.InvokeAsync();
-        }
-        catch (InvalidOperationException ex)
-        {
-            inlineErrorMessage = $"Ogiltig statusövergång: {ex.Message}";
-        }
-        catch (ArgumentException ex)
-        {
-            inlineErrorMessage = ex.Message;
-        }
-        catch (Exception)
-        {
-            inlineErrorMessage = "Kunde inte uppdatera status på grund av serverfel. Försök igen.";
-        }
-        finally
-        {
-            isStatusUpdating = false;
-        }
     }
 
     private async Task ExecuteImmediateStatusUpdate(int newStatus)
@@ -432,11 +339,9 @@
         }
     }
 
-    // --- Logic for notes. ---
-
+    // --- Logic for notes
     private void ActivateEditNotesMode()
     {
-        showStatusInputForm = false;
         if (Sowing == null) return;
         editActiveCount = Sowing.Quantity;
         editNotes = string.Empty;
@@ -457,7 +362,6 @@
         inlineErrorMessage = null;
         try
         {
-            // Same call to Sowingservice
             await SowingService.UpdateSowingProgressAsync(new UpdateSowingProgressRequest
             {
                 SowingId = Sowing.Id,
@@ -466,13 +370,12 @@
                 EventDate = DateTime.Now
             });
 
-            // Update UI
             if (editActiveCount.HasValue)
             {
                 Sowing.Quantity = editActiveCount.Value;
             }
-            isEditingNotes = false; // Close form inside modal
-            await OnUpdateNeeded.InvokeAsync(); // Tells sowings.razor to update list.
+            isEditingNotes = false;
+            await OnUpdateNeeded.InvokeAsync();
         }
         catch (ArgumentException ex)
         {
@@ -502,8 +405,7 @@
         }
     }
 
-    //---Helpers
-
+    // --- Helpers ---
     private string GetStatusText(int status) => status switch
     {
         0 => "SÅDD",
@@ -532,8 +434,24 @@
         _ => Lucide.Sprout
     };
 
+    private string GetEventStatusText(string status) => status switch
+    {
+        "0" => "Sådd",
+        "1" => "Grodd",
+        "2" => "Karaktärsblad",
+        "3" => "Omskolad",
+        "4" => "Avhärdad",
+        "5" => "Utplanterad",
+        "6" => "Skördad",
+        "7" => "Avslutad",
+        "99" => "Misslyckad",
+        "progress_note" => "Anteckning",
+        _ => "OKÄND"
+    };
+
     private Task Close()
     {
+        selectedHistoryEvent = null;
         return OnClose.InvokeAsync();
     }
 }

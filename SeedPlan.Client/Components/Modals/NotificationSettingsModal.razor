@@ -52,6 +52,57 @@
                         </div>
                     </fieldset>
 
+                    @* ÖVRIGA PÅMINNELSER *@
+                    <fieldset class="sp-fieldset" disabled="@(!settings.Enabled)">
+                        <legend>PÅMINNELSER (DAGAR)</legend>
+                        <div class="days-grid vertical">
+
+                            <div class="reminder-row">
+                                <label>Inaktiv påminnelse</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysInactiveReminder" min="1" />
+                                <span class="reminder-label">dagar utan notis</span>
+                            </div>
+
+                            <div class="reminder-row">
+                                <label>Sådd är klar</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysSownReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Groning skedde</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysGerminatedReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Får sina första karaktärsblad</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysTrueLeavesReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Omskolas</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysPottedOnReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Avhärdas</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysHardeningOffReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Planteras ut</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysPlantedOutReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                        </div>
+                    </fieldset>
+
                 </div>
             </div>
 
