@@ -29,11 +29,17 @@ namespace SeedPlan.Shared.Helpers
                 return false;
             }
 
-            var current = (SowingStatus)currentStatus;
-            var target = (SowingStatus)targetStatus;
+            // Always allow to mark as failed (99)
+            if (targetStatus == (int)SowingStatus.Failed) return true;
 
-            return AllowedTransitions.TryGetValue(current, out var allowed) &&
-                   allowed.Contains(target);
+            // If sowing already is finished or failed we don't allow any new events without recovery first.
+            if (currentStatus == (int)SowingStatus.Finished || currentStatus == (int)SowingStatus.Failed) return false;
+
+            // Allow to repeat/stay on pottedon multiple times
+            if (currentStatus == (int)SowingStatus.PottedOn && targetStatus == (int)SowingStatus.PottedOn) return true;
+
+            // Allow all transitions that moves forwad in the growing process (or directly to finished).
+            return targetStatus > currentStatus || targetStatus == (int)SowingStatus.Finished;
         }
     }
 }

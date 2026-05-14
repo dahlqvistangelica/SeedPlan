@@ -158,9 +158,10 @@
     position: relative;
     z-index: 2;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; 
+    gap: 10px; 
+    padding-bottom: 16px;
 }
-
 .step {
     width: 44px;
     height: 44px;
@@ -204,6 +205,13 @@
     justify-content: center;
     gap: 6px;
 }
+.step.is-selected {
+    border-color: #0ea5e9 !important;
+    background: #e0f2fe !important;
+    box-shadow: 0 0 0 4px #bae6fd;
+    color: #0ea5e9 !important;
+    transform: scale(1.20);
+}
 
 /* --- 3. INFO/VARNINGSBOXAR --- */
 .alerts-section {
@@ -233,6 +241,7 @@
     color: #c2410c;
     font-size: 0.85rem;
 }
+
 
 /* --- 4. HISTORIK --- */
 .events-section {
@@ -297,6 +306,29 @@
     color: #475569;
     font-size: 0.9rem;
     margin-top: 0.25rem;
+}
+
+.history-details {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 14px;
+    margin: 1.1rem 0 1.2rem 0;
+    padding: 1rem 1.5rem 1rem 2.5rem;
+    position: relative;
+    font-size: 1rem;
+    box-shadow: 0 2px 12px rgba(59,130,246,.09);
+}
+
+.close-detail-btn {
+    position: absolute;
+    left: 1rem;
+    top: 1.1rem;
+    background: none;
+    border: none;
+    color: #0284c7;
+    font-size: 1.25rem;
+    cursor: pointer;
+    font-weight: bold;
 }
 /* ==========================================================================
    INTERNA FORMULÄR (Matchar PlantDetailModal 'LÄGG TILL FRÖ')

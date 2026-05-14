@@ -1,0 +1,193 @@
+﻿@using SeedPlan.Shared.Models
+@inject INotificationSettingsService NotificationSettingsService
+
+@if (IsOpen)
+{
+    @* Vi använder samma overlay-klass som i FeedbackModal *@
+    <div class="modal-overlay" @onclick="() => IsOpenChanged.InvokeAsync(false)">
+        <div class="modal-card fade-in" @onclick:stopPropagation>
+            
+            <header class="modal-header">
+                <h2>Aviseringar <span><Blazicon Svg="Lucide.BellRing" /></span></h2>
+            </header>
+
+            @* Denna div gör att innehållet blir scrollbart om det blir för långt *@
+            <div class="sp-modal-body">
+                <div class="sp-form-content">
+                    
+                    @* HUVUDSTRÖMBRYTARE *@
+                    <div class="sp-input-block">
+                        <label class="toggle-row">
+                            <input type="checkbox" @bind="settings.Enabled" />
+                            <span class="toggle-text">Aktivera alla aviseringar</span>
+                        </label>
+                    </div>
+
+                    @* SPECIFIK SWITCH FÖR SÅDD - Inaktiveras om huvudbrytaren är av *@
+                    <div class="sp-input-block">
+                        <label class="toggle-row @(settings.Enabled ? "" : "muted")">
+                            <input type="checkbox" @bind="settings.SowingNotificationsEnabled" disabled="@(!settings.Enabled)" />
+                            <span class="toggle-text">Aktivera sådd-notiser</span>
+                        </label>
+                    </div>
+
+                    @* DAGAR FÖRE SÅDD - Inaktiveras om någon av brytarna ovan är av *@
+                    <fieldset class="sp-fieldset" disabled="@(!settings.Enabled || !settings.SowingNotificationsEnabled)">
+                        <legend>PÅMINNELSER FÖRE SÅDD (DAGAR)</legend>
+                        <div class="days-grid">
+                            @for (int i = 0; i < settings.DaysBeforeSowing.Length; i++)
+                            {
+                                var index = i;
+                                <div class="day-input-group">
+                                    <input type="number" class="sp-input small"
+                                           @bind="settings.DaysBeforeSowing[index]" min="1" />
+                                    <button type="button" class="remove-day-btn" @onclick="() => RemoveBeforeSowingDay(index)">
+                                        <Blazicon Svg="Lucide.X" />
+                                    </button>
+                                </div>
+                            }
+                            <button type="button" class="add-day-btn" @onclick="AddBeforeSowingDay">
+                                <Blazicon Svg="Lucide.Plus" /> Lägg till dag
+                            </button>
+                        </div>
+                    </fieldset>
+
+                    @* ÖVRIGA PÅMINNELSER *@
+                    <fieldset class="sp-fieldset" disabled="@(!settings.Enabled)">
+                        <legend>PÅMINNELSER (DAGAR)</legend>
+                        <div class="days-grid vertical">
+
+                            <div class="reminder-row">
+                                <label>Inaktiv påminnelse</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysInactiveReminder" min="1" />
+                                <span class="reminder-label">dagar utan notis</span>
+                            </div>
+
+                            <div class="reminder-row">
+                                <label>Sådd är klar</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysSownReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Groning skedde</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysGerminatedReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Får sina första karaktärsblad</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysTrueLeavesReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Omskolas</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysPottedOnReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Avhärdas</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysHardeningOffReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                            <div class="reminder-row">
+                                <label>Planteras ut</label>
+                                <input type="number" class="sp-input small"
+                                       @bind="settings.DaysPlantedOutReminder" min="1" />
+                                <span class="reminder-label">dagar</span>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                </div>
+            </div>
+
+            @* STATUSMEDDELANDE *@
+            @if (!string.IsNullOrEmpty(statusMessage))
+            {
+                <div class="status-alert @(statusMessage.Contains("Kunde inte") ? "error" : "success")">
+                    @statusMessage
+                </div>
+            }
+
+            @* FOOTER / SPARA *@
+            <footer class="modal-footer">
+                <button class="save-btn" disabled="@saving" @onclick="OnSaveClicked">
+                    @if (saving)
+                    {
+                        <Blazicon Svg="Lucide.LoaderCircle" class="spin" /> <span>Sparar...</span>
+                    }
+                    else
+                    {
+                        <Blazicon Svg="Lucide.Save" /> <span>Spara inställningar</span>
+                    }
+                </button>
+            </footer>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private NotificationSettings settings = new();
+    private bool saving = false;
+    private string statusMessage = "";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen)
+        {
+            settings = await NotificationSettingsService.GetAsync();
+            // Ev. nulldefault
+            if (settings.DaysBeforeSowing == null || settings.DaysBeforeSowing.Length == 0)
+                settings.DaysBeforeSowing = new int[] { 7, 2 };
+            StateHasChanged();
+        }
+    }
+
+    private void AddBeforeSowingDay()
+    {
+        var list = settings.DaysBeforeSowing.ToList();
+        list.Add(3);
+        settings.DaysBeforeSowing = list.ToArray();
+    }
+    private void RemoveBeforeSowingDay(int idx)
+    {
+        var list = settings.DaysBeforeSowing.ToList();
+        if (idx >= 0 && idx < list.Count)
+            list.RemoveAt(idx);
+        settings.DaysBeforeSowing = list.ToArray();
+    }
+
+    private async Task OnSaveClicked()
+    {
+        saving = true;
+        statusMessage = "";
+        try
+        {
+            await NotificationSettingsService.UpsertAsync(settings);
+            statusMessage = "Notisinställningar sparade!";
+            await IsOpenChanged.InvokeAsync(false);
+        }
+        catch (Exception ex)
+        {
+            statusMessage = "Kunde inte spara: " + ex.Message;
+        }
+        finally
+        {
+            saving = false;
+        }
+    }
+
+    private async Task OnCancelClicked()
+    {
+        statusMessage = "";
+        await IsOpenChanged.InvokeAsync(false);
+    }
+}

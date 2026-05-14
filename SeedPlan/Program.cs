@@ -184,45 +184,34 @@ namespace SeedPlan
 
             // Sitemap
 
-            app.MapGet("/sitemap.xml", async (IPlantLibraryService plantService) =>
+            app.MapGet("/sitemap.xml", () =>
             {
-                var plants = await plantService.GetAllPlantsAsync();
+                const string baseUrl = "https://seedplan.se";
+                var today = DateTime.UtcNow.ToString("yyyy-MM-dd");
+
+                static string Url(string loc, string lastmod, string changefreq, string priority) =>
+                    $"<url><loc>{loc}</loc><lastmod>{lastmod}</lastmod><changefreq>{changefreq}</changefreq><priority>{priority}</priority></url>";
 
                 var xml = new StringBuilder();
                 xml.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
                 xml.AppendLine("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
 
-                // Startsida
-                xml.AppendLine("<url>");
-                xml.AppendLine($"<loc>https://seedplan.se/</loc>");
-                xml.AppendLine($"<lastmod>{DateTime.UtcNow:yyyy-MM-dd}</lastmod>");
-                xml.AppendLine("<priority>1.0</priority>");
-                xml.AppendLine("</url>");
+                // Public landing / about
+                xml.AppendLine(Url($"{baseUrl}/", today, "weekly", "1.0"));
 
-                // Guide
-                xml.AppendLine("<url>");
-                xml.AppendLine($"<loc>https://seedplan.se/guide</loc>");
-                xml.AppendLine("<priority>0.8</priority>");
-                xml.AppendLine("</url>");
+                // Public plant guide (most SEO-valuable page for logged-out users)
+                xml.AppendLine(Url($"{baseUrl}/guide-preview", today, "weekly", "0.9"));
 
-                // Comment translated to English.
-                foreach (var plant in plants.Take(100))
-                {
-                    xml.AppendLine("<url>");
-                    xml.AppendLine($"<loc>https://seedplan.se/guide/{SlugifyPlantName(plant.PlantName)}</loc>");
-                    xml.AppendLine("<priority>0.6</priority>");
-                    xml.AppendLine("</url>");
-                }
+                // About page
+                xml.AppendLine(Url($"{baseUrl}/om-oss", "2026-04-01", "monthly", "0.7"));
+
+                // Sign-up CTA
+                xml.AppendLine(Url($"{baseUrl}/register", "2026-04-01", "monthly", "0.6"));
 
                 xml.AppendLine("</urlset>");
 
                 return Results.Content(xml.ToString(), "application/xml");
             });
-
-            string SlugifyPlantName(string name) =>
-                name.ToLower()
-                    .Replace("å", "a").Replace("ä", "a").Replace("ö", "o")
-                    .Replace(" ", "-");
 
 
             // Map components and render modes

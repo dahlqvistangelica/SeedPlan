@@ -31,72 +31,88 @@ interface PushSubscriptionRow {
     subscription_json: string
 }
 
+interface NotificationSettingsRow {
+    user_id: string
+    enabled: boolean
+    days_inactive_reminder: number
+}
+
 function getDaysStale(statusUpdatedAt: string | null, sownDate: string): number {
     const lastUpdate = statusUpdatedAt ? new Date(statusUpdatedAt) : new Date(sownDate)
     const now = new Date()
     return Math.floor((now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-function getWarning(status: number, days: number): string | null {
+function getStaleSowingMessage(status: number, days: number, plantName: string): string | null {
     switch (status) {
-        case 0: return days > 10 ? `Has not germinated for ${days} days — are the growth conditions, moisture, and light correct?` : null
-        case 1: return days > 14 ? `Has been in the Germination stage for ${days} days — check the characteristics sheet?` : null
-        case 2: return days > 21 ? `Has had characteristic leaves for ${days} days — time to repot?` : null
-        case 3: return days > 14 ? `Repotted ${days} days ago — time to start hardening off?` : null
-        case 4: return days > 14 ? `Hardening off for ${days} days — ready to plant out?` : null
-        case 5: return days > 45 ? `Planted out for ${days} days — time to register harvest?` : null
+        case 0: return `${plantName}: Har inte grott på ${days} dagar — kontrollera temperatur, fukt och ljus?`
+        case 1: return `${plantName}: Groddstadiet i ${days} dagar — dags att kolla karaktärsblad?`
+        case 2: return `${plantName}: Karaktärsblad i ${days} dagar — dags att skolning?`
+        case 3: return `${plantName}: Omskolad för ${days} dagar sedan — dags att börja avhärda?`
+        case 4: return `${plantName}: Avhärdas i ${days} dagar — redo att plantera ut?`
+        case 5: return `${plantName}: Utplanterad för ${days} dagar sedan — dags att registrera skörd?`
         default: return null
     }
 }
 
 Deno.serve(async (req) => {
-    // Handle CORS preflight
     if (req.method === 'OPTIONS') {
         return new Response(null, { headers: corsHeaders })
     }
 
     try {
-        const { data: sowings, error: sowingsError } = await supabase
-            .from('v_user_sowings')
-            .select('id, user_id, plant_name, status, status_updated_at, sown_date')
-            .lte('status', 6)
+        const [sowingsResult, subscriptionsResult, settingsResult] = await Promise.all([
+            supabase
+                .from('v_user_sowings')
+                .select('id, user_id, plant_name, status, status_updated_at, sown_date')
+                .lte('status', 6),
+            supabase
+                .from('push_subscriptions')
+                .select('user_id, subscription_json'),
+            supabase
+                .from('notification_settings')
+                .select('user_id, enabled, days_inactive_reminder')
+        ])
 
-        if (sowingsError) throw sowingsError
+        if (sowingsResult.error) throw sowingsResult.error
+        if (subscriptionsResult.error) throw subscriptionsResult.error
+        // settings errors are non-fatal — users without a row get defaults
 
-        const { data: subscriptions, error: subsError } = await supabase
-            .from('push_subscriptions')
-            .select('user_id, subscription_json')
-
-        if (subsError) throw subsError
+        const sowings = sowingsResult.data as SowingRow[]
+        const subscriptions = subscriptionsResult.data as PushSubscriptionRow[]
+        const settingsByUser = new Map<string, NotificationSettingsRow>(
+            ((settingsResult.data ?? []) as NotificationSettingsRow[]).map(s => [s.user_id, s])
+        )
 
         const sowingsByUser = new Map<string, SowingRow[]>()
-        for (const sowing of sowings as SowingRow[]) {
-            if (!sowingsByUser.has(sowing.user_id)) {
-                sowingsByUser.set(sowing.user_id, [])
-            }
+        for (const sowing of sowings) {
+            if (!sowingsByUser.has(sowing.user_id)) sowingsByUser.set(sowing.user_id, [])
             sowingsByUser.get(sowing.user_id)!.push(sowing)
         }
 
         let notificationsSent = 0
 
-        for (const sub of subscriptions as PushSubscriptionRow[]) {
-            const userSowings = sowingsByUser.get(sub.user_id) || []
+        for (const sub of subscriptions) {
+            // Respect per-user notification settings (default: enabled, 14-day threshold)
+            const settings = settingsByUser.get(sub.user_id)
+            if (settings && !settings.enabled) continue
+
+            const inactiveThreshold = settings?.days_inactive_reminder ?? 14
+
+            const userSowings = sowingsByUser.get(sub.user_id) ?? []
             const staleSowings = userSowings.filter(s => {
                 const days = getDaysStale(s.status_updated_at, s.sown_date)
-                return getWarning(s.status, days) !== null
+                return days >= inactiveThreshold && getStaleSowingMessage(s.status, days, s.plant_name) !== null
             })
 
             if (staleSowings.length === 0) continue
 
             const subscription = JSON.parse(sub.subscription_json)
-
             const payload = JSON.stringify({
-                title: `🌱 ${staleSowings.length} seedlings need attention`,
+                title: `🌱 ${staleSowings.length} sådd${staleSowings.length === 1 ? '' : 'er'} behöver uppmärksamhet`,
                 body: staleSowings
-                    .map(s => {
-                        const days = getDaysStale(s.status_updated_at, s.sown_date)
-                        return `${s.plant_name}: ${getWarning(s.status, days)}`
-                    })
+                    .slice(0, 3)
+                    .map(s => getStaleSowingMessage(s.status, getDaysStale(s.status_updated_at, s.sown_date), s.plant_name))
                     .join('\n'),
                 url: '/sowings'
             })
@@ -104,14 +120,10 @@ Deno.serve(async (req) => {
             try {
                 await webpush.sendNotification(subscription, payload)
                 notificationsSent++
-                console.log(`Notification sent to user ${sub.user_id}`)
             } catch (e) {
                 console.error(`Could not send notification to ${sub.user_id}:`, e)
                 if (e.statusCode === 410) {
-                    await supabase
-                        .from('push_subscriptions')
-                        .delete()
-                        .eq('user_id', sub.user_id)
+                    await supabase.from('push_subscriptions').delete().eq('user_id', sub.user_id)
                 }
             }
         }

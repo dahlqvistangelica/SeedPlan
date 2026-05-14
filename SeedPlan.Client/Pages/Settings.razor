@@ -1,7 +1,9 @@
 ﻿@page "/settings"
 @using SeedPlan.Shared.Models
+@using SeedPlan.Client.Components.Modals
 @inject IUserProfileService ProfileService
 @inject NotificationService NotificationService
+@inject INotificationSettingsService NotifSettingsService
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 @inject IFeatureService FeatureService
@@ -48,8 +50,8 @@ else
                     <Blazicon Svg="Lucide.Bell" />
                 </div>
                 <div class="card-text">
-                    <div class="title">Aviseringar</div>
-                    <div class="value">@((notificationsEnabled ? "Påslagna" : "Avstängda"))</div>
+                    <span class="title">Aviseringsinställningar</span>
+                    <div class="value">@(notifSettings.Enabled ? "Påslagna" : "Avstängda"), Hantera påminnelser och aviseringar.</div>
                 </div>
             </div>
 
@@ -154,34 +156,8 @@ else
     </div>
 }
 
-@if (showNotificationsModal)
-{
-    <div class="settings-modal-backdrop">
-        <div class="settings-modal">
-            <h3>Aviseringar</h3>
-            <label class="toggle-row">
-                <input type="checkbox" @bind="notificationsEnabled" />
-                <span>Aktivera påminnelser</span>
-            </label>
-
-            <p class="muted">
-                <strong>Viktigt för iPhone-användare:</strong> För att kunna ta emot aviseringar på iOS måste du först spara SeedPlan på din hemskärm (välj Dela-ikonen och sedan "Lägg till på hemskärmen"), samt öppna appen därifrån.
-            </p>
-
-            <div class="modal-actions">
-                <button class="btn-secondary" @onclick="CloseNotificationsModal">Avbryt</button>
-                <button class="btn-primary" @onclick="SaveNotifications">Spara</button>
-            </div>
-
-            @if (!string.IsNullOrWhiteSpace(statusMessage))
-            {
-                <div class="status-alert">@statusMessage</div>
-            }
-        </div>
-    </div>
-}
-
 <InfoModal @bind-IsVisible="showInfoModal" />
+<NotificationSettingsModal @bind-IsOpen="showNotificationsModal" />
 
 @code {
     private bool isLoading = true;
@@ -189,8 +165,8 @@ else
     private bool showFrostModal;
     private bool showZoneModal;
     private bool showInfoModal;
-    private bool showNotificationsModal;
-    private bool notificationsEnabled;
+    private bool showNotificationsModal = false;
+    private NotificationSettings notifSettings = new();
     private string statusMessage = "";
     private string currentVersion = "";
 
@@ -199,46 +175,31 @@ else
         isLoading = true;
         try
         {
-            var profile = await ProfileService.GetUserProfile();
+            var profileTask = ProfileService.GetUserProfile();
+            var notifTask = NotifSettingsService.GetAsync();
+            var featureTask = FeatureService.GetLatestActiveFeatureAsync();
+
+            await Task.WhenAll(profileTask, notifTask, featureTask);
+
+            var profile = await profileTask;
             if (profile != null)
-            {
                 userProfile = profile;
-            }
             else
             {
                 userProfile.LastFrostDate = new DateTime(DateTime.Now.Year, 5, 15);
                 userProfile.GrowingZone = 1;
             }
 
-            // Depending on how your service is implemented. If you use the method we built:
-            var latestFeature = await FeatureService.GetLatestActiveFeatureAsync();
-            currentVersion = latestFeature?.VersionTag ?? "Okänd version";
-        
-            // OR if you implemented your own GetLatestVersionAsync that only returns the string:
-            // currentVersion = await FeatureService.GetLatestVersionAsync();
-
-            // No StateHasChanged is needed here; Blazor does it automatically after OnInitialized
+            notifSettings = await notifTask;
+            currentVersion = (await featureTask)?.VersionTag ?? "Okänd version";
         }
         finally
         {
             isLoading = false;
-            // Inget StateHasChanged behövs här, Blazor gör det automatiskt efter OnInitialized
+            
         }
     }
 
-    // 2. Read JavaScript/LocalStorage AFTER the HTML has rendered
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var stored = await JS.InvokeAsync<string?>("localStorage.getItem", "notifications_enabled");
-            if (bool.TryParse(stored, out var enabled))
-            {
-                notificationsEnabled = enabled;
-                StateHasChanged(); // Needed here because state changes after first render
-            }
-        }
-    }
     // FROST DATE
     private string GetFrostDateText()
         => userProfile.LastFrostDate.HasValue
@@ -259,12 +220,6 @@ else
     private void CloseZoneModal()
     {
         showZoneModal = false;
-        statusMessage = "";
-    }
-
-    private void CloseNotificationsModal()
-    {
-        showNotificationsModal = false;
         statusMessage = "";
     }
 
@@ -295,20 +250,6 @@ else
         statusMessage = "Växtzon uppdaterad ✨";
         await Task.Delay(1500);
         CloseZoneModal();
-    }
-
-    private async Task SaveNotifications()
-    {
-        await JS.InvokeVoidAsync("localStorage.setItem", "notifications_enabled", notificationsEnabled.ToString().ToLowerInvariant());
-
-        if (notificationsEnabled)
-        {
-            await NotificationService.SubscribeToPushAsync();
-        }
-
-        statusMessage = "Aviseringar uppdaterade ✨";
-        await Task.Delay(1500);
-        CloseNotificationsModal();
     }
 
     private void NavigateToProfile()
