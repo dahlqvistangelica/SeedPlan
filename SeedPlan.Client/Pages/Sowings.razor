@@ -189,12 +189,18 @@
             .OrderBy(s => s.SownDate)
             .GroupBy(s => s.SownDate.ToString("yyyy-MM-dd"));
         }
+        if(currentGrouping == "hardiness")
+        {
+            return filtreredList
+            .OrderBy(s => s.HardinessLevel)
+            .GroupBy(s => GetHardinessString(s.HardinessLevel));
+        }
         return filtreredList
             .OrderByDescending(s => s.SownDate)
             .GroupBy(s => "");
     }
 
- 
+
     /// <summary>
     /// Converts a numerical status code into its corresponding localized display text.
     /// </summary>
@@ -213,4 +219,7 @@
         99 => "MISSLYCKAD",
         _ => "OKÄND"
     };
+
+    private string GetHardinessString(int level) => level switch { 0 => "Känslig", 1 => "Halvhärdig", 2 => "Härdig", _ => "" };
+
 }

@@ -54,5 +54,7 @@ namespace SeedPlan.Shared.Models.ViewModels
 
         [Column("batch_number")]
         public int BatchNumber { get; set; }
+        [Column("hardiness_level")]
+        public int HardinessLevel { get; set; }
     }
 }
