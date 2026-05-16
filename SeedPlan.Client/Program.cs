@@ -60,6 +60,7 @@ namespace SeedPlan.Client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddScoped<FeedbackModalService>();
             builder.Services.AddScoped<GardenPlanService>();
+            builder.Services.AddScoped<NotificationSettingsService>();
             
 
             // 3. Blazor's built-in security

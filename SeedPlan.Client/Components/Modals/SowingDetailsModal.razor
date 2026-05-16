@@ -1,6 +1,7 @@
 ﻿﻿@using SeedPlan.Shared.Models
 @inject IUserSowingService SowingService
 @inject IJSRuntime JS
+@inject NotificationSettingsService NotificationSettingsService
 
 @if (IsVisible && Sowing != null)
 {
@@ -138,13 +139,15 @@
                 }
 
                 @{
-                    var warning = SowingHelper.GetStaleWarning(Sowing.Status, Sowing.StatusUpdatedAt, Sowing.SownDate);
+                    var warning = SowingHelper.GetStaleWarning(Sowing.Status, Sowing.StatusUpdatedAt, Sowing.SownDate, notificationSettings);
+                    var plantOut = SowingHelper.GetPlantOutWarning(Sowing, Sowing.SownDate);
                 }
-                @if (warning.show)
+                @if (warning.show || plantOut.show)
                 {
                     <div class="warning-box">
                         <Blazicon Svg="Lucide.TriangleAlert" />
                         <span>@warning.message</span>
+                        <span>@plantOut.message</span>
                     </div>
                 }
             </div>
@@ -218,6 +221,8 @@
     [Parameter] public EventCallback OnClose { get; set; }
     [Parameter] public EventCallback OnUpdateNeeded { get; set; }
     [Parameter] public EventCallback<SowingView> OnDeleted { get; set; }
+    private NotificationSettings notificationSettings = new();
+    private Plant plant = new();
 
     private SowingEvent? selectedHistoryEvent;
     private List<SowingEvent> events = new();
@@ -237,17 +242,19 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if (IsVisible && Sowing != null)
-        {
-            selectedHistoryEvent = null;
-            newEventDate = DateTime.Today;
-            newEventStatus = 1;
-            newEventNotes = "";
-            newEventSproutedCount = null;
-            newEventHarvestWeight = null;
-            await LoadEvents();
-        }
+            notificationSettings = await NotificationSettingsService.GetAsync();
+            if (IsVisible && Sowing != null)
+            {
+                selectedHistoryEvent = null;
+                newEventDate = DateTime.Today;
+                newEventStatus = 1;
+                newEventNotes = "";
+                newEventSproutedCount = null;
+                newEventHarvestWeight = null;
+                await LoadEvents();
+            }
     }
+    
 
     private async Task LoadEvents()
     {

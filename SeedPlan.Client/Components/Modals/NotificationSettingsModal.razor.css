@@ -112,8 +112,8 @@
     padding: 4px;
 }
 
-.sp-input.small {
-    width: 60px;
+.sp-input-small {
+    width: 120px;
     border: none;
     background: transparent;
     text-align: center;

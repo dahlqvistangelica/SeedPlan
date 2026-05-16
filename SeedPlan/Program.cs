@@ -49,6 +49,7 @@ namespace SeedPlan
             builder.Services.AddScoped<IUserDahliaService, UserDahliaService>();
             builder.Services.AddScoped<IDahliaService, DahliaService>();
             builder.Services.AddScoped<IFeatureService, FeatureService>();
+            builder.Services.AddScoped<NotificationSettingsService>();
             // 4. THE NEW AUTH ARCHITECTURE (copied from Client)
             builder.Services.AddScoped<SupabaseAuthStateProvider>();
 

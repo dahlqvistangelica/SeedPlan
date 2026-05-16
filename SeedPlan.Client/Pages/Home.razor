@@ -10,6 +10,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject NotificationService NotificationService
+@inject NotificationSettingsService NotificationSettingsService
 @inject AppState AppState
 
 <SeoHead Title="Såkalender & Fröhantering - SeedPlan"
@@ -32,7 +33,7 @@
                 <div class="notification-list">
                     @foreach (var sowing in staleSowings)
                     {
-                        var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate);
+                        var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate, notifSettings);
                         <div class="notification-card" @onclick='() => Nav.NavigateTo("/sowings")'>
                             <div class="notification-icon">
                                 <Blazicon Svg="Lucide.TriangleAlert" />
@@ -210,6 +211,7 @@
     private List<Sowing> activeSowings = new();
     private List<PlantSowingView> sowingSuggestions = new();
     private int countGerminated, countRepotted, countAcclimated, countPlantedOut, countHarvested;
+    private NotificationSettings notifSettings = new();
 
     private List<PlantSowingView> sowingWithSeeds = new();
     private List<PlantSowingView> sowingWithoutSeeds = new();
@@ -225,7 +227,7 @@
         allSowingViews.Where(s => SowingHelper.GetStaleWarning(
             s.Status,
             s.StatusUpdatedAt,
-            s.SownDate).show);
+            s.SownDate, notifSettings).show);
 
     private List<SowingView> allSowingViews = new();
 
@@ -274,6 +276,7 @@
             var profileTask = ProfileService.GetUserProfile();
             var sowingsTask = SowingService.GetMySowings();
             var sowingViewsTask = SowingService.GetMySowingViews();
+            notifSettings = await NotificationSettingsService.GetAsync();
 
             userProfile = await profileTask;
 

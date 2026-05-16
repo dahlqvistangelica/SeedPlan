@@ -1,4 +1,5 @@
 ﻿@inject IJSRuntime JS
+@inject NotificationSettingsService NotificationSettingsService
 
 @if (sowing != null)
 {
@@ -35,7 +36,7 @@
 
             <div class="compact-meta">
                 @{
-                    var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate);
+                    var warning = SowingHelper.GetStaleWarning(sowing.Status, sowing.StatusUpdatedAt, sowing.SownDate, notificationSettings);
                 }
                 @if (warning.show || (sowing.Status == 2 && sowing.RequiresTopping == true))
                 {
@@ -52,9 +53,12 @@
 @code {
     [Parameter] public SowingView sowing { get; set; } = new();
     [Parameter] public EventCallback<SowingView> OnClick { get; set; }
+    NotificationSettings notificationSettings = new();
+
 
     public async Task HandleOnClick()
     {
+        
         if(OnClick.HasDelegate)
         {
             await OnClick.InvokeAsync(sowing);

@@ -56,5 +56,13 @@ namespace SeedPlan.Shared.Models.ViewModels
         public int BatchNumber { get; set; }
         [Column("hardiness_level")]
         public int HardinessLevel { get; set; }
+        [Column("plant_id")]
+        public int PlantId { get; set; }
+        
+        [Column("sowing_lead_time_min")]
+        public int? SowingLeadTimeMin { get; set; }
+
+        [Column("sowing_lead_time")]
+        public int? SowingLeadTimeMax { get; set; }
     }
 }
